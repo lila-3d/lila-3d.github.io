@@ -469,6 +469,8 @@ code {
 }
 
 .compare .old pre { color: #8a8f97; }
+.compare .old figcaption { font-style: italic; }
+.compare .new figcaption { font-weight: 650; color: var(--text); }
 .compare .new { border-color: rgba(61,139,255,.45); }
 .k { color: #c792ea; }
 .f { color: var(--accent-soft); }
@@ -723,14 +725,14 @@ footer p { margin: 0 0 6px; }
       </li>
     </ul>
     <div class="compare">
+      <figure class="new">
+        <figcaption>Lila</figcaption>
+<pre><code><span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="s">"spine_03"</span>)</code></pre>
+      </figure>
       <figure class="old">
         <figcaption>Maya</figcaption>
 <pre><code><span class="k">import</span> maya.cmds <span class="k">as</span> cmds
 cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="s">"spine_03"</span>)</code></pre>
-      </figure>
-      <figure class="new">
-        <figcaption>Lila</figcaption>
-<pre><code><span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="s">"spine_03"</span>)</code></pre>
       </figure>
     </div>
   </section>
