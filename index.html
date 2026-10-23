@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lila: game-asset DCC</title>
+<meta name="description" content="Game-asset DCC: Maya-style workflow, modern multithreaded core, Unreal-first pipeline. Coming soon.">
+<meta property="og:title" content="Lila: coming soon">
+<meta property="og:description" content="Game-asset DCC: Maya-style workflow, modern multithreaded core, Unreal-first pipeline.">
+<meta property="og:image" content="https://lila-dcc.github.io/assets/icon.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@Vaei00">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/*
+ * The hero is one scene: a dark viewport sky over an endless grid floor, the banner standing on the horizon under
+ * the Lila icon, mirrored in the floor. Everything in it hangs off --horizon and --icon.
+ *
+ * Palette:
+ *   ink #0c0d0f  sky #15171a  haze #24282e  line #2f3338
+ *   quiet #7d828a  mid #a0a4ab  pale #e9eaec  blue #3d8bff
+ */
+
+:root {
+  --ground: #0c0d0f;
+  --panel: #17191c;
+  --line: #2f3338;
+  --text: #e9eaec;
+  --muted: #a0a4ab;
+  --quiet: #7d828a;
+  --accent: #3d8bff;
+  --accent-soft: #8fbaff;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--ground); }
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--ground);
+  font-family: "Archivo", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.wrap {
+  width: min(1120px, 100% - 32px);
+  margin-inline: auto;
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .25; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .72; }
+}
+
+/* ---- The scene ---- */
+
+.scene {
+  position: relative;
+  height: 100svh;
+  min-height: 620px;
+  container-type: size;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(180deg, #0c0d0f 0%, #15171a 45%, #24282e 60%, #0c0d0f 60%);
+}
+
+.scene > * {
+  --horizon: 60cqh;
+  --icon: clamp(130px, 22cqh, 240px);
+  --soon: clamp(1.5rem, 7.4cqw, 6.5rem);
+  position: absolute;
+}
+
+/* A band of haze on the horizon, so the sky meets the floor in light rather than at an edge. */
+.haze {
+  left: 0;
+  right: 0;
+  top: calc(var(--horizon) - 110px);
+  height: 190px;
+  background: linear-gradient(180deg, transparent, rgba(61,139,255,.07) 58%, transparent);
+  z-index: 1;
+}
+
+.floor {
+  left: 0;
+  right: 0;
+  top: var(--horizon);
+  bottom: 0;
+  overflow: hidden;
+  perspective: 380px;
+  perspective-origin: 50% 0;
+  background: linear-gradient(180deg, #121417, var(--ground));
+}
+
+/* The grid, laid flat away from the eye and scrolling toward it one cell per loop. */
+.plane {
+  position: absolute;
+  left: -400%;
+  right: -400%;
+  top: 0;
+  height: 2400px;
+  transform-origin: 50% 0;
+  transform: rotateX(78deg);
+  background-image:
+    linear-gradient(rgba(233,234,236,.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(233,234,236,.10) 1px, transparent 1px),
+    linear-gradient(rgba(233,234,236,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(233,234,236,.035) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  background-position: center 0;
+  animation: travel 6s linear infinite;
+}
+
+@keyframes travel { to { background-position: center 120px; } }
+
+/* The light path: grid under the icon lit in blue, widening toward the eye. */
+.plane::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 420px;
+  margin-left: -210px;
+  background: linear-gradient(90deg, transparent, rgba(61,139,255,.10) 50%, transparent);
+}
+
+/* Covers the floor's far edge, where lines crowd into a solid band. */
+.veil {
+  left: 0;
+  right: 0;
+  top: var(--horizon);
+  height: 18cqh;
+  background: linear-gradient(180deg, #24282e, rgba(36,40,46,0));
+}
+
+.horizon {
+  left: 0;
+  right: 0;
+  top: calc(var(--horizon) - 1px);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(61,139,255,.03), rgba(61,139,255,.25) 30%, rgba(143,186,255,.8) 50%, rgba(61,139,255,.25) 70%, rgba(61,139,255,.03));
+  z-index: 2;
+}
+
+.bloom {
+  left: 50%;
+  top: var(--horizon);
+  width: calc(var(--icon) * 3.6);
+  aspect-ratio: 1;
+  transform: translate(-50%, -55%);
+  background: radial-gradient(circle, rgba(61,139,255,.30) 0%, rgba(61,139,255,.09) 32%, transparent 66%);
+  animation: pulse 3.7s ease-in-out infinite;
+  z-index: 1;
+}
+
+.flare {
+  left: 50%;
+  top: calc(var(--horizon) - 1px);
+  width: min(1100px, 92vw);
+  height: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(220,234,255,.75) 50%, transparent);
+  z-index: 2;
+}
+
+/* ---- The lockup ---- */
+
+.topbar {
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1120px, 100% - 32px);
+  margin-inline: auto;
+  padding-block: 22px;
+  animation: fade-in 1.4s ease-out;
+}
+
+.brand {
+  padding-left: .5em;
+  font-weight: 300;
+  font-size: 1.0625rem;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.topbar a.gh {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .8125rem;
+  letter-spacing: .12em;
+  color: var(--quiet);
+  text-decoration: none;
+}
+
+.topbar a.gh:hover { color: var(--text); }
+
+.lockup {
+  left: 0;
+  right: 0;
+  bottom: calc(100cqh - var(--horizon));
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: rise-in 1.2s cubic-bezier(.2,.7,.2,1);
+}
+
+.soon {
+  margin: clamp(16px, 3cqh, 32px) 0 0;
+  font-size: var(--soon);
+  font-weight: 850;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  line-height: .86;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Starts as a wireframe outline and shades in, like a viewport switching display modes. */
+.lockup .soon {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent-soft);
+  background: linear-gradient(180deg, #ffffff 0%, #d6d9de 46%, #9097a1 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  background-size: 100% 0%;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  animation: shade 1.1s cubic-bezier(.2,.7,.2,1) 1s forwards, wire-dim .6s ease 1.9s forwards;
+}
+
+@keyframes shade { to { background-size: 100% 100%; } }
+@keyframes wire-dim { to { -webkit-text-stroke-color: rgba(143,186,255,.35); } }
+
+.lockup .icon {
+  display: block;
+  width: var(--icon);
+  height: auto;
+  filter: drop-shadow(0 0 36px rgba(61,139,255,.45));
+}
+
+/* The banner's reflection in the floor. */
+.reflection {
+  left: 0;
+  right: 0;
+  top: var(--horizon);
+  z-index: 2;
+  text-align: center;
+  transform: scaleY(-1);
+  color: rgba(143,186,255,.08);
+  -webkit-mask-image: linear-gradient(0deg, #000 0%, transparent 85%);
+          mask-image: linear-gradient(0deg, #000 0%, transparent 85%);
+  animation: fade-in 2.4s ease-out;
+}
+
+.reflection .soon { margin: 0; }
+
+.below {
+  left: 0;
+  right: 0;
+  top: calc(var(--horizon) + var(--soon) * 1.05);
+  z-index: 3;
+  text-align: center;
+  padding-inline: 16px;
+  animation: fade-in 1.8s ease-out;
+}
+
+.tagline {
+  max-width: 40ch;
+  margin: 0 auto;
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.prompt {
+  margin: clamp(14px, 3cqh, 26px) 0 0;
+  padding-left: .5em;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: clamp(.75rem, 1.2vw, .9375rem);
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+.hud {
+  left: 0;
+  right: 0;
+  bottom: 28px;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  width: min(1120px, 100% - 32px);
+  margin-inline: auto;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .8125rem;
+  letter-spacing: .12em;
+  color: var(--quiet);
+  animation: fade-in 1.4s ease-out;
+}
+
+.hud .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 12px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(61,139,255,.8);
+  animation: blink .9s ease-in-out infinite;
+}
+
+/* ---- Content ---- */
+
+.intro {
+  padding-block: clamp(72px, 10vw, 128px) clamp(48px, 7vw, 88px);
+}
+
+.intro p {
+  max-width: 30ch;
+  margin: 0;
+  font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+  font-weight: 450;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+
+.intro p.scale {
+  max-width: 56ch;
+  text-wrap: pretty;
+  margin-top: 28px;
+  font-size: clamp(1.125rem, 1.9vw, 1.375rem);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.shot {
+  margin: 0 0 clamp(64px, 9vw, 112px);
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  box-shadow: 0 40px 90px -30px rgba(0,0,0,.7);
+}
+
+.shot figcaption {
+  margin-top: 12px;
+  font-size: .9375rem;
+  color: var(--muted);
+}
+
+.area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: 24px clamp(24px, 5vw, 72px);
+  padding-block: clamp(36px, 5vw, 56px);
+  border-top: 1px solid var(--line);
+}
+
+.area h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 750;
+  font-stretch: 112%;
+  font-variation-settings: "wdth" 112;
+  line-height: 1.2;
+}
+
+.area ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.area li h3 {
+  margin: 0 0 4px;
+  font-size: 1.0625rem;
+  font-weight: 650;
+}
+
+.area li p {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--muted);
+}
+
+code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .9em;
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+  grid-column: 1 / -1;
+}
+
+.compare figure {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.compare figcaption {
+  padding: 10px 16px;
+  font-size: .875rem;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.compare pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .875rem;
+  line-height: 1.7;
+}
+
+.compare .old pre { color: #8a8f97; }
+.compare .new { border-color: rgba(61,139,255,.45); }
+.k { color: #c792ea; }
+.f { color: var(--accent-soft); }
+.s { color: #c3e88d; }
+
+.author p {
+  max-width: 48ch;
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.author dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 48px;
+  margin: 28px 0 0;
+}
+
+.author dt {
+  font-size: 1.0625rem;
+  font-weight: 650;
+}
+
+.author dd {
+  margin: 0;
+  color: var(--muted);
+}
+
+.closing {
+  padding-block: clamp(72px, 10vw, 128px);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.closing h2 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 250;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+.closing p {
+  max-width: 44ch;
+  text-wrap: balance;
+  margin: 18px auto 28px;
+  color: var(--muted);
+}
+
+.closing .platforms {
+  max-width: 62ch;
+  margin: 28px auto 0;
+  font-size: .9375rem;
+  color: var(--quiet);
+}
+
+.button {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color .15s ease;
+}
+
+.button:hover { background: #2f78ec; }
+
+footer {
+  padding-block: 28px 40px;
+  border-top: 1px solid var(--line);
+  font-size: .8125rem;
+  color: #7d828a;
+}
+
+footer p { margin: 0 0 6px; }
+
+@media (max-width: 760px) {
+  .area { grid-template-columns: 1fr; }
+  .area ul { grid-template-columns: 1fr; }
+  .compare { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; }
+  .lockup .soon { background-size: 100% 100%; -webkit-text-stroke-color: rgba(143,186,255,.35); }
+}
+</style>
+
+</head>
+<body>
+
+<header class="scene">
+  <div class="floor" aria-hidden="true"><div class="plane"></div></div>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="haze" aria-hidden="true"></div>
+  <div class="bloom" aria-hidden="true"></div>
+  <div class="horizon" aria-hidden="true"></div>
+  <div class="flare" aria-hidden="true"></div>
+  <div class="reflection" aria-hidden="true"><div class="soon">Coming soon</div></div>
+
+  <nav class="topbar" aria-label="Site">
+    <a class="brand" href="./">Lila</a>
+    <a class="gh" href="https://x.com/Vaei00">@Vaei00</a>
+  </nav>
+
+  <div class="lockup">
+    <img class="icon" src="assets/icon.png" alt="Lila logo" width="240" height="240">
+    <h1 class="soon">Coming soon</h1>
+  </div>
+
+  <div class="below">
+    <p class="tagline">Game-asset DCC: Maya-style workflow, modern multithreaded core, Unreal-first pipeline.</p>
+    <p class="prompt">Stay tuned</p>
+  </div>
+
+  <div class="hud">
+    <span><span class="dot" aria-hidden="true"></span>In development</span>
+    <span>Not released yet</span>
+  </div>
+</header>
+
+<main>
+  <section class="intro wrap">
+    <p>Lila takes its UX and workflow from Maya, then rebuilds everything else for game developers: a modern stack, real multithreading, and high-end tools across the board.</p>
+    <p class="scale">Lila fits a solo indie as well as a AAA studio's full production pipeline, and every part of it is built to be extended. Its architecture is designed to last, not patched together.</p>
+  </section>
+
+  <figure class="shot wrap">
+    <img src="assets/viewport.png" alt="Lila's viewport" onerror="this.closest('figure').remove()">
+    <figcaption>The realtime viewport.</figcaption>
+  </figure>
+
+  <section class="area wrap" aria-labelledby="pipeline">
+    <h2 id="pipeline">Pipeline</h2>
+    <ul>
+      <li>
+        <h3>Live Unreal sync</h3>
+        <p>Send a mesh to Unreal once. From then on every save reimports it, with no export and import dance.</p>
+      </li>
+      <li>
+        <h3>VFX meshes, straight to Unreal</h3>
+        <p>Build them in the node editor with keyable inputs, then send them as a Niagara mesh flipbook or an Alembic cache.</p>
+      </li>
+      <li>
+        <h3>Collision meshes</h3>
+        <p>Generate correctly oriented bounding meshes. Use them as <code>UCX_</code> starting points or as-is.</p>
+      </li>
+      <li>
+        <h3>Opens Maya scenes</h3>
+        <p>Open <code>.mb</code> and <code>.ma</code> files and convert them to Lila scenes.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="modeling">
+    <h2 id="modeling">Modeling and UVs</h2>
+    <ul>
+      <li>
+        <h3>Symmetry that stays exact</h3>
+        <p>Across modeling, UVs, weights and joints. Precision never drifts one side away from the other.</p>
+      </li>
+      <li>
+        <h3>Auto-bevel</h3>
+        <p>Lila picks the edges you'd bevel, so you don't select them by hand.</p>
+      </li>
+      <li>
+        <h3>Edge loop to faces</h3>
+        <p>Turn an edge loop into the faces it encloses in one step.</p>
+      </li>
+      <li>
+        <h3>UVs that unwrap well</h3>
+        <p>Auto-unwrap that gives good results, live physics-based relax, flatten and settle, and paintable modifiers such as relax, flatten, smooth boundary and pin.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="animation">
+    <h2 id="animation">Rigging and animation</h2>
+    <ul>
+      <li>
+        <h3>Animation, taken further</h3>
+        <p>Inspired by Akeytsu, with Jolt physics for procedural motion and physics-based posing, and space switching built in.</p>
+      </li>
+      <li>
+        <h3>Rigging your way</h3>
+        <p>Automated rigs when you want speed, film-grade control when you don't.</p>
+      </li>
+      <li>
+        <h3>Euler or quaternion</h3>
+        <p>Switch any joint between the two. Gimbal lock only when you choose it.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="workflow">
+    <h2 id="workflow">Working in Lila</h2>
+    <ul>
+      <li>
+        <h3>Light and quick</h3>
+        <p>Lila feels light next to other DCCs: fast to work in, easy to learn and out of your way.</p>
+      </li>
+      <li>
+        <h3>Modern viewport</h3>
+        <p>A Vulkan renderer built for realtime: image-based lighting, clean anti-aliasing, a neutral backdrop that doesn't skew your colours.</p>
+      </li>
+      <li>
+        <h3>Find any tool</h3>
+        <p>Press Ctrl+T and type. No hunting through menus for the editor you can't remember the location of.</p>
+      </li>
+      <li>
+        <h3>Shareable parameter windows</h3>
+        <p>Build a custom parameter window, then copy it as text or export it for someone else to use.</p>
+      </li>
+      <li>
+        <h3>Agentic workflows</h3>
+        <p>Built-in support for AI agents, which can drive the same commands you do.</p>
+      </li>
+      <li>
+        <h3>Themes</h3>
+        <p>Change the look to suit you.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="scripting">
+    <h2 id="scripting">Scripting and extensions</h2>
+    <ul>
+      <li>
+        <h3>Python without the ceremony</h3>
+        <p>No imports or namespaces, just the command.</p>
+      </li>
+      <li>
+        <h3>A real script editor</h3>
+        <p>Completion, auto-format, inline docs and relative line numbers. You won't miss an external IDE.</p>
+      </li>
+      <li>
+        <h3>Batch over whole directories</h3>
+        <p>Need to change, or gather data from, 100 scenes? Script it once, then run it over a directory with powerful file filtering.</p>
+      </li>
+      <li>
+        <h3>Declarative UI</h3>
+        <p>Build tool windows from Python without wrestling a layout system.</p>
+      </li>
+      <li>
+        <h3>C++ extensions</h3>
+        <p>Designed for extensions from the ground up, with a published SDK.</p>
+      </li>
+    </ul>
+    <div class="compare">
+      <figure class="old">
+        <figcaption>Maya</figcaption>
+<pre><code><span class="k">import</span> maya.cmds <span class="k">as</span> cmds
+cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="s">"spine_03"</span>)</code></pre>
+      </figure>
+      <figure class="new">
+        <figcaption>Lila</figcaption>
+<pre><code><span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="s">"spine_03"</span>)</code></pre>
+      </figure>
+    </div>
+  </section>
+
+  <section class="area wrap" aria-labelledby="author">
+    <h2 id="author">Who's building it</h2>
+    <div class="author">
+      <p>Lila is designed and built by Jared Taylor, who architected it around what real production pipelines need.</p>
+      <dl>
+        <div><dt>14+ years</dt><dd>in Maya</dd></div>
+        <div><dt>12+ years</dt><dd>in Unreal Engine</dd></div>
+        <div><dt>Film and games</dt><dd>full production pipelines in both</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="closing wrap" aria-labelledby="follow">
+    <h2 id="follow">Not ready yet</h2>
+    <p>Lila is in active development and has no public build. Follow along on X for progress and the first release.</p>
+    <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 on X</a>
+    <p class="platforms">Windows first. The source opens at release, so macOS and Linux users can build it themselves. Bug reports welcome.</p>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Lila is not affiliated with Autodesk or Epic Games. Maya is a registered trademark of Autodesk, Inc. Unreal Engine is a trademark of Epic Games, Inc.</p>
+  <p>&copy; 2026 Jared Taylor</p>
+</footer>
+
+</body>
+</html>
