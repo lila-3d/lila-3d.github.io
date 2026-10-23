@@ -476,6 +476,61 @@ code {
 .f { color: var(--accent-soft); }
 .s { color: #c3e88d; }
 
+.updated {
+  margin: 6px 0 0;
+  font-size: .9375rem;
+  color: var(--quiet);
+}
+
+.area ul.progress {
+  display: block;
+}
+
+.progress li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4ch;
+  align-items: center;
+  gap: 6px 16px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.progress li:first-child { padding-top: 0; }
+.progress li:last-child { border-bottom: 0; }
+
+.progress .name { font-weight: 650; }
+
+.progress .pct {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.progress .bar {
+  grid-column: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.progress .bar span {
+  display: block;
+  width: var(--p);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1f5fe0, var(--accent));
+  box-shadow: 0 0 10px rgba(61,139,255,.5);
+}
+
+.progress .note {
+  grid-column: 1;
+  font-size: .9375rem;
+  color: var(--muted);
+}
+
 .author p {
   max-width: 48ch;
   margin: 0;
@@ -499,6 +554,19 @@ code {
   margin: 0;
   color: var(--muted);
 }
+
+.author p.hire {
+  margin-top: 28px;
+  font-size: 1.0625rem;
+  color: var(--muted);
+}
+
+.author p.hire a {
+  color: var(--accent-soft);
+  text-underline-offset: 3px;
+}
+
+.author p.hire a:hover { color: var(--text); }
 
 .closing {
   padding-block: clamp(72px, 10vw, 128px);
@@ -737,6 +805,63 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     </div>
   </section>
 
+  <section class="area wrap" aria-labelledby="progress">
+    <div>
+      <h2 id="progress">Progress</h2>
+      <p class="updated">Updated <time datetime="2026-10-23T22:49Z">23 October 2026, 22:49 UTC</time></p>
+    </div>
+    <ul class="progress">
+      <li style="--p: 95%">
+        <span class="name">Modeling</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">95%</span>
+        <span class="note">UX polish and bug testing</span>
+      </li>
+      <li style="--p: 95%">
+        <span class="name">UV editing</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">95%</span>
+        <span class="note">UX polish and bug testing</span>
+      </li>
+      <li style="--p: 50%">
+        <span class="name">Texture baking (GPU)</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">50%</span>
+        <span class="note">Early prototype, mostly untested</span>
+      </li>
+      <li style="--p: 80%">
+        <span class="name">Geometry nodes</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">80%</span>
+        <span class="note">UX polish and bug testing, more nodes coming</span>
+      </li>
+      <li style="--p: 60%">
+        <span class="name">Rigging</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">60%</span>
+        <span class="note">Early prototype, mostly untested</span>
+      </li>
+      <li style="--p: 40%">
+        <span class="name">Animation, Puppeteer and physics</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">40%</span>
+        <span class="note">Early prototype, mostly untested</span>
+      </li>
+      <li style="--p: 95%">
+        <span class="name">Python scripting</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">95%</span>
+        <span class="note">Feature complete, further testing pending</span>
+      </li>
+      <li style="--p: 90%">
+        <span class="name">C++ extensions</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">90%</span>
+        <span class="note">Several extensions working, more SDK features coming</span>
+      </li>
+    </ul>
+  </section>
+
   <section class="area wrap" aria-labelledby="author">
     <h2 id="author">Who's building it</h2>
     <div class="author">
@@ -746,6 +871,7 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <div><dt>12+ years</dt><dd>in Unreal Engine</dd></div>
         <div><dt>Film and games</dt><dd>full production pipelines in both</dd></div>
       </dl>
+      <p class="hire">Open to contract work. <a href="https://vaei.github.io/">Portfolio, résumé and contact</a></p>
     </div>
   </section>
 
