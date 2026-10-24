@@ -374,6 +374,60 @@ a:focus-visible {
   color: var(--muted);
 }
 
+.pipeline {
+  padding-block: 0 clamp(64px, 9vw, 112px);
+}
+
+.pipeline h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 750;
+  font-stretch: 112%;
+  font-variation-settings: "wdth" 112;
+  line-height: 1.15;
+}
+
+.chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 0;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .875rem;
+  letter-spacing: .08em;
+}
+
+.chain li {
+  display: flex;
+  align-items: center;
+  color: var(--text);
+}
+
+.chain li:not(:last-child)::after {
+  content: "";
+  width: clamp(16px, 3vw, 40px);
+  height: 1px;
+  margin-inline: 12px;
+  background: linear-gradient(90deg, var(--line), var(--accent));
+}
+
+.chain li.end {
+  padding: 4px 12px;
+  border: 1px solid rgba(61,139,255,.5);
+  border-radius: 999px;
+  color: var(--accent-soft);
+  box-shadow: 0 0 18px rgba(61,139,255,.25);
+}
+
+.pipeline p {
+  max-width: 60ch;
+  margin: 28px 0 0;
+  font-size: 1.125rem;
+  color: var(--muted);
+}
+
 .shot {
   margin: 0 0 clamp(64px, 9vw, 112px);
 }
@@ -623,6 +677,14 @@ footer {
 footer p { margin: 0 0 6px; }
 
 @media (max-width: 760px) {
+  .chain { flex-direction: column; align-items: flex-start; gap: 0; }
+  .chain li { flex-direction: column; align-items: flex-start; }
+  .chain li:not(:last-child)::after {
+    width: 1px;
+    height: 14px;
+    margin: 6px 0 6px 8px;
+    background: linear-gradient(180deg, var(--line), var(--accent));
+  }
   .area { grid-template-columns: 1fr; }
   .area ul { grid-template-columns: 1fr; }
   .compare { grid-template-columns: 1fr; }
@@ -673,6 +735,20 @@ footer p { margin: 0 0 6px; }
     <p class="scale">Lila fits a solo indie as well as a AAA studio's full production pipeline, and every part of it is built to be extended. Its architecture is designed to last, not patched together.</p>
   </section>
 
+  <section class="pipeline wrap" aria-labelledby="one-tool">
+    <h2 id="one-tool">One tool, from first polygon to Unreal</h2>
+    <ol class="chain">
+      <li>Model</li>
+      <li>Unwrap</li>
+      <li>Bake</li>
+      <li>Texture</li>
+      <li>Rig</li>
+      <li>Animate</li>
+      <li class="end">Unreal</li>
+    </ol>
+    <p>No exporting FBXs or textures between apps, and no separate UV tool, baker, painter or material generator. Everything happens in Lila and lands in Unreal on save.</p>
+  </section>
+
   <figure class="shot wrap">
     <img src="assets/viewport.png" alt="Lila's viewport" onerror="this.closest('figure').remove()">
     <figcaption>The realtime viewport.</figcaption>
@@ -687,7 +763,7 @@ footer p { margin: 0 0 6px; }
       </li>
       <li>
         <h3>VFX meshes, straight to Unreal</h3>
-        <p>Build them in the node editor with keyable inputs, then send them as a Niagara mesh flipbook or an Alembic cache.</p>
+        <p>Build animated meshes with geometry nodes, then send them as a Niagara mesh flipbook or an Alembic cache.</p>
       </li>
       <li>
         <h3>Collision meshes</h3>
@@ -701,7 +777,7 @@ footer p { margin: 0 0 6px; }
   </section>
 
   <section class="area wrap" aria-labelledby="modeling">
-    <h2 id="modeling">Modeling and UVs</h2>
+    <h2 id="modeling">Modeling, sculpting and UVs</h2>
     <ul>
       <li>
         <h3>Symmetry that stays exact</h3>
@@ -709,15 +785,41 @@ footer p { margin: 0 0 6px; }
       </li>
       <li>
         <h3>Auto-bevel</h3>
-        <p>Lila picks the edges you'd bevel, so you don't select them by hand.</p>
+        <p>Lila can pick the edges you'd bevel, so you don't have to select them by hand.</p>
+      </li>
+      <li>
+        <h3>Sculpting</h3>
+        <p>Sculpting tools built into modeling, for shaping and refining meshes without leaving Lila.</p>
       </li>
       <li>
         <h3>Edge loop to faces</h3>
         <p>Turn an edge loop into the faces it encloses in one step.</p>
       </li>
       <li>
+        <h3>Geometry nodes</h3>
+        <p>Procedural modeling in a node graph with keyable inputs, for anything from props to VFX meshes.</p>
+      </li>
+      <li>
         <h3>UVs that unwrap well</h3>
         <p>Auto-unwrap that gives good results, live physics-based relax, flatten and settle, and paintable modifiers such as relax, flatten, smooth boundary and pin.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="texturing">
+    <h2 id="texturing">Baking and texturing</h2>
+    <ul>
+      <li>
+        <h3>GPU texture baking</h3>
+        <p>Bake the mesh maps you need for texturing on the GPU, with channel packing and UDIMs.</p>
+      </li>
+      <li>
+        <h3>Material nodes</h3>
+        <p>Build procedural materials in a node graph, with every baked mesh map available as an input.</p>
+      </li>
+      <li>
+        <h3>3D painting</h3>
+        <p>Paint layers directly on the mesh with materials, not just colours: paint rust and the rust material fills every channel.</p>
       </li>
     </ul>
   </section>
@@ -761,7 +863,7 @@ footer p { margin: 0 0 6px; }
       </li>
       <li>
         <h3>Agentic workflows</h3>
-        <p>Built-in support for AI agents, which can drive the same commands you do.</p>
+        <p>Built-in support for AI agents, which drive the same commands you do. Describe an effect and an agent builds the geometry node graph for it.</p>
       </li>
       <li>
         <h3>Themes</h3>
@@ -810,7 +912,7 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   <section class="area wrap" aria-labelledby="progress">
     <div>
       <h2 id="progress">Progress</h2>
-      <p class="updated">Updated <time datetime="2026-10-24T04:00Z">24 October 2026, 04:00 UTC</time></p>
+      <p class="updated">Updated <time datetime="2026-10-24T04:14Z">24 October 2026, 04:14 UTC</time></p>
     </div>
     <ul class="progress">
       <li style="--p: 95">
@@ -818,6 +920,12 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="bar" aria-hidden="true"><span></span></span>
         <span class="pct">95%</span>
         <span class="note">UX polish and bug testing</span>
+      </li>
+      <li style="--p: 65">
+        <span class="name">3D sculpting</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">65%</span>
+        <span class="note">Early stages, needs more testing</span>
       </li>
       <li style="--p: 95">
         <span class="name">UV editing</span>
@@ -885,7 +993,7 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <div><dt>12+ years</dt><dd>in Unreal Engine</dd></div>
         <div><dt>Film and games</dt><dd>full production pipelines in both</dd></div>
       </dl>
-      <p class="hire">Open to contract work. <a href="https://vaei.github.io/">Portfolio, résumé and contact</a></p>
+      <p class="hire"><a href="https://vaei.github.io/">Portfolio, résumé and contact</a></p>
     </div>
   </section>
 
