@@ -379,6 +379,36 @@ a:focus-visible {
   color: var(--muted);
 }
 
+.mission {
+  margin: 0;
+}
+
+.mission blockquote {
+  max-width: 56ch;
+  margin: 0;
+  padding-left: clamp(20px, 3vw, 32px);
+  border-left: 2px solid var(--accent);
+}
+
+.mission p {
+  margin: 0 0 16px;
+  font-size: clamp(1.125rem, 1.9vw, 1.375rem);
+  font-style: italic;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.mission p:last-child { margin-bottom: 0; }
+
+.mission figcaption {
+  margin-top: 14px;
+  padding-left: calc(clamp(20px, 3vw, 32px) + 2px);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .8125rem;
+  letter-spacing: .12em;
+  color: var(--quiet);
+}
+
 .pipeline {
   padding-block: 0 clamp(64px, 9vw, 112px);
 }
@@ -924,11 +954,17 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   <section class="area wrap" aria-labelledby="progress">
     <div>
       <h2 id="progress">Progress</h2>
-      <p class="updated">Updated <time datetime="2026-10-24T04:14Z">24 October 2026, 04:14 UTC</time></p>
+      <p class="updated">Updated <time datetime="2026-10-24T22:42Z">24 October 2026, 22:42 UTC</time></p>
     </div>
     <ul class="progress">
       <li style="--p: 95">
         <span class="name">Modeling</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">95%</span>
+        <span class="note">UX polish and bug testing</span>
+      </li>
+      <li style="--p: 95">
+        <span class="name">Curves</span>
         <span class="bar" aria-hidden="true"><span></span></span>
         <span class="pct">95%</span>
         <span class="note">UX polish and bug testing</span>
@@ -938,6 +974,12 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="bar" aria-hidden="true"><span></span></span>
         <span class="pct">65%</span>
         <span class="note">Early stages, needs more testing</span>
+      </li>
+      <li style="--p: 50">
+        <span class="name">Retopology</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">50%</span>
+        <span class="note">Manual retopology working, more tools coming, auto-retopology in research</span>
       </li>
       <li style="--p: 95">
         <span class="name">UV editing</span>
@@ -994,6 +1036,17 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="note">Several extensions working, more SDK features coming</span>
       </li>
     </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="why">
+    <h2 id="why">Why Lila</h2>
+    <figure class="mission">
+      <blockquote>
+        <p>I adopted Maya's workflow because it's the best in the industry. Maya's technology is another story: the core and the modeling, UV, rigging and animation tools all date from another era. So Lila keeps the workflow and rebuilds the rest, pushing the technology forward in every one of those areas.</p>
+        <p>Other tools either boxed me in or treated speed as an afterthought. I built Lila so I could create content rapidly, and every tool is designed to save steps: snap a primitive onto a surface, join shapes with a quick boolean, remesh the result, and let auto-bevel pick the edges. With the whole pipeline in one place, nothing slows you down between steps.</p>
+      </blockquote>
+      <figcaption>Jared Taylor, creator of Lila</figcaption>
+    </figure>
   </section>
 
   <section class="area wrap" aria-labelledby="author">
