@@ -1,0 +1,107 @@
+/* Docsify's dark theme, recoloured to the main site's palette. */
+
+:root {
+  --ground: #0c0d0f;
+  --panel: #17191c;
+  --line: #2f3338;
+  --text: #e9eaec;
+  --muted: #a0a4ab;
+  --quiet: #7d828a;
+  --accent: #3d8bff;
+  --accent-soft: #8fbaff;
+}
+
+html, body { background: var(--ground); }
+
+body {
+  color: var(--text);
+  font-family: "Archivo", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+
+.sidebar > h1 {
+  margin: 28px 0 20px;
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+
+.sidebar > h1 a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.sidebar > h1 img {
+  width: 28px;
+  height: 28px;
+}
+
+.sidebar ul li a { color: var(--muted); }
+.sidebar ul li a:hover { color: var(--text); }
+.sidebar ul li.active > a { color: var(--accent-soft); border-right-color: var(--accent); }
+
+.sidebar-toggle { background: var(--panel); }
+.sidebar-toggle span { background: var(--muted); }
+
+.search { border-bottom-color: var(--line); }
+
+.search input {
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.markdown-section { max-width: 760px; }
+
+.markdown-section h1,
+.markdown-section h2,
+.markdown-section h3 {
+  color: var(--text);
+  font-weight: 750;
+  font-stretch: 112%;
+  font-variation-settings: "wdth" 112;
+}
+
+.markdown-section h2 {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.markdown-section p,
+.markdown-section li { color: var(--muted); }
+
+.markdown-section strong { color: var(--text); }
+
+.markdown-section a { color: var(--accent-soft); }
+
+.markdown-section code,
+.markdown-section pre {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  background: var(--panel);
+}
+
+.markdown-section code { color: var(--text); }
+
+.markdown-section pre {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.markdown-section blockquote {
+  border-left-color: var(--accent);
+  color: var(--muted);
+}
+
+.markdown-section tr { border-top-color: var(--line); }
+.markdown-section td,
+.markdown-section th { border-color: var(--line); }
+.markdown-section tr:nth-child(2n) { background: var(--panel); }

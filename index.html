@@ -231,6 +231,11 @@ a:focus-visible {
 
 .topbar a.gh:hover { color: var(--text); }
 
+.topbar .links {
+  display: flex;
+  gap: 28px;
+}
+
 .lockup {
   left: 0;
   right: 0;
@@ -710,7 +715,10 @@ footer p { margin: 0 0 6px; }
 
   <nav class="topbar" aria-label="Site">
     <a class="brand" href="./">Lila</a>
-    <a class="gh" href="https://x.com/Vaei00">@Vaei00</a>
+    <span class="links">
+      <a class="gh" href="docs/">Docs</a>
+      <a class="gh" href="https://x.com/Vaei00">@Vaei00</a>
+    </span>
   </nav>
 
   <div class="lockup">
