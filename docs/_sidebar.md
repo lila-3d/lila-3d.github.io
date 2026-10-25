@@ -12,4 +12,5 @@
 - [Home](/)
 - [Essentials](essentials.md)
 - [Curves](curves.md)
+- [Topology](topology.md)
 - [Back to lila-dcc.github.io](https://lila-dcc.github.io/ ':ignore')

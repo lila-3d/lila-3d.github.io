@@ -4314,7 +4314,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `targetFaces` |  | int | `500` | Approximate face count. |
 | `timeout` |  | float | `5.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
-| `adaptivity` |  | float | `0.5` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
+| `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. |
@@ -4754,7 +4754,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `targetFaces` |  | int | `500` | Approximate face count. |
 | `timeout` |  | float | `5.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
-| `adaptivity` |  | float | `0.5` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
+| `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. |
