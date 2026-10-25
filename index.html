@@ -73,11 +73,6 @@ a:focus-visible {
   to { opacity: 1; }
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .25; }
-}
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .72; }
@@ -332,18 +327,6 @@ a:focus-visible {
   font-size: .8125rem;
   letter-spacing: .12em;
   color: var(--quiet);
-}
-
-.status .dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 12px;
-  border-radius: 50%;
-  vertical-align: middle;
-  background: var(--accent);
-  box-shadow: 0 0 6px rgba(61,139,255,.8);
-  animation: blink .9s ease-in-out infinite;
 }
 
 /* ---- Content ---- */
@@ -770,7 +753,7 @@ footer p { margin: 0 0 6px; }
     </ol>
     <p class="tagline">Maya-style workflow, Unreal-first pipeline.</p>
     <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 for the release</a>
-    <p class="status"><span class="dot" aria-hidden="true"></span>In development, not released yet</p>
+    <p class="status">In development, not released yet</p>
   </div>
 </header>
 
