@@ -12,17 +12,6 @@ Press **Ctrl+T** and type. Every menu command is searchable, so you don't need t
 - **Shift+Enter**, or clicking the square at the end of a row, opens the command's options.
 - **Ctrl+F** switches to searching the scene.
 
-## Search the scene
-
-Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It opens the same window as Ctrl+T.
-
-![Scene search showing results for "whale"](images/essentials/scene-search.png)
-
-- **Enter** selects the highlighted item.
-- **Shift+Enter** adds it to the selection.
-- **Ctrl+Enter** toggles it in the selection.
-- **Ctrl+T** switches to searching menus.
-
 ## Hotkey cheat sheet
 
 Hold **F1** to show every hotkey. Release it to close.
@@ -98,17 +87,55 @@ The box at the top of the outliner filters what it shows. It has a regex toggle 
 
 > **Note:** There is no type dropdown. Typing `type:` is the only way to filter by type.
 
+## Search the scene
+
+Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It opens the same window as Ctrl+T.
+
+![Scene search showing results for "whale"](images/essentials/scene-search.png)
+
+- **Enter** selects the highlighted item.
+- **Shift+Enter** adds it to the selection.
+- **Ctrl+Enter** toggles it in the selection.
+- **Ctrl+T** switches to searching menus.
+
 ## Command line
 
 Press **Ctrl+\`** to pop up a command line and type Python straight in. There's nothing to import: commands are available by name.
 
-<!-- TODO image of command line-->
+![Command line in use](images/essentials/command-line.png)
 
 ## Script editor
 
-The script editor has completion, auto-format, inline docs and relative line numbers, so you shouldn't need an external IDE.
+The script editor has completion, signature help, auto-format, inline docs and relative line numbers, so you shouldn't need an external IDE.
 
-<!-- TODO image of script editor -->
+![Script editor with the API reference open at polyCube](images/essentials/script-editor.png)
+
+- **Ctrl+Enter** runs the selection, or the whole tab. **Ctrl+Shift+Enter** runs the `# %%` cell under the cursor.
+- **Ctrl+click** a command or press **F1** on it to open its reference.
+- **Ctrl+Alt+L** formats the selection or the tab with ruff. **Ctrl+Alt+O** sorts imports.
+- To format automatically on save, paste, typing or focus loss, turn it on in **Preferences > Scripting**. A `ruff.toml`, `.ruff.toml` or `pyproject.toml` beside the script or above it overrides the style set there.
+
+### Where scripts are saved
+
+The arrow on **Save** picks where a script lives:
+
+| Location | Saved in | Use it for |
+| --- | --- | --- |
+| Scene | The scene file | Scripts that belong to one scene. |
+| Project | `<workspace>/.lila/scripts` | Scripts shared by everyone on the project. |
+| File | Anywhere on disk | Scripts kept in your own folders or source control. |
+| Global | Your user prefs | Your own tools, in every project. |
+
+The arrow on **Open** lists the scene, project and global scripts. Before a scene runs its own scripts on open, Lila asks first; change this in **Preferences > Scripting**.
+
+### Batch run
+
+**Batch Run** on the script editor toolbar runs a script over many scene files in background workers.
+
+- Pick files, folders or globs (`D:/art/*.lila`, `props/**`), then narrow them by extension, include and exclude globs, or a name prefix, suffix or substring.
+- In the script, `ctx.results["key"] = value` adds a column to the results, which the export button saves as CSV. `ctx.skip("reason")` skips a file.
+- Choose to not save, save in place or save as a copy with a suffix and format, in an output folder that can mirror the source folders.
+- **Preview** lists the files, where each one saves and whether it can be written, without running anything. Read-only files are checked out through source control. Presets save the settings for reuse, and **Retry Failed** reruns the files that failed.
 
 ## Naming conventions
 

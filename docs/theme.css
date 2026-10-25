@@ -105,3 +105,64 @@ body {
 .markdown-section td,
 .markdown-section th { border-color: var(--line); }
 .markdown-section tr:nth-child(2n) { background: var(--panel); }
+
+/* Symbol finder on the Python API pages (api-find.js). Sticky, so it stays in reach down a long page. */
+.api-find {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  background: var(--ground);
+}
+
+.api-find input {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  outline: none;
+}
+
+.api-find input:focus { border-color: var(--accent); }
+
+.markdown-section .api-find-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.markdown-section .api-find-results li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.markdown-section .api-find-results li.active { background: var(--line); }
+.api-find-results code { background: none; padding: 0; }
+.api-find-page { color: var(--quiet); font-size: .8125rem; justify-self: end; }
+
+.api-find-summary {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.markdown-section .api-find-results li.api-find-none { display: block; color: var(--quiet); cursor: default; }
