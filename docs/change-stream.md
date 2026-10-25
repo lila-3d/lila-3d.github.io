@@ -2,6 +2,8 @@
 
 Feed scene changes to your own process as JSON deltas over a local socket: one line per user action, no polling, no USD.
 
+> Available for C++ and Python, in Lila or from any process over the socket. See [Inside Lila](#inside-lila).
+
 ## Get it working
 
 1. Turn it on in **Preferences > General > Change Stream**, or run `changeStream(enable=True)` in the script editor. It listens on `127.0.0.1:8742`.
@@ -88,4 +90,32 @@ Narrow what a client hears with `{"op": "subscribe", ...}`. Lists match any entr
 | `full` | `true` sends whole meshes and large data. |
 | `snapshot` | `true` replies with a filtered snapshot as well. |
 
-Inside Lila, `lila.stream.subscribe(fn, types=, attrs=, under=, full=)` calls `fn` with the same messages as dicts, and `lila.stream.snapshot()` returns one. C++ extensions use `lila::stream::subscribe` in `stream/ChangeStream.h`.
+## Inside Lila
+
+Extensions get the same messages without a socket. Handlers run on the main thread after each action, and an extension's subscriptions go when it unloads.
+
+Python:
+
+```python
+from lila import stream
+
+sub = stream.subscribe(lambda msg: print(msg["type"]), types=["transform"], attrs=["translate"])
+stream.unsubscribe(sub)
+```
+
+C++, from an extension's init:
+
+```cpp
+#include <lila/ChangeStream.h>
+#include <lila/Log.h>
+
+lila::stream::Filter filter;
+filter.types = {"mesh"};
+lila::stream::subscribe(ctx, [](const nlohmann::json& msg) {
+    if (msg["type"] == "group")
+        for (const auto& c : msg["changes"])
+            lila::log::info("{} {}", c["kind"].get<std::string>(), c.value("path", ""));
+}, filter);
+```
+
+`snapshot(filter)` returns the whole scene as a snapshot message in both.

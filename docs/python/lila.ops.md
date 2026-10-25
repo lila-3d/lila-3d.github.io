@@ -1282,6 +1282,32 @@ Move pivots to the centre of each object's bounding box (mesh points, curve poin
 
 **Objects:** objects
 
+### changeStream
+
+Serve scene changes to other processes as JSON lines over TCP: one message per command or undo step, plus resync, scene events and snapshots on request. Returns the server's state.
+
+Without flags it only reports; port or allowRemote alone start or restart it. The general prefs /changeStream/enabled, /port and /localOnly start it with Lila; this command changes the running session only.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | Start (True) or stop (False) the server. |
+| `port` | `p` | int |  | Port to listen on; 0 picks a free one. Default: the /changeStream/port pref, 8742. |
+| `allowRemote` | `ar` | bool |  | Listen on every network interface rather than 127.0.0.1 only. Anyone who can reach the port sees the scene. Default False. |
+
+Not undoable.
+
+```python
+changeStream(enable=True)
+```
+
+```python
+changeStream(enable=True, port=0)["port"]
+```
+
+```python
+changeStream(enable=False)
+```
+
 ### circle
 
 Create an exact circle (a rational NURBS). Returns its name.
@@ -9171,11 +9197,32 @@ pos = xform("cube1", query=True, worldSpace=True, translation=True)
 
 Available when the Destruction extension is loaded.
 
+### addExplosion
+
+Set off an explosion in a destruction: on its frame, pieces within the radius are thrown outward, hardest at the centre. Add as many as you like, at different places and frames. A mesh not yet cracked finer near an explosion gets smaller pieces around the first one that reaches it. Invisible: add your own flash or smoke. Returns the explosion's node in the destruction's group.
+
+**Objects:** destruction (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` | `p` | tuple[float, float, float] |  | Its centre, world space cm. |
+| `frame` | `f` | int |  | Frame it goes off. Default: the current frame. |
+| `blast` | `b` | float | `2000.0` | Speed given to pieces at the centre, cm/s. |
+| `radius` | `r` | float | `300.0` | Pieces this far away or more aren't pushed, cm. |
+
+```python
+addExplosion('Destruction', position=[0, 100, 0], frame=24)
+```
+
+```python
+addExplosion('Wall', position=[250, 80, 20], frame=40, blast=3000, radius=400)
+```
+
 ### breakApart
 
 Break meshes apart like concrete, glass or wood, and (by default) simulate them falling.
 
-Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces, Rigid Body Solver) can be opened and edited in the Node Editor. The settings that matter (pieces, seed, impact, roughness, strength, blast, start frame) show on the modifier and can be keyed. The pieces touching the ground are anchored, so a wall stands until the impact. Returns the modifiers.
+Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces, Rigid Body Solver) can be opened and edited in the Node Editor. The settings that matter (pieces, seed, impact, roughness, strength, blast, start frame) show on the modifier and can be keyed. The pieces touching the ground are anchored, so a wall stands until the impact. Several meshes break together in one simulation (their pieces hit each other) on a new Destruction mesh, with the originals hidden; add explosions with addExplosion. Colliders are meshes the pieces hit that never move or break. Returns the modifiers.
 
 **Objects:** meshes (default the selection)
 
@@ -9189,6 +9236,8 @@ Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces
 | `startFrame` |  | int |  | Frame it breaks on. Default: the start of the playback range. |
 | `simulate` |  | bool | `True` | Simulate the pieces; False only fractures. |
 | `anchor` |  | bool | `True` | Tie the pieces touching the ground to it. |
+| `together` |  | bool | `True` | Several meshes: one simulation where they hit each other. False breaks each on its own. |
+| `colliders` |  | list |  | Meshes the pieces hit that never move or break (the ground around a pit, say). |
 
 ```python
 breakApart('Wall', material='concrete', impact=[0, 120, 15])
@@ -9196,6 +9245,31 @@ breakApart('Wall', material='concrete', impact=[0, 120, 15])
 
 ```python
 breakApart(material='glass', pieces=60, blast=1500)
+```
+
+```python
+breakApart(['WallA', 'WallB', 'Ground'])
+```
+
+### collapse
+
+Make part of a destruction give way from one side to the other, like ground failing under structural damage. Its pieces hold still until the failure reaches them, rumble harder as it nears, then come loose and fall; anything standing on them falls too. The floor under it is lowered by depth so there's somewhere to fall. Running it again on the same part changes the settings. Returns the Collapse node.
+
+**Objects:** destruction (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `part` |  | str |  | Which of the destruction's meshes gives way. Default: the one breakApart was run on. |
+| `start` | `s` | float |  | Frame the first pieces fall. Default: the current frame. |
+| `duration` | `d` | float | `60.0` | Frames for the failure to cross to the far side. |
+| `direction` | `dir` | tuple[float, float, float] |  | Which way the failure travels (world space). Default: +X. |
+| `rumble` | `r` | float | `2.0` | How far pieces shake just before they fall, cm. |
+| `lead` |  | float | `30.0` | Frames of rumbling before a piece falls. |
+| `raggedness` |  | float | `0.25` | 0 is a straight front; 1 drops pieces in any order. |
+| `depth` |  | float | `3000.0` | How far below it the floor is, cm. |
+
+```python
+collapse('Destruction', part='Ground', start=90, duration=60, direction=[1, 0, 0])
 ```
 
 ### exportBreaks

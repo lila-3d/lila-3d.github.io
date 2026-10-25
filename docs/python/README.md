@@ -13,7 +13,7 @@ Commands that take objects use the selection when none are passed.
 
 | Page | Contents |
 | --- | --- |
-| [lila.ops](python/lila.ops.md) | All 859 commands and their flags. |
+| [lila.ops](python/lila.ops.md) | All 862 commands and their flags. |
 | [lila](python/lila.md) | Lila scripting API. |
 | [lila.nodes](python/lila.nodes.md) | Object API over the scene: handles that survive renames, attributes as properties. |
 | [lila.math](python/lila.math.md) | Unreal-flavoured vector math. |
