@@ -19,4 +19,4 @@
 - [Destruction](destruction.md)
 - [Change stream](change-stream.md)
 - [FAQ](faq.md)
-- [Back to lila-dcc.github.io](https://lila-dcc.github.io/ ':ignore')
+- [Back to lila-3d.github.io](https://lila-3d.github.io/ ':ignore')
