@@ -16,6 +16,17 @@ Add objects (every keyable attribute) or plugs to a layer. Returns how many attr
 | --- | --- | --- | --- | --- |
 | `layer` | `l` | str |  | Animation layer. Default: the active one. |
 
+### addCollider
+
+Add colliders to a collision deformer: meshes, or transforms as capsules along their Y.
+
+**Objects:** collision, colliders...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `capsuleRadius` |  | float | `5.0` | Radius for transform colliders. |
+| `capsuleLength` |  | float | `10.0` | Length for transform colliders, along their Y. |
+
 ### addCorrective
 
 Turn a sculpt of the posed mesh into a corrective morph target. The fix is taken back through the skin into rest space (pose-space inversion) so it applies before skinning and matches the sculpt at this pose, and a pose driver reading each driver joint against its rest drives the weight: 1 at this pose, 0 at rest. Several drivers multiply (a combination corrective). Give the sculpt then the base (the base can be left out for a sculpt made by sculptCorrective). Returns {target, drivers, residual}.
@@ -31,6 +42,35 @@ Turn a sculpt of the posed mesh into a corrective morph target. The fix is taken
 | `twistWeight` |  | float | `0.0` | How much twist about the axis counts, 0 ignoring it. |
 | `falloff` |  | str | `'smooth'` | linear \| smooth \| smoother |
 | `keep` |  | bool | `False` | Keep the sculpt mesh instead of deleting it. |
+
+### addDeformHandle
+
+Add a handle to an arap or laplacianDeform deformer (or a mesh's topmost one) for the given or selected points; or, on a bbw deformer, link a transform as a new point handle and rebind. Returns the handle.
+
+**Objects:** deformer or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | list |  | The handle's points: ids, components or set names. Default: the selected components. |
+| `handle` |  | str |  | bbw: an existing transform to use as the handle. Default: a new locator at position=. |
+| `position` |  | tuple[float, float, float] |  | bbw: where the new handle goes, world. |
+
+### addFieldLayer
+
+Add a layer to a field (on top unless index= is given) and return its index. Components layers take points=, set= or the selected components; proximity layers take mesh=.
+
+**Objects:** field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | str | `'shape'` | The layer type. One of `shape`, `components`, `painted`, `proximity`, `uvRegion`, `noise`, `attribute`. |
+| `shape` |  | str |  | Shape layers: the shape. One of `sphere`, `box`, `capsule`, `plane`, `linear`, `radial`, `cone`. |
+| `blend` |  | str |  | Blend mode: add, multiply, max (default), min, subtract or replace. |
+| `params` |  | Any |  | Other layer settings as {key: value} (see fieldLayers for the keys). |
+| `points` |  | list |  | Components layers: point ids. |
+| `set` |  | str |  | Components layers: take the points of this set's components. |
+| `mesh` |  | str |  | Proximity layers: the mesh to measure to (connected to the field). |
+| `index` |  | int |  | Insert at this position, 0 the bottom. |
 
 ### addInBetween
 
@@ -53,15 +93,18 @@ Add joints to a skinCluster with zero weight; their current pose becomes their b
 Add a modifier to the top of a mesh's stack. params sets its parameters. Returns its name. modifierKinds(docs=True) also lists kinds extensions add later.
 
 Kinds:
-- array: Repeats the mesh in a row, each copy shifted by a fixed step. Use it for railings, stairs, tiles and other evenly spaced repeats.
+- array: Repeats the mesh in a row, around a circle or in a grid, each copy stepped from the last. Use it for railings, stairs, tiles, gear teeth and bolts round a flange. Radial with weld on turns one modelled wedge into an exact N-fold whole.
 - autoBevel: Bevels the fold edges it finds live on its input by angle, side and length rules, plus edges picked by hand. Use it for game-art bevels that keep following the mesh as you edit it.
 - bevel: Bevels every edge sharper than an angle so hard corners catch the light. A quick live bevel; Auto Bevel has finer edge rules and hand-picked edges.
 - boolean: A boolean kept live: cuts, joins or intersects this mesh with a cutter mesh, so moving or editing the cutter updates the result. Stack one per cutter. Apply bakes it.
+- curveArray: Repeats the mesh along a curve: by count or spacing, fitted to its length, optional start and end pieces, each copy placed on the curve's frame or bent along it, with random turn, scale and offset. Follows curve edits.
+- curveDeform: Bends the mesh along a curve, its forward axis running along it (Curve Warp, Path Deform): offset, stretch to fit, roll, twist and scale ramps, the curve's tilt and radius. Editing or moving the curve updates it.
 - decimate: Reduces the triangle count while keeping the shape, silhouette, UVs and normals. Use it for LODs or to lighten scans and sculpts.
 - extrude: Extrudes faces, or grows strips off edges, kept live: the faces or edges selected when it was added follow later edits under it, and its thickness and offset stay adjustable. Without a selection it extrudes every face.
 - mirror: Adds a mirrored copy across a plane through the object's origin and welds the seam. Model one half of a symmetrical object and let this build the other.
 - solidify: Gives a surface thickness: an inner shell offset along the normals, joined to the outer one at open borders. Use it to turn planes and open shells into solid panels.
 - subdivision: Smooths the mesh with Catmull-Clark subdivision. Use it to turn a low-poly cage into a smooth high-poly surface.
+- surfaceFlow: Flows the mesh onto a surface (FlowAlongSrf): its XZ footprint maps onto the surface's UV rectangle, or a rectangular patch of quads, and its height follows the surface normal. Editing or moving the surface updates it.
 - transferAttributes: Transfer Attributes kept live: copies UVs, normals, color sets, positions or named layers from a source mesh, so editing or moving the source updates this mesh without baking. Apply bakes the result.
 - triangulate: Splits every face into triangles. Use it to see, or lock in, the triangulation an engine will get.
 - weightedNormals: Weights vertex normals by face area so big flat faces shade flat and the bevels take the curvature. Use it on bevelled hard-surface game meshes.
@@ -100,6 +143,12 @@ Give a transform or joint spaces to animate in: 'world' or other nodes (its pare
 Add members (the selection by default) to a set. Returns the set's members.
 
 **Objects:** set, members
+
+### addWrapDriver
+
+Add driver meshes to a wrap deformer and rebind it.
+
+**Objects:** wrap, drivers...
 
 ### aimConstraint
 
@@ -205,6 +254,131 @@ Apply a library pose to the selected character by node name: namespaces are igno
 | `aliases` | `al` | Any |  | Extra names per pose node: {poseName: [name, ...]}. |
 | `namespace` | `ns` | str |  | Preferred namespace; defaults to the character's. |
 | `onlySelected` | `os` | bool | `False` | Only the selected nodes, not the whole character. |
+
+### arap
+
+Add an as-rigid-as-possible handle deformer to a mesh: each handle region gets a locator that drags it, anchors stay, and the surface bends rigidly between. Returns [deformer, handles...].
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `handles` |  | list |  | One entry per handle: its points as ids, components ("Body.vtx[0:9]") or set names. Default: the selected components as one handle. |
+| `points` |  | list |  | The points of a single handle, as handles= takes them. |
+| `anchors` |  | list |  | Points that stay put, as handles= takes them. |
+| `name` |  | str |  | Name for the deformer. |
+| `iterations` |  | int |  | Rigidity passes (default 8). |
+
+```python
+arap("Arm", handles=["Arm.vtx[120:139]"], anchors=["Arm.vtx[0:19]"])
+```
+
+### array
+
+Make a live array of objects, or edit the array named. The objects become its children and it shows them repeated in a row, around a circle or in a grid about its pivot, drawn and exported as instances. Editing an object updates every copy; bakeArray makes them real objects. Returns the array's path.
+
+Settings left out keep the array's current values (a new array's defaults: linear, 5 copies 100 cm apart).
+
+**Objects:** objects, or one array to edit
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str |  | linear, radial or grid. |
+| `count` | `c` | int |  | Copies including the original, 1 to 10000; along x in grid mode. |
+| `offset` | `o` | tuple[float, float, float] |  | Linear: step between copies in the array's space, cm. |
+| `rotate` | `r` | tuple[float, float, float] |  | Rotation per copy about the centre, degrees (XYZ). |
+| `scale` | `s` | tuple[float, float, float] |  | Scale per copy about the centre. |
+| `axis` | `ax` | str |  | Radial: the axis copies turn about. A new array defaults to the scene's up axis. One of `x`, `y`, `z`. |
+| `angle` | `a` | float |  | Radial: degrees spanned (360 closes the ring), or between neighbours with angleMode step. |
+| `angleMode` | `am` | str |  | Radial: total or step. |
+| `rise` | `ri` | float |  | Radial: climb per copy along the axis, cm. |
+| `countY` | `cy` | int |  | Grid: copies along y. |
+| `countZ` | `cz` | int |  | Grid: copies along z. |
+| `spacing` | `sp` | tuple[float, float, float] |  | Grid: distance between copies along each axis, cm. |
+| `center` | `ce` | tuple[float, float, float] |  | World point the copies turn and scale about (the array's pivot). A new array defaults to the objects' pivot. |
+| `edit` | `e` | bool |  | With one array given: edit it (the default), or with False, make an array of it. |
+| `name` | `n` | str |  | Name of a new array. |
+
+```python
+array("Pillar", count=8, offset=[300, 0, 0])
+```
+
+```python
+array("Spoke", mode="radial", count=12, center=[0, 0, 0])
+```
+
+```python
+array("Step", mode="radial", count=24, angle=15, angleMode="step", rise=18, center=[0, 0, 0])
+```
+
+```python
+array("Crate", mode="grid", count=4, countY=1, countZ=3, spacing=[120, 0, 120])
+```
+
+### arrayAlongCurve
+
+Repeat meshes along a curve. output=merged adds a live curveArray modifier to each mesh (copies follow curve edits); output=instances places instances of the mesh under a group instead (one shared mesh each, ready to export as instances; not live). Select the piece meshes and the curve. Returns the modifiers, or the groups.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fill` |  | str |  | Fill by a number of copies, or by the step between them. One of `count`, `spacing`. |
+| `count` |  | int |  | Copies (count fill), start and end pieces included. |
+| `spacing` |  | float |  | Step between copies, cm (spacing fill); 0 is the piece's own length so copies butt together. |
+| `fitToLength` |  | bool |  | Spacing fill: round the count and even the step so the copies run exactly from end to end. |
+| `startOffset` |  | float |  | Room left free at the curve's start, cm. |
+| `endOffset` |  | float |  | Room left free at the curve's end, cm. |
+| `forwardAxis` |  | str |  | The mesh axis laid along the curve. One of `+x`, `-x`, `+y`, `-y`, `+z`, `-z`. |
+| `upMode` |  | str |  | How the mesh turns about the curve: the curve's own frames (no twist, with its tilt), auto normals leaning toward the up vector, or aimed at a second curve. One of `curveFrames`, `autoNormals`, `aimCurve`. |
+| `upVector` |  | tuple[float, float, float] |  | Up for auto normals, and where curve frames start. |
+| `roll` |  | float |  | Turn about the curve, degrees. |
+| `align` |  | bool |  | Turn copies to follow the curve; off, they keep their orientation and only move. |
+| `deform` |  | bool |  | Bend each copy along its stretch of the curve (trims, rails, fences) instead of placing it rigidly. |
+| `weld` |  | bool |  | Deformed copies: merge the points where neighbours meet. |
+| `scaleRamp` |  | str |  | Cross-section scale along the curve: keys "t:scale" with t from 0 to 1, e.g. "0:1 1:0.2". |
+| `twist` |  | float |  | Twist from the curve's start to its end, degrees. |
+| `twistRamp` |  | str |  | Extra twist along the curve: keys "t:degrees", e.g. "0:0 0.5:90 1:0". |
+| `randomRotate` |  | tuple[float, float, float] |  | Random turn per copy about the piece's axes, plus or minus degrees. |
+| `randomScale` |  | float |  | Random uniform scale per copy, plus or minus this fraction. |
+| `randomOffset` |  | tuple[float, float, float] |  | Random shift per copy along the piece's axes, plus or minus cm. |
+| `seed` |  | int |  | Random seed. |
+| `curve` | `c` | str |  | The curve to follow; else the selected curve. |
+| `aimCurve` |  | str |  | The curve up aims at (upMode aimCurve); else the second selected curve. |
+| `startMesh` |  | str |  | A mesh to use for the first copy. |
+| `endMesh` |  | str |  | A mesh to use for the last copy. |
+| `output` | `o` | str | `'merged'` | merged: one mesh with a live modifier; instances: an instance per copy under a group. |
+| `name` | `n` | str |  | Name of the instance group; made unique. |
+
+```python
+lila.ops.arrayAlongCurve("Post", curve="Fence", fill="spacing", spacing=150)
+```
+
+```python
+lila.ops.arrayAlongCurve("Plank", curve="Path", fill="spacing", deform=True)
+```
+
+### arrayCenter
+
+Set what an array modifier's copies turn and scale about. Give an object to centre on its transform (its position and axes, kept live as it moves; run again after moving the arrayed mesh), pivot=True to copy the mesh's pivot into centerPoint, or neither to go back to the object's origin.
+
+**Objects:** modifier, [object]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pivot` |  | bool |  | Centre on the arrayed mesh's current pivot. |
+
+### arrayInfo
+
+An array's settings summary: mode, copies (the original included), its sources, and for each source the world matrix of every generated copy (16 numbers, column by column).
+
+**Objects:** array
+
+Not undoable.
+
+```python
+arrayInfo("Array")["copies"]
+```
 
 ### assignMaterial
 
@@ -322,6 +496,24 @@ Toggle the Arrange display: a project's groups drawn side by side along X (by th
 
 Not undoable.
 
+### bakeArray
+
+Turn arrays into plain groups holding their sources and a real object per copy, placed where the copies were. Returns the groups' paths.
+
+**Objects:** arrays
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str | `'instance'` | What each copy's meshes share with the source's. One of `instance`, `copy`, `reference`. |
+
+```python
+bakeArray("Array")
+```
+
+```python
+bakeArray("Array", mode="copy")
+```
+
 ### bakeAssign
 
 Wire a bake project's last outputs into the materials of the lows they were baked for: normal (DirectX or OpenGL as baked), ambient occlusion, ORM/MRO packed maps, base colour, roughness, metallic, emissive. Slots with no material get one. Returns {assigned, created, skipped}.
@@ -361,6 +553,19 @@ How many of a bake group's rays miss its highs as it would bake now (one sample 
 Stop the running bake (an async one, or a synchronous one from another thread). Returns whether one was running.
 
 Not undoable.
+
+### bakeCorrectiveMorphs
+
+Bake what the stack adds on top of linear skinning into corrective morph targets: each joint is turned about each local axis both ways, the difference between the stack and linear skinning is taken back through the skin, and a pose driver reading the joint drives the target (1 at the pose, 0 at rest). The skin goes linear and the deformers it replaces are turned off. Returns {targets, drivers, disabled, residual}.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` |  | float | `45.0` | Degrees each joint turns either way about its local axes; each pose gets a corrective. |
+| `axes` |  | str | `'xyz'` | Local axes to turn about. |
+| `falloff` |  | str | `'smooth'` | How each corrective's weight fades toward rest: linear \| smooth \| smoother |
+| `tolerance` |  | float | `0.0001` | Point offsets smaller than this (cm) are left out; a pose with none gets no corrective. |
 
 ### bakeEstimateCage
 
@@ -515,6 +720,50 @@ Paint a low's bake cage attributes: offset (bakeOffset, scales the auto cage pus
 | `flood` | `fl` | bool | `False` | Apply to every point (or the selected components). |
 | `symmetry` | `sy` | str | `'none'` | Mirror across x, y or z (object space). One of `none`, `x`, `y`, `z`. |
 
+### bakePiecesToJoints
+
+Bake a mesh of moving rigid pieces (a destruction simulation) onto joints.
+
+Makes a new mesh at the first frame's shape, skinned one piece per joint under a root at the origin, and keys the joints on every frame, so the motion can be edited with the animation tools or exported as an FBX skeletal mesh with animation. Pieces are the int piece point attribute, or the connected parts. Returns {mesh, root, joints, residual} (residual: worst point error of the fit, cm).
+
+**Objects:** mesh (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `st` | float |  | First frame. Without start and end the playback range is used. |
+| `end` | `e` | float |  | Last frame, inclusive. |
+| `step` | `s` | float | `1.0` | Frame step. |
+| `playbackRange` | `pr` | bool |  | Sample the scene's playback range (the default without start and end). |
+| `fps` |  | float | `0.0` | Frames per second; 0 uses the scene's. |
+| `name` | `n` | str |  | Name of the new mesh (its joints take it as a prefix); default <mesh>_Rigid. |
+| `hideSource` | `hs` | bool | `True` | Hide the animated mesh baked from. |
+
+```python
+bakePiecesToJoints('Wall', start=1, end=72)
+```
+
+### bakeSkinWeights
+
+Fit linear skin weights (SSDR, Dem Bones) to everything the mesh's stack does: centres of rotation and direct delta mush skinning, delta mush, wrap and other deformers after the skin. The skin goes linear and the deformers it replaces are turned off, so the viewport shows what Unreal will get; keep=true stores the weights for export instead. Returns {rmse, maxError, linearRmse, frames, helpers, disabled}.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` |  | float | `45.0` | Degrees each joint turns either way about its local axes. |
+| `axes` |  | str | `'xyz'` | Local axes to turn about. |
+| `sweep` |  | bool | `True` | Poses turning one joint about one axis at a time, each way. |
+| `randomPoses` |  | int | `20` | Poses turning every joint at once by a random amount within angle. |
+| `seed` |  | int | `1` | Seed of the random poses. |
+| `source` |  | str | `'rangeOfMotion'` | rangeOfMotion poses the joints; animation samples the scene's animation. |
+| `start` |  | int |  | animation: first frame (the playback start by default). |
+| `end` |  | int |  | animation: last frame (the playback end by default). |
+| `step` |  | int | `1` | animation: frames between samples. |
+| `helpers` |  | int | `0` | animation: extra joints solved with the weights and keyed over the frames (for jiggle and other motion joints can't follow). |
+| `maxInfluences` | `mi` | int | `0` | Influences per point; 0 uses the skin's. |
+| `iterations` |  | int | `3` | Solver passes. |
+| `keep` |  | bool | `False` | Store the weights for export only and leave the scene as it is. |
+
 ### bakeStatus
 
 A bake project's settings, groups and last bake result this session; with several projects and no project=, every project.
@@ -525,11 +774,38 @@ A bake project's settings, groups and last bake result this session; with severa
 
 Not undoable.
 
+### bakeSurfacePin
+
+Bake surface pins to joints for Unreal: each becomes a joint at the pin's current frame, parented to the joint with the most skin weight under the pin, so it exports as a bone that sockets and attachments use. Give the pins or their locators. Returns the joints.
+
+**Objects:** pins or pin locators
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` |  | str |  | Name for the joint (one pin). Default: <locator>_socket. |
+
 ### bakeTargets
 
 The bake target profiles available (built in, user and workspace): name, label, file, maps.
 
 Not undoable.
+
+### bakeTension
+
+Bake a tension deformer over a frame range into a mask Unreal can read: red the most stretch, green the most compression (0 to 1 at the deformer's scale), as a colour set on the mesh's base shape and/or an image by uv. Returns {frames, colorSet, file, maxStretch, maxCompress}.
+
+**Objects:** tension deformer or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | int |  | First frame; the playback start by default. |
+| `end` |  | int |  | Last frame; the playback end by default. |
+| `step` |  | int | `1` | Frames between samples. |
+| `mode` |  | str | `'max'` | max keeps each point's peak, mean its average. |
+| `colorSet` |  | str | `'tensionMask'` | Colour set written on the base mesh; empty for none. |
+| `file` | `f` | str |  | Image to write by uv (png, exr, tga, tif). |
+| `resolution` |  | int | `1024` | Image width and height. |
+| `uvSet` |  | str | `'uv0'` | The uv set the image is laid out by. |
 
 ### bakeToDeformSkeleton
 
@@ -677,6 +953,40 @@ A batch run's summary: {id, state, total, counts, seconds, dir, csv, files: [{in
 
 Not undoable.
 
+### bbw
+
+Deform meshes by point handles blended with bounded biharmonic weights. Give the meshes and the transforms (locators, joints) to use as handles, or positions= for new locators. Returns [deformers..., handles...].
+
+**Objects:** meshes and handles
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `positions` |  | list |  | New locator handles at these world positions. |
+| `radius` |  | float | `0.0` | Points this close to a handle (cm) move fully with it; 0: just the nearest point. |
+| `name` |  | str |  | Name for the deformer. |
+
+### bbwSkinWeights
+
+Compute a skinCluster's weights as bounded biharmonic weights: each joint holds the points around the middle of its bone, and the weights blend smoothly between, kept to maxInfluences per point.
+
+**Objects:** skinCluster or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `maxInfluences` |  | int |  | Influences kept per point. Default: the skinCluster's maxInfluences. |
+
+### bendCurve
+
+Bend curves around an axis by an angle, like a bend deformer laid along each curve's chord. In vertex mode only the selected points move. Returns the curves.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` | `a` | float | `90.0` | Total bend, degrees. |
+| `axis` | `ax` | tuple[float, float, float] |  | Bend axis, object space; default the curve's plane normal (or up for a straight curve). |
+| `fromCenter` | `fc` | bool | `False` | Bend both halves about the middle instead of from the start. |
+
 ### bevelApplyEdges
 
 Store the selected edges as an autoBevel modifier's edge set (as overrides of its rule) and end Edit Edges. Returns {added, removed}.
@@ -715,6 +1025,40 @@ Set an autoBevel modifier's thin to 1.5 times the longest selected edge (pick a 
 
 **Objects:** modifier or mesh
 
+### bevelPlus
+
+Bevel Plus (Maya's): closed planar curves into a solid mesh with live history. Loops inside others are holes; front and back bevels follow a profile (straight, convex, concave, step or a custom curve) and mitre along the straight skeleton, meeting in a ridge where the shape is thinner than the bevel. Quad caps, hard edges by angle, UVs (caps planar, sides along the outline). Returns [mesh, bevelPlus].
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `extrudeDepth` |  | float |  | Length of the straight sides along the normal, cm. |
+| `extrudeDivisions` |  | int |  | Rows of faces along the sides. |
+| `frontBevel` |  | bool |  | Bevel the front. |
+| `frontWidth` |  | float |  | How far in from the outline the front bevel reaches, cm. |
+| `frontDepth` |  | float |  | How far the front bevel rises past the sides, cm. |
+| `frontProfile` |  | str |  | Shape across the front bevel: straight, convex round, concave cove, steps or custom. |
+| `frontSegments` |  | int |  | Segments across the front bevel (steps for step). |
+| `backBevel` |  | bool |  | Bevel the back. |
+| `backWidth` |  | float |  | How far in from the outline the back bevel reaches, cm. |
+| `backDepth` |  | float |  | How far the back bevel reaches past the sides, cm. |
+| `backProfile` |  | str |  | Shape across the back bevel. One of `straight`, `convex`, `concave`, `step`, `custom`. |
+| `backSegments` |  | int |  | Segments across the back bevel. |
+| `customProfile` |  | str |  | Custom profile points "inset:rise ..." from the side to the cap, e.g. "0:0 0.2:0.7 1:1". |
+| `frontCap` |  | bool |  | Close the front. |
+| `backCap` |  | bool |  | Close the back. |
+| `capSpacing` |  | float |  | Quad size on the caps and longest side edge, cm; 0 picks it from the outline. |
+| `capQuads` |  | bool |  | Caps as quads where they fit; off leaves triangles. |
+| `smoothingAngle` |  | float |  | Edges where faces meet sharper than this (degrees) are hard. |
+| `uvScale` |  | float |  | cm per UV unit; 0 fits the caps into 0..1 with the sides to match. |
+| `normal` |  | tuple[float, float, float] |  | Extrusion direction; zero fits the plane to the curves (facing up or out). |
+| `tolerance` |  | float |  | Largest gap between the curves and the outline, cm. |
+| `maxAngle` |  | float |  | Largest turn between outline segments, degrees. |
+| `profileCurve` | `pc` | str |  | Curve to use as the custom profile (sets both profiles to custom). |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `name` | `n` | str |  | Mesh name; made unique. |
+
 ### bezierCurve
 
 Create a Bezier curve through anchors, with auto handles unless handles are given. Returns its name.
@@ -727,6 +1071,49 @@ Create a Bezier curve through anchors, with auto handles unless handles are give
 | `handleType` | `ht` | str |  | Handle type for every anchor. One of `auto`, `vector`, `aligned`, `free`. |
 | `closed` | `c` | bool | `False` | A closed loop. |
 | `name` | `n` | str |  | Name; made unique. |
+
+### blendCurve
+
+Bridge two curves with a blend curve, live: G0 position, G1 tangent, G2 curvature or G3 curvature-rate continuity at each end, with bulge. Joins the nearest ends unless endA/endB or parameterA/parameterB say otherwise; mesh= and edge= blend to a mesh border instead of the second curve. Returns [curve, curveBlend].
+
+**Objects:** curveA [curveB]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `continuityA` | `ca` | str | `'g2'` | Continuity with the first curve. One of `g0`, `g1`, `g2`, `g3`. |
+| `continuityB` | `cb` | str | `'g2'` | Continuity with the second curve or mesh. One of `g0`, `g1`, `g2`, `g3`. |
+| `bulgeA` | `ba` | float | `1.0` | How far the blend follows the first tangent before turning, in gaps (0.01 to 10). |
+| `bulgeB` | `bb` | float | `1.0` | How far the blend follows the second tangent, in gaps. |
+| `endA` |  | str | `'nearest'` | Which end of the first curve. One of `nearest`, `start`, `end`. |
+| `endB` |  | str | `'nearest'` | Which end of the second curve. One of `nearest`, `start`, `end`. |
+| `parameterA` | `pa` | float |  | Leave the first curve at this point (spans from its start) instead of an end. |
+| `parameterB` | `pb` | float |  | Meet the second curve at this point instead of an end. |
+| `flipA` |  | bool | `False` | Leave the first curve the other way (for a point along it). |
+| `flipB` |  | bool | `False` | Meet the second curve or mesh from the other side. |
+| `mesh` | `m` | str |  | Blend to this mesh's border instead of a second curve. |
+| `edge` | `e` | int |  | Border edge of mesh= to blend to. |
+| `edgeT` |  | float | `0.5` | Where along the edge, 0 to 1. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
+| `name` | `n` | str |  | Name of the blend curve. |
+
+### borderBlend
+
+Bridge two mesh border loops or edge chains (the selected edges, on one mesh or two) with a strip of quads tangent to the faces on both sides, live; profiles shape its cross-section. merge builds it into the first mesh, splitting border edges where the sides' point counts differ. Returns [mesh, meshBorderBlend].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `segments` | `s` | int | `6` | Quads across the strip. |
+| `tensionA` | `ta` | float | `1.0` | How far the strip runs on from side A before turning. |
+| `tensionB` | `tb` | float | `1.0` | How far the strip runs on from side B before turning. |
+| `flip` |  | bool | `False` | Flip the faces. |
+| `profiles` |  | list |  | Profile curves drawn across the gap. |
+| `merge` |  | bool | `False` | Build the strip into side A's mesh and weld it on (no history). |
+| `meshA` |  | str |  | Mesh of side A (instead of the selection). |
+| `edgesA` |  | list |  | Edges of side A. |
+| `meshB` |  | str |  | Mesh of side B. |
+| `edgesB` |  | list |  | Edges of side B. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
+| `name` | `n` | str |  | Mesh name. |
 
 ### boundingMesh
 
@@ -750,6 +1137,36 @@ Wrap the selection's points in a fitted shape, ready to go to Unreal as collisio
 | `maxHullPoints` | `mh` | int | `32` | Most points a hull keeps. |
 | `generator` | `g` | bool | `False` | Keep the primitive's generator so its size stays editable. |
 
+### cable
+
+Hang cables between anchor points: true catenaries by slack (extra length) or sag depth under gravity, bundles of several with seeded spread and sag variation, optionally draped over meshes, optionally piped. Live: moving the anchor curve's points or editing the settings updates them. Returns [cable curve, curveCable, anchor curve, pipe mesh or None] per anchor curve.
+
+**Objects:** anchor curves (default: the selected curves)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sagMode` |  | str |  | How much the cables hang: slack (extra length) or sag (depth below the chord). |
+| `slack` |  | float |  | Extra length over the straight span, as a fraction of it (0.1 is 10% longer). |
+| `sag` |  | float |  | How far the cable dips below the straight span, cm, along gravity. |
+| `gravity` |  | tuple[float, float, float] |  | Which way is down. |
+| `count` |  | int |  | Cables per span: above 1 makes a bundle. |
+| `spread` |  | float |  | Bundle: how far each cable's ends stray from the anchors, cm. |
+| `sagVariation` |  | float |  | Bundle: how much each cable's slack or sag varies, as a fraction of it. |
+| `seed` |  | int |  | Bundle: the random variation's seed. |
+| `drape` |  | bool |  | Let the cables settle onto the collider meshes where they would pass into them. |
+| `clearance` |  | float |  | Drape: how far the centreline stays off surfaces (the cable's radius), cm. |
+| `iterations` |  | int |  | Drape: settling steps. |
+| `samples` |  | int |  | Points along each span before fitting. |
+| `tolerance` |  | float |  | Fitting tolerance, cm. |
+| `points` | `p` | list |  | [[x, y, z], ...] world anchor points, made into an anchor curve, instead of anchor curves. |
+| `closed` | `c` | bool | `False` | With points: a cable from the last point back to the first too. |
+| `colliders` | `col` | list |  | Meshes to drape over (default: the selected meshes), at most 4. |
+| `pipe` |  | bool | `False` | Also build pipe geometry along the cables (the cable pipe preset, live). |
+| `pipeRadius` | `pr` | float | `0.6` | Pipe radius, cm. |
+| `pipeSides` | `ps` | int | `6` | Pipe sides. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the cable node so moving anchors or editing slack updates the cables. |
+| `name` | `n` | str |  | Cable curve name; made unique. |
+
 ### cage
 
 Deform meshes by a closed cage mesh around them (mean value coordinates). Give the meshes first and the cage last; then edit the cage's points. Returns the deformers.
@@ -758,6 +1175,7 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `coordinates` |  | str |  | meanValue (default) \| green \| somigliana |
 | `name` |  | str |  | Name for the deformer. |
 
 ### cameraSettings
@@ -820,6 +1238,20 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `path` | `p` | str |  | PNG file to write. |
 
 Not undoable.
+
+### cast
+
+Add a cast (spherify) deformer with a handle at the meshes' centre: pulls them toward a sphere, cylinder or box. Returns [handle, deformers...].
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shape` |  | str | `'sphere'` | sphere \| cylinder \| box |
+| `factor` |  | float | `1.0` | 0 none, 1 onto the shape. |
+| `radius` |  | float | `0.0` | Shape size, cm; 0 uses the mesh's mean size. |
+| `params` |  | Any |  | {param: value} to set on each deformer. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### centerJoint
 
@@ -895,6 +1327,23 @@ Close open curves: ends that meet merge, others get a straight span (or a smooth
 | --- | --- | --- | --- | --- |
 | `blend` | `bl` | bool | `False` | Close with a smooth span. |
 
+### collision
+
+Add a collision deformer: the meshes are pushed out of the colliders (meshes, or transforms as capsules along their Y). Give the meshes first and a collider last; more with colliders=. Returns the deformers.
+
+**Objects:** meshes..., collider
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `colliders` |  | list |  | More colliders, up to 4 meshes and 4 capsules in all. |
+| `offset` |  | float | `0.0` | Distance kept from each collider, cm. |
+| `falloff` |  | float | `0.0` | Soft easing width beyond the offset, cm. |
+| `volumeKeep` |  | float | `0.0` | 0 to 1: bulge around the contact. |
+| `side` |  | str | `'outside'` | outside \| inside |
+| `capsuleRadius` |  | float | `5.0` | Radius for transform colliders, in their units. |
+| `capsuleLength` |  | float | `10.0` | Length for transform colliders, along their Y. |
+| `name` |  | str |  | Name for the deformer. |
+
 ### componentInfo
 
 Positions, normals and adjacency of a mesh's components in bulk. Faces: center, normal, area, points, edges, neighbors (faces across each edge). Edges: points, center, length, faces, border. Vertices: position, normal, edges, neighbors (points), faces. World space unless space='object'. ids= picks some (default: the selected ones of that kind, or all).
@@ -916,6 +1365,18 @@ Selected components: {mesh: {"vertices": [...], "edges": [...], "faces": [...]}}
 
 Not undoable.
 
+### conformCurve
+
+Keep curves on a mesh surface: their points are placed on it, lifted by offset, whenever the curve or the mesh changes, so moving points slides them along it (Maya's Make Live for curves). release=True lets them go again, back to where they were last moved. Returns the curves.
+
+**Objects:** curves (default: the selected curves)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The surface (default: the selected mesh). |
+| `offset` | `o` | float |  | Lift off the surface along its normal, cm (default: keep the curve's own, 0 at first). |
+| `release` | `r` | bool | `False` | Stop conforming instead. |
+
 ### connectAttr
 
 connectAttr('src.attr', 'dst.attr').
@@ -925,6 +1386,34 @@ connectAttr('src.attr', 'dst.attr').
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `force` | `f` | bool | `False` | Replace an existing input connection. |
+
+### connectField
+
+Make deformers read a field: their weights become the painted map times the field (mode multiply) or the field alone (replace). Give the field first, then the deformers (or meshes: their top deformer).
+
+**Objects:** field, deformers...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'multiply'` | multiply \| replace |
+
+### contour
+
+Slice meshes into curves at evenly spaced parallel planes (Rhino's Contour): every spacing cm along axis through origin, or count planes spread through the meshes. One curve node holds every cut, kept live while history is on. Returns [curve, curveContour].
+
+**Objects:** meshes (default: the selected meshes)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` |  | tuple[float, float, float] |  | The planes' normal: contours step along it; a section's plane faces it. |
+| `origin` |  | tuple[float, float, float] |  | A point every contour plane is a whole number of spacings from; the section plane passes through it. |
+| `spacing` |  | float |  | cm between contour planes (count 0). |
+| `count` |  | int |  | Contour planes spread evenly through the meshes, their ends left out; 0 uses spacing. |
+| `tolerance` |  | float |  | Simplify each curve within this many cm; 0 keeps every crossing. |
+| `smooth` |  | bool |  | Fit smooth Beziers (corners kept) instead of poly lines. |
+| `bridge` |  | bool |  | Close cuts through open meshes across their gaps instead of leaving them open. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the contour node so the curves follow the meshes and settings. |
+| `name` | `n` | str |  | Curve name; made unique. |
 
 ### convertCurve
 
@@ -953,6 +1442,35 @@ Convert the component selection to another kind and switch to that mode. In obje
 
 **Objects:** to
 
+### convertToInstance
+
+Replace meshes identical to a source with instances of it, dropping their own copies of the data: cleans up imported kits. The source is the last mesh given (the lead); with only the source, every other mesh in the scene is checked. Returns the meshes converted.
+
+**Objects:** meshes... source
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` |  | float | `0.001` | Points may differ by this much, object space, cm. |
+| `force` |  | bool | `False` | Convert the given meshes even when their geometry differs from the source's. |
+
+```python
+convertToInstance("Bolt")  # every copy of Bolt in the scene
+```
+
+```python
+convertToInstance("Bolt2", "Bolt3", "Bolt")
+```
+
+### copyDeformerWeights
+
+Copy a weight map from one deformer to others, on the same mesh or another: by point id when the point counts match, else by closest surface point in world space.
+
+**Objects:** source, destinations...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `byId` |  | bool | `True` | Copy by point id when the counts match; off always uses closest points. |
+
 ### copyKey
 
 Copy keys (all, or those in time) to the key clipboard. Returns the number copied.
@@ -975,6 +1493,17 @@ Copy weights from one skinned mesh to another by closest surface point (or point
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `surfaceAssociation` | `sa` | str | `'closestPoint'` | closestPoint \| pointIndex |
+
+### correction
+
+Add a correction deformer to the top of each mesh's stack (move it anywhere with the modifier stack), then sculpt it with editCorrection. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `belowSkin` |  | bool | `False` | Put it just under the skinCluster instead of on top. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### createAnimLayer
 
@@ -1176,6 +1705,19 @@ Make a take for a character root or the whole scene. The first one adopts the an
 | `loop` | `l` | bool |  | Loop the take (loop keys on its curves). |
 | `folder` | `fo` | str |  | Folder path the take is filed under, '/' separated; empty for the top level. |
 
+### curlCurve
+
+Coil curves around themselves (a helix about the curve). The whole curve is resampled so the coils are there; in vertex mode only the selected points move. Returns the curves.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amplitude` | `amp` | float | `2.0` | Curl radius, cm. |
+| `turns` | `t` | float | `6.0` | Turns over the curve. |
+| `keepEnds` | `ke` | bool | `True` | Ease the curl in and out so the ends stay put. |
+| `samplesPerTurn` | `spt` | int | `12` | Points per turn when resampling. |
+
 ### currentTheme
 
 The current interface theme's name.
@@ -1212,6 +1754,34 @@ Create a curve: poly, Bezier or NURBS. Returns its name.
 | `name` | `n` | str |  | Name; made unique. |
 | `splines` |  | list |  | Whole splines as curveData returns them, instead of points and the flags above. |
 
+### curveBoolean
+
+2D boolean of closed planar curves into a new curve with live history (C4D's Spline Mask, Rhino's CurveBoolean): union, subtract (the rest from the first), intersect or xor. Each curve's loops fill even-odd, so a letter's counter stays a hole. Pieces are cut exactly from the inputs, with sharp corners where they cross. Returns [curve, curveBoolean].
+
+**Objects:** target tools...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `operation` |  | str |  | union joins every input, subtract cuts the others out of the first, intersect keeps what all share, xor what an odd number cover. |
+| `normal` |  | tuple[float, float, float] |  | Plane normal; zero fits the plane to the curves. |
+| `tolerance` |  | float |  | Where the cuts fall: chord error of the clip, cm. The pieces are cut from the input curves. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `hideInputs` |  | bool | `False` | Hide the input curves (they still drive the result). |
+| `name` | `n` | str |  | Name of the result curve; made unique. |
+
+### curveCenterLine
+
+Centre lines (the medial axis of the straight skeleton) of the region closed planar curves bound, as poly curves with live history. Returns [curve, curveCenterLine].
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `normal` |  | tuple[float, float, float] |  | Plane normal; zero fits the plane to the curves. |
+| `tolerance` |  | float |  | Tessellation of curved input, cm. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `name` | `n` | str |  | Name of the result curve; made unique. |
+
 ### curveData
 
 A curve's splines: [{type, closed, degree, points, knots, weights, handleL, handleR, typeL, typeR, tilt, radius, cornerRadius}, ...], object space unless worldSpace=True. Also its length and spans.
@@ -1246,6 +1816,49 @@ Create a NURBS curve through edit points. Returns its name.
 | `closed` | `c` | bool | `False` | A closed loop through the points. |
 | `name` | `n` | str |  | Name; made unique. |
 
+### curveNetwork
+
+Surface a network of crossing curves with quads, live: the curves sort into U and V families (or uCurves/vCurves say), become edge loops, and the surface stays smooth across them. Every U curve must cross every V curve; three-sided patches where one family meets at a point are fine. Returns [mesh, curveNetwork].
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `0.1` | Curves closer than this meet, cm. |
+| `spansU` | `su` | int | `4` | Quads along the U curves between neighbouring V curves. |
+| `spansV` | `sv` | int | `4` | Quads along the V curves between neighbouring U curves. |
+| `uCurves` |  | list |  | Curves forced into the U family. |
+| `vCurves` |  | list |  | Curves forced into the V family. |
+| `flip` |  | bool | `False` | Flip the faces. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
+| `name` | `n` | str |  | Mesh name. |
+
+### curveSculptStroke
+
+One curve sculpting stroke on a curve holding many curves (hair): comb, smooth, length, puff, add, delete, density, cut, pinch or slide. dabs is a list of {center, normal, radius, strength, delta, view} in world space, as the Sculpt Curves tool records them. Roots stay put (on the groom surface) except under slide and add. Returns {changed, added, removed, curves}.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `brush` | `b` | str | `'comb'` | The brush. One of `comb`, `smooth`, `length`, `puff`, `add`, `delete`, `density`, `cut`, `pinch`, `slide`. |
+| `dabs` | `d` | list |  | [{center, normal, radius, strength, delta, view}, ...] world space; radius in cm. |
+| `falloff` |  | str | `'smooth'` | Falloff: smooth, sphere, root, sharp, linear, constant, bell, or a soft select preset name. |
+| `strength` | `s` | float | `0.5` | Brush strength, 0 to 1. |
+| `invert` | `i` | bool | `False` | The opposite: shrink, flatten, spread, thin out. |
+| `keepLength` |  | bool | `True` | Comb, smooth, puff and pinch keep segment lengths. |
+| `frontOnly` |  | bool | `True` | Leave points behind the surface under the brush alone. |
+| `addCount` |  | int | `5` | Add and density: curves planted per dab. |
+| `addLength` |  | float | `5.0` | Add: length of new curves with no neighbours to copy, cm. |
+| `addPoints` |  | int | `8` | Add: points per new curve. |
+| `interpolate` |  | bool | `True` | Add: new curves take the shape of their nearest neighbours. |
+| `minDistance` |  | float | `0.0` | Add and density: closest roots may be, cm (0: no limit for add, from density for density). |
+| `density` |  | float | `1.0` | Density: target curves per square cm, times the density map. |
+| `densitySet` |  | str |  | Vertex color set of the surface used as the density map. |
+| `seed` |  | int | `0` | Random seed for add, delete and density. |
+| `surface` |  | str |  | Mesh the roots grow from; default the curve's groomSurface. |
+| `selectedOnly` |  | bool | `True` | With points of the curve selected, only the curves holding them change. |
+
 ### cutKey
 
 Remove keys (all, or those in time) and copy them for pasteKey. A curve left with no keys is deleted and the channel keeps its value. Returns the number removed.
@@ -1257,6 +1870,34 @@ Remove keys (all, or those in time) and copy them for pasteKey. A curve left wit
 | `attribute` | `at` | Any |  | Attribute name or list of names (translate keys all three). |
 | `time` | `t` | Any |  | Seconds, or (start, end) with None for an open end. Default: all keys. |
 | `clear` | `cl` | bool | `False` | Don't copy to the clipboard. |
+
+### deformAlongCurve
+
+Bend meshes along a curve with a live curveDeform modifier (Curve Warp, Path Deform). Select the meshes and the curve (a second curve aims the up direction with upMode=aimCurve). The forward axis runs along the curve from its start; editing or moving the curve updates the meshes. Returns the modifiers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `forwardAxis` |  | str |  | The mesh axis laid along the curve. One of `+x`, `-x`, `+y`, `-y`, `+z`, `-z`. |
+| `upMode` |  | str |  | How the mesh turns about the curve: the curve's own frames (no twist, with its tilt), auto normals leaning toward the up vector, or aimed at a second curve. One of `curveFrames`, `autoNormals`, `aimCurve`. |
+| `upVector` |  | tuple[float, float, float] |  | Up for auto normals, and where curve frames start. |
+| `roll` |  | float |  | Turn about the curve, degrees. |
+| `offset` |  | float |  | Where the mesh starts along the curve, cm. |
+| `offsetFraction` |  | float |  | Where the mesh starts along the curve, as a fraction of its length (added to offset). |
+| `stretch` |  | bool |  | Stretch the mesh to run from its start to the curve's end; off keeps its length. |
+| `loop` |  | bool |  | On a closed curve, wrap past the seam; off treats it as open at its start. |
+| `endBehavior` |  | str |  | Past an open curve's end: carry on straight along the end tangent, or pile up at the end. One of `extrapolate`, `clamp`. |
+| `envelope` |  | float |  | How much of the deformation applies, 0 to 1. |
+| `scaleRamp` |  | str |  | Cross-section scale along the curve: keys "t:scale" with t from 0 to 1, e.g. "0:1 1:0.2". |
+| `twist` |  | float |  | Twist from the curve's start to its end, degrees. |
+| `twistRamp` |  | str |  | Extra twist along the curve: keys "t:degrees", e.g. "0:0 0.5:90 1:0". |
+| `curve` | `c` | str |  | The curve to follow; else the selected curve. |
+| `aimCurve` |  | str |  | The curve up aims at (upMode aimCurve); else the second selected curve. |
+
+```python
+lila.ops.deformAlongCurve("Rail", curve="Path", forwardAxis="+x", stretch=True)
+```
 
 ### deformer
 
@@ -1270,9 +1911,25 @@ Add a deformer of any registered type, an extension's included, to the top of ea
 | `params` |  | Any |  | {param: value} to set on each deformer. |
 | `name` |  | str |  | Name for the deformer. |
 
+### deformerMembership
+
+The points a deformer may move; null when it moves every point.
+
+**Objects:** deformer
+
+Not undoable.
+
 ### deformers
 
 A mesh's deformers (morph, ffd, deltaMush, ...), applied first first.
+
+**Objects:** mesh
+
+Not undoable.
+
+### deformerTiming
+
+How long each deformer in a mesh's stack took on its last evaluation, in stack order: [{deformer, type, ms}], and the total.
 
 **Objects:** mesh
 
@@ -1283,6 +1940,14 @@ Not undoable.
 A deformer's per-point weight map, one value per point of its input (1 where unpainted).
 
 **Objects:** deformer
+
+Not undoable.
+
+### deformHandles
+
+The handles of an arap, laplacianDeform or bbw deformer: [{handle, index, points}].
+
+**Objects:** deformer or mesh
 
 Not undoable.
 
@@ -1412,6 +2077,12 @@ disconnectAttr('dst.attr'), or (src, dst).
 
 **Objects:** [src] dst
 
+### disconnectField
+
+Stop deformers reading their field.
+
+**Objects:** deformers
+
 ### displayLayer
 
 Edit a display layer's switches (V, P, display type, colour, name); with no flags, query it. Returns its info: name, visibility, hideOnPlayback, displayType, color (null for none), order and members.
@@ -1485,11 +2156,34 @@ Not undoable.
 
 Duplicate objects with their children, keeping each mesh's generator and modifier stack live. Returns the new top-level names.
 
+count makes a run of copies, copy i placed by the translate/rotate/scale step applied i times about the pivot: a row, a ring or a spiral in one call. mode instance shares the mesh (edits to one change all); reference shares the base mesh but gives each copy its own modifier stack.
+
 **Objects:** objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `name` | `n` | str |  | Name for a single duplicate. |
+| `count` | `c` | int | `1` | Copies of each object, 1 to 10000. |
+| `translate` | `t` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Move from one copy to the next, cm. |
+| `rotate` | `r` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Rotation from one copy to the next about the pivot, degrees (XYZ). |
+| `scale` | `s` | tuple[float, float, float] | `[1.0, 1.0, 1.0]` | Scale from one copy to the next about the pivot. |
+| `pivot` |  | str | `'object'` | What the step rotates and scales about. One of `object`, `world`, `point`. |
+| `pivotPoint` |  | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | World point rotated and scaled about when pivot is point, cm. |
+| `space` |  | str | `'world'` | Axes the step is measured along: the world's or each object's own. |
+| `mode` | `m` | str | `'copy'` | What a duplicated mesh shares with its source. One of `copy`, `instance`, `reference`. |
+| `group` | `g` | bool | `False` | Put the copies under a new group. |
+
+```python
+duplicate("Pillar", count=7, translate=[200, 0, 0])
+```
+
+```python
+duplicate("Spoke", count=11, rotate=[0, 30, 0], pivot="world", mode="instance")
+```
+
+```python
+duplicate("Step", count=20, translate=[0, 18, 0], rotate=[0, 15, 0], pivot="point", pivotPoint=[0, 0, 0])
+```
 
 ### duplicateAnimLayer
 
@@ -1530,6 +2224,22 @@ Copy a theme to a new saved one you can edit; returns the new name.
 
 Not undoable.
 
+### duplicateWithTransform
+
+Duplicate the last duplicated object again, placed by how its copy now sits relative to its source. Duplicate an object, move, rotate or scale the copy, then repeat this to continue the run. Returns the new names.
+
+The step is measured from the current world matrices of the last source and copy, so it follows any later edit to the copy and survives selection changes. It is forgotten when either object is deleted.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` | `c` | int | `1` | Copies to add, 1 to 10000. |
+
+```python
+duplicate("Fence")
+move("Fence1", by=[120, 0, 0])
+duplicateWithTransform(count=8)
+```
+
 ### editAnimLayer
 
 Set a layer's weight, mute, solo, lock, mode or rotation accumulation. Returns its settings.
@@ -1544,6 +2254,16 @@ Set a layer's weight, mute, solo, lock, mode or rotation accumulation. Returns i
 | `lock` | `lk` | bool |  | No keys or membership changes. |
 | `mode` | `m` | str |  | additive \| override |
 | `accumulation` | `acc` | str |  | quaternion \| euler |
+
+### editCorrection
+
+Sculpt a correction: on copies the mesh as the correction outputs it into <deformer>_sculpt, in place, hides the mesh and selects the copy (the correction shows it live). off stores the sculpt as offsets in the incoming shape's tangent space, deletes the copy and shows the mesh. Returns the sculpt mesh while on.
+
+**Objects:** correction
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool |  | Default: toggle. |
 
 ### editDisplayLayerMembers
 
@@ -1678,6 +2398,21 @@ Write animated meshes to one Alembic (.abc, Ogawa) file: a sample per frame with
 | `triangulate` | `tri` | bool | `True` | Write triangles, as the viewport shows them. |
 | `dryRun` | `dr` | bool | `False` | Return the files without writing anything. |
 | `path` | `p` | str |  | The .abc file; relative paths are under the workspace. |
+| `rigidPieces` | `rp` | bool | `False` | Write each rigid piece (the piece point attribute, or each connected part) as its own object: its shape once and a transform per frame. Far smaller for a broken-apart mesh. |
+
+Not undoable.
+
+### exportDeformerWeights
+
+Write a deformer's weight map (or a field's painted layer) to a JSON file, with the mesh's world positions and triangles so it can be imported onto other topology.
+
+**Objects:** deformer or field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | The .json file to write. |
+| `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
+| `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
 
 Not undoable.
 
@@ -1720,7 +2455,7 @@ Not undoable.
 
 ### exportFile
 
-Export the selection with the translator for the file's extension (.fbx, .obj, ...).
+Export the selection with the translator for the file's extension (.fbx, .gltf, .glb, .obj, ...).
 
 **Objects:** path
 
@@ -1728,6 +2463,52 @@ Export the selection with the translator for the file's extension (.fbx, .obj, .
 | --- | --- | --- | --- | --- |
 | `translator` |  | str |  | Translator id to use instead of the one for the file's extension. |
 | `options` |  | Any |  | {flag: value} passed on to the translator's command. |
+
+Not undoable.
+
+### exportGltf
+
+Export the evaluated meshes, skeletons and cameras to glTF 2.0: binary .glb, or JSON .gltf with a .bin and image files next to it (or everything embedded as data URIs). Objects default to the selection (or the whole scene with selectionOnly=False). Axes become glTF's Y up with the model facing +Z, lengths metres (see units).
+
+Meshes go out triangulated as the viewport splits them, one primitive per material slot, with normals, MikkTSpace tangents, every UV set (flipped to glTF's V-down) and every color set. Skinned meshes go out in their bind pose with JOINTS_n/WEIGHTS_n sets (four influences each, up to maxInfluences) and inverse bind matrices; morph targets with position and normal deltas (sparse where few points move), names in extras.targetNames and their weights. Each take becomes one animation (takes=, or the current animation over start/end): sampled every frame and thinned where interpolation reproduces the samples, translate and scale curves written as their own keys with bakeAnimation=False. Cameras keep their field of view, aspect and clipping.
+
+Materials go out metallic-roughness: base color and opacity, ORM maps shared as glTF's metallic-roughness and occlusion textures (other layouts and separate maps repacked), DirectX normal maps green-flipped to OpenGL, emissive with KHR_materials_emissive_strength above 1, specular through KHR_materials_specular, alpha mode, cutoff and double sided. Textures that aren't PNG or JPEG are converted to PNG.
+
+draco=True compresses every primitive with KHR_draco_mesh_compression (then required to read the file), quantized per the dracoBits flags: positions, normals, UVs, colors and generic attributes (tangents, skin weights; joint indices stay exact). Morph targets stay uncompressed accessors, as the extension requires, with the points encoded in order so they still line up. Returns the path.
+
+**Objects:** path objects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `binary` |  | bool |  | Write binary .glb; by default from the extension. |
+| `embedImages` |  | bool |  | Put images inside the file (default for .glb); off writes them next to it. |
+| `embedBuffers` |  | bool | `False` | .gltf only: put the geometry inside the file as a data URI instead of a .bin. |
+| `textures` |  | bool | `True` | Write texture maps; off writes material factors only. |
+| `copyTextures` |  | bool | `True` | Unembedded images: copy textures next to the file; off references them where they are. |
+| `kind` | `k` | str | `'auto'` | auto \| static \| skeletal \| animation \| sequence. auto writes everything (meshes, skins, morph targets, cameras, animation), static only meshes and transforms (no animation, allows worldSpace), animation the skeleton and its animation, sequence cameras and transforms. auto picks sequence when only cameras are given. |
+| `maxInfluences` | `mi` | int | `8` | Skin influences per vertex, heaviest kept and renormalised (4 for one JOINTS_0 set). |
+| `animation` | `anim` | bool | `True` | Write animation. |
+| `bakeAnimation` | `bake` | bool | `True` | Sample every frame; False writes plain translate and scale curves as their own keys. |
+| `deformOnly` | `do` | bool | `True` | Skip non-deform joints (IK helpers and rig-only joints). |
+| `start` | `st` | float |  | First frame; the playback start by default. |
+| `end` | `et` | float |  | Last frame; the playback end by default. |
+| `take` |  | str |  | Animation name; the active take's, else Take 001. |
+| `takes` |  | Any |  | Scene takes to write, one glTF animation each: 'all' or a list of names. |
+| `tangents` |  | bool | `True` | Write MikkTSpace tangents from uv0. |
+| `normals` |  | bool | `True` | Write normals (and morph target normal deltas). |
+| `morphNormals` |  | bool | `True` | Write morph target normal deltas. |
+| `draco` |  | bool | `False` | Compress mesh primitives with KHR_draco_mesh_compression. |
+| `dracoPositionBits` |  | int | `14` | Draco quantization bits for positions. |
+| `dracoNormalBits` |  | int | `10` | Draco quantization bits for normals. |
+| `dracoUvBits` |  | int | `12` | Draco quantization bits for UVs. |
+| `dracoColorBits` |  | int | `8` | Draco quantization bits for vertex colors. |
+| `dracoGenericBits` |  | int | `12` | Draco quantization bits for tangents and skin weights. |
+| `dracoLevel` |  | int | `7` | Draco compression level, 0 fastest to 10 smallest. |
+| `worldSpace` | `ws` | bool | `False` | Bake world transforms into the meshes and flatten the hierarchy (static exports). |
+| `atOrigin` |  | bool | `False` | Drop the exported roots' own transforms, keeping their children relative. |
+| `children` |  | bool | `True` | Include the descendants of the given objects. |
+| `units` | `u` | str | `'m'` | File units: m (glTF's), cm, mm, in or ft. Lengths are scaled to them. |
+| `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
 
 Not undoable.
 
@@ -1762,6 +2543,24 @@ Export animated meshes (geometry nodes, deformers, skins, anything that changes 
 
 Not undoable.
 
+### exportMLDeformer
+
+Training data for an Unreal ML Deformer: a range-of-motion take (or the given take), the skinned mesh as a skeletal FBX (its non-linear skinning fitted to linear weights), the take as an animation FBX and the full deformer stack over it as an Alembic geometry cache. When connected to Unreal it imports all three and creates the ML Deformer asset on them; training stays a click in the ML Deformer editor. Returns {files, take, frames, assets}.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `take` |  | str |  | Take to train on; by default a new range-of-motion take is made. |
+| `poses` |  | int | `400` | Random range-of-motion poses (with sweep poses first when sweep is on). |
+| `angle` |  | float | `45.0` | Degrees each joint turns either way in the range of motion. |
+| `sweep` |  | bool | `True` | Range of motion starts with one joint, one axis at a time. |
+| `seed` |  | int | `1` | Seed of the random poses. |
+| `folder` | `fo` | str |  | Where the files go; relative paths are under the workspace. Default the Unreal cache folder. |
+| `contentPath` | `cp` | str |  | Unreal folder for the assets, like /Game/Characters/Hero/MLDeformer. |
+| `send` |  | bool | `True` | Import into the connected Unreal editor and create the ML Deformer asset. |
+| `save` |  | bool | `True` | Save the Unreal assets afterwards. |
+
 ### exportObj
 
 Export meshes to an OBJ file in world space. Defaults to the selection.
@@ -1782,6 +2581,52 @@ Write a picker (scene or template) to a .lilapicker file. Returns the path.
 
 Not undoable.
 
+### exportPly
+
+Export meshes to PLY in world space, merged into one mesh, defaulting to the selection and the meshes under it: polygons as they are, normals, uv0 and the current color set per vertex (points split where those differ). Loose points and edges are written too. Returns the path.
+
+**Objects:** path objects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'m'` | The file's length unit. One of `mm`, `cm`, `m`, `in`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; converted to the scene's. One of `y`, `z`. |
+| `binary` |  | bool | `True` | Binary little endian; off writes ASCII. |
+| `normals` |  | bool | `True` | Write normals. |
+| `uvs` |  | bool | `True` | Write uv0 as s, t. |
+| `colors` |  | bool | `True` | Write the current color set as 8-bit RGBA. |
+
+Not undoable.
+
+### exportStl
+
+Export meshes to STL in world space, triangulated, defaulting to the selection and the meshes under it. Binary merges them into one solid; ASCII writes a solid per mesh. Returns the path.
+
+**Objects:** path objects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'mm'` | The file's length unit. 3D printing assumes mm. One of `mm`, `cm`, `m`, `in`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; converted to the scene's. One of `y`, `z`. |
+| `binary` |  | bool | `True` | Binary STL; off writes ASCII. |
+| `colors` |  | bool | `False` | Binary only: the current color set as per-triangle VisCAM colors. |
+
+Not undoable.
+
+### exportSvg
+
+Write curves to an SVG file, one path per curve, seen on a plane (xy front, xz ground, yz side) at a scale. Beziers go out exactly, other curves as Beziers within tolerance. Defaults to the selected curves.
+
+**Objects:** path curves...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` | `s` | float | `0.1` | cm per SVG unit. |
+| `plane` |  | str | `'xy'` | Plane to draw on: xy (front), xz (ground) or yz (side). |
+| `tolerance` |  | float | `0.01` | cm, for curves that are not Beziers. |
+
+Not undoable.
+
 ### exportTheme
 
 A theme as shareable JSON text (the current one when no name is given). file= also writes it to a .lilatheme file. full=True lists every token, not just the ones the theme sets.
@@ -1798,7 +2643,7 @@ Not undoable.
 
 ### exportVertexAnimation
 
-Bake animated meshes (geometry nodes, deformers, skins, anything that changes over time) into Vertex Animation Textures: a rest mesh FBX with an extra UV channel addressing each vertex's texels, a position texture (offsets or positions per vertex per frame, Unreal space), a normal texture and a JSON sidecar describing the layout. Changing topology is baked as a padded triangle soup. Returns {files, meta, materialParams} (the material inputs: HDR, BoundsMin, BoundsMax, FrameCount, RowsPerFrame, TextureHeight, FrameRate, PositionTexture, NormalTexture).
+Bake animated meshes (geometry nodes, deformers, skins, anything that changes over time) into Vertex Animation Textures: a rest mesh FBX with an extra UV channel addressing each vertex's texels, a position texture (offsets or positions per vertex per frame, Unreal space), a normal texture and a JSON sidecar describing the layout. Changing topology is baked as a padded triangle soup; rigid pieces as a position and a rotation texture with one column per piece. Returns {files, meta, materialParams} (the material inputs: HDR, BoundsMin, BoundsMax, FrameCount, RowsPerFrame, TextureHeight, FrameRate, PositionTexture, NormalTexture; rigid adds RotationTexture, PieceCount, PivotChannelXY, PivotChannelZ).
 
 **Objects:** meshes
 
@@ -1821,13 +2666,31 @@ Bake animated meshes (geometry nodes, deformers, skins, anything that changes ov
 | `folder` | `fo` | str | `'vat'` | Output folder; relative paths are under the workspace. |
 | `name` | `nm` | str | `'{name}'` | File base name; {name} is the first mesh. |
 | `format` | `f` | str | `'exr'` | Position texture: exr (half float offsets, HDR=1), png16 or png8 (normalised by BoundsMin/BoundsMax, HDR=0). |
-| `mode` | `md` | str | `'auto'` | constant (every frame keeps the rest frame's vertices), soup (unwelded triangles, for changing topology) or auto (constant when every frame matches, soup otherwise). |
+| `mode` | `md` | str | `'auto'` | constant (every frame keeps the rest frame's vertices), soup (unwelded triangles, for changing topology), rigid (loose pieces that only move and rotate: one position and one rotation texel per piece per frame, pieces from the int point attribute 'piece' or connected components) or auto (soup when the topology changes, rigid when every mesh has 'piece' and every piece fits a rigid motion within 0.01 units, constant otherwise). |
 | `positions` | `po` | str | `'offset'` | offset (from the rest mesh, for World Position Offset) or absolute. |
 | `normalBits` | `nb` | int | `8` | Normal texture depth, 8 or 16. |
 | `restFrame` | `rf` | float |  | Frame whose shape is the rest mesh (default the first sampled frame). |
 | `maxWidth` | `mw` | int |  | Widest texture before a frame wraps to more rows (default the vat maxWidth pref, 4096). |
+| `exrBits` | `eb` | int |  | EXR depth: 16 (half float) or 32 (float). Default 32 for rigid, 16 otherwise. |
 
 Not undoable.
+
+### extendCurve
+
+Extend curve ends to the nearest boundary curve their extension meets (boundaries, default every other visible curve): straight on, round an arc, or carrying the end span on smoothly. length extends by a distance instead. Returns the curves.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `end` |  | str | `'end'` | Which end. One of `end`, `start`, `both`. |
+| `point` | `p` | tuple[float, float, float] |  | Extend the end nearest this world point. |
+| `mode` | `m` | str | `'smooth'` | How the extension continues. One of `line`, `arc`, `smooth`. |
+| `boundaries` |  | list |  | Curves to extend to; default every other visible curve. |
+| `length` | `l` | float | `0.0` | Extend by this many cm instead of to a boundary. |
+| `maxLength` |  | float | `0.0` | Furthest to look for a boundary, cm; 0 is ten times the scene's curves' size. |
+| `tolerance` | `tol` | float | `0.01` | Curves closer than this meet, cm. |
+| `direction` | `dir` | tuple[float, float, float] |  | Intersect as seen along this direction (the view), for curves that only cross on screen. |
 
 ### extensionInfo
 
@@ -1895,6 +2758,40 @@ Sweep a profile along path curves into a quad mesh with live history: a circle o
 | `profileCurve` | `pc` | str |  | Profile curve (instead of the second positional). |
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
+
+### fairCurve
+
+Fair curves: even out their curvature (a smoother comb) without moving any part further than tolerance. Ends stay; end tangents and corners are kept unless turned off. Returns each curve's largest move.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `0.1` | Largest move allowed, cm. |
+| `keepTangents` | `kt` | bool | `True` | Keep the end tangents' directions. |
+| `keepCorners` | `kc` | bool | `True` | Leave corners sharp and in place. |
+| `iterations` | `it` | int | `200` | Most smoothing passes. |
+
+### field
+
+Create a falloff field with a first shape layer, placed and sized on the given or selected meshes (or at the origin). Deformers among the objects get the field connected. Returns the field.
+
+**Objects:** meshes or deformers
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shape` |  | str | `'sphere'` | First layer's shape, or none for an empty stack. One of `sphere`, `box`, `capsule`, `plane`, `linear`, `radial`, `cone`, `none`. |
+| `position` |  | tuple[float, float, float] |  | World position. Default: the centre of the meshes. |
+| `radius` |  | float |  | Field scale, cm. Default: a quarter of the meshes' size. |
+| `name` |  | str |  | Name for the field. |
+
+### fieldLayers
+
+A field's layers, bottom first, each as its settings.
+
+**Objects:** field
+
+Not undoable.
 
 ### fileTranslators
 
@@ -1980,6 +2877,46 @@ Rename joints that share a name with another joint in the same skeleton (the giv
 
 **Objects:** roots
 
+### floodDeformerWeights
+
+Apply a weight to every point of a deformer's weight map (or a field's painted layer), or to points= / the selected components, as the paint tool's flood does.
+
+**Objects:** deformer or field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` |  | float | `1.0` | The weight, 0 to 1. |
+| `mode` |  | str | `'replace'` | add \| replace \| smooth \| scale |
+| `strength` |  | float | `1.0` | How much of the change applies, 0 to 1. |
+| `points` |  | list |  | Point ids; default the selected components, else every point. |
+| `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
+| `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
+
+### flowAlongSurface
+
+Flow meshes onto a surface with a live surfaceFlow modifier (FlowAlongSrf): each mesh's XZ footprint maps onto the surface's UV rectangle, or onto a rectangular patch of quads (selected faces, parametrization grid), and its height (Y) follows the surface normal. Select the meshes, then the surface last. Returns the modifiers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `parametrization` |  | str |  | How surface positions are found: the surface's UVs, or the rows and columns of a rectangular patch of quads (targetFaces). One of `uv`, `grid`. |
+| `uvSet` |  | str |  | UV set to map through (uv parametrization); empty is uv0. |
+| `uMin` |  | float |  | Start of the coordinate range the mesh's X extent maps onto. |
+| `vMin` |  | float |  | Start of the coordinate range the mesh's Z extent maps onto (Z runs against V). |
+| `uMax` |  | float |  | End of the U range. |
+| `vMax` |  | float |  | End of the V range. |
+| `swapUV` |  | bool |  | Map X to V and Z to U. |
+| `heightScale` |  | float |  | Height off the surface per unit of the mesh's Y. |
+| `heightBase` |  | str |  | Measure height from Y = 0 (the construction plane) or from the mesh's lowest point. One of `origin`, `bottom`. |
+| `envelope` |  | float |  | How much of the flow applies, 0 to 1. |
+| `target` | `t` | str |  | The surface mesh; else the last selected mesh. |
+| `faces` |  | list |  | Surface faces to flow onto; else its selected faces, else all of it. |
+
+```python
+lila.ops.flowAlongSurface("Logo", target="Hull")
+```
+
 ### flushUndo
 
 Clear undo history. which='past' drops the steps undo would revert, so undo cannot step back past this point; 'future' drops the redo steps; 'all' drops both.
@@ -1987,6 +2924,12 @@ Clear undo history. which='past' drops the steps undo would revert, so undo cann
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `which` | `w` | str | `'past'` | past, future or all. |
+
+Not undoable.
+
+### fontList
+
+The fonts textCurves can use by name: "Family Style" of every bundled and installed font, sorted.
 
 Not undoable.
 
@@ -2038,6 +2981,7 @@ Pose a whole skeleton so each pinned joint reaches its target. The motion spread
 | `stiffness` | `st` | Any |  | {joint: 0..1}: how much each joint resists turning, so its neighbours take the motion. |
 | `moveRoot` | `mr` | bool | `True` | Let the hips move when turning joints is not enough. |
 | `key` | `k` | bool | `False` | Key the posed joints. |
+| `autoPose` | `ap` | bool | `False` | Let the auto-poser place the unpinned body, as a person would stand to reach the pins (UE5 Manny joint names). |
 
 ### gameExport
 
@@ -2429,6 +3373,34 @@ Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
 
+### groomGuides
+
+Grow guide curves out of a mesh along its normals, spread evenly by area (and a density map), as a new curve with the mesh as its groom surface. Returns the curve.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` | `c` | int | `200` | How many curves. |
+| `length` | `l` | float | `10.0` | Length, cm. |
+| `lengthJitter` |  | float | `0.0` | Lengths vary by up to this fraction (0 to 1). |
+| `points` | `p` | int | `8` | Points per curve. |
+| `minDistance` |  | float | `0.0` | Closest two roots may be, cm; 0 picks one from the area and count. |
+| `densitySet` |  | str |  | Vertex color set used as the density map (bright: dense, black: none). |
+| `seed` |  | int | `1` | Random seed. |
+| `name` | `n` | str |  | Name of the new curve. |
+
+### groomSurface
+
+Set the mesh curves grow from (their groom surface): sculpting keeps roots on it, add and density plant on it. attach moves each curve so its root sits on the surface. An empty mesh clears it. Returns the curves moved.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The surface mesh; empty clears it. |
+| `attach` |  | bool | `True` | Move roots onto the surface. |
+
 ### group
 
 Group objects under a new transform, or create an empty group with empty=True.
@@ -2444,6 +3416,40 @@ Group objects under a new transform, or create an empty group with empty=True.
 ### growSelection
 
 Grow the component selection by one ring of neighbours: points to the points of their faces, edges and faces to those sharing a point with the selection.
+
+### hairCards
+
+Build textured hair cards from curves with live history: one per curve, per clump, or per guide curve; width with a taper ramp, segments, facing the scalp or following the curve, twist, and UVs in random atlas cells. A card mesh per curve node. Returns [mesh, hairCards, ...].
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` |  | str |  | One card per curve, per clump of curves (by their roots), or per guide curve. One of `curves`, `clumps`, `guides`. |
+| `clumps` |  | int |  | Clumps the curves are gathered into (source = clumps). |
+| `width` |  | float |  | Card width at the root, cm. |
+| `autoWidth` |  | bool |  | Size each clump or guide card to the spread of its curves. |
+| `widthScale` |  | float |  | Scale of the automatic width. |
+| `taper` |  | str |  | Width along the card: keys "t:scale", t from 0 at the root to 1 at the tip. |
+| `segments` |  | int |  | Quads along each card; 0 follows each curve's own points. |
+| `widthSegments` |  | int |  | Quads across each card. |
+| `facing` |  | str |  | Cards lie flat to the scalp, follow rotation minimising curve frames, or face the up vector. One of `surfaceNormal`, `curveFrame`, `upVector`. |
+| `upVector` |  | tuple[float, float, float] |  | Up for facing = upVector, and without a scalp. |
+| `tilt` |  | float |  | Turn of every card about its curve, degrees. |
+| `twist` |  | float |  | Twist from root to tip, degrees. |
+| `offset` |  | float |  | Lift off the scalp along the card's facing, cm. |
+| `doubleSided` |  | bool |  | Give each card a back face. |
+| `atlasColumns` |  | int |  | Texture atlas cells across. |
+| `atlasRows` |  | int |  | Texture atlas cells down. |
+| `variations` |  | int |  | Use only the first this many cells; 0 uses them all. |
+| `seed` |  | int |  | Random seed for picking cells. |
+| `flipU` |  | bool |  | Mirror each card's u. |
+| `flipV` |  | bool |  | Root at the bottom of its cell instead of the top. |
+| `padding` |  | float |  | Gap inside each cell, as a fraction of it. |
+| `guides` |  | list |  | Guide curves (sets source = guides). |
+| `mesh` | `m` | str |  | The scalp mesh; default the first curve's groomSurface. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the hairCards node so its settings stay live. |
+| `name` | `n` | str |  | Mesh name; made unique. |
 
 ### hide
 
@@ -2554,6 +3560,19 @@ Create an image plane for modelling from reference images, or edit the image pla
 | `placement` | `pl` | str |  | behind, inScene or inFront of the geometry. |
 | `locked` | `lk` | bool |  | Not pickable in the viewport (reference mode). |
 
+### importDeformerWeights
+
+Read a weight map written by exportDeformerWeights onto a deformer (or a field's painted layer): by point id when the point counts match, else by closest surface point to the exported mesh.
+
+**Objects:** deformer or field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | The .json file to read. |
+| `byId` |  | bool | `True` | Match by point id when the counts match; off always uses closest points. |
+| `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
+| `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
+
 ### importFbx
 
 Import an FBX file: its node hierarchy as transforms, joints and meshes, converted to the scene's axes and cm. LimbNodes become joints (PreRotation into jointOrient), skins become skinClusters with the file's weights and bind matrices, morph channels become a morph with a target per channel (in-betweens kept), and one take is baked onto the channels. Cameras become camera nodes with their lens, film back and clipping (focal length, film back and clipping curves keyed per frame); lights are reported, not imported. Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, take, fps, skipped and warnings.
@@ -2567,12 +3586,13 @@ Import an FBX file: its node hierarchy as transforms, joints and meshes, convert
 | `animation` | `anim` | bool | `True` | Bake the take onto translate/rotate/scale, one key per frame. |
 | `take` |  | str |  | AnimStack to import; the file's active one (or first) by default. |
 | `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the take. |
+| `instances` |  | bool | `True` | Objects sharing one geometry come in as instances of the first. |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the imported roots. |
 
 ### importFile
 
-Import a file into the scene with the translator for its extension (.fbx, .obj, .ma, ...).
+Import a file into the scene with the translator for its extension (.fbx, .gltf, .glb, .obj, .ma, ...).
 
 **Objects:** path
 
@@ -2582,6 +3602,30 @@ Import a file into the scene with the translator for its extension (.fbx, .obj, 
 | `options` |  | Any |  | {flag: value} passed on to the translator's command. |
 
 Not undoable.
+
+### importGltf
+
+Import a glTF 2.0 file (.gltf with its .bin and images, embedded data URIs, or binary .glb): the default scene's nodes as transforms, joints, meshes and cameras, converted from glTF's Y-up metres to the scene's axes and cm.
+
+Each mesh becomes one Lila mesh, its primitives becoming material slots, with normals (hard edges where they split), tangents, every UV set (flipped to Lila's V-up) and every vertex color set; vertices split for seams weld back into points. Skins become skinClusters on joints with every JOINTS_n/WEIGHTS_n influence and the inverse bind matrices; a joint's rest rotation goes into its jointOrient. Morph targets become a morph with their names and default weights. Animation channels become curves: LINEAR and STEP keys exactly, CUBICSPLINE with its tangents (rotations sampled every frame); with several animations each becomes a take, the first active. Cameras keep their field of view and clipping.
+
+Materials become material nodes: base color and alpha mode, metallic and roughness (packed into an ORM map, written as a new image when the file's layout differs), occlusion, emissive with KHR_materials_emissive_strength, normal map (kept OpenGL style), double sided, KHR_materials_ior/specular as specular, KHR_texture_transform baked into the UVs, and KHR_materials_unlit approximated as emissive. Embedded and converted images are written to textureDir. KHR_mesh_quantization, sparse accessors, EXT_meshopt_compression and KHR_draco_mesh_compression are decoded (a Draco primitive that fails to decode falls back to its uncompressed data when the file has it). Lights are reported, not imported (Lila has no lights).
+
+Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, morphs, materials, images, takes, take, fps, start, end, curves, skipped, warnings and errors.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `parent` | `p` | str |  | Parent the imported roots under this node. |
+| `skins` |  | bool | `True` | Rebuild skins as joints and skinClusters with their weights and bind matrices. |
+| `animation` | `anim` | bool | `True` | Import the animations as curves. |
+| `take` |  | str |  | Import only this animation, by name or index; every animation by default. |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the (first) animation. |
+| `materials` |  | bool | `True` | Create material nodes; off keeps only the slot names on the faces. |
+| `textureDir` |  | str |  | Folder for embedded and converted images; <file folder>/<file name>_textures by default. |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+| `select` |  | bool | `True` | Select the imported roots. |
 
 ### importObj
 
@@ -2600,6 +3644,19 @@ Read a .lilapicker file into the scene, renamed with name= or replacing one of t
 | `name` | `n` | str |  | Name in the scene; the file's own by default. |
 | `replace` | `r` | bool | `False` | Replace a scene picker of the same name. |
 
+### importPly
+
+Import a PLY file (ASCII or binary, either byte order) as one mesh: polygons with normals, UVs (per vertex or MeshLab's per-corner texcoord), vertex colors as colorSet and face colors as faceColor. Other numeric vertex and face properties (quality, intensity, confidence...) become float attributes of the same name. A file with only vertices comes in as a point cloud: a mesh of loose points. Returns the new mesh names, or with report=True a dict of nodes, pointCloud, textureFiles and skipped.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'m'` | The file's length unit. Scanners and photogrammetry write metres. One of `mm`, `cm`, `m`, `in`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; converted to the scene's. One of `y`, `z`. |
+| `normals` |  | bool | `True` | Keep the file's normals. |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+
 ### importReference
 
 Turn a reference's nodes into ordinary scene nodes and drop the link to the file.
@@ -2607,6 +3664,33 @@ Turn a reference's nodes into ordinary scene nodes and drop the link to the file
 **Objects:** namespace
 
 Not undoable.
+
+### importStl
+
+Import an STL file, binary or ASCII: one mesh per solid. Triangles sharing positions weld into a connected mesh, edges bent past hardAngle are hard, and binary per-triangle colors (VisCAM and Materialise) become a color set. Returns the new mesh names.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'mm'` | The file's length unit. STL has none; 3D printing assumes mm. One of `mm`, `cm`, `m`, `in`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; converted to the scene's. One of `y`, `z`. |
+| `weld` |  | bool | `True` | Merge identical positions into shared points. |
+| `hardAngle` |  | float | `30.0` | Edges bent more than this many degrees are hard; -1 leaves all soft. |
+
+### importSvg
+
+Import an SVG file as Bezier curves (paths, rect, circle, ellipse, line, polyline, polygon, with transforms, groups and the viewBox) on a plane at a scale. One curve per shape under a group named after the file, or all in one curve. Returns the curve names.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` | `s` | float | `0.1` | cm per SVG unit (px). |
+| `plane` |  | str | `'xy'` | Plane the drawing lies on: xy (front), xz (ground) or yz (side). |
+| `center` |  | bool | `True` | Centre the drawing on the origin; off puts its top left corner there. |
+| `merge` |  | bool | `False` | One curve for the whole drawing instead of one per shape. |
+| `name` | `n` | str |  | Name of the group (or the merged curve); the file name by default. |
 
 ### importTheme
 
@@ -2628,6 +3712,18 @@ Not undoable.
 Save to the next free incremental name (scene.lila -> scene_v002.lila -> scene_v003.lila) and make it the current file. Returns the new path.
 
 Not undoable.
+
+### inflate
+
+Add an inflate deformer: pushes points along their normals by amount (negative deflates). Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amount` |  | float | `1.0` | Distance along the normal, cm. |
+| `params` |  | Any |  | {param: value} to set on each deformer. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### insertCurvePoint
 
@@ -2651,9 +3747,67 @@ Split a bone: insert count joints evenly between a joint and its child. Returns 
 | `count` | `c` | int | `1` | Joints to insert. |
 | `child` | `ch` | str |  | Which child bone to split; defaults to the first child joint. |
 
+### insetCurve
+
+Inset the region closed planar curves bound along the straight skeleton, with live history: corners stay mitred, parts narrower than twice the distance vanish and loops pinched apart come out as separate curves. steps gives several evenly spaced insets. Returns [curve, insetCurve].
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `distance` |  | float |  | How far in, cm. |
+| `steps` |  | int |  | Evenly spaced insets out to the distance. |
+| `normal` |  | tuple[float, float, float] |  | Plane normal; zero fits the plane to the curves. |
+| `tolerance` |  | float |  | Tessellation of curved input, cm. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `name` | `n` | str |  | Name of the result curve; made unique. |
+
+### instance
+
+Make instances of objects: meshes that share their source's mesh, so an edit to any of them changes all. Returns the new names.
+
+reference=True makes references instead, which share the base mesh under the source's modifiers but keep a modifier stack of their own (same base, a different bevel).
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name for a single instance. |
+| `reference` |  | bool | `False` | Share only the base mesh, with modifiers of its own. |
+
+```python
+instance("Bolt")
+```
+
+```python
+instance("Panel", reference=True)
+```
+
+### instanceInfo
+
+How a mesh shares data: {kind: none | source | instance | reference, source, members}.
+
+**Objects:** mesh
+
+Not undoable.
+
 ### invertSelection
 
 Invert the selection: the unselected components of the current kind on the hilited meshes, or in object mode every unselected object. An isolated view inverts only what it shows.
+
+### jiggle
+
+Add a jiggle deformer to the top of each mesh's stack: points trail the deformation below on springs and settle. Starts at the playback start. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `stiffness` |  | float | `150.0` | Spring rate: higher follows the input more tightly. |
+| `damping` |  | float | `8.0` | How fast the wobble dies out. |
+| `gravity` |  | tuple[float, float, float] | `[0, 0, 0]` | Constant acceleration, world space, cm/s^2. |
+| `substeps` |  | int | `2` | Solver steps per frame. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### joint
 
@@ -2678,6 +3832,20 @@ Length of a joint's bone (distance to its first child joint). With length= the c
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `length` | `l` | float |  | New length, cm. |
+
+### kelvinlet
+
+Add a Kelvinlet handle to the meshes: moving, rotating or scaling the handle grabs, twists, scales or pinches the mesh around it with a physically based falloff. Returns [handle, deformers...].
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | tuple[float, float, float] |  | Handle position, world. Default: the meshes' centre. |
+| `radius` |  | float |  | Brush radius, cm. Default: a quarter of the meshes' size. |
+| `poissonRatio` |  | float | `0.4` | 0 squashes freely, 0.5 keeps volume. |
+| `falloff` |  | str | `'single'` | single \| biScale \| triScale |
+| `name` |  | str |  | Name for the deformer. |
 
 ### keyframe
 
@@ -2713,6 +3881,19 @@ Query or set tangents of keys (all, or those in time). Setting an angle makes th
 | `inWeight` | `iw` | float |  | Handle length, 1 = a third of the segment. |
 | `outWeight` | `ow` | float |  | Handle length, 1 = a third of the segment. |
 | `weightedTangents` | `wt` | bool |  | Make the curves weighted or not. |
+
+### laplacianDeform
+
+Add a Laplacian handle deformer to a mesh: each handle region gets a locator that drags it, anchors stay, and the surface between follows smoothly with its detail. Returns [deformer, handles...].
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `handles` |  | list |  | One entry per handle: its points as ids, components ("Body.vtx[0:9]") or set names. Default: the selected components as one handle. |
+| `points` |  | list |  | The points of a single handle, as handles= takes them. |
+| `anchors` |  | list |  | Points that stay put, as handles= takes them. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### lattice
 
@@ -2954,6 +4135,35 @@ List nodes, optionally filtered by type or the selection.
 | `dag` |  | bool | `False` | Only transforms in the hierarchy. |
 
 Not undoable.
+
+### makeUnique
+
+Give instances and references data of their own, so edits to them stop reaching the other members. An instance gets a live copy of its source's stack, a reference its own base mesh; a source hands its data to its first instance and keeps a copy. Returns the meshes changed.
+
+**Objects:** meshes
+
+```python
+makeUnique("Bolt3")
+```
+
+### matchCurve
+
+Move a curve's end onto another curve (its end or any point) or a mesh border, with G0, G1 or G2 continuity, changing only the control points that end needs. average moves both curves to meet halfway. Returns the changed curves.
+
+**Objects:** curve target
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `continuity` | `c` | str | `'g1'` | Position, tangent or curvature. One of `g0`, `g1`, `g2`. |
+| `end` |  | str | `'nearest'` | Which end of the curve moves. One of `nearest`, `start`, `end`. |
+| `targetEnd` | `te` | str | `'nearest'` | Where on the target: its nearest end, its start or end, or the closest point. |
+| `targetParameter` | `tp` | float |  | Meet the target at this point (spans from its start). |
+| `average` | `avg` | bool | `False` | Both curves move to meet halfway (target ends only). |
+| `preserveOther` | `po` | bool | `True` | Keep the curve's other end exactly; spans are added if the curve is too short. |
+| `flip` | `f` | bool | `False` | Run on the other way along the target. |
+| `mesh` | `m` | str |  | Match to this mesh's border instead of a curve. |
+| `edge` | `e` | int |  | Border edge of mesh=. |
+| `edgeT` |  | float | `0.5` | Where along the edge, 0 to 1. |
 
 ### materialFavourite
 
@@ -3205,6 +4415,19 @@ Find or fix broken geometry. mode='select' selects what each enabled check finds
 | `tolerance` |  | float | `-1.0` | Distance under which points coincide and edges and faces count as zero size, cm; negative scales with the mesh. |
 | `removeLoose` |  | bool | `True` | Repair also removes points and edges left without faces. |
 
+### mirrorDeformerWeights
+
+Mirror a deformer's weight map (or a field's painted layer) across a world plane through the origin, using the mesh's symmetry: one side's weights are copied to the matching points on the other.
+
+**Objects:** deformer or field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` |  | str | `'x'` | The plane's normal: x, y or z. |
+| `direction` |  | str | `'positive'` | positive copies the +axis side to the -axis side; negative the reverse. |
+| `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
+| `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
+
 ### mirrorJoints
 
 Mirror a joint hierarchy across a plane through the world origin. behavior=True mirrors the axes so equal rotations make mirrored poses; False keeps world orientation. Names swap searchReplace; side labels swap left/right. Returns the new joints.
@@ -3338,6 +4561,17 @@ Move the selected components by an offset in world space, or with normal= push e
 | `uvn` |  | tuple[float, float, float] |  | Distances along each point's own U tangent, V tangent and normal, cm. |
 | `onto` |  | list |  | Meshes whose surface each moved point then lands on, at its closest point. |
 
+### moveFieldLayer
+
+Move a field layer to another position in the stack (0 the bottom, applied first).
+
+**Objects:** field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `index` |  | int |  | The layer to move. Default: the top. |
+| `to` |  | int | `0` | Its new position. |
+
 ### moveModifier
 
 Move a modifier up or down its stack by a number of steps (positive is up, applied later).
@@ -3392,6 +4626,22 @@ Type name of a node.
 
 Not undoable.
 
+### noiseDeform
+
+Add a noise deformer: seeded fractal noise displacement along normals or in 3D. Key offset to animate it. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amplitude` |  | float | `1.0` | Largest displacement, object units. |
+| `frequency` |  | float | `0.1` | Noise features per object unit. |
+| `seed` |  | int | `0` | Picks a different noise. |
+| `octaves` |  | int | `3` | Layers of finer detail. |
+| `direction` |  | str | `'normal'` | normal \| vector |
+| `params` |  | Any |  | {param: value} to set on each deformer. |
+| `name` |  | str |  | Name for the deformer. |
+
 ### nonlinear
 
 Add a nonlinear deformer (bend, twist, taper, squash, sine or wave) to the meshes, driven by a new handle sized to them. Move, rotate and scale the handle to place the effect. Returns [handle, deformers...].
@@ -3440,6 +4690,22 @@ Offset curves within their plane by distance, trimming loops; makes new curves. 
 | `replaceOriginal` | `rpo` | bool | `False` | Change the curve itself rather than making a new one. |
 | `name` | `n` | str |  | Name of a new curve. |
 
+### offsetRegion
+
+Offset the region closed planar curves bound (holes even-odd) into new curves with live history: loops that run into each other merge, parts that vanish drop, holes shrink as the outline grows. Returns [curve, offsetRegion].
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `distance` |  | float |  | cm; positive grows the region, negative insets it. |
+| `join` |  | str |  | Corners on the outside: round, miter or square. |
+| `miterLimit` |  | float |  | Longest miter, in distances. |
+| `normal` |  | tuple[float, float, float] |  | Plane normal; zero fits the plane to the curves. |
+| `tolerance` |  | float |  | Fitting tolerance for curved results, cm. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `name` | `n` | str |  | Name of the result curve; made unique. |
+
 ### openCurve
 
 Open closed curves at parameter (span units, default their start), keeping the shape.
@@ -3452,7 +4718,7 @@ Open closed curves at parameter (span units, default their start), keeping the s
 
 ### openFile
 
-Open a file with the translator for its extension (.lila, .ma, ...), replacing the scene. Formats that only import (.fbx, .obj, ...) open as a new untitled scene with the file imported into it.
+Open a file with the translator for its extension (.lila, .ma, ...), replacing the scene. Formats that only import (.fbx, .gltf, .obj, ...) open as a new untitled scene with the file imported into it.
 
 **Objects:** path
 
@@ -4023,6 +5289,16 @@ Inset the selected faces.
 | `depth` |  | float | `0.0` | Push along the normals afterwards, cm. |
 | `individual` |  | bool | `False` | Each face separately. |
 
+### polyInsetRegion
+
+Inset each flat, connected region of the selected faces as one, along the straight skeleton: the band follows the region's outline and holes with mitred corners, closes in a ridge where the inset meets itself, and parts it pinches off become separate faces. The region's faces are replaced by the band and one inner face per part (quad-filled around holes), which end up selected. UVs carry on from the region. Returns the meshes changed.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `distance` | `d` | float | `1.0` | Inward distance, cm. |
+| `depth` |  | float | `0.0` | Push of the inner faces along the normal, cm; the band ramps to it. |
+| `planarAngle` |  | float | `1.0` | Degrees a region's faces may bend and still count as flat. |
+
 ### polyKnife
 
 Knife / multi-cut: cut a mesh along a path of points, splitting the faces between them and the edges the path crosses. Between two points the cut follows the surface under the straight screen line joining them (seen from eye= or along direction=; without either, along the points' average normal). With loopEdge= it inserts an edge loop across that edge's quad ring instead. Follows the mesh's symmetry. Returns the new edges.
@@ -4135,7 +5411,7 @@ Create a QuadSphere mesh. Returns [mesh, generator] (generator is None with gene
 
 ### polyReduce
 
-Reduce the polygon count of whole meshes while keeping their shape, silhouette, UVs and normals. The result is triangles (or quads with quads=True). A mesh with modifiers gets a decimate modifier on top instead. Honours the mesh's symmetry: one half is reduced and mirrored.
+Reduce the polygon count of whole meshes while keeping their shape, silhouette, UVs and normals. The result is triangles (or quads with quads=True). A mesh with modifiers gets a decimate modifier on top instead. Honours the mesh's symmetry: one half (or one radial wedge) is reduced and mirrored (or repeated).
 
 **Objects:** objects
 
@@ -4213,6 +5489,7 @@ Catmull-Clark subdivide whole meshes (crease-aware).
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `levels` |  | int | `1` | Subdivision levels. |
+| `keepHardEdges` |  | bool | `False` | Keep normals split along hard edges; off smooths the shading across them. |
 
 ### polyTargetWeld
 
@@ -4356,6 +5633,21 @@ Best-fit circle (radius and diameter). Either fixed world points, a mesh plus ve
 | `name` | `n` | str |  | Name for the measure node. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new node. |
 
+### rangeOfMotion
+
+Make a range-of-motion take: one pose per frame turning the skin's joints (or the given joints) about their local axes, for fitting and for Unreal ML Deformer training. Joints whose rotation is keyed or driven are left out. Activates the take. Returns {take, start, end, poses, joints}.
+
+**Objects:** mesh or joints
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` |  | float | `45.0` | Degrees each joint turns either way about its local axes. |
+| `axes` |  | str | `'xyz'` | Local axes to turn about. |
+| `sweep` |  | bool | `True` | Poses turning one joint about one axis at a time, each way. |
+| `randomPoses` |  | int | `0` | Poses turning every joint at once by a random amount within angle. |
+| `seed` |  | int | `1` | Seed of the random poses. |
+| `name` | `n` | str |  | Name of the take; <root>_ROM by default. |
+
 ### rebindDeformer
 
 Re-capture a deformer's bind-time state from the scene as it is now: the mesh's placement, the delta mush rest shape, wrap and cage bindings, the softMod handle's rest, or the lattice's rest box.
@@ -4374,6 +5666,7 @@ Rebuild curves with even spans (poly, Bezier or NURBS), corners kept. Returns th
 | `spans` |  | int |  | Spans. |
 | `degree` |  | int |  | NURBS degree. |
 | `keepCorners` |  | bool |  | Keep tangent breaks sharp. |
+| `keepPointCount` |  | bool |  | Even spacing: keep the kind and point count and spread the points evenly along the curve (kind, spans and degree are ignored). |
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `replaceOriginal` | `rpo` | bool | `True` | Change the curve itself rather than making a new one. |
 | `name` | `n` | str |  | Name of a new curve. |
@@ -4480,6 +5773,16 @@ Remove a driven channel's key at the given index (keys sorted by driver value).
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `index` |  | int | `0` | Key index. |
+
+### removeFieldLayer
+
+Remove a layer from a field.
+
+**Objects:** field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `index` |  | int |  | The layer, 0 the bottom. Default: the top. |
 
 ### removeFromDisplayLayer
 
@@ -4643,6 +5946,16 @@ Move a display layer to a row of the Display Layers panel (0 is the top).
 Make a joint the root of its skeleton by reversing the parent chain above it. Joints keep their world placement.
 
 **Objects:** joint
+
+### resetCorrection
+
+Clear a correction's offsets: all of them, or just points=.
+
+**Objects:** correction
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | list |  | Point ids to clear. |
 
 ### resetPivot
 
@@ -4846,6 +6159,39 @@ Revolve profile curves around an axis into a quad mesh with live history. Return
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
+### rigidify
+
+Add a rigidify deformer: regions of the meshes keep their rest shape and move rigidly with the deformation under them. Regions are the meshes' islands, the selected components (each connected patch one region), sets, or the painted weights. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `regions` |  | str | `'islands'` | islands \| selection \| sets \| weights |
+| `sets` |  | list |  | regions=sets: the sets, each one region. |
+| `blendRings` |  | int | `2` | Edge rings easing from rigid into the deformation. |
+| `name` |  | str |  | Name for the deformer. |
+
+### roof
+
+Build a roof over closed footprint curves with live history (Houdini's straight skeleton roof): a plane per footprint edge at the pitch (or reaching the given ridge height), hips and valleys between them, ridges where they meet, gables on the edges asked for, an overhang and a slab thickness. Returns [mesh, roof].
+
+**Objects:** footprints
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pitch` |  | float |  | Slope of the roof planes, degrees. |
+| `height` |  | float |  | Ridge height above the footprint, cm; 0 uses the pitch. |
+| `overhang` |  | float |  | How far the eaves reach past the footprint, cm. |
+| `gableEdges` |  | str |  | Footprint edges that end in a gable, e.g. "0 2" (edge i runs from point i to i + 1). |
+| `gableEnds` |  | bool |  | Gable every end: each edge between two convex corners shorter than both neighbours. |
+| `thickness` |  | float |  | Roof slab thickness, cm; 0 is a single surface. |
+| `uvScale` |  | float |  | cm per UV unit along the roof planes. |
+| `normal` |  | tuple[float, float, float] |  | Up for the roof; zero fits the plane to the footprint. |
+| `tolerance` |  | float |  | Tessellation of curved footprints, cm. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `name` | `n` | str |  | Mesh name; made unique. |
+
 ### rotate
 
 Rotate objects about their pivots. rotate(by=(x, y, z)) adds a rotation (degrees, XYZ order) in `space`; rotate(to=(x, y, z)) sets the local Euler angles.
@@ -4866,6 +6212,14 @@ Rotate the selected components about a world pivot (default: their centre; with 
 | --- | --- | --- | --- | --- |
 | `by` |  | tuple[float, float, float] |  | Rotation, degrees. |
 | `pivot` |  | tuple[float, float, float] |  | World pivot. |
+
+### sampleField
+
+A field's value (0 to 1) at every point of a mesh, by point id.
+
+**Objects:** field, mesh
+
+Not undoable.
 
 ### saveBakeTarget
 
@@ -4985,6 +6339,16 @@ Scale the selected components about a world pivot (default: their centre; with s
 | `by` |  | tuple[float, float, float] |  | Factor per axis: the world axes, or the axes orient= turns them to. |
 | `pivot` |  | tuple[float, float, float] |  | World pivot. |
 | `orient` |  | tuple[float, float, float] |  | Rotation of the scale axes from the world axes, degrees, XYZ order. |
+
+### scaleCurvature
+
+Multiply curves' curvature: below 1 flattens them toward a straight line, 0 straightens them, above 1 bends them tighter. Lengths along the curve and its start stay. In vertex mode only the selected points move. Returns the curves.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `factor` | `f` | float | `0.5` | Curvature multiplier. |
 
 ### scChangelists
 
@@ -5219,6 +6583,22 @@ One brush stroke on the sculpt proxy: dabs is a list of {center, normal, radius,
 | `dabs` |  | list |  | The stamps, in order. |
 | `live` |  | int | `0` | Internal: adopts the stroke the viewport tool already applied. |
 
+### section
+
+Cut meshes with one plane into curves (Rhino's Section): the plane through point facing normal. Loops come out closed and cuts through open meshes open. Kept live while history is on. Returns [curve, curveContour].
+
+**Objects:** meshes (default: the selected meshes)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | tuple[float, float, float] |  | A point on the plane, world cm (default the origin). |
+| `normal` | `nm` | tuple[float, float, float] |  | The plane's normal (default up). |
+| `tolerance` | `tol` | float |  | Simplify each curve within this many cm; 0 keeps every crossing. |
+| `smooth` | `sm` | bool |  | Fit smooth Beziers instead of poly lines. |
+| `bridge` | `br` | bool |  | Close cuts through open meshes across their gaps. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the node so the section follows the meshes and the plane. |
+| `name` | `n` | str |  | Curve name; made unique. |
+
 ### select
 
 Select objects. Replaces the selection unless add/deselect/toggle.
@@ -5361,6 +6741,22 @@ Select fold edges of meshes by the autoBevel rule (on the editable cage). Return
 
 Add every transform below each selected object to the selection, parents before children.
 
+### selectInstances
+
+Select every mesh sharing data with the given ones: their source, instances and references. Returns the selection.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `add` |  | bool | `False` | Add to the selection instead of replacing it. |
+
+### selectInstanceSource
+
+Select the source of each given instance or reference (a source selects itself). Returns the selection.
+
+**Objects:** meshes
+
 ### selectionCandidates
 
 The joints a click on a skinned mesh's face could mean: [{joint, role, weight}] with role redirect, weighted, parent, child or influence, in that order.
@@ -5500,6 +6896,12 @@ Set a bake project's pipeline options: rebakeOnSave (saving the scene rebakes it
 | `rebakeOnSave` | `rs` | bool |  | Rebake on save when the inputs' hash changed. |
 | `autoAssign` | `aa` | bool |  | Run bakeAssign after every bake. |
 
+### setCorrection
+
+Set a correction from a sculpted mesh with the same points: the offsets that take the correction's incoming shape to the target's (matched in world space), stored in tangent space.
+
+**Objects:** correction, target
+
 ### setCurveData
 
 Replace a curve's splines (object space), in curveData's format. Any history feeding it is frozen.
@@ -5519,6 +6921,29 @@ Set the Bezier handle type of the selected curve points (vertex mode), or of eve
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `type` | `t` | str | `'auto'` | Handle type. One of `auto`, `vector`, `aligned`, `free`. |
+
+### setDeformAnchors
+
+Set the anchors of an arap or laplacianDeform deformer (or a mesh's topmost one): points that stay where the input puts them. With add, adds to them instead.
+
+**Objects:** deformer or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | list |  | Ids, components or set names. Default: the selected components. |
+| `add` |  | bool | `False` | Add to the anchors instead of replacing them. |
+
+### setDeformerMembership
+
+Restrict deformers to some points (Maya's component tags): points outside the membership never move. Takes points=, the components of set=, or the selected components. mode replace, add, remove, or clear (every point again).
+
+**Objects:** deformers (or meshes: their top deformer)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'replace'` | replace \| add \| remove \| clear |
+| `points` |  | list |  | Point ids. |
+| `set` |  | str |  | Take the points of this set's components on the deformer's mesh. |
 
 ### setDeformerWeights
 
@@ -5543,6 +6968,17 @@ Add or replace a key on a driven channel: at the driver's value now (or input=),
 | `input` |  | float |  | Driver value of the key; default the driver's value now. |
 | `value` | `v` | float |  | Driven value of the key. |
 | `interpolation` | `i` | str |  | Key interpolation; default the neighbouring keys'. |
+
+### setFieldLayer
+
+Change a field layer's settings: params= {key: value} with any of the keys fieldLayers lists (type, shape, blend, opacity, invert, inMin, inMax, curve, translate, rotate, scale, softness, points, values, ...).
+
+**Objects:** field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `index` |  | int |  | The layer, 0 the bottom. Default: the top. |
+| `params` |  | Any |  | The settings to change. |
 
 ### setInfinity
 
@@ -5654,23 +7090,28 @@ Not undoable.
 
 ### setSymmetry
 
-Object-space mirror plane for component edits on meshes: 'off', 'x', 'y' or 'z'.
+Object-space symmetry for component edits on meshes: 'off', a mirror plane 'x', 'y' or 'z', or 'radial': count wedges repeated round radialAxis (with mirror=True also mirrored within each wedge), every edit applied to all of them.
 
 **Objects:** objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `axis` |  | str | `'x'` | off, x, y or z. |
+| `axis` |  | str | `'x'` | off, x, y, z or radial. |
+| `count` |  | int |  | Radial: how many wedges repeat round the axis, 2 to 64; default: the mesh's own. |
+| `radialAxis` |  | str |  | Radial: the axis, x, y, z or custom (direction=); default: the mesh's own. |
+| `direction` |  | tuple[float, float, float] |  | Radial: a custom axis direction, object space. |
+| `mirror` |  | bool |  | Radial: also mirror each wedge across a plane through the axis (dihedral symmetry). |
+| `phase` |  | float |  | Radial: degrees the wedge boundaries and mirror planes turn about the axis. |
 
 ### setSymmetryPlane
 
-Set where meshes' symmetry plane lies: through the selected edges or vertices (which must lie flat across an axis; that axis becomes the symmetry axis), or back through the pivot with pivot=True. Returns the plane per mesh as [axis, offset].
+Set where meshes' symmetry plane lies: through the selected edges or vertices (which must lie flat across an axis; that axis becomes the symmetry axis), or back through the pivot with pivot=True. With radial symmetry the radial axis passes through the selection's centre instead. Returns the plane per mesh as [axis, offset], or ['radial', centre].
 
 **Objects:** objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `pivot` |  | bool | `False` | Put the plane back through the pivot. |
+| `pivot` |  | bool | `False` | Put the plane (or radial axis) back through the pivot. |
 
 ### setTheme
 
@@ -5711,6 +7152,18 @@ Set a color set from a flat [r, g, b, a, ...] list per face-vertex, in getVertex
 | `values` |  | list |  | 4 floats per face-vertex, linear. |
 | `buffer` |  | int | `0` | Internal: values handed over from Python (Node.set_colors). |
 
+### shear
+
+Add a shear deformer driven by a new handle sized to the meshes: X and Z offset grow with the handle's Y. Returns [handle, deformers...].
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` |  | str | `'y'` | World axis the handle's Y lies along. One of `x`, `y`, `z`. |
+| `params` |  | Any |  | {param: value} to set on each deformer. |
+| `name` |  | str |  | Name for the deformer. |
+
 ### show
 
 Show objects. all=True shows every hidden object.
@@ -5744,6 +7197,24 @@ Reproject meshes onto a target surface: to the closest point, along each point's
 | `offset` |  | float | `0.0` | Distance kept off the target along its normal, cm; negative goes inside. |
 | `maxDistance` |  | float | `-1.0` | Leave points farther than this, cm; negative is unlimited. |
 
+### shrinkwrapDeformer
+
+Add a shrinkwrap deformer: the meshes move onto the target's surface, live. Give the meshes first and the target last. Returns the deformers.
+
+**Objects:** meshes..., target
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'nearestSurface'` | nearestSurface \| project \| nearestVertex \| targetNormal |
+| `placement` |  | str | `'onSurface'` | onSurface \| inside \| outside \| outsideSurface \| aboveSurface |
+| `offset` |  | float | `0.0` | Distance kept from the surface, cm. |
+| `projectAxis` |  | str | `'normal'` | Project mode: normal \| x \| y \| z (the mesh's own axes). |
+| `negative` |  | bool | `False` | Project mode: also cast against the axis. |
+| `smoothIterations` |  | int | `0` | Smooth the mesh this many passes before wrapping it. |
+| `keepDetail` |  | bool | `False` | Put the smoothed-away detail back after wrapping. |
+| `params` |  | Any |  | {param: value} for any other attribute. |
+| `name` |  | str |  | Name for the deformer. |
+
 ### simulate
 
 Simulate up to a frame (default the current one) from the start frame or the cache, the same answer however the frame is reached. Looping animation is simulated as a periodic loop. Returns each simulation's info.
@@ -5766,6 +7237,133 @@ A simulation's state: loop range and convergence (passes, residual), step count,
 
 Not undoable.
 
+### sketchAdd
+
+Add splines to a sketch curve (or a new one) with constraints on them, as the sketch tool does when drawing: new splines take indices from the curve's spline count on, and constraints that would conflict are dropped with a warning. Returns {curve, splines (their indices), constraints (ids)}.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `splines` | `s` | list |  | Splines in curveData's format, object space of the curve (world space for a new one). |
+| `constraints` | `c` | list |  | [{type, refs, value}, ...]: constraints and dimensions to add after them. |
+| `name` | `n` | str |  | Name of a new curve. |
+| `planeNormal` |  | tuple[float, float, float] |  | The sketch plane's normal (object space) when the curve has no sketch yet; default its best-fit plane. |
+| `planeOrigin` |  | tuple[float, float, float] |  | A point on the sketch plane, with planeNormal. |
+
+### sketchClear
+
+Remove every sketch constraint and dimension from curves (the geometry stays).
+
+**Objects:** curves
+
+### sketchCombine
+
+Merge curves into the first one, so constraints can tie them together: their splines join it (kept where they are) and their sketch constraints come along. The others are deleted unless keepOriginal. Returns the first curve.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `keepOriginal` | `kp` | bool | `False` | Keep the other curves. |
+
+### sketchConstrain
+
+Add a geometric constraint between a curve's points, lines and circles, and solve the sketch. Several lines for horizontal, vertical or fixed add one each; three or more refs for equal, parallel, coincident or concentric tie each to the first. Refuses a constraint that conflicts (naming what it conflicts with) or adds nothing. Returns the ids.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str | `'coincident'` | The constraint. One of `coincident`, `horizontal`, `vertical`, `parallel`, `perpendicular`, `tangent`, `equal`, `concentric`, `midpoint`, `symmetric`, `fixed`, `pointOnCurve`, `collinear`. |
+| `refs` | `r` | list |  | What it applies to: "p0.3" point 3 of spline 0 ("p0.end" its last), "l0.3" the line from point 3 to 4, "c1" spline 1 (a circle, arc or any curve), "o1" a circle's centre, "hl0.3"/"hr0.3" Bezier handles. Default: the selected points. |
+| `force` |  | bool | `False` | Keep a constraint even when it conflicts or adds nothing. |
+| `planeNormal` |  | tuple[float, float, float] |  | The sketch plane's normal (object space) when the curve has no sketch yet; default its best-fit plane. |
+| `planeOrigin` |  | tuple[float, float, float] |  | A point on the sketch plane, with planeNormal. |
+
+### sketchDelete
+
+Delete sketch constraints or dimensions by id; the geometry stays where it is. Dimensions others' expressions use leave their value behind in those expressions.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` |  | list |  | Constraint ids. |
+
+### sketchDimension
+
+Add a dimension (distance, horizontal or vertical distance, length, radius, diameter or angle) and solve the sketch to it. Without a value it keeps the current measurement. expr makes it parametric: other dimensions by name (d1), units (mm, cm, m, in, deg), + - * / ^ and sin, cos, sqrt... Returns {id, name, value}.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str | `'distance'` | The dimension. One of `distance`, `horizontalDistance`, `verticalDistance`, `length`, `radius`, `diameter`, `angle`. |
+| `refs` | `r` | list |  | What it applies to: "p0.3" point 3 of spline 0 ("p0.end" its last), "l0.3" the line from point 3 to 4, "c1" spline 1 (a circle, arc or any curve), "o1" a circle's centre, "hl0.3"/"hr0.3" Bezier handles. Default: the selected points. |
+| `value` | `v` | float |  | cm, or degrees for angle; default the current measurement. |
+| `expr` | `e` | str |  | An expression for the value, kept live (e.g. "d1 * 2", "25mm"). |
+| `name` | `n` | str |  | Name other expressions use; default d1, d2... |
+| `force` |  | bool | `False` | Keep a constraint even when it conflicts or adds nothing. |
+| `planeNormal` |  | tuple[float, float, float] |  | The sketch plane's normal (object space) when the curve has no sketch yet; default its best-fit plane. |
+| `planeOrigin` |  | tuple[float, float, float] |  | A point on the sketch plane, with planeNormal. |
+
+### sketchDrag
+
+Drag sketch points (or circle centres, or a circle's rim for its radius) to a position or by an offset, solving the rest so every constraint keeps holding: what dragging them in the viewport does.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | str |  | The point: "p0.3", "o1", "hl0.3", or "c1" for a circle's radius. |
+| `points` |  | list |  | Several points, moved together by by= (instead of point). |
+| `to` |  | tuple[float, float, float] |  | Where the point goes, cm. |
+| `by` |  | tuple[float, float, float] |  | How far the points move, cm (instead of to). |
+| `worldSpace` | `ws` | bool | `False` | to and by are in world space (default object space). |
+| `planeNormal` |  | tuple[float, float, float] |  | The sketch plane's normal (object space) when the curve has no sketch yet; default its best-fit plane. |
+| `planeOrigin` |  | tuple[float, float, float] |  | A point on the sketch plane, with planeNormal. |
+
+### sketchEditDimension
+
+Change a dimension's value or expression and solve the sketch to it. Refused (nothing changes) when the sketch can't reach it.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` |  | int |  | The dimension's id. |
+| `dimension` | `d` | str |  | The dimension's name (instead of id). |
+| `value` | `v` | float |  | cm, or degrees for angle. Clears an expression. |
+| `expr` | `e` | str |  | An expression for the value; empty clears it. |
+| `rename` |  | str |  | A new name for it. |
+
+### sketchInfo
+
+A curve's sketch: plane, constraints (with each dimension's value and measurement), degrees of freedom, which points are fully constrained, redundant and conflicting constraints.
+
+**Objects:** curve
+
+Not undoable.
+
+### sketchPlane
+
+Set the plane a curve's sketch solves in: a normal and origin, or fit=True for the best fit through its points. Horizontal and vertical follow the plane's axes.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `normal` | `nr` | tuple[float, float, float] |  | Plane normal, object space. |
+| `origin` | `o` | tuple[float, float, float] |  | A point on the plane, object space. |
+| `fit` |  | bool | `False` | Fit the plane through the curve's points. |
+
+### sketchSolve
+
+Solve a curve's sketch again (after editing points by other means). Returns {ok, error, conflicting, invalid, warnings}; a sketch that can't hold keeps its geometry.
+
+**Objects:** curve
+
 ### skinCluster
 
 Bind a mesh to joints. Give the joints and the mesh in any order (or select them). With bindTo="hierarchy" every joint below the given ones is an influence too. Weights start from closest-bone distance; method="heatmap" also ignores bones hidden behind the surface and smooths. Returns the skinCluster.
@@ -5778,7 +7376,7 @@ Bind a mesh to joints. Give the joints and the mesh in any order (or select them
 | `method` | `m` | str | `'closest'` | closest \| heatmap |
 | `dropoffRate` | `dr` | float | `4.0` | How fast a bone's weight falls off with distance. |
 | `bindTo` | `bt` | str | `'hierarchy'` | hierarchy \| selected |
-| `skinningMethod` | `sm` | str | `'linear'` | linear \| dualQuaternion |
+| `skinningMethod` | `sm` | str | `'linear'` | linear \| dualQuaternion \| centresOfRotation \| directDeltaMush |
 | `name` | `n` | str |  | Name for the skinCluster. |
 
 ### skinInfo
@@ -5788,6 +7386,16 @@ A skinned mesh's skinCluster, influences, influence limit and weight health.
 **Objects:** mesh
 
 Not undoable.
+
+### skinningMethod
+
+Set how skinned meshes blend their joints: linear (what Unreal runs), dualQuaternion, centresOfRotation (Le and Hodgins: keeps volume at bends and twists without dual quaternion bulges) or directDeltaMush (Le and Lewis: delta mush smoothing in one pass). The last three export as fitted linear weights.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `method` | `m` | str | `'linear'` | linear \| dualQuaternion \| centresOfRotation \| directDeltaMush |
 
 ### skinPercent
 
@@ -5800,6 +7408,18 @@ Set exact weights: transformValue=[[joint, weight], ...] on the given (or select
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices. |
 | `transformValue` | `tv` | Any |  | [[joint, weight], ...] or {joint: weight} |
 | `normalize` | `nrm` | bool | `True` | Rescale the other influences so each point sums to 1. |
+
+### skinSlide
+
+Add a skin slide deformer: the deformation below it slides along the rest surface and is relaxed there, so skin moves over the form instead of stretching. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `relaxIterations` |  | int | `4` | Relax passes on the rest surface. |
+| `normalAmount` |  | float | `0.0` | 0 to 1: how much movement off the rest surface is kept. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### smartJoin
 
@@ -5823,6 +7443,44 @@ Join a limb mesh to a body mesh with a quad bridge, changing only a local region
 | `flip` |  | bool | `False` | Swap which mesh is the limb and which the body. |
 | `name` |  | str |  | Name of the joined mesh. |
 
+### smoothCurve
+
+Smooth curves' points toward their neighbours (Bezier handles follow their points). In vertex mode only the selected points move. Returns the curves.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strength` | `s` | float | `0.5` | How far each pass moves a point toward its neighbours' average, 0 to 1. |
+| `iterations` | `i` | int | `3` | Passes. |
+| `keepEnds` | `ke` | bool | `True` | Open curves keep their end points. |
+
+### smoothDeformer
+
+Add a smooth deformer: Laplacian, Taubin (no shrinking) or corrective (smooths only what changed since binding). Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'taubin'` | laplacian \| taubin \| corrective |
+| `iterations` |  | int | `5` | Smoothing passes. |
+| `smoothStep` |  | float | `0.5` | How far each pass moves a point, 0 to 1. |
+| `params` |  | Any |  | {param: value} to set on each deformer. |
+| `name` |  | str |  | Name for the deformer. |
+
+### smoothDeformerWeights
+
+Smooth a deformer's weight map (or a field's painted layer) over the mesh's edges.
+
+**Objects:** deformer or field
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `iterations` |  | int | `1` | Smoothing passes. |
+| `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
+| `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
+
 ### smoothPreview
 
 Display meshes subdivided without changing them (the 1/2/3 keys). level 0 is off.
@@ -5832,6 +7490,8 @@ Display meshes subdivided without changing them (the 1/2/3 keys). level 0 is off
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `level` |  | int | `2` | Subdivision levels to display (0 to 3). |
+
+Not undoable.
 
 ### snapReverseFoot
 
@@ -5895,6 +7555,14 @@ Set or query the soft select falloff curve (weight against distance from the sel
 
 Not undoable.
 
+### softSelectField
+
+Make soft selection read a field: soft select weights are multiplied by the field's value. No field clears it. A preference, so not undoable.
+
+**Objects:** field
+
+Not undoable.
+
 ### spaceLocator
 
 Create a locator. Returns its path.
@@ -5905,11 +7573,53 @@ Create a locator. Returns its path.
 | `position` | `p` | tuple[float, float, float] |  | World position. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new locator. |
 
+### splitCurves
+
+Split curves at all their mutual intersections (and with cutters), in 3D or as seen along direction. Returns every piece.
+
+**Objects:** curves
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `cutters` |  | list |  | More curves to split at, left whole. |
+| `tolerance` | `tol` | float | `0.01` | Curves closer than this meet, cm. |
+| `direction` | `dir` | tuple[float, float, float] |  | Intersect as seen along this direction (the view), for curves that only cross on screen. |
+
 ### stop
 
 Stop playback.
 
 Not undoable.
+
+### surfaceDeform
+
+Make meshes follow a driver of any topology: each point binds to the driver's nearby polygons, or to its points in points mode. Give the meshes first and the driver last. Returns the deformers.
+
+**Objects:** meshes..., driver
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'polygons'` | polygons \| points |
+| `maxFaces` |  | int | `4` | Polygons mode: driver polygons each point follows. |
+| `falloff` |  | float | `4.0` | Polygons mode: distance exponent between a point's polygons. |
+| `maxPoints` |  | int | `8` | Points mode: driver points capturing each point. |
+| `radius` |  | float | `0.0` | Points mode: capture radius, cm; 0 sizes it from the nearest points. |
+| `rebind` |  | str | `'none'` | When the driver's topology changes: none \| restAttribute \| uv |
+| `name` |  | str |  | Name for the deformer. |
+
+### surfacePin
+
+Pin objects or joints to a mesh's final surface (after its whole stack): each gets a pin locator riding the surface at a uv (uvPin) or its nearest point (proximityPin) and is parent-constrained to it, keeping its offset. Give the objects first and the mesh last; with no objects one pin is made. Returns the pin locators.
+
+**Objects:** objects..., mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'uv'` | uv \| nearest |
+| `uv` |  | list |  | uv mode: [u, v] of the pin. Default: the uv nearest each object. |
+| `uvSet` |  | str | `'uv0'` | The uv set read. |
+| `position` |  | tuple[float, float, float] |  | With no objects: where the pin goes, world space. |
+| `name` |  | str |  | Name for the pin locator. |
 
 ### switchSpace
 
@@ -5929,23 +7639,40 @@ Switch nodes to another space keeping their world pose: keys the space channel (
 
 ### symmetrize
 
-Make meshes exactly symmetric: every point on one side of the symmetry plane is copied, reflected, onto its partner, and on-plane points are put on the plane.
+Make meshes exactly symmetric: every point on one side of the symmetry plane is copied, reflected, onto its partner, and on-plane points are put on the plane. With radial symmetry, one wedge's points are copied round the axis onto their orbits.
 
 **Objects:** objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `side` |  | str | `'positive'` | The side that is kept. One of `positive`, `negative`. |
+| `wedge` |  | int | `-1` | Radial: the wedge that is kept; -1: the one most of the selected components are in, else 0. |
+
+### symmetrizeRadial
+
+Rebuild meshes exactly radially symmetric: the kept wedge is repeated round the axis (and mirrored within each wedge with mirror=True), replacing the rest, and welded along the seams and the axis; then the mesh's symmetry is set to radial with these settings, so every edit after keeps it. Settings default to the mesh's own radial symmetry. Model one wedge and run this to get the whole. Returns the faces per mesh.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` |  | int |  | Radial: how many wedges repeat round the axis, 2 to 64; default: the mesh's own. |
+| `radialAxis` |  | str |  | Radial: the axis, x, y, z or custom (direction=); default: the mesh's own. |
+| `direction` |  | tuple[float, float, float] |  | Radial: a custom axis direction, object space. |
+| `mirror` |  | bool |  | Radial: also mirror each wedge across a plane through the axis (dihedral symmetry). |
+| `phase` |  | float |  | Radial: degrees the wedge boundaries and mirror planes turn about the axis. |
+| `wedge` |  | int | `-1` | The wedge that is kept; -1: the one most of the selected components are in, else the one holding most of the mesh. |
+| `tolerance` |  | float | `0.0` | Weld distance along the seams and the axis, cm (0: scaled to the mesh). |
 
 ### symmetryCheck
 
-Report how symmetric meshes are across their symmetry plane: the largest distance between a point and its partner's reflection, and the points without a partner. Changes nothing.
+Report how symmetric meshes are across their symmetry plane (or round their radial axis): the largest distance between a point and its partner's reflection (or its orbit's image), and the points without a partner. For radial symmetry also the unmatched point ids and the count the mesh fits best. Changes nothing.
 
 **Objects:** objects
 
 ### symmetryRebuild
 
-Rebuild meshes symmetric: the kept side is mirrored across the plane through the object's pivot, replacing the other side, welded on the plane, and the symmetry pairs are stored again. With pairsOnly, the geometry is left alone and only the stored pairs are matched again, by position or, for meshes that are no longer symmetric, by topology outward from the selected edge (which must lie on the plane). Returns the points left unmatched per mesh.
+Rebuild meshes symmetric: the kept side is mirrored across the plane through the object's pivot, replacing the other side, welded on the plane, and the symmetry pairs are stored again. A mesh with radial symmetry is rebuilt from its kept wedge instead (see symmetrizeRadial). With pairsOnly, the geometry is left alone and only the stored pairs are matched again, by position or, for meshes that are no longer symmetric, by topology outward from the selected edge (which must lie on the plane; any edge for radial symmetry). Returns the points left unmatched per mesh.
 
 **Objects:** objects
 
@@ -5953,9 +7680,22 @@ Rebuild meshes symmetric: the kept side is mirrored across the plane through the
 | --- | --- | --- | --- | --- |
 | `axis` |  | str |  | x, y or z; default: the mesh's symmetry axis, else x. |
 | `side` |  | str | `'auto'` | The side that is kept; auto: the side of the selected components, else the side holding nearly all of the mesh, else positive. One of `auto`, `positive`, `negative`. |
+| `wedge` |  | int | `-1` | Radial: the wedge that is kept; -1: the one most of the selected components are in, else the one holding most of the mesh. |
 | `pairsOnly` |  | bool | `False` | Only match the stored pairs again, leaving the geometry as it is. |
 | `topological` |  | bool | `False` | With pairsOnly: match by topology from the selected edge. |
 | `tolerance` |  | float | `0.0` | Weld or match distance, cm (0: scaled to the mesh). |
+
+### tension
+
+Add a tension deformer: measures stretch and compression against the current shape, as a 'tension' point attribute and a colour set, for wrinkle maps. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` |  | float | `4.0` | Colour gain: strain times scale is full colour. |
+| `colorSet` |  | str | `'tension'` | Colour set to write; empty for none. |
+| `name` |  | str |  | Name for the deformer. |
 
 ### texAddAnchor
 
@@ -6436,6 +8176,41 @@ The smart materials and masks in the libraries: name, kind, description, tier an
 
 Not undoable.
 
+### textCurves
+
+Make text as curves (Maya's textCurves): closed Bezier outlines of each glyph, exact, in the XY plane with the first baseline on the origin. The curveText node keeps the text, font and layout live, so editing it updates anything built on the curve (a bevelPlus, say). Returns [curve, curveText].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `text` |  | str |  | The text; new lines start new lines. |
+| `font` |  | str |  | A font file, or a family and style ("Inter", "Inter SemiBold", "Arial Bold") among the bundled and installed fonts. |
+| `size` |  | float |  | Em size, cm. |
+| `letterSpacing` |  | float |  | Extra space after each character, cm. |
+| `lineSpacing` |  | float |  | Baseline to baseline, in the font's line heights. |
+| `alignment` |  | str |  | Where lines sit against x = 0. One of `left`, `center`, `right`. |
+| `kerning` |  | bool |  | Use the font's kerning. |
+| `mergeOverlaps` |  | bool |  | Join a glyph's overlapping contours so each area fills once (variable fonts overlap them). |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
+| `name` | `n` | str |  | Curve name; made unique. |
+
+### textureDeformer
+
+Add a texture deformer: displaces the meshes by an image file or a texture set's channel, read through a uv set. rebindDeformer reads the image again. Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `image` |  | str |  | Image file. |
+| `textureSet` |  | str |  | Texture set to read instead of a file. |
+| `source` |  | str | `'height'` | The texture set's channel, or node.socket. |
+| `uvSet` |  | str | `'uv0'` | The uv set read. |
+| `strength` |  | float | `1.0` | Displacement per unit of image value. |
+| `midLevel` |  | float | `0.5` | The image value that doesn't move a point. |
+| `direction` |  | str | `'normal'` | normal \| vector |
+| `component` |  | str | `'luminance'` | What normal reads. One of `luminance`, `red`, `green`, `blue`, `alpha`. |
+| `name` |  | str |  | Name for the deformer. |
+
 ### textureFolders
 
 Which project images the material editor's texture lists show. Globs relative to the project folder (the workspace root, else the scene's folder): `*` within a folder name, `**` across folders, a pattern without '/' matches at any depth, and a folder pattern takes everything under it, e.g. Textures/**, **/*_old.*, Saved. Empty include takes everything; exclude wins. Kept in the workspace's .lila/settings.json, or with scene=True in the scene, where each list overrides the workspace's. With no flags returns the effective lists, where each came from and both levels.
@@ -6455,7 +8230,7 @@ Symmetry off on the meshes if every one already has it on (on axis=, when given)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `axis` |  | str |  | x, y or z to turn on with; default: the axis already in use, else the last one picked. |
+| `axis` |  | str |  | x, y, z or radial to turn on with; default: the axis already in use, else the last one picked. |
 
 ### toggleVisibility
 
@@ -6505,6 +8280,21 @@ Move low-poly meshes onto a high-poly one (an imported sculpt): the same cage fi
 Set the source mesh of transferAttributes modifiers: connects its mesh and world matrix, and refreshes the target's stored world matrix (run it again after moving the target).
 
 **Objects:** modifiers..., source
+
+### trimCurve
+
+Delete the stretch of a curve between the intersections around a point (or parameter): with other curves (cutters, default every other visible curve), in 3D or as seen along direction. A curve meeting nothing is deleted. Returns what is left.
+
+**Objects:** curve
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | tuple[float, float, float] |  | World point on (or near) the stretch to delete. |
+| `parameter` | `u` | float |  | The stretch to delete, by span parameter. |
+| `spline` |  | int | `0` | Which spline of the curve, with parameter. |
+| `cutters` |  | list |  | Curves to trim against; default every other visible curve. |
+| `tolerance` | `tol` | float | `0.01` | Curves closer than this meet, cm. |
+| `direction` | `dir` | tuple[float, float, float] |  | Intersect as seen along this direction (the view), for curves that only cross on screen. |
 
 ### twistDriver
 
@@ -6600,7 +8390,7 @@ Import (or reimport) a file into the connected Unreal project. Connects first if
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `contentPath` | `cp` | str |  | Destination asset, like /Game/Props/SM_Crate. |
-| `kind` | `k` | str | `'static'` | static \| skeletal \| animation \| meshSequence (a static mesh per frame, <contentPath>_000...) \| geometryCache (one Alembic Geometry Cache) \| vertexAnimation (a static mesh playing Vertex Animation Textures through a generated material) |
+| `kind` | `k` | str | `'static'` | static \| skeletal \| animation \| meshSequence (a static mesh per frame, <contentPath>_000...) \| geometryCache (one Alembic Geometry Cache) \| vertexAnimation (a static mesh playing Vertex Animation Textures through a generated material) \| spline (a curve as an actor of spline components or landscape splines; unrealMap only, no contentPath) |
 | `skeleton` | `sk` | str |  | Skeleton asset to reuse, like /Game/Chars/SK_Hero_Skeleton. |
 | `importMaterials` | `im` | bool |  | Create the materials Unreal does not have yet (default on). |
 | `materialFolder` | `mf` | str |  | Where materials are looked up first and created: /Game/... or relative to the asset's folder (default Materials). |
@@ -6629,7 +8419,7 @@ Map a node to an Unreal asset so saving the scene re-exports and reimports it. S
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `contentPath` | `cp` | str |  | Destination asset, like /Game/Props/SM_Crate. |
-| `kind` | `k` | str | `'static'` | static \| skeletal \| animation \| meshSequence (a static mesh per frame, <contentPath>_000...) \| geometryCache (one Alembic Geometry Cache) \| vertexAnimation (a static mesh playing Vertex Animation Textures through a generated material) |
+| `kind` | `k` | str | `'static'` | static \| skeletal \| animation \| meshSequence (a static mesh per frame, <contentPath>_000...) \| geometryCache (one Alembic Geometry Cache) \| vertexAnimation (a static mesh playing Vertex Animation Textures through a generated material) \| spline (a curve as an actor of spline components or landscape splines; unrealMap only, no contentPath) |
 | `skeleton` | `sk` | str |  | Skeleton asset to reuse, like /Game/Chars/SK_Hero_Skeleton. |
 | `importMaterials` | `im` | bool |  | Create the materials Unreal does not have yet (default on). |
 | `materialFolder` | `mf` | str |  | Where materials are looked up first and created: /Game/... or relative to the asset's folder (default Materials). |
@@ -6649,12 +8439,69 @@ Map a node to an Unreal asset so saving the scene re-exports and reimports it. S
 | `niagaraEmitter` | `ne` | str |  | meshSequence: only this emitter of the system (default every emitter). |
 | `niagaraRenderer` | `nr` | int |  | meshSequence: only the n-th mesh renderer of each emitter (default all). |
 | `vat` | `va` | Any |  | vertexAnimation: the exportVertexAnimation flags as a dict (format exr\|png16\|png8, mode auto\|constant\|soup, positions offset\|absolute, normals, normalBits, restFrame, maxWidth) plus materialParent (an Unreal material to instance instead of the generated one) and rebuildMaterial (regenerate the shared VAT material). |
+| `splineType` | `st` | str |  | spline: actor (spline components, default) or landscape (landscape spline control points). |
+| `splineMesh` | `sm` | str |  | spline: spline meshes along it, a Lila mesh mapped to Unreal or an asset path. |
+| `splineMeshAxis` | `sma` | str |  | spline: the spline mesh's forward axis, x, y or z (default x). |
+| `landscape` | `ls` | str |  | spline, landscape: the landscape's label (default the first one). |
+| `width` | `wd` | float |  | spline, landscape: half-width at radius 1, cm (default 200). |
+| `deformTerrain` | `dt` | bool |  | spline, landscape: raise and lower the terrain along it (default on). |
 
 Not undoable.
 
 ### unrealMappings
 
 Every node -> Unreal asset mapping in this workspace.
+
+Not undoable.
+
+### unrealPlaceInstances
+
+Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Placements are keyed by Lila node, so sending a group again moves, adds and removes its actors to match. Returns the plan, with each group's import and placement results when wait=True.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str | `'/Game/Lila/Instances'` | Content folder the assets go in; each is SM_<source name>. |
+| `mode` | `m` | str | `'auto'` | How members are placed: actors, ism, hism, or auto (actors up to threshold members, then hism). |
+| `threshold` | `t` | int |  | auto switches to hism above this many members (default the unreal pref /instanceThreshold, 50). |
+| `dryRun` |  | bool | `False` | Return the plan without exporting or contacting Unreal. |
+| `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
+
+Not undoable.
+
+```python
+unrealPlaceInstances("Bolt", folder="/Game/Kit")
+```
+
+```python
+unrealPlaceInstances(mode="hism", wait=True)
+```
+
+### unrealRemovePlacements
+
+Remove from Unreal's open level what unrealPlaceInstances placed for the instance groups of the given meshes. Returns how many actors and instances went.
+
+**Objects:** objects
+
+Not undoable.
+
+### unrealSendCurve
+
+Send curves to the connected Unreal editor as splines: an actor with a spline component per curve (Bezier tangents, closed loops, roll from tilt and scale from radius), or with mode=landscape control points and segments on the landscape's splines, optionally with spline meshes of a sent mesh along them. The curves stay mapped, so every save sends them again and updates the same actor. Returns the setSpline replies with wait=True.
+
+**Objects:** curves (default: the selected curves)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `md` | str |  | actor (default) or landscape. |
+| `mesh` | `m` | str |  | Spline meshes along it: a Lila mesh mapped to Unreal, or an asset like /Game/Props/SM_Pipe. |
+| `meshAxis` | `ma` | str |  | The spline mesh's forward axis (default x). One of `x`, `y`, `z`. |
+| `landscape` | `ls` | str |  | mode=landscape: the landscape's label (default the first one). |
+| `width` | `w` | float |  | mode=landscape: half-width of the spline at radius 1, cm (default 200). |
+| `deformTerrain` | `dt` | bool |  | mode=landscape: the splines raise and lower the terrain (default on). |
+| `remove` | `rm` | bool | `False` | Unmap the curves and delete what they made in Unreal instead. |
+| `wait` | `wt` | bool | `False` | Block until Unreal answers and return its replies. |
 
 Not undoable.
 
@@ -6997,6 +8844,15 @@ Unmark the selected seams and weld their uvs, moving the smaller island over to 
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
 
+### uvStackRadial
+
+Stack a radially symmetric mesh's uvs: one wedge's faces give their uvs to their copies in every other wedge, so all the copies share one patch of texture (mirrored wedges as mirror-image islands). Needs radial symmetry on the mesh.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+| `wedge` |  | int | `-1` | The wedge whose uvs are kept; -1: the one most of the selected faces are in, else 0. |
+
 ### uvStacks
 
 Stacked islands of the selected meshes: islands lying on one another with the same shape, as uvPack stack=True leaves them. Returns per mesh a list of stacks, each a list of islands as face ids. select=True selects their faces.
@@ -7103,7 +8959,7 @@ Unwrap the selected faces' islands along their seams (LSCM, refined with SLIM fo
 
 ### uvUnwrapSymmetric
 
-Symmetry-aware unwrap of the selected faces using the mesh's symmetry pairs: islands on one side are solved and mirrored onto their partners (flip lays the mirror image beside, stack shares the same uvs), islands across the plane come out exactly mirror symmetric. Seams are mirrored first so islands pair up.
+Symmetry-aware unwrap of the selected faces using the mesh's symmetry pairs: islands on one side are solved and mirrored onto their partners (flip lays the mirror image beside, stack shares the same uvs), islands across the plane come out exactly mirror symmetric. Seams are mirrored first so islands pair up. With radial symmetry, one wedge's faces are unwrapped and every other wedge's copies stack on them.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -7257,16 +9113,33 @@ Rebuild meshes as one closed, manifold quad surface from a voxel grid, whatever 
 | `resolution` |  | int | `128` | Voxels along the longest side of the bounds, 8 to 1024. |
 | `project` |  | bool | `True` | Pull the result onto the input surface where it lies close. |
 
+### warp
+
+Add a warp deformer with a from and a to handle at the meshes' centre: moving, rotating or scaling the to handle moves the points near the from handle. Returns [from, to, deformers...].
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | tuple[float, float, float] |  | Where both handles start, world. Default: the meshes' centre. |
+| `radius` |  | float |  | Falloff radius, cm. Default: a quarter of the meshes' size. |
+| `params` |  | Any |  | {param: value} to set on each deformer. |
+| `name` |  | str |  | Name for the deformer. |
+
 ### wrap
 
-Make meshes follow a driver mesh (proximity wrap): each point binds to its nearest driver triangles. Give the meshes to deform first and the driver last. Returns the deformers.
+Make meshes follow one or more driver meshes (proximity wrap): each point binds to its nearest driver triangles. Give the meshes to deform first and the driver last; more drivers with drivers=. Returns the deformers.
 
 **Objects:** meshes..., driver
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `drivers` |  | list |  | More driver meshes, up to 8 in all. |
 | `maxDrivers` |  | int | `4` | Driver triangles each point follows, 1 to 32. |
 | `falloff` |  | float | `2.0` | Triangles within this many times the nearest distance count; higher is smoother. |
+| `smoothInfluences` |  | int | `0` | Passes spreading influences to neighbouring points. |
+| `wrapMode` |  | str | `'offset'` | offset \| surface \| snap |
+| `scaleCompensation` |  | float | `0.0` | 0 to 1: offsets follow the driver's local scale. |
 | `name` |  | str |  | Name for the deformer. |
 
 ### xform
@@ -7292,6 +9165,171 @@ xform("cube1", translation=(0, 1, 0), rotation=(0, 90, 0))
 
 ```python
 pos = xform("cube1", query=True, worldSpace=True, translation=True)
+```
+
+## Destruction extension
+
+Available when the Destruction extension is loaded.
+
+### breakApart
+
+Break meshes apart like concrete, glass or wood, and (by default) simulate them falling.
+
+Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces, Rigid Body Solver) can be opened and edited in the Node Editor. The settings that matter (pieces, seed, impact, roughness, strength, blast, start frame) show on the modifier and can be keyed. The pieces touching the ground are anchored, so a wall stands until the impact. Returns the modifiers.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `material` | `m` | str | `'concrete'` | How it cracks. One of `concrete`, `glass`, `wood`. |
+| `impact` | `i` | tuple[float, float, float] |  | Where it's hit, world space cm. Default: the centre of the mesh. |
+| `pieces` | `p` | int |  | Roughly how many pieces. Default: the material's. |
+| `seed` |  | int | `1` | Another seed gives another pattern. |
+| `blast` | `b` | float |  | How hard the impact hits, cm/s. Default: the material's. |
+| `startFrame` |  | int |  | Frame it breaks on. Default: the start of the playback range. |
+| `simulate` |  | bool | `True` | Simulate the pieces; False only fractures. |
+| `anchor` |  | bool | `True` | Tie the pieces touching the ground to it. |
+
+```python
+breakApart('Wall', material='concrete', impact=[0, 120, 15])
+```
+
+```python
+breakApart(material='glass', pieces=60, blast=1500)
+```
+
+### exportBreaks
+
+Write where and when each piece of a destruction broke off, to time sounds and effects in Unreal.
+
+One row per broken link, by frame: Frame, Time (seconds), X, Y, Z (cm, in the axis profile's space), Impulse (N s) and the two pieces (PieceB -1 for the ground). A .csv imports into Unreal as a Data Table (the first column is the row name); a .json is a list of objects. Returns {path, breaks}.
+
+**Objects:** mesh or its destruction modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | str |  | The .csv or .json file. |
+| `end` | `e` | int |  | Last frame. Default: the end of the playback range. |
+| `profile` | `ax` | str | `'ue5'` | Axis profile of the positions: ue5, ue6 or generic (Lila's own). |
+
+Not undoable.
+
+```python
+exportBreaks('Wall', path='Export/Wall_breaks.csv')
+```
+
+### wedgeDestruction
+
+Bake several variations of a destruction, one per seed, as rigid vertex animation.
+
+Sets the modifier's seed to seed, seed + 1, ... in turn, bakes each to <folder>/<mesh>_seed<n>, and puts the seed back. Needs a seed input on the modifier (breakApart makes one). Returns the bakes' file lists.
+
+**Objects:** mesh (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` | `c` | int | `4` | How many variations. |
+| `seed` | `s` | int |  | First seed. Default: the one after the modifier's own. |
+| `folder` | `fo` | str | `'destruction'` | Output folder; relative paths are under the workspace. |
+| `start` | `st` | float |  | First frame. Default: the playback range. |
+| `end` | `e` | float |  | Last frame. |
+
+```python
+wedgeDestruction('Wall', count=8, folder='Export/WallVariants')
+```
+
+## OpenUSD extension
+
+Available when the OpenUSD extension is loaded.
+
+### exportUsd
+
+Export to a USD file. The extension picks the format: .usda text, .usdc binary, .usd binary (or text with format='usda') and .usdz, a package holding the stage and its textures. Objects default to the selection (or every root with selectionOnly=False); their descendants come too.
+
+Defaults suit Unreal's USD importer: Z up, metersPerUnit 0.01 (centimetres), UsdPreviewSurface materials and UsdSkel. The stage has one root prim named after the file, its defaultPrim, with the exported nodes under it and the materials in a Materials scope. Transforms are written as translate, rotate (in the node's rotate order) and scale ops, or a matrix when sheared. Meshes keep their n-gons (triangulate=True writes the viewport's triangles), split normals, every UV set (as st, st1, ...), the current color set as displayColor/displayOpacity and the others as color primvars, edge creases, and a GeomSubset per material slot when there are several. Materials map to UsdPreviewSurface: a UsdUVTexture per map read through one UsdPrimvarReader_float2, packed ORM/MRO maps as one texture feeding occlusion, roughness and metallic, DirectX normal maps flipped to USD's OpenGL convention by the texture's scale and bias, emissive intensity as the texture's scale, masked and translucent opacity from the base color's alpha, and twoSided as doubleSided on the meshes using it.
+
+Joints become a Skeleton (bind and rest transforms) under a SkelRoot shared with the meshes skinned to it; skins write jointIndices and jointWeights (pruned to maxInfluences) and the mesh's geomBindTransform, in the bind pose. Morph targets become BlendShapes with their in-betweens; a mesh with morphs and no skin gets a one-joint skeleton of its own so Unreal imports them. Nodes parented to joints are written beside the skeleton, their joint's motion baked into them. Cameras write their lens, film back and clipping. Curves write as BasisCurves (linear or cubic bezier) or, for NURBS, NurbsCurves. LOD groups whose levels are plain meshes become Unreal's LOD variant set.
+
+Animation is sampled every frame over the range and written as time samples, at the take's fps (timeCodesPerSecond and framesPerSecond) with the stage's start and end time codes. One take goes straight into the file. Several (takes='all' or a list of names) become a variant set named 'take' on the root prim, one variant per take with its own samples and its range kept in the prim's customData; the first take is selected, which is what Unreal and other tools play, and importUsd(take=...) picks another. splitLayers=True writes the geometry, materials and animation into sublayers (<file>.geometry, .materials and .anim) that the file composes. Returns the path, or with report=True the files written and the warnings.
+
+**Objects:** path objects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `format` |  | str | `'auto'` | auto picks by extension; usda or usdc chooses the encoding of a .usd file. |
+| `upAxis` | `up` | str | `'z'` | File up axis: z (Unreal) or y. Assets land the same way through either, as with FBX. |
+| `metersPerUnit` | `mpu` | float | `0.01` | Scene unit of the file in metres: 0.01 is centimetres (Unreal), 1 metres. Lengths are scaled to it. |
+| `materials` | `mat` | bool | `True` | Write UsdPreviewSurface materials and bind them. |
+| `textures` | `tex` | str | `'relative'` | How texture files are referenced: relative to the file, absolute, or copy (copied into <name>_textures beside the file). A .usdz packages them whatever this says. |
+| `animation` | `anim` | bool | `True` | Write the animation as time samples. |
+| `takes` |  | Any |  | Scene takes to write: 'all' or a list of names, one 'take' variant each. Default: the active take. Example: `exportUsd("hero.usd", "Hero", takes="all")` |
+| `start` | `st` | float |  | First frame; the playback start by default. |
+| `end` | `et` | float |  | Last frame; the playback end by default. |
+| `normals` |  | bool | `True` | Write the split normals; False leaves them for the importer to compute. |
+| `triangulate` |  | bool | `False` | Write triangles exactly as the viewport splits faces instead of the n-gons. |
+| `maxInfluences` | `mi` | int | `8` | Skin influences per point, heaviest kept and renormalised (4 for mobile). |
+| `deformOnly` | `do` | bool | `True` | Deform joints only (IK helpers and rig-only joints stay behind). |
+| `atOrigin` |  | bool | `False` | Drop the exported roots' own transforms, keeping their children relative. |
+| `children` |  | bool | `True` | Include the descendants of the given objects. |
+| `worldSpace` | `ws` | bool | `False` | Bake world transforms into the meshes and flatten the hierarchy (current pose, no skins or animation). |
+| `lods` |  | bool | `True` | Write LOD groups as Unreal's LOD variant set; False writes every level as a plain child. |
+| `splitLayers` |  | bool | `False` | Geometry, materials and animation in their own sublayers, composed by the file. |
+| `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
+| `report` |  | bool | `False` | Return {files, warnings} instead of the path. |
+
+Not undoable.
+
+```python
+exportUsd("C:/out/hero.usd", "Hero")
+```
+
+```python
+exportUsd("C:/out/hero.usdz", "Hero", textures="copy")
+```
+
+```python
+exportUsd("C:/out/shot.usda", selectionOnly=False, takes="all", splitLayers=True)
+```
+
+### importUsd
+
+Import a USD file (.usd, .usda, .usdc or .usdz) into the scene. The stage is opened and composed first, so references, payloads, sublayers and variant selections all resolve, and what arrives is the composed result.
+
+Prims become nodes with their names and hierarchy: Xform, Scope and untyped prims transforms (every xformOp kind and order resolved; translate, rotate in any order, scale and pivot land on the channels as authored), Mesh prims meshes with their n-gons, normals, every UV set (st, st1, ... in order, then other texCoord primvars), displayColor/displayOpacity and other color primvars as color sets, other numeric primvars as mesh attributes, edge creases, holes left out and materialBind GeomSubsets as material slots. Cube, Sphere, Cylinder, Cone, Capsule and Plane are tessellated to meshes. Cameras keep their lens, film back, clipping and projection; BasisCurves (linear, bezier, bspline, catmullRom; periodic and pinned) and NurbsCurves become curve nodes. Invisible prims arrive hidden; proxy and guide prims are skipped unless purposes asks for them.
+
+UsdPreviewSurface materials become Lila materials (Unreal's default lit) with their textures: packed occlusion/roughness/metallic textures as an ORM or MRO map, normal maps' green convention read from the texture's scale, emissive intensity from its scale, and opacity from the base color texture's alpha as masked or translucent. Direct and collection bindings both resolve. Textures inside a .usdz are unpacked beside it.
+
+UsdSkel skeletons become joints, SkelBindingAPI skins skinClusters with their weights and bind pose, BlendShapes morph targets with their in-betweens, and SkelAnimation keys on the joints and target weights. Time samples become keys (linear, or stepped on a held stage), and the stage's timeCodesPerSecond, framesPerSecond and time range set the scene's fps and playback range. Instanceable prims and PointInstancers are realized: each instance its own transform, sharing the prototype's mesh data.
+
+Axes and units convert as FBX import does: a Z-up stage is read in Unreal's axes, a Y-up one as Maya's, and metersPerUnit scales everything to cm. Lights, point clouds and anything else Lila has no node for are listed in the report's skipped entries (lights and point clouds keep their place as transforms). Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, curves, materials, take, takes, fps, start, end, keyedCurves, instances, upAxis, metersPerUnit, skipped and warnings.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `parent` | `p` | str |  | Parent the imported roots under this node. |
+| `prim` |  | str |  | Import only this prim and what is under it, by its path in the stage ("/World/Hero"). |
+| `skins` |  | bool | `True` | Rebuild skeleton bindings as skinClusters; False imports skinned meshes in their bind shape. |
+| `animation` | `anim` | bool | `True` | Turn time samples (transforms, joints, blend shape weights, camera lens) into keys. |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the stage. |
+| `materials` |  | bool | `True` | Create materials from the bound UsdPreviewSurface networks and assign them. |
+| `loadPayloads` |  | bool | `True` | Load payloads; False leaves them out and lists them as skipped. |
+| `variants` |  | Any |  | Variant selections before importing: {'set': 'variant'} for every prim with that set, or {'/prim/path': {'set': 'variant'}} for one prim. Example: `importUsd("chair.usd", variants={"modelingVariant": "Rocking"})` |
+| `take` |  | str |  | For files Lila exported with several takes: the take to import (a variant of the root's 'take' set). |
+| `purposes` |  | Any |  | Prim purposes to import: a list of default, render, proxy and guide, or 'all'. Default and render by default. |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+| `select` |  | bool | `True` | Select the imported roots. |
+
+```python
+importUsd("C:/assets/kitchen.usd")
+```
+
+```python
+importUsd("hero.usdz", report=True)
+```
+
+```python
+importUsd("set.usd", loadPayloads=False, variants={"lod": "proxy"})
 ```
 
 ## Overlap extension
@@ -7692,6 +9730,7 @@ Move transforms by a world offset. aim (sticky aim) turns each one's parent to p
 | `sticky2nd` | `s2` | bool | `False` | With sticky aim: the secondary axis lies in the chain's plane. |
 | `keepDirection` | `kd` | bool | `False` | With sticky 2nd: the secondary axis keeps pointing the way it did. |
 | `fullBody` | `fb` | bool | `False` | Joints in a character move by posing the whole body: their pins and locked hands and feet hold. |
+| `autoPose` | `ap` | bool | `False` | With fullBody: the auto-poser places the unpinned body (UE5 Manny joint names). |
 
 ### puppeteerPin
 

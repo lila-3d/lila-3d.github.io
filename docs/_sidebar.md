@@ -17,5 +17,6 @@
 - [Duplicate, instances and arrays](duplicate.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
+- [Change stream](change-stream.md)
 - [FAQ](faq.md)
 - [Back to lila-dcc.github.io](https://lila-dcc.github.io/ ':ignore')

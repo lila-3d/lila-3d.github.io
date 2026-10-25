@@ -11,7 +11,7 @@ Which formats Lila reads and writes, and what to pick for each job.
 | Lila scene | `.lila`, `.lilaa` | Yes | Save |
 | FBX | `.fbx` | Yes | Yes |
 | glTF 2.0 | `.gltf`, `.glb` | Yes | Yes |
-| USD | `.usd`, `.usda`, `.usdc`, `.usdz` | Yes | Yes |
+| USD | `.usd`, `.usda`, `.usdc`, `.usdz` | Yes, as a live stage | Yes |
 | OBJ | `.obj` | Yes | Yes |
 | STL | `.stl` | Yes | Yes |
 | PLY | `.ply` | Yes, including point clouds | Yes |
@@ -31,11 +31,29 @@ Which to use:
 | Scans, photogrammetry, point clouds | PLY |
 | Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`) |
 
+Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's result and not the modifiers, rigs and node graphs that build it. It hosts USD as live stages instead, the way Maya and Houdini do ([FAQ](faq.md#why-does-lila-save-lila-instead-of-usd)).
+
+### USD stages
+
+**File > Open** or **Import** on a USD file makes a live stage, a `usdStage` node holding the composed stage. Nothing is flattened: variants, payloads, references and sublayers stay live, and your edits are written as overs to an edit layer. The source files are never changed.
+
+- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), editing meshes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads.
+- **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
+- **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer.
+- **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
+- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over.
+- **Changes made by other tools or scripts** to the stage's layers show up as they happen, on the prims they touch, without a reload.
+- **To flatten instead**, run `importUsd`, which converts the stage into plain Lila objects.
+
 ## Troubleshooting
+
+**A USD stage edit isn't written.** Joint, skin weight and blend shape edits, and moving an object to a different parent, have no override Lila writes yet. The stage lists them as warnings when it saves. Renaming an object keeps it linked to its prim.
+
+**Modifiers or deformers on a stage's mesh are baked when it saves.** A layer holds only the result. To keep the modifier stack, run `usdStageExtract` on the object first. That turns it into a plain Lila object and deactivates its prim.
 
 **A glTF or USD import lists skipped items.** Lights come in as empty transforms, because Lila has no lights. The import report lists everything that didn't come across and why.
 
-**A USD imports with the wrong variant, or without its payloads.** Pick variants and payload loading in the import's options (Shift+Enter on the command in Ctrl+T search).
+**A USD opens with the wrong variant, or without its payloads.** Select the stage and switch them in the Attribute Editor, or with `usdStageVariant` and `usdStageLoad`.
 
 **A USD export arrives in Unreal 5 rotated.** Keep the export's up axis on Z (the default). Unreal 5 reads Y-up USD files with +X forward.
 

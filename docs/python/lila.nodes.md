@@ -217,6 +217,86 @@ Faces as lists of point indices.
 mesh_info()
 ```
 
+### Node.is_instance
+
+```python
+is_instance
+```
+
+Read only.
+
+True for an instance or a reference: a mesh sharing another mesh's data.
+
+### Node.instance_kind
+
+```python
+instance_kind
+```
+
+Read only.
+
+"none", "source" (others share its data), "instance" or "reference".
+
+### Node.instance_source
+
+```python
+instance_source
+```
+
+Read only.
+
+The mesh an instance or reference shares from (a Node), or None.
+
+### Node.instances
+
+```python
+instances()
+```
+
+The other meshes sharing this one's data (its source, instances and references), as Nodes.
+
+### Node.make_unique
+
+```python
+make_unique()
+```
+
+Gives this mesh data of its own, so edits to it stop reaching the meshes it shared with.
+
+### Node.is_array
+
+```python
+is_array
+```
+
+Read only.
+
+True for a live array (see array()): a group showing its children repeated.
+
+### Node.array_sources
+
+```python
+array_sources()
+```
+
+The objects this live array repeats (its children), as Nodes.
+
+### Node.array_copies
+
+```python
+array_copies()
+```
+
+The world matrices of the copies this live array generates, originals left out, as {source Node: [matrix, ...]} with each matrix 16 floats column by column, like world_matrix.
+
+### Node.bake_array
+
+```python
+bake_array(mode='instance')
+```
+
+Turns this live array into a plain group holding its sources and a real object per copy: instances of the sources ("instance"), copies ("copy") or references ("reference"). Returns the group Node.
+
 ### Node.color_sets
 
 ```python
@@ -333,6 +413,14 @@ delete()
 select(add=False)
 ```
 
+## array
+
+```python
+array(*items, mode='linear', count=5, offset=None, rotate=None, scale=None, axis=None, angle=None, angle_mode=None, rise=None, count_y=None, count_z=None, spacing=None, center=None, name=None)
+```
+
+A live array of the items (Nodes or names), which become its children: shown repeated in a row (mode "linear", by offset), around a circle ("radial", over angle about axis, climbing rise per copy) or in a grid ("grid", count by count_y by count_z copies, spacing apart), about center (default the items' pivot). count includes the original. The copies are drawn and exported as instances and follow every edit to the items. Returns the array Node; edit it through its attributes (array.count = 8) and bake it with bake_array().
+
 ## display_layer
 
 ```python
@@ -360,6 +448,14 @@ exists(name)
 ```python
 group(*items, name=None)
 ```
+
+## instance
+
+```python
+instance(*items, reference=False, name=None)
+```
+
+Instances of the items (Nodes or names): meshes sharing their mesh, so editing one edits all. reference=True shares only the base mesh and gives each copy a modifier stack of its own. Returns a Node, or a list for several items.
 
 ## locator
 

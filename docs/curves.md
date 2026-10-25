@@ -36,6 +36,8 @@ Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches an
 | **Roof** | A closed footprint curve | A hip roof; holes become courtyards |
 | **Contour** / **Section** | Meshes | Curves sliced from them |
 
+<!-- TODO image: a curve network surface with its U and V curves highlighted, and a border blend bridging two meshes (images/curves/network-blend.png) -->
+
 > Results update live when you edit the curve. **Delete History** bakes it into a plain mesh.
 
 ![Surfaces resulting from curves](images/curves/curve-surface-types.png)
@@ -82,6 +84,8 @@ Adjust the look further with the parameters.
 
 ## Along a curve
 
+<!-- TODO image: a rail mesh deformed along a curve beside an array of fence posts along the same curve (images/curves/along-curve.png) -->
+
 | Command | Select |
 | --- | --- |
 | **Deform Along Curve**, **Array Along Curve** | The meshes, then the curve. A second curve is the aim curve when Up Mode is Aim Curve. |
@@ -95,6 +99,8 @@ Adjust the look further with the parameters.
 
 ## Planar curves
 
+<!-- TODO image: text curves and a curve boolean result, then the same shapes as a Bevel Plus solid (images/curves/planar.png) -->
+
 - **Booleans**: select the target first. Loops fill even-odd, so a letter's counter stays a hole. Inputs stay live; **Hide Inputs** hides them.
 - **Bevel Plus** extrudes toward the curves' plane normal: up for ground curves, toward you for curves drawn in the front view. Crossing curves are bevelled as their even-odd union, with a warning.
 - **Custom bevel profile**: draw it in the front view, x as inset and y as rise. It is stretched to fit width and depth.
@@ -103,7 +109,11 @@ Adjust the look further with the parameters.
 - **Roof** gables: gable edge *i* runs from footprint point *i* to *i*+1.
 - **Inset Region** (Model menu) needs flat, connected faces.
 
+<!-- TODO image: a roof built from an L-shaped footprint with a courtyard hole (images/curves/roof.png) -->
+
 ## Blend and trim
+
+<!-- TODO image: two curves joined by a G2 blend with the curvature comb on, the end dots visible (images/curves/blend.png) -->
 
 | Key | In the Blend Curve Tool |
 | --- | --- |
@@ -125,6 +135,8 @@ Adjust the look further with the parameters.
 
 ## Cables
 
+<!-- TODO image: a bundle of sagging cables between three anchors, draped over a mesh (images/curves/cables.png) -->
+
 | Key | In the Cable Tool |
 | --- | --- |
 | Click | Place an anchor; click the first to close |
@@ -140,6 +152,8 @@ Adjust the look further with the parameters.
 > A span running straight along gravity can't sag.
 
 ## Sketch constraints
+
+<!-- TODO image: a constrained sketch showing constraint glyphs and dimension labels (images/curves/sketch.png) -->
 
 | Key | In the Sketch Tool |
 | --- | --- |
@@ -158,6 +172,8 @@ Adjust the look further with the parameters.
 
 ## Grooming
 
+<!-- TODO image: groomed hair curves on a head beside the generated hair cards (images/curves/groom.png) -->
+
 | Key | In Sculpt Curves |
 | --- | --- |
 | **1**-**0** | Brush |
@@ -171,6 +187,8 @@ Adjust the look further with the parameters.
 ## Unreal splines
 
 **Send to Unreal** on a curve creates a spline actor in the outliner folder "Lila", resent on every save. Needs LilaLink 0.6.0. Landscape mode needs a landscape in the level; spline meshes need a mesh already sent to Unreal or an asset path.
+
+<!-- TODO image: a Lila curve and the resulting spline actor with spline meshes in the Unreal level (images/curves/unreal-spline.png) -->
 
 ## Troubleshooting
 
