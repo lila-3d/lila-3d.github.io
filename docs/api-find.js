@@ -124,7 +124,9 @@
 
   function plugin(hook, vm) {
     hook.doneEach(function () {
-      if (vm.route.path.indexOf('/' + FOLDER + '/') !== 0) return;
+      var inApi = vm.route.path.indexOf('/' + FOLDER + '/') === 0;
+      document.body.classList.toggle('in-api', inApi);
+      if (!inApi) return;
       var article = document.querySelector('.markdown-section');
       if (article && !article.querySelector('.api-find')) article.insertBefore(build(vm), article.firstChild);
     });

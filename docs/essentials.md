@@ -98,6 +98,20 @@ Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It
 - **Ctrl+Enter** toggles it in the selection.
 - **Ctrl+T** switches to searching menus.
 
+## Auto-Bevel
+
+Lila brings many advanced modeling tools to the table including an auto-bevel that can select the appropriate edges for you.
+
+<!-- todo image -->
+
+## Auto UV
+
+Lila has a high-end UV toolkit and the Auto UV feature can produce worthwhile results in some cases.
+
+<!-- todo image -->
+
+## Auto-UV
+
 ## Command line
 
 Press **Ctrl+\`** to pop up a command line and type Python straight in. There's nothing to import: commands are available by name.

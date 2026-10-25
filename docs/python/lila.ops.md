@@ -58,6 +58,7 @@ Kinds:
 - bevel: Bevels every edge sharper than an angle so hard corners catch the light. A quick live bevel; Auto Bevel has finer edge rules and hand-picked edges.
 - boolean: A boolean kept live: cuts, joins or intersects this mesh with a cutter mesh, so moving or editing the cutter updates the result. Stack one per cutter. Apply bakes it.
 - decimate: Reduces the triangle count while keeping the shape, silhouette, UVs and normals. Use it for LODs or to lighten scans and sculpts.
+- extrude: Extrudes faces, or grows strips off edges, kept live: the faces or edges selected when it was added follow later edits under it, and its thickness and offset stay adjustable. Without a selection it extrudes every face.
 - mirror: Adds a mirrored copy across a plane through the object's origin and welds the seam. Model one half of a symmetrical object and let this build the other.
 - solidify: Gives a surface thickness: an inner shell offset along the normals, joined to the outer one at open borders. Use it to turn planes and open shells into solid panels.
 - subdivision: Smooths the mesh with Catmull-Clark subdivision. Use it to turn a low-poly cage into a smooth high-poly surface.
@@ -869,6 +870,12 @@ Turn the loop key off on curves (nodes, plugs or curves, default the selection):
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `attribute` | `at` | Any |  | Attribute name or list of names. |
+
+### clearRecoveredScenes
+
+Delete every recovered scene kept for File > Recovered Scenes. Returns how many were deleted.
+
+Not undoable.
 
 ### clearSimCache
 
@@ -2858,6 +2865,30 @@ Bring an unloaded reference back. Clears undo.
 
 Not undoable.
 
+### lodGroup
+
+Make an LOD group from objects (LOD0 first, in order), or edit the LOD group named. Returns the group's path.
+
+With generate, LOD0 (one mesh) gets that many reduced copies as the next levels. Unreal imports the group as one mesh with these LODs.
+
+**Objects:** objects (LOD0 first), or one lodGroup to edit
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Group name, and the base of the levels' names. Defaults to LOD0's name without any _LODn. |
+| `screenSizes` | `ss` | Any |  | Unreal LOD screen size per level, like [1, 0.5, 0.25]; [] uses Unreal's automatic sizes. |
+| `generate` | `g` | int | `0` | Reduced copies of LOD0 to add as further levels. |
+| `ratio` | `r` | float | `0.5` | Triangles each generated level keeps of the one before, 0 to 1. |
+| `autoName` | `an` | bool |  | Rename the levels <name>_LOD0, <name>_LOD1, ... On by default when creating. |
+
+```python
+lodGroup("Rock_LOD0", "Rock_LOD1", "Rock_LOD2", screenSizes=[1, 0.4, 0.15])
+```
+
+```python
+lodGroup("Rock", generate=3, ratio=0.5)
+```
+
 ### loft
 
 Loft a quad mesh through section curves, in order, with live history; rails= steers it with one or two rail curves. Returns [mesh, curveLoft].
@@ -3408,7 +3439,7 @@ Open closed curves at parameter (span units, default their start), keeping the s
 
 ### openFile
 
-Open a scene file with the translator for its extension (.lila, .ma, ...), replacing the scene.
+Open a file with the translator for its extension (.lila, .ma, ...), replacing the scene. Formats that only import (.fbx, .obj, ...) open as a new untitled scene with the file imported into it.
 
 **Objects:** path
 
@@ -3419,9 +3450,21 @@ Open a scene file with the translator for its extension (.lila, .ma, ...), repla
 
 Not undoable.
 
+### openRecoveredScene
+
+Open a recovered scene (a path from recoveredScenes) as a new untitled scene with unsaved changes; its references resolve against the scene it came from. Saving asks for a file, so the original is never overwritten by accident. Not undoable.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `force` | `f` | bool | `False` | Discard unsaved changes in the current scene. |
+
+Not undoable.
+
 ### openScene
 
-Open a .lila or .lilaa scene, replacing the current one. Not undoable.
+Open a .lila or .lilaa scene, replacing the current one. Other formats File > Open takes (.ma, .fbx, .obj, ...) go to their translator: import-only ones open as a new untitled scene. Not undoable.
 
 **Objects:** path
 
@@ -3783,7 +3826,8 @@ Create a Cone mesh. Returns [mesh, generator] (generator is None with generator=
 | `height` |  | float | `100.0` | cm. |
 | `subdivisionsAxis` |  | int | `20` | Segments around. |
 | `subdivisionsHeight` |  | int | `1` | Segments up. |
-| `subdivisionsCap` |  | int | `0` | Rings on the base; 0 is one n-gon. |
+| `subdivisionsCap` |  | int | `0` | Rings of quads around the base's fill; 0 and 1 both leave just the fill. |
+| `capType` |  | str | `'quads'` | How each flat end is filled inside its rings: quads (a grid joined to the rim by a ring, one triangle when subdivisionsAxis is odd), fan (triangles to the centre), ngon (one polygon) or none (left open). |
 | `baseAtOrigin` |  | bool | `False` | Sit on the ground. |
 | `fraction` |  | float | `1.0` | Portion of a full turn swept around the up axis: 1 is whole, 0.5 half. |
 | `cutCaps` |  | bool | `True` | Close the flat ends a partial sweep leaves. |
@@ -3857,8 +3901,9 @@ Create a Cylinder mesh. Returns [mesh, generator] (generator is None with genera
 | `height` |  | float | `100.0` | cm. |
 | `subdivisionsAxis` |  | int | `20` | Segments around. |
 | `subdivisionsHeight` |  | int | `1` | Segments up. |
-| `subdivisionsCaps` |  | int | `0` | Rings on each cap; 0 is one n-gon. |
-| `caps` |  | bool | `True` | Close the ends. |
+| `subdivisionsCaps` |  | int | `0` | Rings of quads around each cap's fill; 0 and 1 both leave just the fill. |
+| `capType` |  | str | `'quads'` | How each flat end is filled inside its rings: quads (a grid joined to the rim by a ring, one triangle when subdivisionsAxis is odd), fan (triangles to the centre), ngon (one polygon) or none (left open). |
+| `caps` |  | bool | `True` | Close the ends; off leaves them open whatever capType says. |
 | `baseAtOrigin` |  | bool | `False` | Sit on the ground. |
 | `fraction` |  | float | `1.0` | Portion of a full turn swept around the up axis: 1 is whole, 0.5 half. |
 | `cutCaps` |  | bool | `True` | Close the flat ends a partial sweep leaves. |
@@ -4155,6 +4200,7 @@ Catmull-Clark subdivide whole meshes (crease-aware).
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `levels` |  | int | `1` | Subdivision levels. |
+| `keepHardEdges` |  | bool | `False` | Keep normals split along hard edges; off smooths the shading across them. |
 
 ### polyTargetWeld
 
@@ -4337,6 +4383,12 @@ Bake a simulation onto a new additive animation layer (one per recording): mute 
 | `translate` | `t` | bool | `True` | Key translation. |
 | `rotate` | `r` | bool | `True` | Key rotation. |
 | `loop` | `lp` | str | `'auto'` | auto (the active take's loop flag, else loop keys) \| on \| off |
+
+### recoveredScenes
+
+Scenes recovered after a crash and kept for File > Recovered Scenes, newest first: {path, scene, kind, time}. scene is where it belongs (null when untitled), time when it was written (unix seconds).
+
+Not undoable.
 
 ### redo
 
@@ -4592,6 +4644,41 @@ Put translate, rotate and scale back to their defaults (the object moves).
 
 **Objects:** objects
 
+### retopoConstruct
+
+Topology: make a live construct (patch, strip, stroke, bridge, sweep, cylinder or auto region) on the retopo mesh, or change one by id: its faces are regenerated from the new spec and settled on the reference. A construct whose faces were edited by hand since is frozen instead (left as plain geometry). Returns {mesh, id, faces, variants, sideCounts, frozen}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | Retopo mesh. |
+| `kind` |  | str | `'patch'` | What to make: patch, strip, stroke, bridge, sweep, cylinder or region. |
+| `spec` |  | Any |  | The construct's inputs and settings, world space; see the Topology docs per kind. |
+| `id` |  | int | `0` | The construct to change; 0 makes a new one. |
+| `edgeLength` |  | float | `0.0` | Edge length for counts left on auto, cm; 0 takes a fortieth of the reference's size. |
+| `settle` |  | int | `40` | Live relax steps on the new points; 0 leaves them as generated. |
+| `weld` |  | float | `0.001` | Reuse existing points closer than this, cm. |
+| `timeout` |  | float | `10.0` | Seconds an auto region may take; 0 is unlimited. |
+| `reference` |  | str |  | Reference mesh, connected so the topology tools resume on this pair later. |
+| `create` |  | bool | `False` | Create the mesh if it doesn't exist (taking the reference's symmetry). |
+
+### retopoConstructDelete
+
+Topology: delete constructs by id, with the faces they made (points other faces share stay).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | Retopo mesh. |
+| `ids` |  | list |  | Construct ids. |
+
+### retopoConstructFreeze
+
+Topology: freeze constructs, leaving their faces as plain geometry that no setting regenerates. No ids freezes them all.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | Retopo mesh. |
+| `ids` |  | list |  | Construct ids; empty for all. |
+
 ### retopoDrawAddFace
 
 Retopo Draw: add a face through world points, reusing existing points within weld distance (and its mirror when the mesh has symmetry). faces= adds several in one step, skipping any that already exist or would make a non-manifold edge. Creates the mesh when create=True. Returns the mesh name.
@@ -4679,6 +4766,30 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `poles` |  | list |  | The poles the edge flow turns at, as {position: world [x, y, z], valence: 3 or 5}, and nowhere else. Start from retopoPoles; on a closed shell (4 - valence) must sum to what retopoPoles reports. |
 
 Not undoable.
+
+### retopoSetGuides
+
+Topology: replace the retopo mesh's guides, the planning lines the Pencil draws. Guides never export; quad remeshing a region follows the ones inside it. Returns the mesh name.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | Retopo mesh. |
+| `guides` |  | list |  | Each a dict: points (world [x, y, z] list), color ([r, g, b] sRGB 0-1), closed. |
+| `reference` |  | str |  | Reference mesh, connected so the topology tools resume on this pair later. |
+| `create` |  | bool | `False` | Create the mesh if it doesn't exist (taking the reference's symmetry). |
+
+### retopoSettle
+
+Topology: live relax the retopo mesh to rest on its reference: faces even out toward squares of a common size, points stay on the surface, borders stay put, symmetry is kept exactly. points= limits it to those base mesh point ids.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | Retopo mesh. |
+| `points` |  | list |  | Point ids to move; all when not given. |
+| `steps` |  | int | `100` | Relax steps, 1 to 5000. |
+| `evenSize` |  | float | `0.5` | 0 keeps each face's size, 1 pulls every face to the same size. |
+| `squareness` |  | float | `0.7` | 0 only evens spacing, 1 pulls faces fully square. |
+| `pinBoundary` |  | bool | `True` | Keep border points fixed; off lets them slide along the border. |
 
 ### reverseCurve
 
@@ -5709,6 +5820,8 @@ Display meshes subdivided without changing them (the 1/2/3 keys). level 0 is off
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `level` |  | int | `2` | Subdivision levels to display (0 to 3). |
+
+Not undoable.
 
 ### snapReverseFoot
 

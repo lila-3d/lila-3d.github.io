@@ -1,6 +1,3 @@
-- [Home](/)
-- [Essentials](essentials.md)
-- [Curves](curves.md)
 - [Python API](python/)
   - [lila.ops](python/lila.ops.md)
   - [lila](python/lila.md)
@@ -9,5 +6,10 @@
   - [lila.ui](python/lila.ui.md)
   - [lila.prefs](python/lila.prefs.md)
   - [lila.extension](python/lila.extension.md)
-- [Page template](template.md)
+
+---
+
+- [Home](/)
+- [Essentials](essentials.md)
+- [Curves](curves.md)
 - [Back to lila-dcc.github.io](https://lila-dcc.github.io/ ':ignore')
