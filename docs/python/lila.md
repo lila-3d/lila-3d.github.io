@@ -51,6 +51,22 @@ Read only.
 
 True once the user pressed Cancel.
 
+## undo_chunk
+
+```python
+undo_chunk(name='chunk')
+```
+
+Groups every edit made inside into one undo step. Chunks nest; only the outermost becomes a step.
+
+```
+with lila.undo_chunk("Build arm"):
+
+...
+```
+
+@lila.undo_chunk("Build arm") def build_arm(): ...
+
 ## workspace
 
 ```python

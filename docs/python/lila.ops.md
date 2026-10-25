@@ -1292,7 +1292,7 @@ Without flags it only reports; port or allowRemote alone start or restart it. Th
 | --- | --- | --- | --- | --- |
 | `enable` | `e` | bool |  | Start (True) or stop (False) the server. |
 | `port` | `p` | int |  | Port to listen on; 0 picks a free one. Default: the /changeStream/port pref, 8742. |
-| `allowRemote` | `ar` | bool |  | Listen on every network interface rather than 127.0.0.1 only. Anyone who can reach the port sees the scene. Default False. |
+| `allowRemote` | `ar` | bool |  | Listen on every network interface rather than 127.0.0.1 only. Clients must then send the token this returns (general.json /changeStream/token). Default False. |
 
 Not undoable.
 
@@ -9404,6 +9404,150 @@ importUsd("hero.usdz", report=True)
 
 ```python
 importUsd("set.usd", loadPayloads=False, variants={"lod": "proxy"})
+```
+
+### usdStageExtract
+
+Turn stage objects into plain Lila objects: each one moves out of its stage, keeping its place, modifiers and everything below it, and its prim is deactivated in the edit layer. Use it before adding modifiers or deformers that should stay live, since a stage's layer holds only their result. Returns the objects.
+
+**Objects:** objects (default the selection)
+
+### usdStageInfo
+
+A stage's file, edit layer (mode embedded, file or sublayer, and path), the layers it reads, its variant sets with their selections, its payloads and whether they are loaded, how many prims have objects, and the warnings of its last save. edits=True adds the edit layer's text.
+
+**Objects:** stage (default the selected one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edits` |  | bool | `False` | Include the edit layer as usda text. |
+
+Not undoable.
+
+### usdStageLoad
+
+Load or unload the payloads at and below a prim of a stage, rebuilding its objects. The load state is saved with the scene. Returns {loaded: [prim paths]}.
+
+**Objects:** stage (default the selected one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `prim` |  | str | `'/'` | The prim, by its path in the stage; / is every payload. |
+| `load` | `l` | bool | `True` | False unloads. |
+
+```python
+usdStageLoad("set", prim="/Set/Building")
+```
+
+```python
+usdStageLoad("set", load=False)
+```
+
+### usdStageOpen
+
+Open a USD file as a live stage: a usdStage node holding the composed stage, its prims built below it as objects. Nothing is flattened: variants, payloads, references and sublayers stay live. Edits to the objects are written as overs to the stage's edit layer when the scene saves (and before a reload or a variant or payload switch); the source files are never changed. File > Open and Import of a USD file run this; importUsd flattens instead.
+
+Written: moving objects (with animation), hiding them, deleting them (the prim is deactivated), mesh edits, material assignments and edits, new objects under the stage, variant selections and payload loading. Joint, skin weight and blend shape edits and reparenting are not written; saving lists them as warnings. Returns the stage node, or with report=True a dict of stage, prims, nodes, materials, skipped and warnings.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `parent` | `p` | str |  | Parent the stage node under this node. |
+| `name` | `n` | str |  | The stage node's name; the file's name by default. |
+| `editLayer` | `el` | str |  | Where edits go: empty keeps them inside the .lila, a .usda path writes them to that file, one of the stage's sublayers edits it directly. |
+| `loadPayloads` |  | bool | `True` | Load payloads; False leaves them unloaded (usdStageLoad loads them). |
+| `variants` |  | Any |  | Variant selections, written to the edit layer: {'set': 'variant'} for every prim with that set, or {'/prim/path': {'set': 'variant'}} for one prim. Example: `usdStageOpen("chair.usd", variants={"modelingVariant": "Rocking"})` |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the stage. |
+| `report` |  | bool | `False` | Return the report instead of just the stage node. |
+| `select` |  | bool | `True` | Select the stage node. |
+
+```python
+usdStageOpen("C:/assets/kitchen.usd")
+```
+
+```python
+usdStageOpen("shot.usda", editLayer="shot_lila.usda")
+```
+
+### usdStagePrim
+
+Every composed property of a stage object's prim, custom schemas included: {prim, type, schemas, instanceProxy, properties: [{name, type, value, custom, timeSamples, authored}]}. Values are usda text at the current time; long arrays are summarized unless full=True; relationships list their targets.
+
+**Objects:** object
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `full` |  | bool | `False` | Every value in full, however long. |
+
+Not undoable.
+
+### usdStageReload
+
+Read a stage's files again, keeping its edits. Edits made in Lila are written to the edit layer first; the objects of the prims the files changed are rebuilt. A scene also reloads its stages on open when their source files changed since it was saved. Returns {stage: {reloaded, updated}}.
+
+**Objects:** stages... (default all)
+
+Not undoable.
+
+```python
+usdStageReload()
+```
+
+```python
+usdStageReload("kitchen")
+```
+
+### usdStageSetProperty
+
+Set a property of a stage object's prim, written as an over to the edit layer; the object updates to match. The value is usda text ("(1, 2, 3)", "[1, 2]") or a number, bool, string or list. An attribute with time samples gets a sample at the current time. A property the prim lacks is added, custom, when type gives its USD type ("float", "token", "double3"). Relationships take a list of target paths. Returns the property as usdStagePrim lists it.
+
+**Objects:** object property value
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | str |  | The USD value type, to add an attribute the prim doesn't have. |
+
+```python
+usdStageSetProperty("Chair", "xformOp:translate", "(0, 0, 50)")
+```
+
+```python
+usdStageSetProperty("Chair", "studio:assetId", "CH_014", type="string")
+```
+
+### usdStageUpdate
+
+Take in what other tools and scripts changed in the stages' layers: files changed on disk are read again and the objects of the prims they touch rebuilt. Lila does this by itself while idle. Returns how many prims were rebuilt.
+
+Not undoable.
+
+### usdStageVariant
+
+Switch a variant on a stage, written to its edit layer. The prim's objects are rebuilt from the new selection. Without prim, every prim with that variant set switches. Returns {prim: variant}.
+
+**Objects:** stage (default the selected one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `s` | str |  | The variant set. |
+| `variant` | `v` | str |  | The variant to select. |
+| `prim` |  | str |  | The prim, by its path in the stage ("/World/Chair"). |
+
+```python
+usdStageVariant("kitchen", prim="/Kitchen/Chair", set="style", variant="metal")
+```
+
+### usdStageWriteShot
+
+Write a stage's edits as a small .usda that sublayers the source, ready to open in Houdini or Maya or to sublayer elsewhere. Edits made in Lila are written first. Returns the path.
+
+**Objects:** path stage (default the selected one)
+
+Not undoable.
+
+```python
+usdStageWriteShot("C:/shots/sh010_lila.usda", "kitchen")
 ```
 
 ## Overlap extension

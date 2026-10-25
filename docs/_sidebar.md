@@ -18,5 +18,6 @@
 - [Topology](topology.md)
 - [Destruction](destruction.md)
 - [Change stream](change-stream.md)
+- [C++ extensions](cpp-extensions.md)
 - [FAQ](faq.md)
 - [Back to lila-3d.github.io](https://lila-3d.github.io/ ':ignore')

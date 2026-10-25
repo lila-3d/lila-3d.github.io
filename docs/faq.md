@@ -23,6 +23,12 @@ Nothing. Lila is free.
 
 Yes. It opens `.mb` and `.ma` files and converts them to Lila scenes, without Maya installed.
 
+### When are preferences saved?
+
+Right away. Every change to preferences, hotkeys, marking menus, shelves and layouts is written to disk within a fraction of a second, so nothing waits for Lila to close and a crash loses nothing. Unlike Maya, which saves them when it quits.
+
+The files are plain JSON in `%APPDATA%/Lila/prefs`. Edit one in a text editor while Lila runs and the change applies live: hotkeys rebind and menus rebuild. A workspace can override any of them in its own `.lila` folder, so a project can share hotkeys or settings through source control.
+
 ### Can I use Lila for film?
 
 Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no lighting or offline rendering, so final frames come from your existing renderer. Hand work over as USD, Alembic, FBX or OBJ, including animated meshes whose topology changes, and textures as EXR, TIFF, PNG or TGA.
@@ -59,6 +65,21 @@ Its own, on Vulkan 1.3.
 ### Does Lila support Hydra?
 
 Not yet. Lila draws USD stages with its own renderer, so Hydra isn't needed to see or edit them. Hydra support is planned for later, for the things Lila can't draw itself: Hydra procedurals and prim types Lila has no equivalent for.
+
+### How does undo work?
+
+Every command, tool drag and selection change is one undo step. Selection steps don't mark the scene as unsaved. **Window > Undo History** lists the steps; click one to jump there.
+
+Undo is unlimited by default, within a 2 GB memory budget: past that, the oldest steps drop. A mesh shared by several steps counts once. Change the budget, or set a step limit instead, in **Preferences > General > Undo**. Opening or creating a scene clears the history.
+
+In a script, group edits into one step with `with`, so the step always closes, even if the script fails:
+
+```python
+with lila.undo_chunk("Build arm"):
+    ...
+```
+
+It also works as a decorator: `@lila.undo_chunk("Build arm")`. If a script opens a chunk with `undoInfo(openChunk=True)` and never closes it, Lila closes it when the script ends and logs a warning.
 
 ### Which physics engine does Lila use?
 

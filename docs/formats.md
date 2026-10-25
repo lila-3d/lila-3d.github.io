@@ -41,7 +41,7 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 - **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
 - **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer.
 - **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
-- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over.
+- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`.
 - **Changes made by other tools or scripts** to the stage's layers show up as they happen, on the prims they touch, without a reload.
 - **To flatten instead**, run `importUsd`, which converts the stage into plain Lila objects.
 
@@ -52,6 +52,8 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 **Modifiers or deformers on a stage's mesh are baked when it saves.** A layer holds only the result. To keep the modifier stack, run `usdStageExtract` on the object first. That turns it into a plain Lila object and deactivates its prim.
 
 **A glTF or USD import lists skipped items.** Lights come in as empty transforms, because Lila has no lights. The import report lists everything that didn't come across and why.
+
+**An edit written to a sublayer doesn't show.** With the Edit layer set to one of the stage's sublayers, the source file's own opinions are stronger than that sublayer's, so they win wherever both set the same property. The stage warns when it saves. Use an edit layer of its own (empty, or a separate `.usda`) for edits that must win.
 
 **A USD opens with the wrong variant, or without its payloads.** Select the stage and switch them in the Attribute Editor, or with `usdStageVariant` and `usdStageLoad`.
 
@@ -69,7 +71,7 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 ## Options
 
-Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
+Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
 
 | Command | Option | What it does |
 | --- | --- | --- |
@@ -78,8 +80,9 @@ Each format's options are on its import and export commands (`importGltf`, `expo
 | `exportUsd` | `splitLayers` | Writes geometry, materials and animation as separate layers under one root file. |
 | `exportUsd` | `textures` | `relative`, `absolute` or `copy` texture paths. `.usdz` always packages them. |
 | `exportUsd` / `exportFbx` | `takes` | Several takes in one file. USD writes them as a `take` variant set. |
-| `importUsd` | `variants` | Variant selections, as `{"set": "variant"}` or per prim path. |
-| `importUsd` | `loadPayloads` | Off imports the file without its payloads. |
+| `usdStageOpen` | `editLayer` | Where the stage's edits go: empty (inside the `.lila`), a `.usda` path, or one of its sublayers. |
+| `usdStageOpen` / `importUsd` | `variants` | Variant selections, as `{"set": "variant"}` or per prim path. |
+| `usdStageOpen` / `importUsd` | `loadPayloads` | Off opens the file without its payloads. |
 | STL and PLY commands | `unit` | `mm`, `cm`, `m` or `in`. STL defaults to `mm`, PLY to `m`. |
 | STL and PLY commands | `upAxis` | `z` (default) or `y`. |
 | `importStl` | `hardAngle` | Edges bent more than this many degrees are hard. Default 30. |
