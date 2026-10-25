@@ -37,19 +37,25 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **File > Open** or **Import** on a USD file makes a live stage, a `usdStage` node holding the composed stage. Nothing is flattened: variants, payloads, references and sublayers stay live, and your edits are written as overs to an edit layer. The source files are never changed.
 
-- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), editing meshes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads.
+- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), editing meshes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads. Objects inside an LOD level are written into that level's variant.
+- **Instances:** an edit inside an instance, or an object added under one, makes that instance non-instanceable in the edit layer, and the stage warns. A point instancer's instances come in as transforms: moving one moves it on the instancer, deleting one hides it (`invisibleIds`), and editing a copy edits its prototype, so every instance of it changes.
+- **Joints:** an object added under a joint is written beside the skeleton, following the joint.
 - **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
-- **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer.
+- **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
 - **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
-- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`.
+- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`; Lila's Python has no `pxr` module.
 - **Changes made by other tools or scripts** to the stage's layers show up as they happen, on the prims they touch, without a reload.
 - **To flatten instead**, run `importUsd`, which converts the stage into plain Lila objects.
 
 ## Troubleshooting
 
-**A USD stage edit isn't written.** Joint, skin weight and blend shape edits, and moving an object to a different parent, have no override Lila writes yet. The stage lists them as warnings when it saves. Renaming an object keeps it linked to its prim.
+**A USD stage edit isn't written.** Joint, skin weight and blend shape edits, new or deleted joints, and moving an object to a different parent have no override Lila writes yet. The stage lists them as warnings when it saves. Renaming an object keeps it linked to its prim.
 
-**Modifiers or deformers on a stage's mesh are baked when it saves.** A layer holds only the result. To keep the modifier stack, run `usdStageExtract` on the object first. That turns it into a plain Lila object and deactivates its prim.
+**Modifiers or deformers on a stage's mesh are baked when it saves.** A layer holds only the result. The object keeps its stack in Lila, and when the stage changes it is built again under the same stack. To stop writing the result, run `usdStageExtract` on the object. That turns it into a plain Lila object and deactivates its prim.
+
+**A stage warns that an instance was made non-instanceable.** An edit landed inside an instance, which USD only allows once the instance is no longer instanced. The other instances of its prototype stay instanced.
+
+**Houdini or Maya loads payloads that the shot left unloaded.** USD keeps payload load state per open stage, not in layers, so neither reads the state `usdStageWriteShot` records. Set it where you open the shot: in Houdini, a Configure Stage LOP's load options or the Scene Graph Tree; in Maya, the Load Payloads option when creating the stage, or Unload on the prim.
 
 **A glTF or USD import lists skipped items.** Lights come in as empty transforms, because Lila has no lights. The import report lists everything that didn't come across and why.
 
