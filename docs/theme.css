@@ -59,9 +59,11 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 
 /* Icons on the top-level pages, masked so they take the link colour. */
 .sidebar-nav a[href="#/"]::before,
+.sidebar-nav a[href="#/requirements"]::before,
 .sidebar-nav a[href="#/essentials"]::before,
 .sidebar-nav a[href="#/curves"]::before,
 .sidebar-nav a[href="#/topology"]::before,
+.sidebar-nav a[href="#/faq"]::before,
 .sidebar-nav a[href="#/python/"]::before,
 .sidebar-nav a[href="#/cpp/"]::before,
 .sidebar-nav a[href^="https://lila-dcc.github.io"]::before {
@@ -77,12 +79,29 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 }
 
 .sidebar-nav a[href="#/"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5M5 9v12h14V9M10 21v-6h4v6'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/requirements"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h18v12H3zM8 20h8M12 16v4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/essentials"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7l1-8z'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/curves"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20C6 6 18 18 20 4'/%3E%3Ccircle cx='4' cy='20' r='1.5'/%3E%3Ccircle cx='20' cy='4' r='1.5'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/topology"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 5h18v14H3zM3 12c6-4 12-4 18 0M12 5c-3 5-3 9 0 14'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/faq"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/python/"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/cpp/"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href^="https://lila-dcc.github.io"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'/%3E%3C/svg%3E"); }
+
+/* One shared marker for the headings listed under the current page. */
+.app-sub-sidebar li a::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 10px;
+  vertical-align: 2px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  opacity: .5;
+}
+
+.app-sub-sidebar li.active > a::before { background: currentColor; opacity: 1; }
 
 .sidebar-toggle { background: var(--panel); }
 .sidebar-toggle span { background: var(--muted); }

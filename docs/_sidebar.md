@@ -10,7 +10,9 @@
 ---
 
 - [Home](/)
+- [System requirements](requirements.md)
 - [Essentials](essentials.md)
 - [Curves](curves.md)
 - [Topology](topology.md)
+- [FAQ](faq.md)
 - [Back to lila-dcc.github.io](https://lila-dcc.github.io/ ':ignore')
