@@ -11,8 +11,11 @@
 
 - [Home](/)
 - [System requirements](requirements.md)
+- [File formats](formats.md)
 - [Essentials](essentials.md)
 - [Curves](curves.md)
+- [Duplicate, instances and arrays](duplicate.md)
 - [Topology](topology.md)
+- [Destruction](destruction.md)
 - [FAQ](faq.md)
 - [Back to lila-dcc.github.io](https://lila-dcc.github.io/ ':ignore')
