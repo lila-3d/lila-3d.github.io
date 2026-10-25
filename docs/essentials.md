@@ -6,7 +6,7 @@ What everyone should know on day one.
 
 Press **Ctrl+T** and type. Every menu command is searchable, so you don't need to remember which menu it lives in.
 
-![Command search showing results for "model"](images/command-search.png)
+![Command search showing results for "model"](images/essentials/command-search.png)
 
 - **Enter** runs the highlighted command.
 - **Shift+Enter**, or clicking the square at the end of a row, opens the command's options.
@@ -16,7 +16,7 @@ Press **Ctrl+T** and type. Every menu command is searchable, so you don't need t
 
 Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It opens the same window as Ctrl+T.
 
-![Scene search showing results for "whale"](images/scene-search.png)
+![Scene search showing results for "whale"](images/essentials/scene-search.png)
 
 - **Enter** selects the highlighted item.
 - **Shift+Enter** adds it to the selection.
@@ -27,7 +27,7 @@ Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It
 
 Hold **F1** to show every hotkey. Release it to close.
 
-![Hotkey cheat sheet](images/cheat-sheet.png)
+![Hotkey cheat sheet](images/essentials/cheat-sheet.png)
 
 ## Selection modes
 
@@ -42,7 +42,7 @@ Hold **F1** to show every hotkey. Release it to close.
 
 Press **\`** (backtick) to show or hide the floating shelf near your cursor.
 
-![Floating shelf](images/floating-shelf.png)
+![Floating shelf](images/essentials/floating-shelf.png)
 
 - **Ctrl+scroll wheel** changes the icon size.
 - **Ctrl+middle-click** resets the icon size.
@@ -54,11 +54,11 @@ Hold **Tab** and right-click to create a primitive, then left-click to place it.
 - In object mode, it snaps to the surface you click.
 - In vertex, edge or face mode, it snaps to your current component selection.
 
-![Placing a primitive on a sphere](images/create-snapped-primitive.png)
+![Placing a primitive on a sphere](images/essentials/create-snapped-primitive.png)
 
 When creating a primitive, lower **Fraction** to create only part of it.
 
-![A torus created with a lower fraction](images/primitive-fraction.png)
+![A torus created with a lower fraction](images/essentials/primitive-fraction.png)
 
 ## Snapping
 
@@ -71,7 +71,13 @@ Hold a key while moving to snap:
 | **V** | Vertices |
 | **C** | Edges |
 
-![Moving a cube with surface snapping](images/surface-snap.png)
+![Moving a cube with surface snapping](images/essentials/surface-snap.png)
+
+## Symmetry
+
+Symmetry in Lila stays exact across modeling, UVs, weights and joints.
+
+> **Coming from Maya?** Maya's world and object symmetry pair vertices by position within a tolerance, so a vertex that drifts slightly off the axis stops matching and symmetry quietly breaks. Lila was built around symmetry from the start, so it doesn't drift.
 
 ## Filter the outliner
 
@@ -91,3 +97,25 @@ The box at the top of the outliner filters what it shows. It has a regex toggle 
 - With the regex toggle on, a pattern that isn't valid shows everything rather than nothing.
 
 > **Note:** There is no type dropdown. Typing `type:` is the only way to filter by type.
+
+## Command line
+
+Press **Ctrl+\`** to pop up a command line and type Python straight in. There's nothing to import: commands are available by name.
+
+<!-- TODO image of command line-->
+
+## Script editor
+
+The script editor has completion, auto-format, inline docs and relative line numbers, so you shouldn't need an external IDE.
+
+<!-- TODO image of script editor -->
+
+## Naming conventions
+
+Set naming rules in **Preferences > Naming**, and Lila either warns when a name breaks them or fixes it for you. This keeps scenes tidy across a studio or a large team.
+
+![Naming preferences](images/essentials/naming-convention.png)
+
+## AI agents
+
+Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command line - almost everything - an agent can too.
