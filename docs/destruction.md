@@ -17,6 +17,20 @@ breakApart("Wall", material="concrete", impact=[0, 120, 15])
 
 The result is the same on every machine and every run. Changing a setting re-simulates only from the first frame it changes, and scrubbing back is instant.
 
+### Several meshes, several explosions, collapsing ground
+
+Select everything that should hit each other (walls and the ground they stand on) and Break Apart once: they simulate together on a new `Destruction` mesh and the originals are hidden. Then scrub to a frame and use **Effects > Destruction > Add Explosion** to click where the next one goes off.
+
+```python
+breakApart("Ground", "WallA", "WallB")
+addExplosion("Destruction", position=[-150, 110, -64], frame=20, blast=2600, radius=320)
+collapse("Destruction", part="Ground", start=125, duration=75, direction=[1, 0, 0], rumble=4)
+```
+
+Ground that should stay put while the rest falls (a pit's rim) goes in as `colliders=[...]`: pieces hit it, it never moves or breaks.
+
+`collapse` makes a part give way from one side to the other: its pieces rumble as the failure nears, then fall, taking anything on them along. The floor is lowered by `depth` so there's somewhere to fall. A full example is in `resources/examples/Destruction`.
+
 ## Troubleshooting
 
 **Nothing breaks.** Raise **blast** or lower **strength** on the modifier.
@@ -55,6 +69,9 @@ Open the modifier's group in the Node Editor: **Fracture > Anchor Pieces > Rigid
 - **Effects > Destruction > Show Destruction Links** draws the selected destruction's links, coloured by strength; broken ones disappear.
 - Links are two-point curves with curve attributes `pieceA`, `pieceB` (-1 ties to the world), `type` (0 glue, 1 spring, 2 hard) and `strength` (N). Edit them with any geometry node.
 - Colliders: an **Object Info** node with transform space set to `instance` feeds a moving object (a wrecking ball) into **colliders**; a plain mesh stays put.
+- **Join Pieces** puts two sets of pieces and links into one simulation; chain it for more.
+- **Explosion** nodes, joined with Join Geometry, go into the solver's **blasts**.
+- **Collapse** takes pieces and links and Scene Time's frame: pieces hold still, rumble, then fall in a sweep along a direction. A link's `strength` can change over time; 0 cuts it.
 - The solver's **breaks** output has a point where each link broke, with `frame` and `impulse`, for spawning debris or dust.
 - One Rigid Body Solver per group, in the modifier's own group (not inside a nested group).
 
