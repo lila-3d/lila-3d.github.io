@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lila: game-asset DCC</title>
-<meta name="description" content="Game-asset DCC: Maya-style workflow, modern multithreaded core, Unreal-first pipeline. Coming soon.">
-<meta property="og:title" content="Lila: coming soon">
-<meta property="og:description" content="Game-asset DCC: Maya-style workflow, modern multithreaded core, Unreal-first pipeline.">
+<title>Lila: the 3D app for games and film</title>
+<meta name="description" content="One 3D app for games and film, from first polygon to animation. Maya-style workflow, Unreal-first pipeline. Coming soon.">
+<meta property="og:title" content="Lila: the 3D app for games and film">
+<meta property="og:description" content="One 3D app for games and film, from first polygon to animation. Maya-style workflow, Unreal-first pipeline.">
 <meta property="og:image" content="https://lila-dcc.github.io/assets/icon.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:creator" content="@Vaei00">
@@ -87,18 +87,18 @@ a:focus-visible {
 
 .scene {
   position: relative;
-  height: 100svh;
+  height: 84svh;
   min-height: 620px;
   container-type: size;
   overflow: hidden;
   isolation: isolate;
-  background: linear-gradient(180deg, #0c0d0f 0%, #15171a 45%, #24282e 60%, #0c0d0f 60%);
+  background: linear-gradient(180deg, #0c0d0f 0%, #15171a 40%, #24282e 55%, #0c0d0f 55%);
 }
 
 .scene > * {
-  --horizon: 60cqh;
-  --icon: clamp(130px, 22cqh, 240px);
-  --soon: clamp(1.5rem, 7.4cqw, 6.5rem);
+  --horizon: 55cqh;
+  --icon: clamp(88px, 16cqh, 180px);
+  --banner: clamp(1.5rem, min(5cqw, 7.5cqh), 4.75rem);
   position: absolute;
 }
 
@@ -121,6 +121,8 @@ a:focus-visible {
   perspective: 380px;
   perspective-origin: 50% 0;
   background: linear-gradient(180deg, #121417, var(--ground));
+  -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent);
+          mask-image: linear-gradient(180deg, #000 70%, transparent);
 }
 
 /* The grid, laid flat away from the eye and scrolling toward it one cell per loop. */
@@ -244,23 +246,24 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   animation: rise-in 1.2s cubic-bezier(.2,.7,.2,1);
 }
 
-.soon {
+.banner {
   margin: clamp(16px, 3cqh, 32px) 0 0;
-  font-size: var(--soon);
+  font-size: var(--banner);
   font-weight: 850;
   font-stretch: 125%;
   font-variation-settings: "wdth" 125;
-  line-height: .86;
+  line-height: .92;
   letter-spacing: -.01em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 /* Starts as a wireframe outline and shades in, like a viewport switching display modes. */
-.lockup .soon {
+.lockup .banner {
   color: transparent;
   -webkit-text-stroke: 1.5px var(--accent-soft);
   background: linear-gradient(180deg, #ffffff 0%, #d6d9de 46%, #9097a1 100%);
@@ -291,59 +294,47 @@ a:focus-visible {
   text-align: center;
   transform: scaleY(-1);
   color: rgba(143,186,255,.08);
-  -webkit-mask-image: linear-gradient(0deg, #000 0%, transparent 85%);
-          mask-image: linear-gradient(0deg, #000 0%, transparent 85%);
+  -webkit-mask-image: linear-gradient(0deg, #000 0%, transparent 50%);
+          mask-image: linear-gradient(0deg, #000 0%, transparent 50%);
   animation: fade-in 2.4s ease-out;
 }
 
-.reflection .soon { margin: 0; }
+.reflection .banner { margin: 0; }
 
 .below {
   left: 0;
   right: 0;
-  top: calc(var(--horizon) + var(--soon) * 1.05);
+  top: calc(var(--horizon) + var(--banner) * .95);
   z-index: 3;
   text-align: center;
   padding-inline: 16px;
   animation: fade-in 1.8s ease-out;
 }
 
+.below .chain {
+  justify-content: center;
+  margin: 0;
+}
+
 .tagline {
   max-width: 40ch;
-  margin: 0 auto;
+  margin: clamp(14px, 2.5cqh, 22px) auto 0;
   font-size: clamp(1rem, 1.7vw, 1.25rem);
   line-height: 1.45;
   color: var(--muted);
 }
 
-.prompt {
-  margin: clamp(14px, 3cqh, 26px) 0 0;
-  padding-left: .5em;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: clamp(.75rem, 1.2vw, .9375rem);
-  letter-spacing: .5em;
-  text-transform: uppercase;
-  color: var(--accent-soft);
-  animation: blink 2.4s ease-in-out infinite;
-}
+.below .button { margin-top: clamp(16px, 3cqh, 28px); }
 
-.hud {
-  left: 0;
-  right: 0;
-  bottom: 28px;
-  z-index: 4;
-  display: flex;
-  justify-content: space-between;
-  width: min(1120px, 100% - 32px);
-  margin-inline: auto;
+.status {
+  margin: 14px 0 0;
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: .8125rem;
   letter-spacing: .12em;
   color: var(--quiet);
-  animation: fade-in 1.4s ease-out;
 }
 
-.hud .dot {
+.status .dot {
   display: inline-block;
   width: 6px;
   height: 6px;
@@ -463,8 +454,11 @@ a:focus-visible {
   color: var(--muted);
 }
 
+/* Rises over the bottom of the scene so the app shows above the fold. */
 .shot {
-  margin: 0 0 clamp(64px, 9vw, 112px);
+  position: relative;
+  z-index: 1;
+  margin: calc(-1 * clamp(24px, 16svh - 80px, 120px)) auto 0;
 }
 
 .shot img {
@@ -720,6 +714,14 @@ footer p { margin: 0 0 6px; }
     margin: 6px 0 6px 8px;
     background: linear-gradient(180deg, var(--line), var(--accent));
   }
+  .below .chain { flex-direction: row; gap: 8px 0; }
+  .below .chain li { flex-direction: row; align-items: center; }
+  .below .chain li:not(:last-child)::after {
+    width: 10px;
+    height: 1px;
+    margin: 0 8px;
+    background: linear-gradient(90deg, var(--line), var(--accent));
+  }
   .area { grid-template-columns: 1fr; }
   .area ul { grid-template-columns: 1fr; }
   .compare { grid-template-columns: 1fr; }
@@ -727,7 +729,7 @@ footer p { margin: 0 0 6px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }
-  .lockup .soon { background-size: 100% 100%; -webkit-text-stroke-color: rgba(143,186,255,.35); }
+  .lockup .banner { background-size: 100% 100%; -webkit-text-stroke-color: rgba(143,186,255,.35); }
 }
 </style>
 
@@ -741,7 +743,7 @@ footer p { margin: 0 0 6px; }
   <div class="bloom" aria-hidden="true"></div>
   <div class="horizon" aria-hidden="true"></div>
   <div class="flare" aria-hidden="true"></div>
-  <div class="reflection" aria-hidden="true"><div class="soon">Coming soon</div></div>
+  <div class="reflection" aria-hidden="true"><div class="banner">The 3D app<br>for games and film</div></div>
 
   <nav class="topbar" aria-label="Site">
     <a class="brand" href="./">Lila</a>
@@ -753,29 +755,11 @@ footer p { margin: 0 0 6px; }
 
   <div class="lockup">
     <img class="icon" src="assets/icon.png" alt="Lila logo" width="240" height="240">
-    <h1 class="soon">Coming soon</h1>
+    <h1 class="banner">The 3D app<br>for games and film</h1>
   </div>
 
   <div class="below">
-    <p class="tagline">Game-asset DCC: Maya-style workflow, modern multithreaded core, Unreal-first pipeline.</p>
-    <p class="prompt">Stay tuned</p>
-  </div>
-
-  <div class="hud">
-    <span><span class="dot" aria-hidden="true"></span>In development</span>
-    <span>Not released yet</span>
-  </div>
-</header>
-
-<main>
-  <section class="intro wrap">
-    <p>Lila takes its UX and workflow from Maya, then rebuilds everything else for game developers: a modern stack, real multithreading, and high-end tools across the board.</p>
-    <p class="scale">Lila fits a solo indie as well as a AAA studio's full production pipeline, and every part of it is built to be extended. Its architecture is designed to last, not patched together.</p>
-  </section>
-
-  <section class="pipeline wrap" aria-labelledby="one-tool">
-    <h2 id="one-tool">One tool, from first polygon to Unreal</h2>
-    <ol class="chain">
+    <ol class="chain" aria-label="What Lila does">
       <li>Model</li>
       <li>Unwrap</li>
       <li>Bake</li>
@@ -784,13 +768,26 @@ footer p { margin: 0 0 6px; }
       <li>Animate</li>
       <li class="end">Unreal</li>
     </ol>
-    <p>No exporting FBXs or textures between apps, and no separate UV tool, baker, painter or material generator. Everything happens in Lila.</p>
+    <p class="tagline">Maya-style workflow, Unreal-first pipeline.</p>
+    <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 for the release</a>
+    <p class="status"><span class="dot" aria-hidden="true"></span>In development, not released yet</p>
+  </div>
+</header>
+
+<main>
+  <figure class="shot wrap">
+    <img src="assets/screenshot.webp" alt="Lila with a procedural spike mesh in the viewport, the UV editor, modeling toolkit and node editor open" width="2560" height="1440">
+  </figure>
+
+  <section class="intro wrap">
+    <p>Lila takes its UX and workflow from Maya, then rebuilds everything else for game developers: a modern stack, real multithreading, and high-end tools across the board.</p>
+    <p class="scale">Lila fits a solo indie as well as a AAA studio's full production pipeline, and every part of it is built to be extended. Its architecture is designed to last, not patched together.</p>
   </section>
 
-  <figure class="shot wrap">
-    <img src="assets/viewport.png" alt="Lila's viewport" onerror="this.closest('figure').remove()">
-    <figcaption>The realtime viewport.</figcaption>
-  </figure>
+  <section class="pipeline wrap" aria-labelledby="one-tool">
+    <h2 id="one-tool">One tool, from first polygon to Unreal</h2>
+    <p>No exporting FBXs or textures between apps, and no separate UV tool, baker, painter or material generator. Everything happens in Lila.</p>
+  </section>
 
   <section class="area wrap" aria-labelledby="studios">
     <h2 id="studios">Your Maya team already knows it</h2>
@@ -903,7 +900,7 @@ footer p { margin: 0 0 6px; }
     <ul>
       <li>
         <h3>Light and quick</h3>
-        <p>Lila feels light next to other DCCs: fast to work in, easy to learn and out of your way.</p>
+        <p>Lila feels light next to other 3D apps: fast to work in, easy to learn and out of your way.</p>
       </li>
       <li>
         <h3>Modern viewport</h3>
@@ -991,17 +988,17 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="pct">95%</span>
         <span class="note">UX polish and bug testing</span>
       </li>
-      <li style="--p: 65">
+      <li style="--p: 80">
         <span class="name">3D sculpting</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">65%</span>
-        <span class="note">Early stages, needs more testing</span>
+        <span class="pct">80%</span>
+        <span class="note">More testing required</span>
       </li>
-      <li style="--p: 50">
+      <li style="--p: 65">
         <span class="name">Retopology</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">50%</span>
-        <span class="note">Manual retopology working, more tools coming, auto-retopology in research</span>
+        <span class="pct">65%</span>
+        <span class="note">Significant amount of advanced tooling in late-stage development requiring testing</span>
       </li>
       <li style="--p: 95">
         <span class="name">UV editing</span>
@@ -1015,17 +1012,17 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="pct">90%</span>
         <span class="note">UX polish, bug testing and more features</span>
       </li>
-      <li style="--p: 30">
+      <li style="--p: 60">
         <span class="name">3D painting</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">30%</span>
-        <span class="note">Prototype nearly complete</span>
+        <span class="pct">60%</span>
+        <span class="note">Prototype completed, testing phase pending</span>
       </li>
-      <li style="--p: 15">
+      <li style="--p: 60">
         <span class="name">Material nodes</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">15%</span>
-        <span class="note">Prototype in progress</span>
+        <span class="pct">60%</span>
+        <span class="note">Prototype completed, testing phase pending</span>
       </li>
       <li style="--p: 80">
         <span class="name">Geometry nodes</span>
@@ -1039,11 +1036,23 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="pct">60%</span>
         <span class="note">Early prototype, mostly untested</span>
       </li>
+      <li style="--p: 80">
+        <span class="name">Deformers</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">80%</span>
+        <span class="note">Advanced and complete set of modern deformers requiring further testing</span>
+      </li>
       <li style="--p: 40">
         <span class="name">Animation, Puppeteer and physics</span>
         <span class="bar" aria-hidden="true"><span></span></span>
         <span class="pct">40%</span>
         <span class="note">Early prototype, mostly untested</span>
+      </li>
+      <li style="--p: 65">
+        <span class="name">Destruction physics</span>
+        <span class="bar" aria-hidden="true"><span></span></span>
+        <span class="pct">65%</span>
+        <span class="note">Prototype completed, testing phase pending</span>
       </li>
       <li style="--p: 95">
         <span class="name">Python scripting</span>

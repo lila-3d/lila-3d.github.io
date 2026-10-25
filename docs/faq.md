@@ -15,9 +15,30 @@ The source opens at release, so macOS and Linux users can build it themselves.
 
 Not yet. There's no public build. Follow [@Vaei00 on X](https://x.com/Vaei00) for the first release.
 
+### What does Lila cost?
+
+Nothing. Lila is free.
+
 ### Does Lila open Maya scenes?
 
-Yes. It opens `.mb` and `.ma` files and converts them to Lila scenes.
+Yes. It opens `.mb` and `.ma` files and converts them to Lila scenes, without Maya installed.
+
+### Can I use Lila for film?
+
+Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no lighting or offline rendering, so final frames come from your existing renderer. Hand work over as USD, Alembic, FBX or OBJ, including animated meshes whose topology changes, and textures as EXR, TIFF, PNG or TGA.
+
+### Which formats can Lila export?
+
+- **FBX:** meshes, skeletons, skin weights, morph targets and animation, with a UE5 axis profile.
+- **USD**
+- **glTF and GLB**
+- **OBJ**
+- **Alembic** (`.abc`, Ogawa): animated meshes, including changing topology.
+- **Textures and bakes:** PNG, EXR, TGA or TIFF. Bakes can also write PSD.
+- **For Unreal:** mesh sequences for Niagara flipbooks, vertex animation textures (including changing topology and rigid pieces for destruction), ML Deformer training data, and pose drivers as JSON.
+- **LilaLink** sends meshes, textures and splines straight into a running Unreal editor, with no files in between.
+
+STL and PLY will come if people ask for them.
 
 ## Technical
 

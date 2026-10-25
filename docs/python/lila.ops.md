@@ -2026,6 +2026,19 @@ Bake translate/rotate/scale into mesh or curve points (and children's transforms
 | `rotate` |  | bool | `True` | Freeze rotation. |
 | `scale` |  | bool | `True` | Freeze scale. |
 
+### fullBodyIk
+
+Pose a whole skeleton so each pinned joint reaches its target. The motion spreads over the joints between the pins and the hips by stiffness; everything else keeps its pose. Writes the joints' rotate (and the hips' translate) as FK. Returns {'error': the largest pin miss in cm}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pins` | `p` | list |  | [{'joint': name, 'position': [x, y, z], 'rotation': [x, y, z], 'weight': 1.0}], world space; rotation is XYZ Euler degrees. position and rotation are each optional. |
+| `hold` | `h` | list |  | Joints pinned where they are now (position and rotation). |
+| `root` | `r` | str |  | Top joint of the skeleton to solve; default the first pin's top joint. |
+| `stiffness` | `st` | Any |  | {joint: 0..1}: how much each joint resists turning, so its neighbours take the motion. |
+| `moveRoot` | `mr` | bool | `True` | Let the hips move when turning joints is not enough. |
+| `key` | `k` | bool | `False` | Key the posed joints. |
+
 ### gameExport
 
 Export everything, the selection, or object sets to FBX or OBJ, as one file, a file per set or a file per object. Returns the paths written, or with dryRun=True [{file, nodes}] without writing.
@@ -4200,7 +4213,6 @@ Catmull-Clark subdivide whole meshes (crease-aware).
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `levels` |  | int | `1` | Subdivision levels. |
-| `keepHardEdges` |  | bool | `False` | Keep normals split along hard edges; off smooths the shading across them. |
 
 ### polyTargetWeld
 
@@ -5820,8 +5832,6 @@ Display meshes subdivided without changing them (the 1/2/3 keys). level 0 is off
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `level` |  | int | `2` | Subdivision levels to display (0 to 3). |
-
-Not undoable.
 
 ### snapReverseFoot
 
@@ -7681,6 +7691,18 @@ Move transforms by a world offset. aim (sticky aim) turns each one's parent to p
 | `stickyAim` | `sa` | bool | `False` | Rigging: re-aim the parent's and the joint's orients along the bones. |
 | `sticky2nd` | `s2` | bool | `False` | With sticky aim: the secondary axis lies in the chain's plane. |
 | `keepDirection` | `kd` | bool | `False` | With sticky 2nd: the secondary axis keeps pointing the way it did. |
+| `fullBody` | `fb` | bool | `False` | Joints in a character move by posing the whole body: their pins and locked hands and feet hold. |
+
+### puppeteerPin
+
+Pin joints so full-body moves hold them where they are, or unpin them. With neither pin nor unpin given, toggles each. Returns the character's pinned joints.
+
+**Objects:** joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pin` | `p` | bool |  | True pins, False unpins; leave out to toggle. |
+| `clear` | `c` | bool | `False` | Unpin every joint of the joints' characters first. |
 
 ### puppeteerPole
 
