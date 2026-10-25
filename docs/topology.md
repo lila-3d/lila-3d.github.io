@@ -1,14 +1,15 @@
 # Topology
 
-Hand retopology over a reference mesh, from the **Topology** menu or the **Topology Toolkit** (Windows > Topology Toolkit).
+Retopologize by hand. Available from the **Topology** menu or the **Topology Toolkit** (Windows > Topology Toolkit).
 
 <!-- TODO image: a character half retopologised with patches, strips and cylinders (images/topology/overview.png) -->
 
-## Get it working
+## Getting started
 
-1. Select the high-res reference mesh and pick a tool from **Topology**. The retopo mesh is made on your first edit as `<reference>_retopo`.
-2. To resume later, select the retopo mesh (or the reference) and pick a tool again.
-3. Set symmetry in the toolkit's Session section before you start: every tool builds both halves.
+1. Select the mesh to retopologize and pick a tool from **Topology**.
+2. To resume later, select either the retopo or reference mesh and pick a tool again.
+
+> Set symmetry in the toolkit's Session section before you start.
 
 ## Hotkeys
 
@@ -32,23 +33,6 @@ Hand retopology over a reference mesh, from the **Topology** menu or the **Topol
 | Double-click a knot | Strip: corner on or off |
 | Double-click inside a hole | Auto Region: mark the reference inside it |
 | Scroll / **Ctrl**+scroll over a handle | Handles: scale / turn |
-
-## Live constructs
-
-Patches, strips, strokes, bridges, sweeps, cylinders and auto regions stay editable: scroll over them, or change their settings in the toolkit's Active Construct section. Editing their faces any other way (Retopo Draw, moving vertices, relaxing) freezes them into plain faces the next time you change a setting.
-
-## What a stroke makes
-
-| Drawn | Result |
-| --- | --- |
-| Free, alone | A waiting stroke; the next free stroke bridges to it |
-| Along an existing border | A bridge from that border to the stroke |
-| From a border point, ending free | A sweep: the border beside it carried along the stroke (scroll for how much border) |
-| From a border point back to the border | A patch closing the gap |
-
-## Auto Region
-
-Paint the area of the reference to retopologise and press **Enter**. If a retopo border loop runs round the painted area, the result is stitched to it; otherwise its border is left open. Guides inside the area steer the edge flow.
 
 ## Troubleshooting
 
