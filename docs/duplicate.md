@@ -1,4 +1,4 @@
-# Duplicate, instances and arrays
+# Duplicate and instance
 
 Copies that share their mesh, repeat a transform, or stay live as an array. All of it is in the **Edit** menu.
 

@@ -13,18 +13,21 @@
 
 - [Home](/)
 - [System requirements](requirements.md)
+- [FAQ](faq.md)
 - [Performance](performance.md)
+
+---
+
 - [File formats](formats.md)
 - [Essentials](essentials.md)
 - [Curves](curves.md)
-- [Duplicate, instances and arrays](duplicate.md)
+- [Duplicate and instance](duplicate.md)
 - [Lights](lights.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
 - [Change stream](change-stream.md)
 - [Attributes and arrays](attributes.md)
 - [C++ extensions](cpp-extensions.md)
-- [FAQ](faq.md)
 
 ---
 
