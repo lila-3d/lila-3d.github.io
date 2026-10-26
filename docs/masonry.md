@@ -29,7 +29,9 @@ masonryShip(wall["mesh"], wait=True)["unreal"]   # {"imported": ..., "placed": .
 
 Each stone mesh is imported once into `/Game/Lila/Masonry/<mesh>` with three LODs (worn, clean, box), and the stones are placed as one HISM per stone mesh per 4 m ground chunk, under the **Lila** folder in the outliner. The core is its own static mesh. Send again after an edit and the wall's chunks are replaced in place; chunks it no longer has are removed.
 
-Materials read per-instance custom data: index 0 is a stable random per stone, index 1 is height up the wall (0 bottom course, 1 top).
+The core carries the wall's collision as convex UCX pieces; stones have none. Stones use the material slot `MasonryStone` and the core `MasonryMortar`: Unreal finds or makes materials of those names, with a Lila material's values when the scene has one so named. Materials read per-instance custom data: index 0 is a stable random per stone, index 1 is height up the wall (0 bottom course, 1 top).
+
+For few draw calls instead of instancing, `masonryShip(mesh, mode="merged")` sends each chunk's stones as one static mesh with the same three LODs.
 
 ## Troubleshooting
 
@@ -54,7 +56,8 @@ Materials read per-instance custom data: index 0 is a stable random per stone, i
 | bevel | Stone edge chamfer. |
 | seed | Other wander, wear and cut positions. |
 | masonryShip `chunkSize` | Ground cell per instanced component, cm (default 400). Smaller streams and culls finer, at more draw calls. |
-| masonryShip `mode` | `hism` (default) or `ism`. |
+| masonryShip `mode` | `hism` (default), `ism`, or `merged`. |
+| masonryShip `collisionBands` | Height bands the core's collision is split into (default 1). |
 | masonryShip `folder` | Content folder; the wall's assets go in `<folder>/<mesh name>`. |
 
 Stones are instances of a few shared meshes, with `stone`, `wall`, `course`, `role` (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler), `face` (0 outer, 1 inner, 2 through), `random`, `variant` and `size` attributes for geometry nodes to filter or shade by. The graph is a normal geometry-nodes group: open it to put nodes after the **Masonry Wall** node.
