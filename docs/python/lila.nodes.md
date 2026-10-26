@@ -199,7 +199,7 @@ points
 
 Read only.
 
-Final (modified) mesh points in object space, as lila.math.Vector.
+Final (modified) mesh points in object space, as lila.math.Vector. Slow past a few thousand points: use points_array.
 
 ### Node.faces
 
@@ -296,6 +296,56 @@ bake_array(mode='instance')
 ```
 
 Turns this live array into a plain group holding its sources and a real object per copy: instances of the sources ("instance"), copies ("copy") or references ("reference"). Returns the group Node.
+
+### Node.points_array
+
+```python
+points_array(base=False, world=False)
+```
+
+(N, 3) float64 numpy array of the points in points' order, read-only. A view of the mesh itself when it can be (object space, no deleted points), else a copy. base=True reads the base mesh under modifiers; world=True world space. Safe to read from any thread: it is a snapshot that later edits don't change.
+
+### Node.face_arrays
+
+```python
+face_arrays(base=False)
+```
+
+(counts, points): uint32 numpy arrays of corners per face and every face's point indices in a row, so face i is points[offsets[i]:offsets[i] + counts[i]] with offsets = numpy.cumsum(counts) - counts.
+
+### Node.normals_array
+
+```python
+normals_array(base=False)
+```
+
+(C, 3) float32 numpy array of normals per face-vertex (faces in order, corners around each face), as drawn.
+
+### Node.uvs_array
+
+```python
+uvs_array(uv_set='uv0', base=False)
+```
+
+(C, 2) float32 numpy array of a uv set per face-vertex, in normals_array's order.
+
+### Node.uv_sets
+
+```python
+uv_sets
+```
+
+Read only.
+
+The mesh's uv set names: uv0, uv1, ...
+
+### Node.set_points
+
+```python
+set_points(points)
+```
+
+Moves every point of the base mesh (under modifiers) from an (N, 3) array-like in points_array(base=True)'s order, in object space; one undo step. Main thread only.
 
 ### Node.color_sets
 

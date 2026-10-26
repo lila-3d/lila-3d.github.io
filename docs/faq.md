@@ -39,6 +39,7 @@ Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no
 - **USD:** as files, or as live stages edited through a layer (see [File formats](formats.md#usd-stages)).
 - **glTF and GLB**
 - **OBJ**, **STL** and **PLY**
+- **DXF** and **SVG:** curves for CAD, laser cutting and CNC. DXF also carries meshes.
 - **Alembic** (`.abc`, Ogawa): animated meshes, including changing topology.
 - **Textures and bakes:** PNG, EXR, TGA or TIFF. Bakes can also write PSD.
 - **For Unreal:** mesh sequences for Niagara flipbooks, vertex animation textures (including changing topology and rigid pieces for destruction), ML Deformer training data, and pose drivers as JSON.
@@ -102,3 +103,7 @@ A C++ extension is built against an SDK version, `major.minor`, and Lila checks 
 - An extension that needs a newer SDK than your Lila, or a different major version, isn't loaded, and Lila says which version it was built for.
 
 C++ types cross the boundary, so build with MSVC, as Lila is.
+
+### Can scripts use threads?
+
+Yes. Meshes come out as numpy arrays (`Node.points_array()`), which any thread can read, and numpy releases the GIL, so worker threads from `threading` or `concurrent.futures` run on every core. `lila.run_in_background` runs a job with progress and Cancel and calls you back on the main thread. Scene commands stay on the main thread. See [Threads and big meshes](python-threads.md).

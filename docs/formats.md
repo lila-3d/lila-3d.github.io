@@ -15,10 +15,12 @@ Which formats Lila reads and writes, and what to pick for each job.
 | OBJ | `.obj` | Yes | Yes |
 | STL | `.stl` | Yes | Yes |
 | PLY | `.ply` | Yes, including point clouds | Yes |
+| DXF | `.dxf` | Curves and meshes | Curves and meshes |
+| SVG | `.svg` | Curves | Curves |
 | Maya | `.ma`, `.mb` | Yes, without Maya installed | No |
 | Alembic | `.abc` | No | Animated meshes |
 
-FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures.
+FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures. DXF brings each layer in as one curve and one mesh, with arcs, circles, ellipses and splines exact and blocks expanded where they are inserted.
 
 Which to use:
 
@@ -27,7 +29,8 @@ Which to use:
 | Into Unreal | LilaLink (**Send to Unreal**), else FBX |
 | Studio pipelines, Houdini, Omniverse, Apple | USD |
 | Web, Godot, Blender, Sketchfab | glTF (`.glb` for a single file) |
-| 3D printing, CAD | STL |
+| 3D printing | STL |
+| CAD drawings, laser cutting, CNC | DXF |
 | Scans, photogrammetry, point clouds | PLY |
 | Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`) |
 
@@ -73,11 +76,19 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **A PLY point cloud has no surface.** Lila has no point cloud type, so a PLY without faces comes in as a mesh of loose points. Its colors, normals and extra values (`quality`, `intensity`) are kept on the points.
 
+**A DXF comes in the wrong size.** Lila reads the unit from the file's `$INSUNITS` and takes millimetres when the file has none. Set `unit` on `importDxf` to override it.
+
+**Parts of a DXF are missing.** Text, dimensions, hatches and points are skipped, and so are ACIS solids and regions (`3DSOLID`, `REGION`, `BODY`), which need Autodesk's own libraries to read. Export those from the CAD program as a mesh or polyface first. The import report lists everything skipped. Paper space is skipped too; only model space comes in.
+
+**A DXF's splines need to be straight segments.** Import with `polylines` on, and `tolerance` sets how far the segments may stray from the curve. For curves already in the scene, run `convertCurve` with `type` set to `poly`.
+
+**Laser or CNC software won't read Lila's DXF.** Export with `version` set to `r12`, which writes every curve as a polyline.
+
 **Unlit glTF materials look different.** Lila has no unlit model, so they import as emissive.
 
 ## Options
 
-Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
+Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
 
 | Command | Option | What it does |
 | --- | --- | --- |
@@ -94,6 +105,10 @@ Each format's options are on its import and export commands (`importGltf`, `expo
 | `importStl` | `hardAngle` | Edges bent more than this many degrees are hard. Default 30. |
 | `exportStl` | `colors` | Writes the current color set as per-triangle colors (binary STL only). |
 | `exportStl` / `exportPly` | `binary` | Off writes ASCII. |
+| `importDxf` | `polylines` | Turns every curve into straight segments within `tolerance` (cm). |
+| `importDxf` | `merge` | One curve and one mesh for the whole file instead of one per layer. |
+| `exportDxf` | `version` | `2000` (default) writes splines and polyface meshes; `r12` writes polylines only. |
+| `exportDxf` | `splines` | Off writes curves as polylines within `tolerance`. |
 
 ## What reads and writes each format
 
@@ -105,6 +120,7 @@ Lila does not use the Autodesk FBX SDK, so no Autodesk licence terms come with i
 | OBJ | Lila's own | Lila's own |
 | STL | Lila's own | Lila's own |
 | PLY | Lila's own | Lila's own |
+| DXF | Lila's own | Lila's own |
 | glTF | [cgltf](https://github.com/jkuhlmann/cgltf) parses the file, [Draco](https://github.com/google/draco) decodes compressed meshes | Lila's own writer, Draco for compressed meshes |
 | USD | [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD) | OpenUSD |
 | Maya | Lila's own, no Maya needed | |

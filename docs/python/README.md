@@ -13,10 +13,13 @@ Commands that take objects use the selection when none are passed.
 
 | Page | Contents |
 | --- | --- |
-| [lila.ops](python/lila.ops.md) | All 872 commands and their flags. |
+| [lila.ops](python/lila.ops.md) | All 878 commands and their flags. |
 | [lila](python/lila.md) | Lila scripting API. |
 | [lila.nodes](python/lila.nodes.md) | Object API over the scene: handles that survive renames, attributes as properties. |
 | [lila.math](python/lila.math.md) | Unreal-flavoured vector math. |
 | [lila.ui](python/lila.ui.md) | UI from Python: run actions, switch tools, and build tool panels. |
 | [lila.prefs](python/lila.prefs.md) | Read and write prefs. Changes hit disk immediately; no save step. |
 | [lila.extension](python/lila.extension.md) | Python extensions and the commands they register. |
+| [lila.events](python/lila.events.md) | Lila's event bus: call a function when the scene is saved, the selection or time changes, a mode switches, ... |
+| [lila.stream](python/lila.stream.md) | Scene changes as deltas: one message per command or undo step, the same messages the change stream server sends. |
+| [lila.tasks](python/lila.tasks.md) | Background work for scripts: run a function on a worker thread, then use its result back on the main thread. |

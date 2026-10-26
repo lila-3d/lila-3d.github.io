@@ -22,10 +22,10 @@ CommandError(...)
 ## Progress
 
 ```python
-Progress(title: str, total: float = 0.0, cancellable: bool = False) -> None
+Progress(title: str, total: float = 0.0, cancellable: bool = False, background: bool = False) -> None
 ```
 
-Progress of a long script, shown like a scene load: with lila.Progress("Baking", total=n) as p: p.step()
+Progress of a long script, shown like a scene load: with lila.Progress("Baking", total=n) as p: p.step(). background=True shows it as a small indicator instead, for work on a worker thread (lila.tasks).
 
 ### Progress.step
 

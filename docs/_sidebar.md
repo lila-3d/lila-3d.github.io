@@ -6,17 +6,21 @@
   - [lila.ui](python/lila.ui.md)
   - [lila.prefs](python/lila.prefs.md)
   - [lila.extension](python/lila.extension.md)
+  - [lila.tasks](python/lila.tasks.md)
+  - [Threads and big meshes](python-threads.md)
 
 ---
 
 - [Home](/)
 - [System requirements](requirements.md)
+- [Performance](performance.md)
 - [File formats](formats.md)
 - [Essentials](essentials.md)
 - [Curves](curves.md)
 - [Duplicate, instances and arrays](duplicate.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
+- [Masonry](masonry.md)
 - [Change stream](change-stream.md)
 - [C++ extensions](cpp-extensions.md)
 - [FAQ](faq.md)

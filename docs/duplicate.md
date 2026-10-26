@@ -46,7 +46,7 @@ FBX export writes one shared mesh per instance source, and FBX and Maya imports 
 
 ## Send to Unreal
 
-`unrealPlaceInstances` sends one static mesh asset per instance source and places it in the open level: an actor per member, or a HISM component once a group has more than 50 members (pref `/instanceThreshold`, or `mode=`). Array copies count as members.
+`unrealPlaceInstances` sends one static mesh asset per instance source and places it in the open level: an actor per member, or a HISM component once a group has more than 50 members (pref `/instanceThreshold`, or `mode=`). Array copies count as members. Sending again moves, adds and removes actors to match, also after renaming or reopening the scene; save the scene after the first send so it remembers which actors are whose.
 
 ## Troubleshooting
 
@@ -54,6 +54,6 @@ FBX export writes one shared mesh per instance source, and FBX and Maya imports 
 
 **Editing one mesh changed others.** It's an instance or reference. **Select Instances** shows the members; **Make Unique** splits it off.
 
-**Unreal actors were respawned instead of moved.** Placements are matched by Lila's node ids, which change when the scene is reopened.
+**Unreal actors were respawned instead of moved.** The scene wasn't saved after the first send, so the objects got new ids the next time. Delete the old actors in Unreal, under the Lila folder in the Outliner.
 
 **An array modifier's centre object moved but the copies didn't follow the mesh.** The mesh's position is stored when the centre is set; move the mesh, then set the centre again.

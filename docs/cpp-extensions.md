@@ -62,7 +62,7 @@ This writes the package `build/<config>/extensions/hello.lilaext/`, holding the 
 
 4. Run `helloExtension()`. It returns `'Hello'`.
 
-Everything registered through `ctx` belongs to the extension and is removed when it unloads. The SDK's `examples` folder has more: node types, a viewport drawer and a UI mode.
+Everything registered through `ctx` belongs to the extension and is removed when it unloads. The SDK's `examples` folder has more: node types, a viewport drawer and a UI mode. For worker threads, background jobs and TBB, see [Threads and big meshes](python-threads.md#c-extensions).
 
 ### Rebuilding while Lila runs
 

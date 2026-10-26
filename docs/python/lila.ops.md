@@ -1293,6 +1293,7 @@ Without flags it only reports; port or allowRemote alone start or restart it. Th
 | `enable` | `e` | bool |  | Start (True) or stop (False) the server. |
 | `port` | `p` | int |  | Port to listen on; 0 picks a free one. Default: the /changeStream/port pref, 8742. |
 | `allowRemote` | `ar` | bool |  | Listen on every network interface rather than 127.0.0.1 only. Clients must then send the token this returns (general.json /changeStream/token). Default False. |
+| `requireToken` | `rt` | bool |  | Make clients send the token even on 127.0.0.1, as allowRemote does: for machines other users share. Default False. |
 
 Not undoable.
 
@@ -1302,6 +1303,10 @@ changeStream(enable=True)
 
 ```python
 changeStream(enable=True, port=0)["port"]
+```
+
+```python
+changeStream(enable=True, requireToken=True)["token"]
 ```
 
 ```python
@@ -2447,6 +2452,22 @@ Not undoable.
 Write the pose drivers, driven channels and driven morph targets to a JSON file, for rebuilding them in Unreal (a Control Rig or Pose Asset setup). Returns the data.
 
 **Objects:** path
+
+Not undoable.
+
+### exportDxf
+
+Write curves and meshes to a DXF file, one layer per object. R2000 writes curves as splines and polylines and meshes as polyface meshes; R12 writes everything as polylines, for older laser and CNC software. Defaults to the selection and everything under it.
+
+**Objects:** path nodes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'mm'` | The file's length unit, recorded in the file. One of `mm`, `cm`, `m`, `in`, `ft`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; converted from the scene's. One of `y`, `z`. |
+| `version` |  | str | `'2000'` | DXF version: 2000 or r12. |
+| `splines` |  | bool | `True` | R2000: curves as SPLINE entities. Off writes them as polylines within tolerance. |
+| `tolerance` | `tol` | float | `0.01` | cm, for curves written as polylines. |
 
 Not undoable.
 
@@ -3598,6 +3619,21 @@ Read a weight map written by exportDeformerWeights onto a deformer (or a field's
 | `byId` |  | bool | `True` | Match by point id when the counts match; off always uses closest points. |
 | `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
 | `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
+
+### importDxf
+
+Import a DXF file (ASCII or binary): lines, polylines with their arcs, arcs, circles, ellipses and splines as exact curves, and 3D faces, polyface meshes and MESH entities as meshes, with blocks expanded where they are inserted. One curve and one mesh per layer, under a group named after the file. Returns the curve and mesh names.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'auto'` | The file's length unit; auto reads it from the file, and takes mm when it has none. One of `auto`, `mm`, `cm`, `m`, `in`, `ft`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; converted to the scene's. One of `y`, `z`. |
+| `merge` |  | bool | `False` | One curve and one mesh for the whole file instead of one per layer. |
+| `polylines` |  | bool | `False` | Turn every curve into straight segments, within tolerance. |
+| `tolerance` | `tol` | float | `0.01` | cm the segments may stray from the curve, with polylines on. |
+| `name` | `n` | str |  | Name of the group; the file name by default. |
 
 ### importFbx
 
@@ -7068,6 +7104,17 @@ A set's members as names and components (pCube1, pCube1.vtx[0:3]). nodes=True gi
 
 Not undoable.
 
+### setMeshPoints
+
+Move every point of a mesh's base (under its modifiers) at once, in meshData's point order, in object space. Topology stays. One undo step. Python's Node.set_points takes a numpy array, faster.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | list |  | [[x, y, z], ...], one per point, in cm. |
+| `buffer` |  | int | `0` | Internal: points handed over from Python (Node.set_points). |
+
 ### setMorphTarget
 
 Replace a target's shape with a mesh's (same point count as the base): the full shape, or the in-between at inBetween= (added if missing). A live target becomes stored offsets.
@@ -8482,7 +8529,7 @@ Not undoable.
 
 ### unrealPlaceInstances
 
-Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Placements are keyed by Lila node, so sending a group again moves, adds and removes its actors to match. Returns the plan, with each group's import and placement results when wait=True.
+Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Returns the plan, with each group's import and placement results when wait=True.
 
 **Objects:** objects
 
@@ -9128,6 +9175,12 @@ Place a camera node: eye is its world position, lookAt the point it aims at, up 
 | `up` |  | tuple[float, float, float] |  | World up direction. |
 | `orthographicWidth` | `ow` | float |  | Width of an orthographic view, cm. |
 
+### viewportStats
+
+The active viewport's last finished frame as the GPU measured it: {frames, gpuMs, aoMs, cpuMs, meshDrawCalls}. frames counts frames drawn so far, so two calls apart give the frame rate. Unlike measureView it times what the view really draws, components and highlights included.
+
+Not undoable.
+
 ### voxelRemesh
 
 Rebuild meshes as one closed, manifold quad surface from a voxel grid, whatever state they are in: closes holes, fuses intersecting and inner shells. For dirty scans and kitbashed blockouts; UVs are not kept.
@@ -9310,6 +9363,65 @@ Sets the modifier's seed to seed, seed + 1, ... in turn, bakes each to <folder>/
 
 ```python
 wedgeDestruction('Wall', count=8, folder='Export/WallVariants')
+```
+
+## Masonry extension
+
+Available when the Masonry extension is loaded.
+
+### masonryInfo
+
+What a masonry wall is made of, and whether it is clean.
+
+Returns the same stats masonryWall does (stones, courses, roles, stone meshes, trimmed, dropped, triangle counts, bounds), the current settings, and checks: overlaps (stone pairs intersecting by more than 0.01 cm, 0 when clean) and ok.
+
+**Objects:** mesh or its masonry modifier (default the selection)
+
+Not undoable.
+
+```python
+masonryInfo('MasonryWall')['checks']
+```
+
+### masonryWall
+
+Build a masonry wall along a line or loop: stones laid in courses, corners bonded, a mortar core behind them.
+
+Give points= (a new mesh holds them as edges) or a mesh whose loose edges are the footprint. The wall is a geometry-nodes modifier around a Masonry Wall node; every flag becomes a keyable input on it, so change the wall later with setAttr on '<modifier>.<flag>' and check it with masonryInfo. Stones are instances of a few shared meshes with stone, course, role, face, random and variant attributes. Returns the mesh, modifier, group and stats (stones, courses, roles, stone meshes, trimmed, dropped, triangle counts, bounds). Lengths are cm.
+
+**Objects:** mesh whose loose edges are the footprint (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | Footprint, [[x, y, z], ...] in cm; the wall stands on the lowest point, Y up. |
+| `closed` | `c` | bool | `False` | Join the last point back to the first. |
+| `name` | `n` | str | `'MasonryWall'` | Name of the mesh made to hold the wall. |
+| `bond` | `b` | str | `'running'` | How stones are arranged. One of `running`, `stack`, `english`, `flemish`, `header`, `gardenWall`. |
+| `height` | `h` | float | `200.0` | Wall height, cm. |
+| `thickness` | `th` | float | `21.5` | Wall thickness, cm. |
+| `cornerAngle` | `ca` | float | `30.0` | Turns sharper than this, degrees, are corners. |
+| `stoneLength` | `sl` | float | `21.5` | Stone length, cm. |
+| `stoneHeight` | `sh` | float | `6.5` | Stone height, cm. |
+| `stoneDepth` | `sd` | float | `10.25` | Stone depth, cm. |
+| `joint` | `j` | float | `1.0` | Mortar joint, cm. |
+| `recess` | `r` | float | `0.6` | Mortar set back from the stone faces, cm. |
+| `bevel` | `bv` | float | `0.5` | Stone edge chamfer, cm. |
+| `wear` | `w` | float | `0.5` | Corner wear, 0 to 1. |
+| `jitter` | `ji` | float | `1.0` | Wander and tilt inside the joints, 0 to 1. |
+| `protrude` | `pr` | float | `0.3` | Push out of the face, cm. |
+| `variants` | `v` | int | `6` | Worn versions per stone size. |
+| `detail` | `d` | int | `0` | 0 worn, 1 clean chamfer, 2 plain boxes. |
+| `seed` | `s` | int | `1` | Random seed. |
+
+```python
+masonryWall(points=[[0, 0, 0], [400, 0, 0], [400, 0, 300]], bond='flemish', height=250)
+```
+
+```python
+tower = masonryWall(points=[[100 * math.cos(a / 12 * math.tau), 0, 100 * math.sin(a / 12 * math.tau)] for a in range(12)],
+                    closed=True, thickness=40, height=600)
+setAttr(tower['modifier'] + '.bond', 'english')
+masonryInfo(tower['mesh'])
 ```
 
 ## OpenUSD extension
