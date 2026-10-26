@@ -22,6 +22,7 @@
 - [Topology](topology.md)
 - [Destruction](destruction.md)
 - [Masonry](masonry.md)
+- [Settlement](settlement.md)
 - [Change stream](change-stream.md)
 - [C++ extensions](cpp-extensions.md)
 - [FAQ](faq.md)
