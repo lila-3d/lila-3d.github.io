@@ -19,6 +19,18 @@ Corners turn by alternating which side runs through on each course. Cut stones l
 
 Bonds: `running`, `stack`, `english`, `flemish`, `header`, `gardenWall`.
 
+### Send to Unreal
+
+With the editor connected (`unrealConnect()`):
+
+```python
+masonryShip(wall["mesh"], wait=True)["unreal"]   # {"imported": ..., "placed": ..., "errors": []}
+```
+
+Each stone mesh is imported once into `/Game/Lila/Masonry/<mesh>` with three LODs (worn, clean, box), and the stones are placed as one HISM per stone mesh per 4 m ground chunk, under the **Lila** folder in the outliner. The core is its own static mesh. Send again after an edit and the wall's chunks are replaced in place; chunks it no longer has are removed.
+
+Materials read per-instance custom data: index 0 is a stable random per stone, index 1 is height up the wall (0 bottom course, 1 top).
+
 ## Troubleshooting
 
 **"has no loose edges to build along".** The mesh has faces. Build from a mesh holding only edges, or pass `points=`.
@@ -26,6 +38,10 @@ Bonds: `running`, `stack`, `english`, `flemish`, `header`, `gardenWall`.
 **A curve gets corners in it.** Turns sharper than **cornerAngle** (default 30 degrees) are corners. Raise it, or add points so each turn is gentler.
 
 **Stones look machine laid.** Raise **jitter**, **wear** and **protrude**. **variants** sets how many differently worn copies of each stone exist.
+
+**masonryShip says "not connected to Unreal".** Open the project with the LilaLink plugin enabled, then `unrealConnect()`. Check what would be sent without Unreal with `masonryShip(mesh, dryRun=True)`.
+
+**Stones in Unreal but nothing in the level after a resend.** Errors from the editor go to Lila's log as `masonryShip <wall>: ...`; `wait=True` returns them in `["unreal"]["errors"]`.
 
 **Slow while dragging a slider.** Set **detail** to 2 (plain boxes) while laying out, back to 0 for the final look.
 
@@ -37,5 +53,8 @@ Bonds: `running`, `stack`, `english`, `flemish`, `header`, `gardenWall`.
 | recess | How far the mortar sits behind the stone faces. |
 | bevel | Stone edge chamfer. |
 | seed | Other wander, wear and cut positions. |
+| masonryShip `chunkSize` | Ground cell per instanced component, cm (default 400). Smaller streams and culls finer, at more draw calls. |
+| masonryShip `mode` | `hism` (default) or `ism`. |
+| masonryShip `folder` | Content folder; the wall's assets go in `<folder>/<mesh name>`. |
 
 Stones are instances of a few shared meshes, with `stone`, `wall`, `course`, `role` (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler), `face` (0 outer, 1 inner, 2 through), `random`, `variant` and `size` attributes for geometry nodes to filter or shade by. The graph is a normal geometry-nodes group: open it to put nodes after the **Masonry Wall** node.
