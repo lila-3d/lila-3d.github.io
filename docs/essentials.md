@@ -120,8 +120,6 @@ Lila has a high-end UV toolkit and the Auto UV feature can produce worthwhile re
 
 <!-- todo image -->
 
-## Auto-UV
-
 ## Command line
 
 Press **Ctrl+\`** to pop up a command line and type Python straight in. There's nothing to import: commands are available by name.
