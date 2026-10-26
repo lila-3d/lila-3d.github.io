@@ -319,7 +319,7 @@ a:focus-visible {
   color: var(--muted);
 }
 
-.below .button { margin-top: clamp(16px, 3cqh, 28px); }
+.below .actions { margin-top: clamp(16px, 3cqh, 28px); }
 
 .status {
   margin: 14px 0 0;
@@ -679,6 +679,44 @@ code {
 
 .button:hover { background: #2f78ec; }
 
+.button.quiet {
+  background: none;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.button.quiet:hover { background: var(--panel); }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.area .big {
+  display: block;
+  margin-bottom: 6px;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 750;
+  font-stretch: 112%;
+  font-variation-settings: "wdth" 112;
+  line-height: 1;
+  color: var(--accent-soft);
+}
+
+.area .more {
+  margin: 12px 0 0;
+  color: var(--muted);
+}
+
+.area .more a {
+  color: var(--accent-soft);
+  text-underline-offset: 3px;
+}
+
+.area .more a:hover { color: var(--text); }
+
 footer {
   padding-block: 28px 40px;
   border-top: 1px solid var(--line);
@@ -752,7 +790,10 @@ footer p { margin: 0 0 6px; }
       <li class="end">Unreal</li>
     </ol>
     <p class="tagline">Maya-style workflow, Unreal-first pipeline.</p>
-    <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 for the release</a>
+    <div class="actions">
+      <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 for the release</a>
+      <a class="button quiet" href="docs/">Read the docs</a>
+    </div>
     <p class="status">In development, not released yet</p>
   </div>
 </header>
@@ -790,6 +831,36 @@ footer p { margin: 0 0 6px; }
       <li>
         <h3>Room for studio tools</h3>
         <p>Write them as Python or C++ extensions. Their commands are called from scripts like any built-in.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="area wrap" aria-labelledby="speed">
+    <div>
+      <h2 id="speed">Faster than Maya</h2>
+      <p class="more">Timed against Maya 2026.3 on the same machine and files. Maya still wins some rows, and every result is published.</p>
+      <p class="more"><a href="docs/#/performance">Full results and method</a></p>
+    </div>
+    <ul>
+      <li>
+        <span class="big">9.2x</span>
+        <h3>Imports a 13.5-million-triangle OBJ</h3>
+        <p>6.8 s in Lila, 62.9 s in Maya, until it's on screen.</p>
+      </li>
+      <li>
+        <span class="big">8.1x</span>
+        <h3>Imports the same scene as FBX</h3>
+        <p>6.0 s in Lila, 48.7 s in Maya.</p>
+      </li>
+      <li>
+        <span class="big">120x</span>
+        <h3>Gets 6.75 million points into numpy</h3>
+        <p>Against Maya's fastest route. Its usual API takes 13.7 s.</p>
+      </li>
+      <li>
+        <span class="big">0</span>
+        <h3>Crashes and hangs</h3>
+        <p>Maya crashed once and hung three times on the same tests.</p>
       </li>
     </ul>
   </section>
@@ -1089,12 +1160,16 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   <section class="closing wrap" aria-labelledby="follow">
     <h2 id="follow">Not ready yet</h2>
     <p>Lila is in active development and has no public build. Follow along on X for progress and the first release.</p>
-    <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 on X</a>
+    <div class="actions">
+      <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 on X</a>
+      <a class="button quiet" href="docs/">Read the docs</a>
+    </div>
     <p class="platforms">Windows first. The source opens at release, so macOS and Linux users can build it themselves. Bug reports welcome.</p>
   </section>
 </main>
 
 <footer class="wrap">
+  <p>Support Lila: <a href="https://github.com/sponsors/Vaei">GitHub Sponsors</a> &middot; <a href="https://ko-fi.com/jaredtaylor">Ko-fi</a></p>
   <p>Lila is not affiliated with Autodesk or Epic Games. Maya is a registered trademark of Autodesk, Inc. Unreal Engine is a trademark of Epic Games, Inc.</p>
   <p>&copy; 2026 Jared Taylor</p>
 </footer>

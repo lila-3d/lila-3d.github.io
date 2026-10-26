@@ -16,6 +16,31 @@ Add objects (every keyable attribute) or plugs to a layer. Returns how many attr
 | --- | --- | --- | --- | --- |
 | `layer` | `l` | str |  | Animation layer. Default: the active one. |
 
+### addAttr
+
+Add an attribute to objects (Maya's addAttr): attributeType for a single value or, with multi, an array of them; dataType for strings and arrays (stringArray, doubleArray, Int32Array, vectorArray). Saved with the scene. Returns the new plugs.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `longName` | `ln` | str |  | The attribute's name. |
+| `shortName` | `sn` | str |  | A short name. |
+| `niceName` | `nn` | str |  | The label editors show. |
+| `attributeType` | `at` | str |  | bool, long, float, double, double3, enum or matrix (Lila's int, vec3 too). |
+| `dataType` | `dt` | str |  | string, stringArray, doubleArray, floatArray, Int32Array, vectorArray or matrix. |
+| `multi` | `m` | bool | `False` | An array of attributeType: any number of elements, attr[0], attr[1] ... |
+| `defaultValue` | `dv` | Any |  | Default value (each element's, for an array). |
+| `minValue` | `min` | float |  | Lowest value editors allow. |
+| `maxValue` | `max` | float |  | Highest value editors allow. |
+| `softMinValue` | `smn` | float |  | Slider minimum. |
+| `softMaxValue` | `smx` | float |  | Slider maximum. |
+| `enumName` | `en` | str |  | Enum labels, 'low:medium:high'. |
+| `keyable` | `k` | bool | `False` | Show it in the channel box, where it can be keyed. |
+| `hidden` | `h` | bool | `False` | Hide it from editors. |
+| `usedAsColor` | `uac` | bool | `False` | A double3 holding a colour: editors show a swatch. |
+| `doc` |  | str |  | What it is for: editors show it as a tooltip. |
+
 ### addCollider
 
 Add colliders to a collision deformer: meshes, or transforms as capsules along their Y.
@@ -1410,7 +1435,7 @@ Keep curves on a mesh surface: their points are placed on it, lifted by offset, 
 
 ### connectAttr
 
-connectAttr('src.attr', 'dst.attr').
+connectAttr('src.attr', 'dst.attr'). A whole array input ('loft1.sections') gets a new last element. Returns the destination plug.
 
 **Objects:** src dst
 
@@ -1551,13 +1576,13 @@ Make an animation layer at the top of the stack, with the given objects or plugs
 
 ### createBakeFromGenerator
 
-Make a bake project from a TerrainGenerator group or a TreeGenerator tree in one call, from their exported files: the high streams from its FBX at bake time (never loaded into the scene), the low is the terrain's bake plane or the tree's exported low, frontal and rear come from the generator's measurements, the ID map uses its palette and the height map its measured range, with the Substance Painter target's maps and names. Returns {project, group, kind, target, handoff}.
+Make a bake project from a Ground Tiles group or a Foliage tree in one call, from their exported files: the high streams from its FBX at bake time (never loaded into the scene), the low is the ground tile's bake plane or the tree's exported low, frontal and rear come from the generator's measurements, the ID map uses its palette and the height map its measured range, with the Substance Painter target's maps and names. Returns {project, group, kind, target, handoff}.
 
-**Objects:** terrain group or tree (default the selection)
+**Objects:** ground tile group or tree (default the selection)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `kind` | `k` | str | `'auto'` | terrain, tree or auto. |
+| `kind` | `k` | str | `'auto'` | groundTile, tree or auto. |
 | `target` | `t` | str | `'substancePainter'` | Target profile (bakeTargets). |
 | `name` | `n` | str |  | Project name; <source>_bakeProject by default (reused when it exists). |
 | `lows` | `lo` | list |  | Tree: scene meshes to bake onto instead of importing the exported low. |
@@ -1994,6 +2019,16 @@ Delete animation layers with their curves; their members lose what the layers ad
 
 **Objects:** layers
 
+### deleteAttr
+
+Delete attributes added with addAttr: deleteAttr('node.attr'), or deleteAttr(objects, attribute=name).
+
+**Objects:** plugs or objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `attribute` | `at` | str |  | The attribute to delete from each object. |
+
 ### deleteBakeTarget
 
 Delete a saved bake preset (a user or workspace target profile file). Built-in targets can't be deleted. Returns the deleted file.
@@ -2104,7 +2139,7 @@ Split curves at parameter (span units) or, in vertex mode, at the selected point
 
 ### disconnectAttr
 
-disconnectAttr('dst.attr'), or (src, dst).
+disconnectAttr('dst.attr'), or (src, dst). A whole array input loses every element, or with src only the ones src drives.
 
 **Objects:** [src] dst
 
@@ -2495,6 +2530,7 @@ Export the evaluated meshes and transforms to a binary FBX 7.4 file. Objects def
 | `atOrigin` |  | bool | `False` | Drop the exported roots' own transforms, keeping their children relative. |
 | `children` |  | bool | `True` | Include the descendants of the given objects. |
 | `smoothingGroups` | `sg` | bool | `True` | Write edge smoothing (hard and soft edges). |
+| `compress` |  | bool | `True` | Deflate the larger arrays as the FBX SDK does; False writes them raw. |
 | `units` | `u` | str | `'cm'` | File units: cm, m, mm, in or ft. Lengths are scaled to them. |
 | `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
 
@@ -3096,13 +3132,14 @@ Save game exporter settings under a name, in the prefs or (scene=True) in the sc
 
 ### getAttr
 
-Value of 'node.attr'. lock=True returns whether it is locked instead.
+Value of 'node.attr'; a whole array gives its elements' values in index order. lock=True returns whether it is locked instead; multiIndices=True an array's element indices.
 
 **Objects:** plug
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `lock` | `l` | bool | `False` | Return the lock state instead of the value. |
+| `multiIndices` | `mi` | bool | `False` | Return an array's element indices, ascending. |
 
 Not undoable.
 
@@ -3671,9 +3708,9 @@ Import a glTF 2.0 file (.gltf with its .bin and images, embedded data URIs, or b
 
 Each mesh becomes one Lila mesh, its primitives becoming material slots, with normals (hard edges where they split), tangents, every UV set (flipped to Lila's V-up) and every vertex color set; vertices split for seams weld back into points. Skins become skinClusters on joints with every JOINTS_n/WEIGHTS_n influence and the inverse bind matrices; a joint's rest rotation goes into its jointOrient. Morph targets become a morph with their names and default weights. Animation channels become curves: LINEAR and STEP keys exactly, CUBICSPLINE with its tangents (rotations sampled every frame); with several animations each becomes a take, the first active. Cameras keep their field of view and clipping.
 
-Materials become material nodes: base color and alpha mode, metallic and roughness (packed into an ORM map, written as a new image when the file's layout differs), occlusion, emissive with KHR_materials_emissive_strength, normal map (kept OpenGL style), double sided, KHR_materials_ior/specular as specular, KHR_texture_transform baked into the UVs, and KHR_materials_unlit approximated as emissive. Embedded and converted images are written to textureDir. KHR_mesh_quantization, sparse accessors, EXT_meshopt_compression and KHR_draco_mesh_compression are decoded (a Draco primitive that fails to decode falls back to its uncompressed data when the file has it). Lights are reported, not imported (Lila has no lights).
+Materials become material nodes: base color and alpha mode, metallic and roughness (packed into an ORM map, written as a new image when the file's layout differs), occlusion, emissive with KHR_materials_emissive_strength, normal map (kept OpenGL style), double sided, KHR_materials_ior/specular as specular, KHR_texture_transform baked into the UVs, and KHR_materials_unlit approximated as emissive. Embedded and converted images are written to textureDir. KHR_mesh_quantization, sparse accessors, EXT_meshopt_compression and KHR_draco_mesh_compression are decoded (a Draco primitive that fails to decode falls back to its uncompressed data when the file has it). KHR_lights_punctual lights come in as lights, intensity in candela or lux.
 
-Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, morphs, materials, images, takes, take, fps, start, end, curves, skipped, warnings and errors.
+Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, lights, morphs, materials, images, takes, take, fps, start, end, curves, skipped, warnings and errors.
 
 **Objects:** path
 
@@ -3969,6 +4006,29 @@ Add an ffd deformer to the meshes with a new lattice around them. Edit the latti
 | `interpolation` |  | str | `'bernstein'` | trilinear \| bernstein \| bspline |
 | `name` |  | str |  | Name for the lattice. |
 
+### light
+
+Create a light. Returns its path. Flags left out keep the light's defaults.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str | `'point'` | point, spot, directional, area, disc or dome. |
+| `name` | `n` | str |  | Name; made unique among its siblings. Defaults to <type>Light. |
+| `parent` | `p` | str |  | Parent transform. |
+| `position` | `pos` | tuple[float, float, float] |  | World position, cm. |
+| `color` | `c` | tuple[float, float, float] |  | Linear colour. |
+| `intensity` | `i` | float |  | Brightness, in units. |
+| `units` | `u` | str |  | unitless, candela, lumens, lux, nits or watts. |
+| `temperature` | `tmp` | float |  | Colour temperature in kelvin; turns useTemperature on. |
+| `range` | `r` | float |  | Cutoff distance, cm. 0 has none. |
+| `innerConeAngle` | `ica` | float |  | Spot: half angle of full brightness, degrees. |
+| `outerConeAngle` | `oca` | float |  | Spot: half angle where the light ends, degrees. |
+| `width` | `w` | float |  | Area width or disc diameter, cm. |
+| `height` | `h` | float |  | Area height, cm. |
+| `castShadows` | `cs` | bool |  | Casts shadows. |
+| `provider` | `prv` | str |  | Light provider asked first for this light. |
+| `skipSelect` | `ss` | bool | `False` | Don't select the new light. |
+
 ### listAnimLayers
 
 The layer stack from the bottom: BaseAnimation first, then each layer's settings and members.
@@ -3985,6 +4045,7 @@ Attribute names of a node.
 | --- | --- | --- | --- | --- |
 | `keyable` | `k` | bool | `False` | Only keyable attributes. |
 | `locked` | `l` | bool | `False` | Only locked plugs; a Vec3 lists each locked component (translateX). |
+| `userDefined` | `ud` | bool | `False` | Only attributes added with addAttr. |
 
 Not undoable.
 
@@ -5885,6 +5946,12 @@ Remove modifiers, reconnecting the stack around them.
 Remove morph targets (morphTarget nodes) from their morph. Pose drivers feeding them stay.
 
 **Objects:** targets
+
+### removeMultiInstance
+
+Remove array elements with their connections and values: 'node.attr[3]', or 'node.group[3]' for every child of a grouped array.
+
+**Objects:** plugs
 
 ### removeReference
 
@@ -9365,6 +9432,571 @@ Sets the modifier's seed to seed, seed + 1, ... in turn, bakes each to <folder>/
 wedgeDestruction('Wall', count=8, folder='Export/WallVariants')
 ```
 
+## Foliage extension
+
+Available when the Foliage extension is loaded.
+
+### addBladeDeformer
+
+Add a nonlinear deformer to the selected faces (a whole mesh when no components are selected), one per blade or one for the whole selection, weighted so only the blades' own points move and their roots stay planted. Then randomizes the amount in low..high. Returns the deformers.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
+| `perBlade` | `pb` | bool | `True` | A deformer per blade; off, one for the whole selection. |
+| `fromBase` | `fb` | bool | `True` | Anchor the handle at each blade's root so it deforms root to tip; off centres it. |
+| `spin` |  | bool | `True` | Spin each handle around the up axis, so blades lean different ways. |
+| `up` |  | str | `'Auto'` | Up axis: Auto follows the scene. One of `Auto`, `X`, `Y`, `Z`. |
+| `seed` | `s` | int | `0` | 0 differs every run; any other number repeats. |
+| `low` |  | float |  | Lowest amount; the kind's default range when not given. |
+| `high` |  | float |  | Highest amount. |
+| `bias` | `b` | float | `0.0` | Bias to top, -1 to 1, over the amount range. |
+
+### bladeDeformers
+
+The nonlinear deformers of a kind on the selection or the named nodes (meshes, components, handles).
+
+**Objects:** nodes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
+
+Not undoable.
+
+### bladeExtrude
+
+Extrude faces into blades that remember how they were built, so randomizeBladeExtrude can vary each one later. Faces default to the face selection (a whole selected mesh means every face). Returns {mesh: [blade ids]}.
+
+**Objects:** mesh (with faces=)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `faces` | `f` | list |  | Face ids of the one mesh given. |
+| `thickness` | `t` | float | `1.0` | How far the blades grow along their face normal, cm. |
+| `offset` | `o` | float | `0.0` | How much the blades narrow as they grow: the cap border moves this far inward, cm. |
+| `localTranslateZ` | `ltz` | float | `0.0` | Extra growth along the face normal, cm. |
+| `divisions` | `d` | int | `1` | Segments up each blade. |
+| `keepFacesTogether` | `kft` | bool | `False` | Connected faces grow as one blade; off, every face is its own. |
+
+### bladeExtrudeInfo
+
+The blades of a mesh: [{blade, caps, walls, points, root (world), thickness, offset, localTranslateZ, base: {...}}].
+
+**Objects:** mesh
+
+Not undoable.
+
+### bladeExtrudeRanges
+
+A range around the extrude values the meshes' blades use now: their mean, give or take spread. Returns {thickness: [low, high], offset: [...], localTranslateZ: [...]}.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spread` |  | float | `0.3` | Fraction either side of the mean. |
+
+Not undoable.
+
+### deleteBladeDeformers
+
+Delete the deformers of a kind on the selection, and their handles. Returns how many went.
+
+**Objects:** nodes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
+
+### randomizeBladeDeformers
+
+Re-roll the amount of the deformers of a kind on the selection (found from a mesh, a component, a handle or the deformer), biased up the mesh by where their handles sit. Returns how many changed.
+
+**Objects:** nodes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
+| `low` |  | float |  | Lowest amount; the kind's default range when not given. |
+| `high` |  | float |  | Highest amount. |
+| `bias` | `b` | float | `0.0` | Bias to top, -1 to 1. |
+| `up` |  | str | `'Auto'` | Up axis: Auto follows the scene. One of `Auto`, `X`, `Y`, `Z`. |
+| `seed` | `s` | int | `0` | 0 differs every run; any other number repeats. |
+| `spin` |  | bool | `False` | Also spin each handle around the up axis. |
+
+### randomizeBladeExtrude
+
+Give every blade of the meshes random extrude values in the ranges given. Each blade is rebuilt from its root, so running it again rerolls rather than stacking. bias 1 gives the high end of a range to the blades nearest the top, -1 to the bottom ones, 0 is pure random. seed 0 differs every run. Returns {meshes, blades}.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fields` |  | Any |  | {thickness: [low, high], offset: [low, high], localTranslateZ: [low, high]}; leave a field out to keep it. |
+| `bias` | `b` | float | `0.0` | Bias to top, -1 to 1. |
+| `up` |  | str | `'Auto'` | Up axis for the bias: Auto follows the scene. One of `Auto`, `X`, `Y`, `Z`. |
+| `seed` | `s` | int | `0` | 0 differs every run; any other number repeats. |
+
+### resetBladeExtrude
+
+Put every blade of the meshes back to the values it was extruded with. Returns the blade count.
+
+**Objects:** meshes (default the selection)
+
+### selectBladeFaces
+
+Select the faces the blades grew from, which are their caps now, or with stems=True every face a blade made, caps and walls, down to the ring it stands on. Worked out from the mesh each time. Returns the face count.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `stems` |  | bool | `False` | Whole stems rather than caps. |
+
+### setBladeExtrude
+
+Set the extrude values of blades of one mesh directly, every blade by default. Fields not given keep their value.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `blades` |  | list |  | Blade ids; default every blade. |
+| `thickness` | `t` | float |  | cm. |
+| `offset` | `o` | float |  | cm. |
+| `localTranslateZ` | `ltz` | float |  | cm. |
+
+### treeBakeHandoff
+
+What a bake project needs from a tree's export: {kind, high, low, sidecar, palette, materials, faces, rays}. Reads, never writes.
+
+**Objects:** tree (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+
+Not undoable.
+
+### treeBranchTips
+
+Where a stamped trunk's branch tips are, without rebuilding it: [{point, heading, radius}].
+
+**Objects:** tree (default the selection)
+
+Not undoable.
+
+### treeBuild
+
+Build a whole tree: trunk, canopy blobs on the tips and the leaf scattered over them, under one root stamped with the settings. Returns the root.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
+| `name` | `n` | str | `'tree'` | Name. |
+
+### treeCanopyBlobs
+
+Drop a canopy blob on each branch tip of a stamped trunk, ready to scatter leaves onto. Returns the canopy group.
+
+**Objects:** tree (default the selection, else the last trunk grown)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `name` | `n` | str | `'canopy'` | Name. |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
+
+### treeDeletePreset
+
+Delete a saved preset. Built in presets cannot be deleted.
+
+**Objects:** name
+
+Not undoable.
+
+### treeExport
+
+Write a tree as <name>_Lo.fbx (lowest detail parts) and a subdivided, merged <name>_Hi.fbx, with <name>_tree.json and a <name>_palette.json seeded once. Assigns the part materials for real. Paths come from the export settings. Returns the paths.
+
+**Objects:** tree (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+
+### treeExportLeaf
+
+Write one leaf on its own as <name>_Leaf_Lo.fbx and <name>_Leaf_Hi.fbx (the densest mesh, subdivided), with its json and <name>_Leaf_opacity.png, for particle cards. Returns the paths.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+
+### treeGrowTrunk
+
+Grow a trunk with recursive branches from the trunk settings, stamped with the settings. Returns the trunk.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `name` | `n` | str | `'trunk'` | Name. |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
+
+### treeLeafPlane
+
+A leaf card to scatter, lying along +Z with its base at the origin, segmented so curl and wrap can bend it. Returns the mesh.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+
+### treeMeasureBake
+
+How far the subdivided high poly stands off the low poly per part ({part: {count, out, in, out99, in99}}, cm): the ray lengths a baker needs. Use the 99th percentiles.
+
+**Objects:** tree (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+
+Not undoable.
+
+### treeOpacityMap
+
+Rasterise a leaf mesh's UV shells into <name>_opacity.png, a cutout mask for the leaf material. Returns the path.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+
+Not undoable.
+
+### treePresets
+
+Preset names, built in first then saved ones.
+
+Not undoable.
+
+### treePresetSettings
+
+A preset's full settings, lengths in metres.
+
+**Objects:** preset
+
+Not undoable.
+
+### treeRebuild
+
+Rebuild a stamped tree from the settings it carries, as <name>_rebuilt. Without its leaf mesh it grows the trunk alone. Returns the new tree.
+
+**Objects:** tree (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name of the rebuilt tree. |
+
+### treeSavePreset
+
+Save settings as a preset in the preferences. Built in names are refused.
+
+**Objects:** name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+
+Not undoable.
+
+### treeScatterLeaves
+
+Copy the leaf mesh over the canopy meshes, bending each copy onto the curvature and writing its shading into the leaf colour set (R exposure, G per leaf, B per bunch). Without leaf= and canopy= the selection is the canopy with the leaf last. Returns the leaves.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
+| `name` | `n` | str | `'leaves'` | Name. |
+
+### treeSettings
+
+The settings, sources and preset stored on a tree: {tree, values, sources, preset}, or null when the selection is no tree.
+
+**Objects:** tree (default the selection)
+
+Not undoable.
+
+### treeSplitMasks
+
+Split a baked leaf colour set map into <name>_maskR/G/B.png greyscale masks. Finds the bake in the export folder unless a path is given. Returns the masks.
+
+**Objects:** path (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+
+Not undoable.
+
+### treeStamp
+
+Stamp settings onto nodes built by the Tree Generator, so Load From Selection and Rebuild read them back.
+
+**Objects:** nodes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
+| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
+
+### treeTextureSet
+
+Make native texture sets for a tree instead of handing the palette to Painter: <name>_Bark (the species' bark tones over cavity, edges and AO) and <name>_Leaves (the season's leaf tones over the leaf colour set: R exposure, G per leaf, B per bunch), on the trunk and leaf materials, with a bake project from the export when there is one. Returns {sets, bakeProject, season, species, warnings}.
+
+**Objects:** tree (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
+| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
+| `name` |  | str |  | Base name of the sets (<name>_Bark, <name>_Leaves); the tree's by default. |
+| `season` |  | str | `'summer'` | Leaf palette: spring, summer, autumn or lateAutumn. |
+| `target` |  | str | `'unreal'` | Bake target and export preset. |
+| `bake` |  | bool | `True` | Make the bake project when the tree is exported. |
+| `replace` |  | bool | `False` | Replace texture sets of those names. |
+
+## GroundTiles extension
+
+Available when the GroundTiles extension is loaded.
+
+### groundTileBakeData
+
+What a bake project needs from an exported tile: the high and low FBX paths, the sidecars, the bake plane and its material, the height range and the ID palette.
+
+**Objects:** group (default the selection)
+
+Not undoable.
+
+### groundTileBakeIdMap
+
+Bake the Object ID colours of a generated group straight down onto its bake plane's UVs and write the image: exact palette values, one colour per texel, no filtering, black where nothing is over the tile. Returns the path.
+
+**Objects:** group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` |  | str |  | Image file; default <export path>/<name>_id.png. |
+| `resolution` | `r` | int |  | Pixels per side; default the group's Bake Map Size. |
+
+Not undoable.
+
+### groundTileCreateBakePlane
+
+A tile-sized plane with 0-1 UVs and its own material to bake onto, at the lowest height layer. Inside the generated group when one is given or selected, taking its settings. Returns the plane.
+
+**Objects:** group (default the selection; none for a loose plane)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `values` | `v` | Any |  | Settings for the tile size, up axis and layers; default the group's or the preset's. |
+| `preset` | `p` | str |  | Preset the plane is named after. |
+
+### groundTileDelete
+
+Delete a generated ground tile group. Returns its name.
+
+**Objects:** group (default the selection)
+
+### groundTileDeletePreset
+
+Delete a user preset. Built-in presets cannot be deleted.
+
+**Objects:** name
+
+Not undoable.
+
+### groundTileExport
+
+Write a generated group as <name>_Hi.fbx (everything but the bake plane) and its bake plane as <name>_Lo.fbx, world space, with <name>_ids.json and, when missing, <name>_colours.json for the Painter stack plugin. The plane's material is named material for the export only. Returns {high, low, ids, colours}.
+
+**Objects:** group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` |  | str |  | Folder; default the group's export path. |
+| `name` | `n` | str |  | File name stem; default the group's. |
+| `material` | `m` | str |  | Bake plane material name for the export; default the group's. |
+
+### groundTileFindVertexMap
+
+The baked vertex colour map in a folder (a name ending vertexcolor, vertexcolour, vertex_color or vertexcolormap), preferring ones starting with name. Null when there is none.
+
+**Objects:** folder
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Tile name. |
+
+Not undoable.
+
+### groundTileGenerate
+
+Scatter the source meshes into a seamlessly tiling ground tile group with the given settings (a preset's when values is partial). Returns {group, instances, warnings}; group is null when nothing could be built.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `values` | `v` | Any |  | Settings, as groundTileParameters lists them; missing ones come from the preset. |
+| `sources` | `s` | list |  | [{name, weight, objectId, heightOffset, enabled, lengthAxis, baseEnd}, ...]. |
+| `preset` | `p` | str |  | Preset the settings start from and the group is named after. |
+| `palette` |  | Any |  | {"<id>": [r, g, b]} ID colours; default the saved palette. |
+| `export` |  | Any |  | {path, name, material} stamped on the group for Export FBX Pair. |
+
+### groundTileMeasureHeight
+
+Sample the top surface straight down over the tile and stamp where it actually sits: heightP50, heightP99 (scale a height bake by this) and heightOverTile. Needs a bake plane and a combined mesh. Returns the numbers and the bake settings they give.
+
+**Objects:** group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` |  | int | `256` | Samples per side. |
+
+### groundTileParameters
+
+The settings schema: [{name, label, type, default, min, max, options, section, showIf, help}], and the sections.
+
+Not undoable.
+
+### groundTilePresets
+
+Preset names: {builtIn, user, default}.
+
+Not undoable.
+
+### groundTilePresetSettings
+
+A preset's full settings, user saved or built in.
+
+**Objects:** preset
+
+Not undoable.
+
+### groundTileRegenerate
+
+Delete a generated group and build it again, from its stored settings or the ones given. Returns as groundTileGenerate.
+
+**Objects:** group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `values` | `v` | Any |  | Settings to change; the rest stay as stored. |
+| `sources` | `s` | list |  | Replacement source list. |
+| `preset` | `p` | str |  | Preset name to store. |
+| `palette` |  | Any |  | ID colours; default the stored ones. |
+| `export` |  | Any |  | Export settings; default the stored ones. |
+
+### groundTileSavePreset
+
+Save settings as a user preset in the Lila prefs. Returns its name.
+
+**Objects:** name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `values` | `v` | Any |  | The settings. |
+
+Not undoable.
+
+### groundTileSetDefaultPreset
+
+The preset the panel opens with.
+
+**Objects:** name
+
+Not undoable.
+
+### groundTileSetIdColour
+
+Set the colour an Object ID bakes as, in the saved palette. Returns the palette.
+
+**Objects:** objectId
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `colour` | `c` | tuple[float, float, float] |  | [r, g, b], 0 to 1, exact (no gamma). |
+
+Not undoable.
+
+### groundTileSettings
+
+What a generated group stores: {values, sources, preset, version, palette, legend, export, metrics}. Null when the node is not, and is not under, a generated group.
+
+**Objects:** node (default the selection)
+
+Not undoable.
+
+### groundTileSourceInfo
+
+What the generator reads off a source mesh: its length, width and thickness axes, which end is the base, and how far it reaches from its pivot. {valid: False} when it is not a mesh.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lengthAxis` |  | str | `'Auto'` | Auto, X, Y or Z. |
+| `baseEnd` |  | str | `'Auto'` | Auto, Min or Max. |
+
+Not undoable.
+
+### groundTileSplitMasks
+
+Split a baked vertex colour map into <tile>_maskR/G/B.png greyscale masks (R root to tip, G per instance, B height layer). With no path, finds the map in folder. Returns the written paths.
+
+**Objects:** path (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` |  | str |  | Where to look for the vertex colour map when no path is given. |
+| `name` | `n` | str |  | Tile name preferred when several maps are there. |
+
+Not undoable.
+
+### groundTileTextureSet
+
+Make a texture set for a generated group, painted natively instead of through Painter's stack script: a bake project from the exported tile (its ID palette, terrainMasks colour set, AO and the measured height range), then layers bound to them: a ground fill, the baked height, and per Object ID a folder masked by ID Select with the ID's colour recipe (base, root, per instance, tip, occlusion; the colours sidecar when exported). Export FBX Pair first for the mesh maps. Returns {set, bakeProject, ids, layers, warnings}.
+
+**Objects:** group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` |  | str |  | Set name; <Preset>_Tex by default. |
+| `target` |  | str | `'unreal'` | Bake target and export preset. |
+| `bake` |  | bool | `True` | Make the bake project when the tile is exported. |
+| `replace` |  | bool | `False` | Replace a texture set of that name. |
+
 ## Masonry extension
 
 Available when the Masonry extension is loaded.
@@ -9381,6 +10013,40 @@ Not undoable.
 
 ```python
 masonryInfo('MasonryWall')['checks']
+```
+
+### masonryShip
+
+Send a masonry wall to Unreal's open level, instanced: each stone mesh is imported once as a static mesh with three LODs (worn, clean chamfer, plain box), and the stones are placed as one instanced component (HISM by default) per stone mesh per ground chunk, so streaming and culling work per chunk. mode='merged' instead makes each chunk's stones one static mesh with the same three LODs. The core goes as its own mesh carrying the wall's collision as convex UCX pieces; stones have none. mode='lowPoly' sends each chunk as a box shell with the stones and core baked onto it (normal, AO, curvature) and its own UCX collision, for background walls and HLOD.
+
+With textures=True (the default) the stones also get a shared atlas: every stone mesh's worn LOD0 is baked onto its box into one normal, AO and curvature set, in uv0 of all three LODs (the tiling projection moves to uv1), and the textures go to <folder>/<mesh>/Textures. Slots: MasonryStone (LOD0), MasonryStoneFar (LOD1 and 2, which want the atlas normal), MasonryMortar (core), MasonryShell (low poly); Unreal finds or makes materials by these names, taking a Lila material's values when the scene has one. Instances carry custom primitive data 0 a stable random and 1 height up the wall (0 bottom course, 1 top). Sending again replaces the wall's chunks in place and removes the ones it no longer has.
+
+Returns stats (stones, assets, groups, chunks, average triangles per stone mesh at each LOD, collisionHulls, atlasTexelsPerCm, shellTriangles, textures, bakeSeconds, removedGroups) plus, with wait=True, what Unreal imported and placed. dryRun=True returns the plan without baking, writing files or connecting.
+
+**Objects:** mesh or its masonry modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str | `'/Game/Lila/Masonry'` | Content folder; the wall's assets go in <folder>/<mesh name>. |
+| `chunkSize` | `cs` | float | `400.0` | Ground cell per instanced component, cm. |
+| `mode` | `m` | str | `'hism'` | hism or ism: stones instanced per stone mesh per chunk. merged: each chunk's stones as one static mesh with three LODs. lowPoly: each chunk as a box shell with the stones baked onto it. |
+| `collisionBands` | `cb` | int | `1` | Height bands the core's convex collision is split into (UCX), 1 to 16. |
+| `textures` | `tx` | bool | `True` | Bake and send textures: the stone atlas (instanced and merged) or each shell's maps (lowPoly, which always bakes). |
+| `textureSize` | `ts` | int | `2048` | Atlas or shell texture size, texels. |
+| `backend` |  | str | `'auto'` | Bake backend: auto (gpu when there is one), gpu or cpu. |
+| `material` | `mt` | str | `'generate'` | generate: instances of Lila's masonry master (M_LilaMasonry, built once, then yours to edit) per slot. none: materials matched or made by slot name. Or a material path to parent the instances to, which must have the master's parameters. |
+| `regenerateMaster` |  | bool | `False` | Rebuild M_LilaMasonry's graph from this version of Lila, discarding edits to it. |
+| `dryRun` |  | bool | `False` | Return the plan, placements included, without writing files or contacting Unreal. |
+| `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
+
+Not undoable.
+
+```python
+masonryShip('MasonryWall', dryRun=True)['chunks']
+```
+
+```python
+masonryShip('MasonryWall', wait=True)['unreal']
 ```
 
 ### masonryWall
@@ -10460,571 +11126,939 @@ Unbind a template instance from its meshes; the markers stay where they are.
 
 **Objects:** instance
 
-## TerrainGenerator extension
+## Settlement extension
 
-Available when the TerrainGenerator extension is loaded.
+Available when the Settlement extension is loaded.
 
-### terrainBakeData
+### settlementCreate
 
-What a bake project needs from an exported tile: the high and low FBX paths, the sidecars, the bake plane and its material, the height range and the ID palette.
+Lay out a settlement: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile, blocks between them, lots along the streets and a building envelope on each lot (footprint, floors, height, roof: the space a building may fill; buildings are made elsewhere).
 
-**Objects:** group (default the selection)
+Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge loop is the outline, open loose-edge lines fixed streets and loose points the centre and attractors. The settlement is a geometry-nodes modifier around a Settlement node; every layout flag becomes a keyable input on it, so change it later with setAttr on '<modifier>.<flag>' and check it with settlementInfo. Returns the mesh, modifier, group, stats, metrics and checks. Lengths are cm, Y up.
 
-Not undoable.
-
-### terrainBakeIdMap
-
-Bake the Object ID colours of a generated group straight down onto its bake plane's UVs and write the image: exact palette values, one colour per texel, no filtering, black where nothing is over the tile. Returns the path.
-
-**Objects:** group (default the selection)
+**Objects:** mesh holding the site (optional)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `path` |  | str |  | Image file; default <export path>/<name>_id.png. |
-| `resolution` | `r` | int |  | Pixels per side; default the group's Bake Map Size. |
+| `outline` | `o` | list |  | Closed outline, [[x, z], ...] or [[x, y, z], ...] in cm. Omit for a square of size. |
+| `streets` | `st` | list |  | Streets to keep as they are: a list of polylines. |
+| `roads` | `rd` | list |  | Main roads arriving from outside, kept as arterials: a list of polylines. |
+| `water` | `wa` | list |  | Rivers and canals as centrelines: a list of polylines. Only arterials bridge them. |
+| `waterWidth` | `ww` | float | `2000.0` | Width of the water lines, cm. |
+| `attractors` | `at` | list |  | Points: the first is the centre, the rest are places main roads run to (bridge, harbour, gate). |
+| `ground` | `gd` | str |  | Mesh the settlement stands on (world space). Empty for flat ground. |
+| `name` | `n` | str | `'Settlement'` | Name of the mesh made to hold the site. |
+| `profile` | `pf` | str | `'medievalTown'` | Style. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `pattern` | `pt` | str |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid. |
+| `overrides` | `ov` | str |  | JSON object of profile fields to change. |
+| `growth` | `gr` | float | `1.0` | How far the settlement has grown, 0 to 1. |
+| `seed` | `s` | int | `1` | Random seed. |
+| `size` | `sz` | float | `40000.0` | Side of the square used without an outline, cm. |
+| `heightScale` | `hs` | float | `1.0` | Multiplies building floors. |
+| `widthScale` | `ws` | float | `1.0` | Multiplies street widths. |
+| `lotScale` | `ls` | float | `1.0` | Multiplies lot sizes. |
+| `showStreets` | `ss` | bool | `True` | Show street ribbons. |
+| `showLots` | `sl` | bool | `True` | Show lot outlines. |
+| `showBuildings` | `sb` | bool | `True` | Show building envelopes. |
 
-Not undoable.
+```python
+settlementCreate(profile='medievalTown', size=60000)
+```
 
-### terrainCreateBakePlane
+```python
+town = settlementCreate(outline=[[-40000, -30000], [45000, -25000], [38000, 35000], [-35000, 30000]],
+                        attractors=[[0, 0], [40000, 0]], ground='Terrain', profile='europeanCity')
+setAttr(town['modifier'] + '.overrides', '{"maxFloors": 9}')
+settlementInfo(town['mesh'])['checks']
+```
 
-A tile-sized plane with 0-1 UVs and its own material to bake onto, at the lowest height layer. Inside the generated group when one is given or selected, taking its settings. Returns the plane.
+### settlementExport
 
-**Objects:** group (default the selection; none for a loose plane)
+Writes a settlement's layout as JSON (format lila.settlement): street nodes and edges with class, width and era; blocks; lots with outline, use, frontages and the street class each side faces; building envelopes with footprint, side kinds (street, party, open), floors, floor height, base, ground and top heights, roof and facing. 2D points are [x, z] in cm, heights world Y. This is what building generators (Unreal PCG, Masonry, library placement) read. Returns the path and counts.
+
+**Objects:** mesh or its settlement modifier (default the selection)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `values` | `v` | Any |  | Settings for the tile size, up axis and layers; default the group's or the preset's. |
-| `preset` | `p` | str |  | Preset the plane is named after. |
-
-### terrainDelete
-
-Delete a generated terrain group. Returns its name.
-
-**Objects:** group (default the selection)
-
-### terrainDeletePreset
-
-Delete a user preset. Built-in presets cannot be deleted.
-
-**Objects:** name
+| `path` | `p` | str |  | File to write (.json). |
 
 Not undoable.
+
+```python
+settlementExport('Settlement', path='C:/work/town.json')
+```
+
+### settlementInfo
+
+Measures and checks a settlement.
+
+Returns stats (street metres by class, blocks, lots by use, buildings, floors), metrics comparable with real cities (street length and density, orientation entropy and order after Boeing 2019, intersections, dead-end ratio, degree histogram, block areas), checks (components: separate street networks, crossings: streets that cross without a junction, steepStreets, sharpJunctions, landlockedLots, badEnvelopes, ok), the current settings and the resolved profile.
+
+**Objects:** mesh or its settlement modifier (default the selection)
+
+Not undoable.
+
+```python
+settlementInfo('Settlement')['metrics']['orientationOrder']
+```
+
+### settlementProfiles
+
+The built-in styles with every field, as {name: profile}. Any field can be changed per settlement through the overrides input (a JSON object of the fields to change).
+
+Not undoable.
+
+```python
+settlementProfiles()['manhattan']['maxFloors']
+```
+
+### settlementRegion
+
+Settles a whole map: cities on the best sites (flat, by a river but out of its flood, near confluences), towns between them and villages filling in, spaced as central places; roads routed between neighbours over the ground, bridging rivers where they must; then each settlement laid out with settlementCreate, its main roads continuing the regional ones. Makes a Region mesh holding the roads and rivers as lines, plus one settlement mesh per place. Returns each settlement (name, tier, profile, centre, radius, site score and reasons, lots, buildings, checks), the road count and the bridges.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `outline` | `o` | list |  | Region outline, [[x, z], ...] in cm. Omit for the ground's extent, else a square of size. |
+| `size` | `sz` | float | `400000.0` | Side of the square used without an outline or ground, cm. |
+| `ground` | `gd` | str |  | Ground mesh (world space). Empty for flat ground. |
+| `water` | `wa` | list |  | Rivers as centrelines: a list of polylines. |
+| `waterWidth` | `ww` | float | `2000.0` | Width of the rivers, cm. |
+| `cities` | `ci` | int | `1` | How many cities. |
+| `towns` | `to` | int | `3` | How many towns. |
+| `villages` | `vi` | int | `8` | How many villages. |
+| `cityProfile` | `cp` | str | `'europeanCity'` | Profile for cities. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `townProfile` | `tp` | str | `'medievalTown'` | Profile for towns. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `villageProfile` | `vp` | str | `'hamlet'` | Profile for villages. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `cityRadius` | `cr` | float | `120000.0` | Largest city radius, cm. |
+| `townRadius` | `tr` | float | `45000.0` | Largest town radius, cm. |
+| `villageRadius` | `vr` | float | `15000.0` | Largest village radius, cm. |
+| `seed` | `s` | int | `1` | Random seed. |
+| `name` | `n` | str | `'Region'` | Name of the mesh holding the roads and rivers. |
+
+```python
+settlementRegion(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], cities=1, towns=2, villages=6)
+```
+
+### settlementSuggest
+
+Where settlements would go: the best sites inside an outline, best first, each with its score and the reasons behind it (flat: ground flatness, gradePercent, water: closeness to a river while out of the flood margin, bankDistanceM, confluence: where rivers meet, floodplain, edge: distance from the outline). No two sites closer than spacing. Changes nothing.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `outline` | `o` | list |  | Region outline, [[x, z], ...] in cm. Omit for the ground's extent, else a square of size. |
+| `size` | `sz` | float | `400000.0` | Side of the square used without an outline or ground, cm. |
+| `ground` | `gd` | str |  | Ground mesh (world space). Empty for flat ground. |
+| `water` | `wa` | list |  | Rivers as centrelines: a list of polylines. |
+| `waterWidth` | `ww` | float | `2000.0` | Width of the rivers, cm. |
+| `count` | `c` | int | `5` | How many sites. |
+| `spacing` | `sp` | float | `0.0` | Least distance between sites, cm; 0 picks one from the area and count. |
+| `seed` | `s` | int | `1` | Breaks ties between equal sites. |
+
+Not undoable.
+
+```python
+settlementSuggest(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], count=3)
+```
+
+## Stagehand extension
+
+Available when the Stagehand extension is loaded.
+
+### addSnapPoint
+
+Add a modular snap point to a piece: where it joins other pieces, facing out along normal. Returns the point's path.
+
+position and normal are in the piece's own space. Saved to the library with libraryAdd and carried by every placement.
+
+**Objects:** piece
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str | `'joint'` | What kind of join: wallEnd, floorEdge, doorFrame... |
+| `accepts` | `ac` | list |  | Types it joins to; empty joins only its own type. |
+| `position` | `p` | list | `[0.0, 0.0, 0.0]` | Where, in the piece's space, cm. |
+| `normal` | `nr` | list | `[0.0, 0.0, 1.0]` | Out of the piece along the join, in its space. |
+| `up` | `u` | list | `[0.0, 1.0, 0.0]` | Up, in its space. |
+| `name` | `n` | str | `'snap'` | Name of the point. |
+
+```python
+addSnapPoint('Wall_A', type='wallEnd', position=[200, 0, 0], normal=[1, 0, 0])
+```
+
+```python
+addSnapPoint('Wall_A', type='wallEnd', position=[-200, 0, 0], normal=[-1, 0, 0])
+```
+
+### alignObjects
+
+Line objects up on one axis by their bounds: min, max or center of all of them, or to the first or last selected.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` | `ax` | str | `'x'` | x, y or z. |
+| `to` |  | str | `'min'` | min, max, center, first or last. |
+| `side` | `sd` | str | `'min'` | Which side of each object lines up: min, max or center. |
+
+### distribute
+
+Space objects evenly along an axis by their bounds: equal gaps between the outermost two, or spacing= cm apart.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` | `ax` | str | `'x'` | x, y or z. |
+| `spacing` | `sp` | float |  | Gap between neighbours, cm. |
+
+### dressCheck
+
+Check a dressed set: would anything move if physics ran, is anything floating or inside something else.
+
+Simulates a copy for `time` seconds without changing the scene. Each issue names the mesh and a kind: unstable (would move more than tolerance cm or turn more than 5 deg), floating (falls more than tolerance before touching anything), overlapping (inside another mesh by more than tolerance). Returns issues, per-mesh results and ok.
+
+**Objects:** meshes to check (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `0.5` | How far, cm, counts as a problem. |
+| `time` | `ti` | float | `3.0` | How long to watch, seconds. |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+
+Not undoable.
+
+```python
+r = dressCheck(['book_01', 'book_02', 'mug'])
+for i in r['issues']: print(i)
+```
+
+### dressInfo
+
+Physics facts about meshes: body settings, collision shape, mass and bounds.
+
+**Objects:** meshes (default the selection)
+
+Not undoable.
+
+```python
+dressInfo('book_01')[0]['mass']
+```
+
+### drop
+
+Drop meshes under gravity onto whatever is below them, or onto a given mesh, and keep where they land.
+
+With onto=, each target is moved above that mesh first (centred, or over at=) and stacked up so they don't start inside each other. One undo step. Returns the same report as settle.
+
+**Objects:** meshes to drop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `height` | `h` | float | `0.0` | Lift this far first, cm. |
+| `onto` | `on` | str |  | Drop onto this mesh: moved above its top first (at= picks where). |
+| `at` |  | list |  | With onto=, the world [x, y, z] to drop over; y is ignored. |
+| `spin` | `sn` | float | `0.0` | Random turn given before the drop, degrees, so a row of drops lands varied. |
+| `seed` | `s` | int | `1` | Seed for spin. |
+| `movable` | `mv` | list |  | Meshes that may move as well (default: those touching the targets, chained, smaller than the biggest of them x8). |
+| `colliders` | `co` | list |  | Meshes things hit but that never move (default: every visible mesh nearby). |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+| `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
+| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+
+```python
+drop('mug', onto='desk', at=[40, 0, 10])
+```
+
+```python
+drop(['apple_01', 'apple_02', 'apple_03'], onto='bowl', spin=180)
+```
+
+### dropToSurface
+
+Move objects straight down until their bottoms touch the first surface below, as Unreal's End key does. No physics: they keep their turn. align=True also stands them along that surface. Returns how far each moved.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `align` | `al` | bool | `False` | Stand along the surface normal. |
+| `offset` | `of` | float | `0.0` | Stop this far above it, cm. |
+
+```python
+dropToSurface(['chair_1', 'chair_2'])
+```
+
+### fillShelf
+
+Fill shelves with a row of items (books, jars, boxes): packed side by side along each board's top, some leaning, a few lying in small stacks, varied in size, settled with physics.
+
+Each positional is a board (a mesh): the row runs along its longer horizontal side. Live by default: a mesh holding the row as a geometry-nodes arrangement, whose inputs (seed, gap, leanChance, ...) re-arrange it. realize=True places scene instances instead. sag=True bends each board under its load. Returns count, perItem, upright/leaning/lying, atRest, then host/modifier/group (live) or group/nodes (realize).
+
+**Objects:** boards (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
+| `settle` | `st` | bool | `True` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `density` |  | float | `600.0` | kg/m3 of the items, for the settle. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `gap` | `gp` | float | `0.3` | Space between items, cm. |
+| `leanChance` | `lc` | float | `0.08` | 0 to 1: chance an item leans on its neighbour. |
+| `lyingChance` | `yc` | float | `0.04` | 0 to 1: chance a small stack lies flat. |
+| `fill` | `fl` | float | `1.0` | 0 to 1: how much of each board is filled, from its start. |
+| `inset` | `in` | float | `1.0` | Kept clear at both ends of each board, cm. |
+| `depth` | `dp` | float | `0.0` | Line offset from the board's middle across its depth, cm. |
+| `scaleMin` | `smn` | float | `0.9` | Smallest scale. |
+| `scaleMax` | `smx` | float | `1.1` | Largest scale. |
+| `sag` | `sg` | bool | `False` | Bend each board under what rests on it (a Sag Under Load modifier on the board). |
+| `sagAmount` | `sa` | float | `0.3` | Sag at a board's middle for 10 kg there, cm. |
+
+```python
+fillShelf(['Shelf_1', 'Shelf_2', 'Shelf_3'], items=['Books/Hardback', 'Books/Paperback', 'Books/Tall'], sag=True)
+```
+
+```python
+r = fillShelf('Shelf_1', items=['Books/Hardback'], realize=True, leanChance=0.2)
+push(r['nodes'][0], direction=[1, 0, 0])
+```
+
+### libraryAdd
+
+Save objects to the library as one asset: the model as .glb, a thumbnail and asset.json with tags, size and physics.
+
+tier= picks the folder: workspace (default when a workspace is open, so it is checked in), user, or a studio folder's path. Physics comes from the flags, else from the first mesh's physicsBody. Returns the asset.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Asset name (default the first object's). |
+| `collection` | `c` | str | `'Props'` | Collection folder, may nest: 'Props/Kitchen'. |
+| `tags` | `t` | list |  | Words to find it by. |
+| `description` | `d` | str |  | One line on what it is. |
+| `tier` |  | str |  | workspace, user, or a library folder path. |
+| `role` | `r` | str |  | Physics role it places with: dynamic, static, kinematic, off. |
+| `material` | `m` | str |  | Physics material it places with. |
+| `unreal` |  | str |  | The Unreal asset it stands for, /Game/... |
+| `thumbnail` |  | bool | `True` | Render thumb.png (skipped where there is no GPU). |
+| `overwrite` | `o` | bool | `False` | Replace an asset of the same id. |
+
+Not undoable.
+
+```python
+libraryAdd('Crate', collection='Props/Storage', tags=['crate', 'wood'], material='wood', role='dynamic')
+```
+
+### libraryPaths
+
+The library folders searched, in the order they win, with collections, tags and load errors.
+
+Workspace <workspace>/Library, then studio folders (pref stagehand /library/paths and env LILA_LIBRARY_PATH), then the user's. add= appends a studio folder to the pref.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `add` | `a` | str |  | A studio library folder to add. |
+
+Not undoable.
+
+```python
+libraryPaths(add='P:/Studio/PropLibrary')
+```
+
+### libraryRefresh
+
+Reload the masters of library assets whose files changed on disk, so every instance placed from them updates.
+
+Instances follow their master's meshes; copies keep what they were. Returns the assets reloaded.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `force` | `f` | bool | `False` | Reload every master, changed or not. |
+
+### libraryReload
+
+Scan the library folders again (after files changed outside Lila).
+
+Not undoable.
+
+### libraryRemove
+
+Delete an asset's folder from the library. Not undoable; placed copies in scenes stay.
+
+**Objects:** asset id
+
+Not undoable.
+
+### librarySearch
+
+Find props in the library by words, tags, collection and size. Best match first.
+
+Every word must match the name, tags, collection, id or description (prefixes and one-letter typos count). Each result has id, name, collection, tier, model, thumbnail, tags, description, size [x, y, z] cm, physics, unreal and snapPoints. Pass an id to place().
+
+**Objects:** words (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tags` | `t` | list |  | Only assets with every one of these tags. |
+| `collection` | `c` | str |  | Only this collection or the ones under it. |
+| `tier` |  | str |  | workspace, studio or user. |
+| `maxSize` | `mx` | float |  | Largest side at most this, cm. |
+| `minSize` | `mn` | float |  | Largest side at least this, cm. |
+| `limit` | `l` | int | `50` | At most this many; 0 for all. |
+
+Not undoable.
+
+```python
+librarySearch('wooden crate')
+```
+
+```python
+librarySearch(tags=['book'], maxSize=40)
+```
+
+### openSnapPoints
+
+Snap points joined to nothing: gaps in a kit layout. Returns them as snapPoints does.
+
+**Objects:** pieces (default the whole scene)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `0.5` | How close counts as joined, cm. |
+
+Not undoable.
+
+### physicsBody
+
+Set how meshes take part in physics: role, material, shape. Makes or edits a stagehandBody child under each.
+
+Meshes without one are static colliders, except the ones a command moves. material= fills density, friction and bounce from a preset; give those flags too to override. Returns the body node of each mesh.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `role` | `r` | str |  | dynamic, static, kinematic or off. |
+| `material` | `m` | str |  | Preset for density, friction and bounce. One of `wood`, `book`, `paper`, `cardboard`, `stone`, `ceramic`, `metal`, `glass`, `plastic`, `rubber`, `fabric`. |
+| `density` | `d` | float |  | kg/m3. |
+| `friction` | `f` | float |  | 0 to 1. |
+| `bounce` | `b` | float |  | 0 to 1. |
+| `shape` | `s` | str |  | auto, box, hull, sphere, capsule or mesh. |
+| `rounding` | `ro` | float |  | Collision edge rounding, cm. |
+| `remove` | `rm` | bool | `False` | Delete the body nodes instead. |
+
+```python
+physicsBody(['book_01', 'book_02'], role='dynamic', material='book')
+```
+
+```python
+physicsBody('shelf', role='static', shape='mesh')
+```
+
+### pileProps
+
+Heap items up: dropped tumbling into a footprint (a crate of junk, a rubble heap, fruit in a bowl) and settled with physics. Returns the same as fillShelf.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
+| `settle` | `st` | bool | `True` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `density` |  | float | `600.0` | kg/m3 of the items, for the settle. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `at` |  | list | `[0.0, 0.0, 0.0]` | Centre of the pile's footprint, at its floor. |
+| `count` | `c` | int | `30` | How many. |
+| `radius` | `r` | float | `40.0` | Footprint radius, cm. |
+| `onto` | `on` | list |  | Meshes it lands on (a crate, the floor); default a floor plane at at's height. |
+
+```python
+pileProps(items=['Debris/Brick', 'Debris/Chunk'], at=[120, 0, 40], count=60, radius=60)
+```
+
+```python
+pileProps(items=['Food/Apple'], at=[0, 82, 0], onto=['Bowl'], count=8, radius=12)
+```
+
+### place
+
+Put a library asset in the scene: its bounds' bottom centre on a point, standing along the surface normal.
+
+Where: at= a world point (with snap, it lands on the first surface below), or on= a mesh (its top, or the point of it below at=). The first placement loads the asset as a hidden master under StagehandLibrary; each placement is an instance of it (mode='copy' for an independent copy), so editing one mesh edits them all. count= places several, spread by spacing= along X and seeded rotation jitter. drop=True lets them fall with physics after. Returns each placed root with its meshes.
+
+**Objects:** asset id (or a name only one asset has)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `at` |  | list |  | World point [x, y, z], cm. |
+| `on` |  | str |  | Mesh to place on: its top centre, or below at=. |
+| `snap` | `sn` | bool | `True` | Land at= on the surface below it. |
+| `normal` | `nr` | list |  | Up direction to stand along (default the surface's, or +Y). |
+| `align` | `al` | bool | `False` | Stand along the surface normal instead of upright. |
+| `rotate` | `ro` | float | `0.0` | Turn about the up direction, degrees. |
+| `scale` | `sc` | Any | `1.0` | Uniform scale, or [x, y, z]. |
+| `mode` | `m` | str |  | instance or copy (default pref stagehand /library/insertMode, instance). |
+| `count` | `n` | int | `1` | How many. |
+| `spacing` | `sp` | list |  | Offset between copies, [x, y, z] cm (default the asset's width along X). |
+| `jitter` | `j` | float | `0.0` | Random turn per copy, up to this many degrees either way. |
+| `seed` | `s` | int | `1` | Seed for jitter. |
+| `drop` | `dr` | bool | `False` | Let them fall with physics onto what is below. |
+| `name` | `nm` | str |  | Name for a single placement. |
+
+```python
+place('Props/Crate', at=[200, 0, 50], rotate=30)
+```
+
+```python
+place('Books/Hardback', on='shelf_top', count=12, spacing=[4, 0, 0], jitter=3)
+```
+
+```python
+place('Kitchen/Mug', on='desk', drop=True)
+```
+
+### push
+
+Shove a mesh and let it, and whatever it knocks into, settle: topple a book along a shelf, punt a crate.
+
+Everything touching the target (chained, smaller than it x8) may move unless movable= says otherwise. One undo step. Returns the same report as settle.
+
+**Objects:** mesh to push
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `direction` | `dir` | list |  | Which way to push, [x, y, z]; its length doesn't matter. |
+| `speed` | `sp` | float | `150.0` | How hard: the speed given at the point pushed, cm/s. 50 nudges, 150 topples a book, 500 knocks it flying. |
+| `at` |  | list |  | World point to push at (default high on the side away from the direction, which topples). |
+| `chain` | `ch` | bool | `True` | Without movable=, carry on to the meshes touching it, and those touching them. |
+| `movable` | `mv` | list |  | Meshes that may move as well (default: those touching the targets, chained, smaller than the biggest of them x8). |
+| `colliders` | `co` | list |  | Meshes things hit but that never move (default: every visible mesh nearby). |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+| `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
+| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+
+```python
+push('book_01', direction=[1, 0, 0])
+```
+
+```python
+push('crate', direction=[0, 0, -1], speed=400, movable=[])
+```
+
+### randomizeTransforms
+
+Nudge objects by seeded random amounts: up to translate cm and rotate degrees either way per axis, scale between the two given. Turning is about each object's own bounds centre.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `translate` | `t` | list | `[0.0, 0.0, 0.0]` | Most it moves on each axis, cm. |
+| `rotate` | `r` | list | `[0.0, 15.0, 0.0]` | Most it turns about each axis, degrees. |
+| `scale` | `s` | list | `[1.0, 1.0]` | Uniform scale range [min, max]. |
+| `seed` | `sd` | int | `1` | Another seed gives other amounts. |
+
+```python
+randomizeTransforms(['crate_1', 'crate_2', 'crate_3'], rotate=[0, 25, 0], scale=[0.9, 1.1])
+```
+
+### replaceWith
+
+Swap objects for a library asset, each copy standing where the object stood, turned as it was turned about the up axis: blockout cubes into crates. fit=True scales each copy to the object's bounds. The originals are deleted.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `asset` | `a` | str |  | The asset id. |
+| `fit` | `f` | bool | `False` | Scale each copy to fill the object's bounds. |
+| `mode` | `m` | str |  | instance or copy. |
+| `keep` | `k` | bool | `False` | Keep the originals, hidden. |
+
+```python
+replaceWith(['box1', 'box2', 'box3'], asset='Props/Crate', fit=True)
+```
+
+### scatterProps
+
+Scatter items over a surface (debris, rocks, litter): no two closer than their footprints, on gentle enough slopes, thinned by a mask attribute.
+
+Live by default (a geometry-nodes arrangement on a new mesh); realize=True places scene instances. settle=True drops them with physics. Returns the same as fillShelf.
+
+**Objects:** surface mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
+| `settle` | `st` | bool | `False` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `massDensity` |  | float | `600.0` | kg/m3 of the items, for the settle. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `density` | `dn` | float | `4.0` | Items per square metre. |
+| `maxCount` | `mc` | int | `200` | At most this many. |
+| `spacing` | `spc` | float | `1.0` | Footprints kept clear, times each item's own. |
+| `slopeMax` | `sl` | float | `35.0` | Steepest surface used, degrees. |
+| `align` | `al` | float | `0.0` | 0 upright, 1 along the surface. |
+| `turn` | `tu` | float | `180.0` | Random turn about up, degrees either way. |
+| `scaleMin` | `smn` | float | `0.8` | Smallest scale. |
+| `scaleMax` | `smx` | float | `1.2` | Largest scale. |
+| `mask` | `mk` | str |  | Point attribute (0 to 1) on the surface that thins the scatter. |
+| `avoid` | `av` | bool | `True` | Keep out of and from under every visible mesh standing on the surface. |
+
+```python
+scatterProps('Floor', items=['Debris/Brick', 'Debris/Chunk'], density=12, settle=True)
+```
+
+### settle
+
+Let meshes fall and come to rest under gravity, against everything around them, and keep where they end up.
+
+The targets move, so do meshes with a dynamic physicsBody; every other visible mesh nearby is hit but stays put. One undo step. Returns per mover how far it moved and turned, whether it came to rest, how deep it overlaps anything (cm) and what it rests on, then seconds simulated and atRest for the whole run.
+
+**Objects:** meshes to settle (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `movable` | `mv` | list |  | Meshes that may move as well (default: those touching the targets, chained, smaller than the biggest of them x8). |
+| `colliders` | `co` | list |  | Meshes things hit but that never move (default: every visible mesh nearby). |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+| `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
+| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+
+```python
+settle(['mug', 'plate', 'book_01'])
+```
+
+```python
+settle('crate', time=10, ground=False)
+```
+
+### shake
+
+Shake a mesh (a shelf, a table) so what rests on it shuffles, slides and falls, then settles; the shaken mesh ends where it started.
+
+What moves: movable=, else what touches it (chained) and is smaller than it. One undo step. Returns the same report as settle.
+
+**Objects:** mesh to shake
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amplitude` | `a` | list | `[3.0, 0.0, 0.0]` | How far it swings each way, [x, y, z] cm. |
+| `duration` | `du` | float | `1.0` | How long the shaking lasts, seconds. |
+| `movable` | `mv` | list |  | Meshes that may move as well (default: those touching the targets, chained, smaller than the biggest of them x8). |
+| `colliders` | `co` | list |  | Meshes things hit but that never move (default: every visible mesh nearby). |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+| `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
+| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+
+```python
+shake('shelf', amplitude=[4, 0, 0], duration=1.5)
+```
+
+### snapAll
+
+Join every piece whose compatible snap point is within tolerance of another's, in order: the first piece stays, each later one moves onto what is already placed. Returns the joins.
+
+**Objects:** pieces (default every piece with snap points)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `25.0` | How near two points have to be to join, cm. |
+
+### snapPoints
+
+List snap points: node, piece, type, accepts, world position and normal, and the point it's joined to (or null).
+
+**Objects:** pieces (default every snap point in the scene)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `0.5` | How close counts as joined, cm. |
+
+Not undoable.
+
+### snapTo
+
+Join a piece onto another by their snap points: the nearest compatible pair, or the ones named. The target stays put. Returns the points joined.
+
+**Objects:** piece to move
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `target` | `tg` | str |  | The piece to join onto. |
+| `point` | `pt` | str |  | The moving piece's snap point to use. |
+| `targetPoint` | `tp` | str |  | The target's snap point to use. |
+
+```python
+snapTo('Wall_B', target='Wall_A')
+```
+
+### stackProps
+
+Stack items one on another (plates, crates, books lying flat), each turned and nudged a little. settle=True lets an unsteady stack slump. Returns the same as fillShelf.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
+| `settle` | `st` | bool | `False` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `density` |  | float | `600.0` | kg/m3 of the items, for the settle. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `at` |  | list | `[0.0, 0.0, 0.0]` | Where the stack stands. |
+| `count` | `c` | int | `6` | How many. |
+| `offset` | `of` | float | `1.0` | Sideways wander per level, cm. |
+| `turn` | `tu` | float | `6.0` | Turn per level, degrees either way. |
+| `onto` | `on` | list |  | Meshes it stands on; default a floor plane at at's height. |
+
+```python
+stackProps(items=['Kitchen/Plate'], at=[30, 90, 0], onto=['Counter'], count=8)
+```
+
+### wiggle
+
+Jostle meshes with small random pushes so they settle into a natural, slightly messy rest.
+
+Only the targets (and dynamic bodies) move. One undo step. Returns the same report as settle.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strength` | `st` | float | `40.0` | Speed of each little push, cm/s. |
+| `times` | `n` | int | `3` | How many rounds of pushes, each settled before the next. |
+| `seed` | `s` | int | `1` | Another seed gives other pushes. |
+| `movable` | `mv` | list |  | Meshes that may move as well (default: those touching the targets, chained, smaller than the biggest of them x8). |
+| `colliders` | `co` | list |  | Meshes things hit but that never move (default: every visible mesh nearby). |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+| `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
+| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+
+```python
+wiggle(['book_01', 'book_02', 'book_03'], strength=60)
+```
+
+## Terrain extension
+
+Available when the Terrain extension is loaded.
+
+### terrainBake
+
+Collapse a terrain's node graph into a file: the heightfield, masks and placement are written to a .lilahf next to the scene (<scene>_terrain/, else the workspace's terrain/ folder), and the terrain's group is replaced by a Read Heightfield node loading it. Edits made afterwards start from the baked result. Returns the file and terrainInfo's stats.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Where to write; defaults as above. |
+
+```python
+terrainBake('Terrain')['file']
+```
+
+### terrainCreate
+
+Make a terrain: a mesh whose geometry-nodes modifier builds a heightfield, starting as fractal noise (flat=True for level ground).
+
+The size, resolution and noise settings become keyable inputs on the modifier, so change the terrain later with setAttr on '<modifier>.<flag>' and read it back with terrainInfo or terrainSample. Open the group to add Terrain nodes. Lengths are cm; Y is up. Returns the mesh, modifier, group and terrainInfo's stats.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `size` | `sz` | list | `[100000.0, 100000.0]` | [width along X, depth along Z], cm. |
+| `resolution` | `r` | int | `513` | Samples along the longer side. |
+| `center` | `c` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Centre; Y is the base height. |
+| `flat` | `f` | bool | `False` | Level ground, no noise. |
+| `amplitude` | `a` | float | `15000.0` | Height of the tallest features, cm. |
+| `featureSize` | `fs` | float | `40000.0` | Size of the largest features, cm. |
+| `octaves` | `o` | int | `7` | Layers of detail. |
+| `roughness` | `ro` | float | `0.5` | 0 to 1: how strong each smaller layer is. |
+| `ridged` | `ri` | float | `0.5` | 0 rolling hills, 1 sharp ridges. |
+| `warp` | `w` | float | `0.25` | Domain warp, a fraction of featureSize. |
+| `seed` | `s` | int | `0` | Random seed. |
+| `erosion` | `e` | int | `0` | Erosion steps: rivers carve valleys; 0 is off, 50 to 150 looks natural. |
+| `erosionStrength` | `es` | float | `0.0005` | How fast rivers cut. |
+| `uplift` | `u` | float | `0.0` | Rise per erosion step, cm. |
+| `talusAngle` | `ta` | float | `38.0` | Slopes steeper than this shed scree, degrees. |
+| `name` | `n` | str | `'Terrain'` | Name of the mesh. |
+
+```python
+t = terrainCreate(size=[200000, 200000], resolution=1025, amplitude=40000, ridged=0.8)
+```
+
+```python
+terrainCreate(flat=True, size=[50000, 50000], name='Plain')
+```
+
+### terrainErode
+
+Erode a terrain made by terrainCreate: rivers carve drainage-consistent valleys, slopes over the talus angle shed scree, and the masks flow, wear, deposit and lakes appear for materials and scatter. Sets the terrain's erosion inputs (iterations is age: 50 to 150 looks natural) and returns terrainInfo's stats.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `iterations` | `i` | int | `80` | Erosion steps; 0 turns it off. |
+| `strength` | `s` | float |  | How fast rivers cut. |
+| `uplift` | `u` | float |  | Rise per step, cm. |
+| `talusAngle` | `ta` | float |  | Slopes steeper than this shed scree, degrees. |
+
+```python
+terrainErode('Terrain', iterations=120)['masks']['flow']
+```
 
 ### terrainExport
 
-Write a generated group as <name>_Hi.fbx (everything but the bake plane) and its bake plane as <name>_Lo.fbx, world space, with <name>_ids.json and, when missing, <name>_colours.json for the Painter stack plugin. The plane's material is named material for the export only. Returns {high, low, ids, colours}.
+Write a terrain to files for an engine or another tool.
 
-**Objects:** group (default the selection)
+target='unreal' resamples to a landscape size Unreal accepts and writes <name>.r16 (16-bit heights laid out for Landscape import), <name>.png, one 8-bit <name>_<mask>.raw weightmap per mask and <name>.json with the section size, sections per component, component counts, actor location and scale (Unreal axes, cm) to import it with. target='files' writes <name>.exr (heights in cm), <name>.png and <name>.r16 (16-bit over the height range), a PNG per mask and <name>.json. Returns the settings and files.
 
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `path` |  | str |  | Folder; default the group's export path. |
-| `name` | `n` | str |  | File name stem; default the group's. |
-| `material` | `m` | str |  | Bake plane material name for the export; default the group's. |
-
-### terrainFindVertexMap
-
-The baked vertex colour map in a folder (a name ending vertexcolor, vertexcolour, vertex_color or vertexcolormap), preferring ones starting with name. Null when there is none.
-
-**Objects:** folder
+**Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `name` | `n` | str |  | Tile name. |
+| `target` | `t` | str | `'unreal'` | unreal or files. |
+| `folder` | `f` | str |  | Output folder; defaults to the bake folder's export/. |
+| `name` | `n` | str |  | File name stem; defaults to the terrain's name. |
+| `pad` | `p` | bool | `False` | unreal: keep the cell size and grow the landscape past the terrain, instead of resampling. |
+| `minScaleZ` | `sz` | float | `1.0` | unreal: smallest Z scale (100 is Unreal's default). |
 
 Not undoable.
 
-### terrainGenerate
+```python
+s = terrainExport('Terrain', target='unreal')
+s['resolution'], s['scale'], s['files']['height']
+```
 
-Scatter the source meshes into a seamlessly tiling terrain group with the given settings (a preset's when values is partial). Returns {group, instances, warnings}; group is null when nothing could be built.
+### terrainImport
 
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `values` | `v` | Any |  | Settings, as terrainParameters lists them; missing ones come from the preset. |
-| `sources` | `s` | list |  | [{name, weight, objectId, heightOffset, enabled, lengthAxis, baseEnd}, ...]. |
-| `preset` | `p` | str |  | Preset the settings start from and the group is named after. |
-| `palette` |  | Any |  | {"<id>": [r, g, b]} ID colours; default the saved palette. |
-| `export` |  | Any |  | {path, name, material} stamped on the group for Export FBX Pair. |
+Make a terrain from a file. Elevation data (GeoTIFF DEM tiles, SRTM .hgt, .asc, .xyz, Terrarium .png with mode='elevation') is read at its real size, heights in cm from sea level, north toward -Z. A painted image is read by mode: guide (default) keeps its big shapes and erodes in natural detail, height is literal, uplift grows ranges where it is bright, mask puts it in a mask on flat ground; it spans size along X.
 
-### terrainMeasureHeight
+The file and erosion settings become inputs on the modifier, like terrainCreate's, so terrainErode and setAttr work on it. Returns the mesh, modifier, group and terrainInfo's stats.
 
-Sample the top surface straight down over the tile and stamp where it actually sits: heightP50, heightP99 (scale a height bake by this) and heightOverTile. Needs a bake plane and a combined mesh. Returns the numbers and the bake settings they give.
-
-**Objects:** group (default the selection)
+**Objects:** file; relative paths are under the workspace
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `grid` |  | int | `256` | Samples per side. |
+| `mode` | `m` | str |  | elevation, guide, height, uplift or mask; empty picks elevation for DEM files, else guide. |
+| `size` | `sz` | float | `100000.0` | Images: width along X, cm. |
+| `low` | `lo` | float | `0.0` | Images: height of black, cm. |
+| `high` | `hi` | float | `50000.0` | Images: height of white, cm. |
+| `center` | `c` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Centre. |
+| `cellSize` | `cs` | float | `0.0` | Elevation: grid spacing, cm; 0 keeps the data's own. |
+| `exaggeration` | `ex` | float | `1.0` | Elevation: multiplies heights. |
+| `fromLowest` | `fl` | bool | `False` | Elevation: lowest point at 0 instead of sea level. |
+| `format` | `f` | str | `'auto'` | Elevation: file type (auto, geotiff, hgt, asc, xyz, terrarium, terrainrgb). |
+| `erosion` | `e` | float | `0.5` | Guide and uplift: 0 to 1, how far erosion may move the painting. |
+| `name` | `n` | str | `'Terrain'` | Name of the mesh. |
 
-### terrainParameters
+```python
+terrainImport('dem/N46E007.hgt', cellSize=3000)
+```
 
-The settings schema: [{name, label, type, default, min, max, options, section, showIf, help}], and the sections.
+```python
+terrainImport('paint/island.png', size=400000, high=60000)
+```
+
+```python
+terrainImport('paint/ranges.psd', mode='uplift', erosion=0.8)
+```
+
+### terrainInfo
+
+What a terrain is: resolution, cell size, the area it covers in world X and Z (min, max, center, size), its height range and each mask's min, max and mean. Lengths are cm.
+
+**Objects:** terrain mesh or its modifier (default the selection)
 
 Not undoable.
 
-### terrainPresets
+```python
+terrainInfo('Terrain')['heightRange']
+```
 
-Preset names: {builtIn, user, default}.
+### terrainSample
+
+Heights under points, or a profile along a path.
+
+points= reads each point; path= walks the polyline every step cm and adds the distance along it and the grade (rise over run, percent) from the previous sample. Each sample has x, z, height, normal, slope (degrees), inside, and the masks named by masks=. World space, cm.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | [[x, z] or [x, y, z], ...]. |
+| `path` | `pa` | list |  | Polyline [[x, z] or [x, y, z], ...] to profile. |
+| `step` | `st` | float | `0.0` | Spacing along path, cm; 0 uses the terrain's cell size. |
+| `masks` | `m` | list |  | Mask names to read. |
 
 Not undoable.
 
-### terrainPresetSettings
+```python
+terrainSample('Terrain', points=[[0, 0], [5000, -2000]])
+```
 
-A preset's full settings, user saved or built in.
+```python
+profile = terrainSample('Terrain', path=[[-40000, 0], [40000, 0]], step=500)
+max(abs(s['grade']) for s in profile)
+```
 
-**Objects:** preset
+### terrainSendToUnreal
+
+Send a terrain to the connected Unreal editor as a Landscape, or update the one it sent before.
+
+Writes the terrain as terrainExport(target='unreal') does, into the link's cache, then has LilaLink build a landscape of that size and layout at the matching place and scale. Lila's heights go to an edit layer named Lila, so sculpting and splines on other layers in Unreal survive later sends; a terrain whose size or layout changed is rebuilt. gridSize sets the World Partition grid in a partitioned level. Returns the landscape and the export settings.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `material` | `m` | str |  | Landscape material asset path, such as /Game/Terrain/M_Landscape. |
+| `gridSize` | `g` | int | `0` | World Partition grid size in components; 0 leaves it. |
+| `pad` | `p` | bool | `False` | Keep the cell size and grow the landscape past the terrain, instead of resampling. |
+| `timeout` | `to` | float | `300.0` | Seconds to wait for Unreal. |
 
 Not undoable.
 
-### terrainRegenerate
+```python
+terrainSendToUnreal('Terrain', material='/Game/Terrain/M_Landscape')
+```
 
-Delete a generated group and build it again, from its stored settings or the ones given. Returns as terrainGenerate.
+### terrainToMesh
 
-**Objects:** group (default the selection)
+A plain mesh copy of the terrain as it is now, in world space: quads facing up, every step-th sample, uv set 0 over the whole terrain, masks as point attributes. The terrain is left alone. Returns the new mesh, its point and face counts.
 
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `values` | `v` | Any |  | Settings to change; the rest stay as stored. |
-| `sources` | `s` | list |  | Replacement source list. |
-| `preset` | `p` | str |  | Preset name to store. |
-| `palette` |  | Any |  | ID colours; default the stored ones. |
-| `export` |  | Any |  | Export settings; default the stored ones. |
-
-### terrainSavePreset
-
-Save settings as a user preset in the Lila prefs. Returns its name.
-
-**Objects:** name
+**Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `values` | `v` | Any |  | The settings. |
-
-Not undoable.
-
-### terrainSetDefaultPreset
-
-The preset the panel opens with.
-
-**Objects:** name
-
-Not undoable.
-
-### terrainSetIdColour
-
-Set the colour an Object ID bakes as, in the saved palette. Returns the palette.
-
-**Objects:** objectId
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `colour` | `c` | tuple[float, float, float] |  | [r, g, b], 0 to 1, exact (no gamma). |
-
-Not undoable.
-
-### terrainSettings
-
-What a generated group stores: {values, sources, preset, version, palette, legend, export, metrics}. Null when the node is not, and is not under, a generated group.
-
-**Objects:** node (default the selection)
-
-Not undoable.
-
-### terrainSourceInfo
-
-What the generator reads off a source mesh: its length, width and thickness axes, which end is the base, and how far it reaches from its pivot. {valid: False} when it is not a mesh.
-
-**Objects:** mesh
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `lengthAxis` |  | str | `'Auto'` | Auto, X, Y or Z. |
-| `baseEnd` |  | str | `'Auto'` | Auto, Min or Max. |
-
-Not undoable.
-
-### terrainSplitMasks
-
-Split a baked vertex colour map into <tile>_maskR/G/B.png greyscale masks (R root to tip, G per instance, B height layer). With no path, finds the map in folder. Returns the written paths.
-
-**Objects:** path (optional)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `folder` |  | str |  | Where to look for the vertex colour map when no path is given. |
-| `name` | `n` | str |  | Tile name preferred when several maps are there. |
-
-Not undoable.
-
-### terrainTextureSet
-
-Make a texture set for a generated group, painted natively instead of through Painter's stack script: a bake project from the exported tile (its ID palette, terrainMasks colour set, AO and the measured height range), then layers bound to them: a ground fill, the baked height, and per Object ID a folder masked by ID Select with the ID's colour recipe (base, root, per instance, tip, occlusion; the colours sidecar when exported). Export FBX Pair first for the mesh maps. Returns {set, bakeProject, ids, layers, warnings}.
-
-**Objects:** group (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `name` |  | str |  | Set name; <Preset>_Tex by default. |
-| `target` |  | str | `'unreal'` | Bake target and export preset. |
-| `bake` |  | bool | `True` | Make the bake project when the tile is exported. |
-| `replace` |  | bool | `False` | Replace a texture set of that name. |
-
-## TerrainTools extension
-
-Available when the TerrainTools extension is loaded.
-
-### addBladeDeformer
-
-Add a nonlinear deformer to the selected faces (a whole mesh when no components are selected), one per blade or one for the whole selection, weighted so only the blades' own points move and their roots stay planted. Then randomizes the amount in low..high. Returns the deformers.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
-| `perBlade` | `pb` | bool | `True` | A deformer per blade; off, one for the whole selection. |
-| `fromBase` | `fb` | bool | `True` | Anchor the handle at each blade's root so it deforms root to tip; off centres it. |
-| `spin` |  | bool | `True` | Spin each handle around the up axis, so blades lean different ways. |
-| `up` |  | str | `'Auto'` | Up axis: Auto follows the scene. One of `Auto`, `X`, `Y`, `Z`. |
-| `seed` | `s` | int | `0` | 0 differs every run; any other number repeats. |
-| `low` |  | float |  | Lowest amount; the kind's default range when not given. |
-| `high` |  | float |  | Highest amount. |
-| `bias` | `b` | float | `0.0` | Bias to top, -1 to 1, over the amount range. |
-
-### bladeDeformers
-
-The nonlinear deformers of a kind on the selection or the named nodes (meshes, components, handles).
-
-**Objects:** nodes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
-
-Not undoable.
-
-### bladeExtrude
-
-Extrude faces into blades that remember how they were built, so randomizeBladeExtrude can vary each one later. Faces default to the face selection (a whole selected mesh means every face). Returns {mesh: [blade ids]}.
-
-**Objects:** mesh (with faces=)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `faces` | `f` | list |  | Face ids of the one mesh given. |
-| `thickness` | `t` | float | `1.0` | How far the blades grow along their face normal, cm. |
-| `offset` | `o` | float | `0.0` | How much the blades narrow as they grow: the cap border moves this far inward, cm. |
-| `localTranslateZ` | `ltz` | float | `0.0` | Extra growth along the face normal, cm. |
-| `divisions` | `d` | int | `1` | Segments up each blade. |
-| `keepFacesTogether` | `kft` | bool | `False` | Connected faces grow as one blade; off, every face is its own. |
-
-### bladeExtrudeInfo
-
-The blades of a mesh: [{blade, caps, walls, points, root (world), thickness, offset, localTranslateZ, base: {...}}].
-
-**Objects:** mesh
-
-Not undoable.
-
-### bladeExtrudeRanges
-
-A range around the extrude values the meshes' blades use now: their mean, give or take spread. Returns {thickness: [low, high], offset: [...], localTranslateZ: [...]}.
-
-**Objects:** meshes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `spread` |  | float | `0.3` | Fraction either side of the mean. |
-
-Not undoable.
-
-### deleteBladeDeformers
-
-Delete the deformers of a kind on the selection, and their handles. Returns how many went.
-
-**Objects:** nodes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
-
-### randomizeBladeDeformers
-
-Re-roll the amount of the deformers of a kind on the selection (found from a mesh, a component, a handle or the deformer), biased up the mesh by where their handles sit. Returns how many changed.
-
-**Objects:** nodes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `kind` | `k` | str | `'bend'` | bend \| flare \| twist \| sine \| squash \| wave |
-| `low` |  | float |  | Lowest amount; the kind's default range when not given. |
-| `high` |  | float |  | Highest amount. |
-| `bias` | `b` | float | `0.0` | Bias to top, -1 to 1. |
-| `up` |  | str | `'Auto'` | Up axis: Auto follows the scene. One of `Auto`, `X`, `Y`, `Z`. |
-| `seed` | `s` | int | `0` | 0 differs every run; any other number repeats. |
-| `spin` |  | bool | `False` | Also spin each handle around the up axis. |
-
-### randomizeBladeExtrude
-
-Give every blade of the meshes random extrude values in the ranges given. Each blade is rebuilt from its root, so running it again rerolls rather than stacking. bias 1 gives the high end of a range to the blades nearest the top, -1 to the bottom ones, 0 is pure random. seed 0 differs every run. Returns {meshes, blades}.
-
-**Objects:** meshes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `fields` |  | Any |  | {thickness: [low, high], offset: [low, high], localTranslateZ: [low, high]}; leave a field out to keep it. |
-| `bias` | `b` | float | `0.0` | Bias to top, -1 to 1. |
-| `up` |  | str | `'Auto'` | Up axis for the bias: Auto follows the scene. One of `Auto`, `X`, `Y`, `Z`. |
-| `seed` | `s` | int | `0` | 0 differs every run; any other number repeats. |
-
-### resetBladeExtrude
-
-Put every blade of the meshes back to the values it was extruded with. Returns the blade count.
-
-**Objects:** meshes (default the selection)
-
-### selectBladeFaces
-
-Select the faces the blades grew from, which are their caps now, or with stems=True every face a blade made, caps and walls, down to the ring it stands on. Worked out from the mesh each time. Returns the face count.
-
-**Objects:** meshes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `stems` |  | bool | `False` | Whole stems rather than caps. |
-
-### setBladeExtrude
-
-Set the extrude values of blades of one mesh directly, every blade by default. Fields not given keep their value.
-
-**Objects:** mesh
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `blades` |  | list |  | Blade ids; default every blade. |
-| `thickness` | `t` | float |  | cm. |
-| `offset` | `o` | float |  | cm. |
-| `localTranslateZ` | `ltz` | float |  | cm. |
-
-## TreeGenerator extension
-
-Available when the TreeGenerator extension is loaded.
-
-### treeBakeHandoff
-
-What a bake project needs from a tree's export: {kind, high, low, sidecar, palette, materials, faces, rays}. Reads, never writes.
-
-**Objects:** tree (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-
-Not undoable.
-
-### treeBranchTips
-
-Where a stamped trunk's branch tips are, without rebuilding it: [{point, heading, radius}].
-
-**Objects:** tree (default the selection)
-
-Not undoable.
-
-### treeBuild
-
-Build a whole tree: trunk, canopy blobs on the tips and the leaf scattered over them, under one root stamped with the settings. Returns the root.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
-| `name` | `n` | str | `'tree'` | Name. |
-
-### treeCanopyBlobs
-
-Drop a canopy blob on each branch tip of a stamped trunk, ready to scatter leaves onto. Returns the canopy group.
-
-**Objects:** tree (default the selection, else the last trunk grown)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `name` | `n` | str | `'canopy'` | Name. |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
-
-### treeDeletePreset
-
-Delete a saved preset. Built in presets cannot be deleted.
-
-**Objects:** name
-
-Not undoable.
-
-### treeExport
-
-Write a tree as <name>_Lo.fbx (lowest detail parts) and a subdivided, merged <name>_Hi.fbx, with <name>_tree.json and a <name>_palette.json seeded once. Assigns the part materials for real. Paths come from the export settings. Returns the paths.
-
-**Objects:** tree (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-
-### treeExportLeaf
-
-Write one leaf on its own as <name>_Leaf_Lo.fbx and <name>_Leaf_Hi.fbx (the densest mesh, subdivided), with its json and <name>_Leaf_opacity.png, for particle cards. Returns the paths.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-
-### treeGrowTrunk
-
-Grow a trunk with recursive branches from the trunk settings, stamped with the settings. Returns the trunk.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `name` | `n` | str | `'trunk'` | Name. |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
-
-### treeLeafPlane
-
-A leaf card to scatter, lying along +Z with its base at the origin, segmented so curl and wrap can bend it. Returns the mesh.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-
-### treeMeasureBake
-
-How far the subdivided high poly stands off the low poly per part ({part: {count, out, in, out99, in99}}, cm): the ray lengths a baker needs. Use the 99th percentiles.
-
-**Objects:** tree (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-
-Not undoable.
-
-### treeOpacityMap
-
-Rasterise a leaf mesh's UV shells into <name>_opacity.png, a cutout mask for the leaf material. Returns the path.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-
-Not undoable.
-
-### treePresets
-
-Preset names, built in first then saved ones.
-
-Not undoable.
-
-### treePresetSettings
-
-A preset's full settings, lengths in metres.
-
-**Objects:** preset
-
-Not undoable.
-
-### treeRebuild
-
-Rebuild a stamped tree from the settings it carries, as <name>_rebuilt. Without its leaf mesh it grows the trunk alone. Returns the new tree.
-
-**Objects:** tree (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `name` | `n` | str |  | Name of the rebuilt tree. |
-
-### treeSavePreset
-
-Save settings as a preset in the preferences. Built in names are refused.
-
-**Objects:** name
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-
-Not undoable.
-
-### treeScatterLeaves
-
-Copy the leaf mesh over the canopy meshes, bending each copy onto the curvature and writing its shading into the leaf colour set (R exposure, G per leaf, B per bunch). Without leaf= and canopy= the selection is the canopy with the leaf last. Returns the leaves.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
-| `name` | `n` | str | `'leaves'` | Name. |
-
-### treeSettings
-
-The settings, sources and preset stored on a tree: {tree, values, sources, preset}, or null when the selection is no tree.
-
-**Objects:** tree (default the selection)
-
-Not undoable.
-
-### treeSplitMasks
-
-Split a baked leaf colour set map into <name>_maskR/G/B.png greyscale masks. Finds the bake in the export folder unless a path is given. Returns the masks.
-
-**Objects:** path (optional)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-
-Not undoable.
-
-### treeStamp
-
-Stamp settings onto nodes built by the Tree Generator, so Load From Selection and Rebuild read them back.
-
-**Objects:** nodes (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `leaf` | `l` | Any |  | Leaf mesh(es), densest first for detail levels; a list or a space separated string. |
-| `canopy` | `c` | Any |  | Canopy mesh(es) to scatter over; a list or a space separated string. |
-
-### treeTextureSet
-
-Make native texture sets for a tree instead of handing the palette to Painter: <name>_Bark (the species' bark tones over cavity, edges and AO) and <name>_Leaves (the season's leaf tones over the leaf colour set: R exposure, G per leaf, B per bunch), on the trunk and leaf materials, with a bake project from the export when there is one. Returns {sets, bakeProject, season, species, warnings}.
-
-**Objects:** tree (default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `preset` | `p` | str |  | Preset the settings start from (built in or saved); defaults when not given. |
-| `settings` | `s` | Any |  | {"section.name": value} overrides on top of the preset, lengths in metres ("trunk.height": 6.0). |
-| `name` |  | str |  | Base name of the sets (<name>_Bark, <name>_Leaves); the tree's by default. |
-| `season` |  | str | `'summer'` | Leaf palette: spring, summer, autumn or lateAutumn. |
-| `target` |  | str | `'unreal'` | Bake target and export preset. |
-| `bake` |  | bool | `True` | Make the bake project when the tree is exported. |
-| `replace` |  | bool | `False` | Replace texture sets of those names. |
+| `step` | `st` | int | `1` | Keep every step-th sample. |
+| `name` | `n` | str |  | Name; defaults to <terrain>_mesh. |
+
+```python
+terrainToMesh('Terrain', step=4)
+```

@@ -33,16 +33,20 @@ The core carries the wall's collision as convex UCX pieces; stones have none.
 
 The stones also get a baked atlas: each stone's worn shape is baked onto its plain box as normal, AO and curvature, all stones in one texture set in `<folder>/<mesh>/Textures`. All three LODs read it through uv0; the tiling projection for a stone surface texture is in uv1.
 
-Material slots, which Unreal finds or makes by name (with a Lila material's values when the scene has one so named):
+Materials are instances of one master, `M_LilaMasonry` in `/Game/LilaLink/Masters`, made the first time and then yours to edit; Lila never overwrites it unless you send with `regenerateMaster=True`. Each wall gets its instances in `<folder>/<mesh>/Materials`:
 
-| Slot | On | Wants |
+| Instance | Slot | On |
 | --- | --- | --- |
-| `MasonryStone` | stone LOD0 | AO and curvature from the atlas; its own geometry has the wear |
-| `MasonryStoneFar` | stone LOD1 and LOD2 | the atlas normal map too, standing in for the wear |
-| `MasonryMortar` | the core | |
-| `MasonryShell` | low poly shells | the shell's own baked maps |
+| `MI_<mesh>_Stone` | `MasonryStone` | stone LOD0, which has the wear in its geometry |
+| `MI_<mesh>_StoneFar` | `MasonryStoneFar` | stone LOD1 and LOD2, which take the atlas normal map instead |
+| `MI_<mesh>_Mortar` | `MasonryMortar` | the core |
+| `MI_<mesh>_<cx>_<cz>` | `MasonryShell` | each low poly shell, with its own baked maps |
 
-Per-instance custom data: index 0 is a stable random per stone, index 1 is height up the wall (0 bottom course, 1 top).
+To set the look from Lila, make materials named `MasonryStone` and `MasonryMortar`: their base colour becomes the instances' **Tint**, their roughness **BaseRoughness**, and their base colour and normal maps the tiling stone texture and detail normal (stones read them through uv1; the core and shells project them in world space every **TileSize** cm). Everything else is an instance parameter in Unreal: **ValueSpread** and **ColorSpread** (stone to stone variation), **EdgeLighten** and **CavityStrength** (from the atlas curvature), **DirtHeight**, **DirtFade** and **DirtStrength** (a darker band at the foot of the wall), **AOStrength**.
+
+Per-stone variation comes from instance custom data on HISM and ISM (0 a stable random, 1 height up the wall, 0 bottom course to 1 top) and from vertex colour R and G on merged meshes.
+
+To use your own master instead, pass its path: `masonryShip(mesh, material="/Game/Art/M_MyStone")`. It needs the same parameter names. `material="none"` skips the instances and matches or makes materials by slot name.
 
 Other modes:
 
@@ -65,6 +69,10 @@ Other modes:
 
 **Far stones look smooth.** The far LODs need the atlas normal map on `MasonryStoneFar`. Without textures they are plain boxes.
 
+**"plugin in this editor is too old for masonry materials".** Rebuild LilaLink from Lila's `ue/LilaLink`, or send with `material="none"`.
+
+**The master changed in a new Lila but the wall looks the same.** Your `M_LilaMasonry` is kept as you left it; the reply's `["unreal"]["materials"]["warnings"]` says when it is older. Send once with `regenerateMaster=True` to rebuild it (edits to it are lost; instances keep their values).
+
 **Slow while dragging a slider.** Set **detail** to 2 (plain boxes) while laying out, back to 0 for the final look.
 
 ## Tune it
@@ -80,6 +88,8 @@ Other modes:
 | masonryShip `textures` | Bake and send the atlas or shell maps (default on; lowPoly always bakes). |
 | masonryShip `textureSize` | Atlas or shell texture size, texels (default 2048). `["atlasTexelsPerCm"]` reports the atlas density. |
 | masonryShip `backend` | `auto` (default), `gpu` or `cpu`. |
+| masonryShip `material` | `generate` (default), `none`, or the path of your own master. |
+| masonryShip `regenerateMaster` | Rebuild `M_LilaMasonry` from this version of Lila. |
 | masonryShip `collisionBands` | Height bands the core's collision is split into (default 1). |
 | masonryShip `folder` | Content folder; the wall's assets go in `<folder>/<mesh name>`. |
 

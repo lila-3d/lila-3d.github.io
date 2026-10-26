@@ -21,10 +21,19 @@
 - [Lights](lights.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
-- [Masonry](masonry.md)
-- [Settlement](settlement.md)
 - [Change stream](change-stream.md)
 - [Attributes and arrays](attributes.md)
 - [C++ extensions](cpp-extensions.md)
 - [FAQ](faq.md)
+
+---
+
+- <span class="nav-label">Extensions</span>
+  - [Masonry](masonry.md)
+  - [Settlement](settlement.md)
+  - [Stagehand](stagehand.md)
+
+---
+
+- [Support Lila](https://ko-fi.com/jaredtaylor ':ignore')
 - [Back to lila-3d.github.io](https://lila-3d.github.io/ ':ignore')

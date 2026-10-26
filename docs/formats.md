@@ -40,8 +40,8 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **File > Open** or **Import** on a USD file makes a live stage, a `usdStage` node holding the composed stage. Nothing is flattened: variants, payloads, references and sublayers stay live, and your edits are written as overs to an edit layer. The source files are never changed.
 
-- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), editing meshes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads. Objects inside an LOD level are written into that level's variant.
-- **Instances:** an edit inside an instance, or an object added under one, makes that instance non-instanceable in the edit layer, and the stage warns. A point instancer's instances come in as transforms: moving one moves it on the instancer, deleting one hides it (`invisibleIds`), and editing a copy edits its prototype, so every instance of it changes.
+- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), editing meshes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads. Objects inside an LOD level are written into that level's variant, and so are variants switched on prims inside a level that isn't selected; the Attribute Editor lists those per level.
+- **Instances:** an edit inside an instance, or an object added under one, makes that instance non-instanceable in the edit layer, and the stage warns. Undo those edits and it is instanced again. A point instancer's instances come in as transforms: moving one moves it on the instancer, deleting one hides it (`invisibleIds`), and editing or deleting part of a copy does so in its prototype, so every instance of it changes. An object added under an instance takes that instance out of the instancer: it is hidden there and written beside it as an Xform that references its prototype, holding the new object.
 - **Joints:** an object added under a joint is written beside the skeleton, following the joint.
 - **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
 - **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
@@ -60,7 +60,7 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **Houdini or Maya loads payloads that the shot left unloaded.** USD keeps payload load state per open stage, not in layers, so neither reads the state `usdStageWriteShot` records. Set it where you open the shot: in Houdini, a Configure Stage LOP's load options or the Scene Graph Tree; in Maya, the Load Payloads option when creating the stage, or Unload on the prim.
 
-**A glTF or USD import lists skipped items.** Lights come in as empty transforms, because Lila has no lights. The import report lists everything that didn't come across and why.
+**A glTF or USD import lists skipped items.** The import report lists everything that didn't come across and why.
 
 **An edit written to a sublayer doesn't show.** With the Edit layer set to one of the stage's sublayers, the source file's own opinions are stronger than that sublayer's, so they win wherever both set the same property. The stage warns when it saves. Use an edit layer of its own (empty, or a separate `.usda`) for edits that must win.
 

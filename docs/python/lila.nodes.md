@@ -113,6 +113,8 @@ Attribute names, optionally only keyable (channel box) ones.
 get(attr)
 ```
 
+The attribute's value; a whole array input gives a list of its elements' values.
+
 ### Node.set
 
 ```python
@@ -138,6 +140,38 @@ unlock(*attrs)
 ```python
 is_locked(attr)
 ```
+
+### Node.is_array_attr
+
+```python
+is_array_attr(attr)
+```
+
+True for an array input: one that takes any number of connections, addressed as attr[0], attr[1] ...
+
+### Node.add_attr
+
+```python
+add_attr(name, type='float', **flags)
+```
+
+Add an attribute to this node only (addAttr), saved with the scene. type is an attributeType (bool, long, float, double3, enum, matrix) or a dataType (string, stringArray, doubleArray, Int32Array, vectorArray); other flags are addAttr's (default_value, min_value, keyable, multi, enum_name ...). Returns its plug name.
+
+### Node.delete_attr
+
+```python
+delete_attr(name)
+```
+
+Remove an attribute added with add_attr, with its connections.
+
+### Node.user_attrs
+
+```python
+user_attrs()
+```
+
+Names of the attributes added to this node with add_attr.
 
 ### Node.has_attr
 

@@ -31,6 +31,12 @@ Lights keep their original units and any settings Lila has no field for, so they
 
 **A light draws as a crosshair.** Neither Placeholder Lights nor a light extension is enabled. The light is still there and still exports.
 
+**An area, disc or dome light is missing from a glTF file.** glTF only has point, spot and directional lights. The export warns about each light it leaves out.
+
+**An imported light is much brighter or dimmer than in the app it came from.** Lila keeps the file's intensity and its units: candela or lux from glTF, nits from USD, unitless from Maya and FBX (FBX stores 100 for 1). Arnold's exposure is folded into the intensity.
+
+**An Arnold mesh light came in as a plain transform.** Lila has no mesh lights. The import report lists it.
+
 ## Make your own lights
 
 A C++ extension registers a light provider. Lights it handles stop being placeholders. Placeholder Lights removes its menu and drawing while any provider is installed.

@@ -17,7 +17,7 @@ Not yet. There's no public build. Follow [@Vaei00 on X](https://x.com/Vaei00) fo
 
 ### What does Lila cost?
 
-Nothing. Lila is free.
+Nothing. Lila is free. To support development, use [GitHub Sponsors](https://github.com/sponsors/Vaei) or [Ko-fi](https://ko-fi.com/jaredtaylor).
 
 ### Does Lila open Maya scenes?
 
