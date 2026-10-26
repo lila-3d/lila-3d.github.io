@@ -29,9 +29,25 @@ masonryShip(wall["mesh"], wait=True)["unreal"]   # {"imported": ..., "placed": .
 
 Each stone mesh is imported once into `/Game/Lila/Masonry/<mesh>` with three LODs (worn, clean, box), and the stones are placed as one HISM per stone mesh per 4 m ground chunk, under the **Lila** folder in the outliner. The core is its own static mesh. Send again after an edit and the wall's chunks are replaced in place; chunks it no longer has are removed.
 
-The core carries the wall's collision as convex UCX pieces; stones have none. Stones use the material slot `MasonryStone` and the core `MasonryMortar`: Unreal finds or makes materials of those names, with a Lila material's values when the scene has one so named. Materials read per-instance custom data: index 0 is a stable random per stone, index 1 is height up the wall (0 bottom course, 1 top).
+The core carries the wall's collision as convex UCX pieces; stones have none.
 
-For few draw calls instead of instancing, `masonryShip(mesh, mode="merged")` sends each chunk's stones as one static mesh with the same three LODs.
+The stones also get a baked atlas: each stone's worn shape is baked onto its plain box as normal, AO and curvature, all stones in one texture set in `<folder>/<mesh>/Textures`. All three LODs read it through uv0; the tiling projection for a stone surface texture is in uv1.
+
+Material slots, which Unreal finds or makes by name (with a Lila material's values when the scene has one so named):
+
+| Slot | On | Wants |
+| --- | --- | --- |
+| `MasonryStone` | stone LOD0 | AO and curvature from the atlas; its own geometry has the wear |
+| `MasonryStoneFar` | stone LOD1 and LOD2 | the atlas normal map too, standing in for the wear |
+| `MasonryMortar` | the core | |
+| `MasonryShell` | low poly shells | the shell's own baked maps |
+
+Per-instance custom data: index 0 is a stable random per stone, index 1 is height up the wall (0 bottom course, 1 top).
+
+Other modes:
+
+- `mode="merged"`: each chunk's stones as one static mesh with the same three LODs, for few draw calls instead of instancing.
+- `mode="lowPoly"`: each chunk as a box shell with the stones and core baked onto it (normal, AO, curvature) and its own collision. For background walls and HLOD.
 
 ## Troubleshooting
 
@@ -45,6 +61,10 @@ For few draw calls instead of instancing, `masonryShip(mesh, mode="merged")` sen
 
 **Stones in Unreal but nothing in the level after a resend.** Errors from the editor go to Lila's log as `masonryShip <wall>: ...`; `wait=True` returns them in `["unreal"]["errors"]`.
 
+**Baking is slow.** It runs on the GPU when Lila has one, else the CPU; `["bakeBackend"]` in the result says which. Lower `textureSize`, or send with `textures=False` to skip the atlas.
+
+**Far stones look smooth.** The far LODs need the atlas normal map on `MasonryStoneFar`. Without textures they are plain boxes.
+
 **Slow while dragging a slider.** Set **detail** to 2 (plain boxes) while laying out, back to 0 for the final look.
 
 ## Tune it
@@ -56,7 +76,10 @@ For few draw calls instead of instancing, `masonryShip(mesh, mode="merged")` sen
 | bevel | Stone edge chamfer. |
 | seed | Other wander, wear and cut positions. |
 | masonryShip `chunkSize` | Ground cell per instanced component, cm (default 400). Smaller streams and culls finer, at more draw calls. |
-| masonryShip `mode` | `hism` (default), `ism`, or `merged`. |
+| masonryShip `mode` | `hism` (default), `ism`, `merged` or `lowPoly`. |
+| masonryShip `textures` | Bake and send the atlas or shell maps (default on; lowPoly always bakes). |
+| masonryShip `textureSize` | Atlas or shell texture size, texels (default 2048). `["atlasTexelsPerCm"]` reports the atlas density. |
+| masonryShip `backend` | `auto` (default), `gpu` or `cpu`. |
 | masonryShip `collisionBands` | Height bands the core's collision is split into (default 1). |
 | masonryShip `folder` | Content folder; the wall's assets go in `<folder>/<mesh name>`. |
 
