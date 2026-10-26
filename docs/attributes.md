@@ -20,9 +20,26 @@ deleteAttr("Crate.mode")
 
 `lila.nodes` does the same: `Node("Crate").add_attr("mass", "float", default_value=20)`, `delete_attr`, `user_attrs()`, `is_array_attr(name)`.
 
-- `attributeType`: `bool`, `long`, `float`, `double`, `double3`, `enum`, `matrix`; `multi=True` makes it an array.
+- `attributeType`: `bool`, `long`, `float`, `double`, `double3`, `enum`, `matrix`, `compound`; `multi=True` makes it an array.
 - `dataType`: `string`, `stringArray`, `doubleArray`, `Int32Array`, `vectorArray`.
 - Added attributes show under **Extra Attributes** in the attribute editor, keyable ones in the channel box. They save with the scene and come along on duplicate.
+
+## Compounds
+
+```python
+addAttr("Rig", longName="targets", attributeType="compound", multi=True)
+addAttr("Rig", longName="weight", defaultValue=1, parent="targets")
+addAttr("Rig", longName="label", dataType="string", parent="targets")
+setAttr("Rig.targets[2].weight", 0.25)
+
+addAttr("Rig", longName="settings", attributeType="compound")       # not multi: Rig.settings.speed
+addAttr("Rig", longName="speed", defaultValue=3, parent="settings")
+deleteAttr("Rig.settings")                                           # and its children
+```
+
+- A compound exists once its first child is added. More children can be added later.
+- Compounds nest one level: a compound can't be a child.
+- A multi compound's children hold one value per element, so `doubleArray` and other arrays can't be its children. A plain compound can hold them.
 
 ## Arrays
 
@@ -64,6 +81,8 @@ g.addAttr(node, def);  g.deleteAttr({node, attr});
 **"is an array input and takes connections, not values".** The array has no `AttrStorable`: connect to it.
 
 **"is an array: set one element".** `setValue` was given the whole array. Set an element, or every element with `setAttr(plug, [...])` / `Graph::setElements`.
+
+**"has no compound".** Add the compound with `attributeType="compound"` before its children.
 
 **"belongs to the node's type".** Only attributes added with `addAttr` can be deleted.
 
