@@ -18,6 +18,19 @@ settlementInfo(town["mesh"])["checks"]   # {"components": 1, "crossings": 0, ...
 
 Points are `[x, z]` or `[x, y, z]` in cm. **ground** is any mesh, read in world space; keep the settlement mesh at the origin.
 
+Rivers and roads from outside go in as lines: `water=[[...], ...]` with `waterWidth`, `roads=[[...], ...]`. Only main roads bridge a river; other streets stop at the bank, and no lot lies in the water. In a site mesh they are loose edges with the int edge attribute `water` (float `width`) or `road`.
+
+### A whole map
+
+```python
+settlementSuggest(ground="Terrain", water=rivers, count=3)          # best sites, with the reasons for each
+settlementRegion(ground="Terrain", water=rivers, cities=1, towns=3, villages=8)
+```
+
+`settlementRegion` puts cities on the best sites (flat, by a river but out of its flood, near confluences), towns between them and villages filling in, routes roads between neighbours (bridging rivers where it must), then lays out each place with its main roads continuing the regional ones. The roads and rivers land on a `Region` mesh; each place gets its own settlement mesh.
+
+<!-- TODO image: a river valley with a city, two towns and villages joined by roads (images/settlement/region.png) -->
+
 Buildings are not modelled here. Each lot gets an envelope: the footprint, floors, height and roof a building may fill, drawn as a box. Unreal PCG, Masonry or library assets build the actual buildings from it. `settlementExport(path=...)` writes streets, lots and envelopes as JSON for any of them.
 
 ## Troubleshooting
@@ -29,6 +42,8 @@ Buildings are not modelled here. Each lot gets an envelope: the footprint, floor
 **`checks.components` above 1.** Some streets do not join the rest, usually streets you drew that end before reaching another. Extend them, or let **growth** fill in.
 
 **Few or no buildings.** Lots smaller than the profile's **minLot**, or with no street frontage, stay open ground. Lower **lotScale** or **minLot**, or raise **growth**.
+
+**A settlement sits right at the map edge, or a tier has fewer places than asked.** Sites need room for their radius inside the outline and spacing from bigger places. Enlarge the outline, lower the counts, or lower `cityRadius`, `townRadius`, `villageRadius`.
 
 **Slow on a big ground mesh.** The ground is sampled once per evaluation at about 2 m. Use a lower-resolution copy of the ground while laying out.
 
