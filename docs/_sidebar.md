@@ -18,6 +18,7 @@
 - [Essentials](essentials.md)
 - [Curves](curves.md)
 - [Duplicate, instances and arrays](duplicate.md)
+- [Lights](lights.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
 - [Masonry](masonry.md)
