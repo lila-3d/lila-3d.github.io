@@ -6,16 +6,6 @@ What everyone should know on day one.
 
 Press **Enter** right after Lila opens to load the scene you last had open.
 
-## Notes and todo lists
-
-**Editors > Notes** keeps notes and todo lists that save with the scene.
-
-![A note of measurements beside a todo list](images/essentials/notes.png)
-
-- The buttons at the top make a new note or todo list. Pick one from the dropdown, and type over its name to rename it.
-- In a todo list, type in the box at the bottom and press **Enter** to add an item. Paste a list to add every line; `[x]` items come in ticked.
-- Tick items to cross them off, and drag to reorder. **Remove the ticked items** clears them.
-
 ## Find any menu command
 
 Press **Ctrl+T** and type. Every menu command is searchable, so you don't need to remember which menu it lives in.
@@ -268,7 +258,7 @@ Set naming rules in **Preferences > Naming**, and Lila either warns when a name 
 - **Ctrl+C** copies the selected items back out as lines.
 - Double-click an item to edit it, drag to reorder, and **Delete** removes it.
 
-<!-- todo image -->
+![A note of measurements beside a todo list](images/essentials/notes.png)
 
 ## Presenter mode for streams and tutorials
 
@@ -280,13 +270,15 @@ The **Presenter Mode** button at the right end of the viewport's bottom bar show
 - the current tool and mode
 - a highlight around the cursor
 
+![Presenter mode showing recent actions and held keys](images/essentials/presenter-mode.png)
+
 Typing into text fields is never shown. Use **Presenter Caption...** from the command palette to put a line of text on screen, such as what you're about to do.
 
 The button beside it, **Edit Presenter Layout**, lets you drag each block where you want it, scroll over a block to scale it, and pick which elements show. Turn it off again and the presenter ignores the mouse.
 
-The presenter draws in its own windows over Lila, so capture the display in OBS rather than only the Lila window.
+![Editing the presenter layout](images/essentials/presenter-layout.png)
 
-<!-- todo image -->
+The presenter draws in its own windows over Lila, so capture the display in OBS rather than only the Lila window.
 
 ## AI agents
 
