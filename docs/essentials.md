@@ -62,7 +62,16 @@ Hold a key while moving to snap:
 | **V** | Vertices |
 | **C** | Edges |
 
+With **N**, objects turn to stand on the surface. Hold **Shift** as well to keep their orientation.
+
 ![Moving a cube with surface snapping](images/essentials/surface-snap.png)
+
+## Manipulator space
+
+**W/E/R+LMB Marking Menu** picks the axes the manipulator uses. The dot marks the current one.
+
+- **Component**: the selection's average normal; everything moves together.
+- **Normal** (move only): each component moves along its own normal.
 
 ## Orient the pivot
 
