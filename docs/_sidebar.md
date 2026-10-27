@@ -32,6 +32,7 @@
 - [Attributes and arrays](attributes.md)
 - [C++ extensions](cpp-extensions.md)
 
+- [File translators](file-translators.md)
 ---
 
 - <span class="nav-label">Extensions</span>
