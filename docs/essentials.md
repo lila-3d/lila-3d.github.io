@@ -66,9 +66,11 @@ Hold a key while moving to snap:
 
 ## Orient the pivot
 
-**Modify > Orient Pivot** aims the pivot using the components you select, in the order you pick them:
+**Modify > Orient Pivot** or **W/E+LMB Marking Menu**
 
-| Select | The pivot aims |
+Turns the object to aim along the components you select, in the order you pick them. The mesh stays where it is, so moving in **Object** space then works along the aim.
+
+| Select | The object aims |
 | --- | --- |
 | Two components, or two separate groups such as two edge loops | From the first picked to the second |
 | One face | Along its normal, with up along its longest edge |
@@ -77,25 +79,32 @@ Hold a key while moving to snap:
 
 Change the aim and up axes, what up follows, and where the pivot goes in the popup afterwards.
 
-Set **Mode** to **Transform** to turn the object itself instead: its rotate channels take the aim and the mesh stays where it is. This gets back a rotation that Freeze Transformations removed: select a cylinder's top and bottom loops, run Orient Pivot, then set Aim to Y.
+This also gets back a rotation that Freeze Transformations removed: select a cylinder's top and bottom loops, run Orient Pivot, then set Aim to Y.
+
+In the popup, set **Mode** to:
+
+- **Pivot**: turn only the object's pivot.
+- **Manipulator**: pin the aim to the component manipulator. The object isn't changed.
+
+## Pin the component pivot
+
+**Modify > Pin Component Pivot** or **W/E+LMB Marking Menu**
+
+Keeps the component manipulator's axes while you change the selection or switch between vertices, edges and faces. It follows the selection's centre until you move it with Edit Pivot (**D**), then stays there.
+
+Set the axes first with Edit Pivot, or with Orient Pivot in **Manipulator** mode, which pins for you.
+
+To stop, click **Pinned pivot ×** under the manipulator, or use **Modify > Reset Component Pivot**. Undo also works.
 
 > **Coming from Maya?** Maya can't aim a pivot at a component or recover a frozen rotation without rotating the pivot by hand.
-
-## Soft select and bridge
-
-Tap **B** to toggle soft select. Hold **B** and drag to set its radius.
-
-In edge mode with two or more edges selected, tapping **B** bridges them instead. You don't need to select exactly two borders:
-
-- Edges that aren't on an open border are ignored.
-- Several pairs of borders bridge at once, each to its nearest partner with the same number of edges.
-- A whole border round a slot (or a U shape) bridges its two long sides, leaving the short ends that join them.
 
 ## Measure
 
 | Press | To |
 | --- | --- |
 | **Alt+M** | Measure the selection: distance, edge length, angle, circle, area or size, depending on what's selected. It shows in the viewport and is copied to the clipboard. |
+
+![Measurement display](images/essentials/measure.png)
 
 For a measurement that stays in the scene, use **Display > Measure > Distance Tool**: click a start and an end point. Hold **V**, **C** or **X** while clicking to snap to vertices, edges or the grid. The Angle and Radius tools in the same menu work the same way.
 
