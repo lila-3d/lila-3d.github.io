@@ -31,6 +31,20 @@ Hold **F1** to show every hotkey. Release it to close.
 | **Shift+2** | Edge mode |
 | **Shift+3** | Face mode |
 
+## Frame under the cursor
+
+| Press | To |
+| --- | --- |
+| **F** | Frame the selection |
+| **A** | Frame everything |
+| **Alt+F** | Centre the view on the surface under the cursor, keeping the zoom |
+
+From the viewport toolbar button, click the surface afterwards.
+
+## Hide the selection highlight
+
+The **Highlight Selection** button at the left of the viewport's bottom bar turns off the selection highlight. This gets them out of the way when you adjust a modifier or attribute and want to see the mesh change.
+
 ## Floating shelf
 
 Press **\`** (backtick) to show or hide the floating shelf near your cursor.
@@ -111,41 +125,6 @@ To stop, click **Pinned pivot ×** under the manipulator, or use **Modify > Rese
 
 > **Coming from Maya?** Maya can't aim a pivot at a component or recover a frozen rotation without rotating the pivot by hand.
 
-## Move the scene to the origin
-
-**Modify > Scene Origin > Relocate Scene to Selection**
-
-Select what should end up at 0,0,0 (the ground under a character, a building) and run it. The whole scene moves so the bottom centre of the selection lands on the world origin. Skin, deformers, constraints, IK, spaces and keys in every take move with it, so nothing changes shape or animates differently. It is one undo step.
-
-Before anything changes, Lila checks that every node can follow. After the move it compares every transform and every deformed point, at several frames and in every take, with where it was. If anything is off by more than 0.00001 mm, the scene is put back as it was and the message names the node.
-
-If it refuses:
-
-- **May hold world-space data**: the scene has a node Lila can't move safely: Edge to Curve history, an extension node its extension doesn't describe, or a skeleton edit in progress. Finish the skeleton edit or delete the history, then run it again.
-- **Object Info node ... reads ...'s world transform**: a geometry nodes group reads another object where it stands in the world, so moving both would change the result. Set that Object Info node's **Relative To** to **owner**, which reads the object against the mesh the group runs on.
-- **Keyed on separate X, Y and Z curves**: with **Rotation** set, a root keyed on Euler curves can only turn about the outermost axis of its rotate order. Set **Rotation** to None, or convert its keys to a rotation curve (`convertRotationCurves`) first.
-- **Links ... which moves, and ... which doesn't**: with **Only the selected hierarchies**, a skin, deformer or constraint ties something inside to something outside. Select both.
-- **The parent is animated**: a hierarchy can only take a fixed move under a parent that stays still. Pick the top of the hierarchy.
-
-Meshes and curves made by curve history (sweeps, lofts, revolves, pipes, hair cards) are rebuilt from their moved curves, so their own transforms stay where they are; anything parented under them is moved for them.
-
-Poses saved in the scene move with their root. Poses in the workspace or user library keep their old root positions.
-
-Options:
-
-- **Move from**: the selection's bottom centre, its centre, its pivot, or the centre of the selected components.
-- **To**: where that point lands instead of the origin.
-- **Axes**: `xz` keeps every height.
-- **Rotation**: **Yaw** turns the scene about the up axis so the selected object faces along the world axes; **Full** lines up its whole orientation.
-- **Only the selected hierarchies**: move one character or asset instead of the whole scene.
-- **Offset**: move by an exact amount instead.
-
-In Python, `relocateScene(dryRun=True)` reports what would move without changing anything, and `from="Hero"` takes the point from an object's pivot.
-
-### Display origin
-
-**Modify > Scene Origin > Set Display Origin** draws the grid and world axes about the selection's bottom centre, and grid snapping (**X**) snaps to that grid, without moving anything. The HUD shows **Display Origin** while one is set. It is saved with the scene. The channel box and typed values still read world positions. **Clear Display Origin** puts the grid back.
-
 ## Measure
 
 | Press | To |
@@ -213,37 +192,27 @@ Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It
 - **Ctrl+Enter** toggles it in the selection.
 - **Ctrl+T** switches to searching menus.
 
-## Auto-Bevel
+## Advanced Modeling Tools
 
-Lila brings many advanced modeling tools to the table including an auto-bevel that can select the appropriate edges for you.
+Lila brings many advanced modeling tools to the table.
 
-<!-- todo image -->
+<!-- todo images - model toolkit too? -->
 
-## Collision from several boxes
+### Auto-Bevel
 
-Select a mesh and run **Mesh > Multi-Box Bounds**. Lila splits it into chunks that fit boxes and makes one `UCX_<mesh>_01`, `_02`... shape per chunk, parented under the mesh so Unreal pairs them as its collision. The command's result gives the box count, average fill (how much of each box the mesh occupies) and coverage (how much of the mesh sits inside a box).
+TODO Auto-bevel that can select the appropriate edges for you.
 
-If it needs more boxes than you have, raise **Max Boxes**; every point of the mesh stays inside some box, so a low limit gives looser boxes, not gaps. If the boxes are loose where you expect snug ones, raise **Resolution** or **Min Fill**. A thin or hollow part that comes out as one fat box wants a higher **Resolution** so the voxels are smaller than the wall. Open meshes and meshes built from overlapping shells are treated as solid.
+### Split Rings
 
-**Oriented** gives each chunk its own tightest frame; off keeps boxes on the world axes. **Shape** defaults to `auto`, which uses a convex hull for chunks a box fits badly (a wedge); `box` forces boxes. Separate shells in a mesh (a bar sitting on a base) are kept as separate parts, so build parts as their own shells for the cleanest split; a single welded shell is split by voxels, which cannot isolate features thinner than a voxel unless you raise **Resolution**. **Padding** grows every shape. **Preview** returns the boxes without creating them.
+TODO Like subdivide, but runs in one direction only.
 
-## Split Mesh
+### Spherize
 
-Select a mesh and run **Mesh > Split Mesh Tool**. Drag a line across the mesh to place a cutting plane through it; the pieces preview in colours. Drag a plane's rim or centre to move it, Ctrl-drag it to turn it, and scroll over it to size its disc. Delete removes the selected plane, S adds planes where the joints of a skinned mesh meet, Enter cuts, Esc leaves without cutting. Ctrl+Z and Ctrl+Y step through plane edits before the scene's undo.
+TODO Push the selection into a sphere.
 
-Planes mirror across the mesh's symmetry plane (its symmetry setting, or the object's X plane through the pivot), so the mesh need not be exactly symmetrical; a plane across the middle stays on it. X turns mirroring off and on. The pieces are new meshes beside the original, each hole capped.
+### Circularize
 
-A plane only cuts inside its disc, so a plane at the shoulder takes the arm off without slicing the legs below it. If two pieces still share a colour, the disc does not reach all the way round: scroll over the plane to widen it. Shells no plane touches, like eyes, join the nearest piece.
-
-The option box (`splitMesh`) sets the remesh each piece gets: `none` keeps it exact, `quadRemesh`, `voxelRemesh` or `decimate` rebuilds it, and `pieceSettings` overrides that per piece.
-
-## Spherize
-
-Select vertices, edges or faces and run **Mesh > Shape > Spherize** (also in the Modeling Toolkit). The components move onto a sphere fitted to them and the viewport shows it: drag the disc to move the centre, the ring to change the radius, and the red, green and blue squares to stretch it into an ellipsoid. Enter accepts, Esc undoes the whole thing. Each drag is one undo step.
-
-If the result is a lump, the fit had little to go on: with three or four points, or points nearly in one plane, Lila centres the sphere on their average instead. Set the centre by dragging, or pick **Around the Centroid**. If points shoot off to one side, check **Move Along Normals** is off; a point whose normal never reaches the sphere falls back to moving straight toward the centre.
-
-**Amount** blends from the original shape to the sphere. **Radius** is picked from the points (average distance, the fitted radius, nearest or farthest point), or set outright with **Radius**. **Ellipsoid Scale** and **Ellipsoid Rotation** shape and turn the axes. **Move Along Normals** slides each point along its own normal onto the sphere, which keeps the surface from sliding sideways. Symmetry is respected like any other component edit.
+TODO Adjust the selection into a circle
 
 ## Auto UV
 

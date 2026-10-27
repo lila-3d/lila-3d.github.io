@@ -25,6 +25,7 @@
 - [Animation](animation.md)
 - [Node editor](node-editor.md)
 - [Duplicate and instance](duplicate.md)
+- [Scene origin](scene-origin.md)
 - [Lights](lights.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
