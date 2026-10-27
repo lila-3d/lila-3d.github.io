@@ -64,6 +64,23 @@ Hold a key while moving to snap:
 
 ![Moving a cube with surface snapping](images/essentials/surface-snap.png)
 
+## Orient the pivot
+
+**Modify > Orient Pivot** aims the pivot using the components you select, in the order you pick them:
+
+| Select | The pivot aims |
+| --- | --- |
+| Two components, or two separate groups such as two edge loops | From the first picked to the second |
+| One face | Along its normal, with up along its longest edge |
+| One edge | Along the edge, with up along its faces' normal |
+| One closed loop | Through the loop, with up toward its first picked point |
+
+Change the aim and up axes, what up follows, and where the pivot goes in the popup afterwards.
+
+Set **Mode** to **Transform** to turn the object itself instead: its rotate channels take the aim and the mesh stays where it is. This gets back a rotation that Freeze Transformations removed: select a cylinder's top and bottom loops, run Orient Pivot, then set Aim to Y.
+
+> **Coming from Maya?** Maya can't aim a pivot at a component or recover a frozen rotation without rotating the pivot by hand.
+
 ## Soft select and bridge
 
 Tap **B** to toggle soft select. Hold **B** and drag to set its radius.
