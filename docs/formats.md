@@ -2,6 +2,8 @@
 
 Which formats Lila reads and writes, and what to pick for each job.
 
+> Need a format that isn't listed? Add it yourself, for import and export, with a [file translator](file-translators.md).
+
 ## Get it working
 
 **File > Open**, **Import** and **Export** pick the format from the file extension. Open on anything but a Lila scene starts a new untitled scene with the file imported into it.

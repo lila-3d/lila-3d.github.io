@@ -22,6 +22,7 @@
 
 - [Essentials](essentials.md)
 - [Curves](curves.md)
+- [Animation](animation.md)
 - [Node editor](node-editor.md)
 - [Duplicate and instance](duplicate.md)
 - [Lights](lights.md)
@@ -31,8 +32,8 @@
 - [Debug drawing](debug-drawing.md)
 - [Attributes and arrays](attributes.md)
 - [C++ extensions](cpp-extensions.md)
-
 - [File translators](file-translators.md)
+
 ---
 
 - <span class="nav-label">Extensions</span>

@@ -1,6 +1,6 @@
 # Curves
 
-Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches and pipes. Everything lives in the **Curves** menu.
+Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches and pipes. Everything lives in the **Curves** menu and the **Curve Toolkit** (top of the Curves menu).
 
 <!-- TODO image: a hard-surface prop built from curves (images/curves/overview.png) -->
 
@@ -16,11 +16,40 @@ Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches an
 | **S** | Draw on mesh surfaces (toggle) |
 | **K** | Keep the drawn curve on the surface it was drawn on |
 | **Ctrl+scroll** | Offset from the surface |
+| **Y** | Cycle symmetry for new curves: off, X, Y, Z |
 | **Z** / **Backspace** | Remove the last point |
 | **Shift+Z** | Put it back |
 | **Esc** | Exit |
 
 > Grid snap (**X**) wins over surface placement.
+
+## EZ Curve
+
+Click two points. When both land on a mesh, the curve follows its surface between them; it is also kept out of any mesh the straight line between them passes through. Until you start the next curve, reshape it in place:
+
+| Input | Does |
+| --- | --- |
+| Drag up / down | Bend |
+| Drag sideways | Twist the bend around the line between the points |
+| **Shift**+drag | Sag |
+| **Ctrl**+drag | Lift off the surface |
+| **Shift+scroll** | Number of points |
+| **F** | Follow the surface (toggle) |
+| **O** | Keep out of meshes (toggle) |
+| **R** | Reset bend, twist and sag |
+| **Enter** | Done; clicking also starts the next curve |
+
+Each drag is one undo step. The same settings are in the adjust popup and the toolkit's **Tool Options**.
+
+<!-- TODO image: an EZ curve hugging a hull, then bent off it (images/curves/ez-curve.png) -->
+
+## Symmetry
+
+RMB > **Symmetry** (or Curves > Symmetry) mirrors the selected curves live across a world plane. Edit the original side; the mirror follows, and pipes, sweeps and Unreal splines built from the curve get both sides. The mirrored side can't be picked or edited until **Bake Symmetry** turns it into a curve of its own.
+
+## Insert a point
+
+With a curve selected, RMB > **Curve Point**. Click the curve where the point should go (**Shift**+click adds more, **Ctrl**+click removes one, drag slides it along), then Shift+RMB > **Insert Point** or **Enter**. The shape doesn't change and the new points are left selected in vertex mode.
 
 ## Make a mesh
 
