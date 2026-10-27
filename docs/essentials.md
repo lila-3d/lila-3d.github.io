@@ -91,6 +91,12 @@ With **N**, objects turn to stand on the surface. Hold **Shift** as well to keep
 - **Component**: the selection's average normal; everything moves together.
 - **Normal** (move only): each component moves along its own normal.
 
+## Match pivots
+
+**Modify > Match Pivot**, **Match Pivot Position** or **Match Pivot Orientation**, or **Match Piv** on the Modeling shelf
+
+Select the object to copy from first, then the ones to change. Their pivots take its world position, its axes, or both. The objects don't move.
+
 ## Orient the pivot
 
 **Modify > Orient Pivot** or **W/E+LMB Marking Menu**
