@@ -19,6 +19,18 @@ Not yet. There's no public build. Follow [@Vaei00 on X](https://x.com/Vaei00) fo
 
 Nothing. Lila is free. To support development, use [GitHub Sponsors](https://github.com/sponsors/Vaei) or [Ko-fi](https://ko-fi.com/jaredtaylor).
 
+### Does Lila use AI?
+
+Only when you ask it to.
+
+- **Your work stays on your machine.** Lila never uploads your scenes, assets or files, and has no setting that would.
+- **Nothing trains on your work.** Lila collects no data to train on. If you choose to train auto-pose on your own mocap, the trained model is yours and stays with you.
+- **No generated meshes.** Lila has no text-to-3D or image-to-3D. Its MCP server lets an AI assistant drive Lila's own tools, such as geometry nodes and material nodes, the way a script does. Whatever that assistant sees goes to the provider you chose.
+
+### Was Lila built with AI?
+
+Yes, as a coding assistant. Lila's creator designed its architecture, tools and workflows, and every feature was tested and reworked by hand until it worked the way it should. AI made a tool of this scope possible for one person.
+
 ### Does Lila open Maya scenes?
 
 Yes. It opens `.mb` and `.ma` files and converts them to Lila scenes, without Maya installed.
