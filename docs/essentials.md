@@ -38,10 +38,12 @@ Press **\`** (backtick) to show or hide the floating shelf near your cursor.
 
 ## Create a primitive in place
 
-Hold **Tab** and right-click to create a primitive, then left-click to place it.
+Hold **Tab** and right-click to create a primitive.
 
-- In object mode, it snaps to the surface you click.
-- In vertex, edge or face mode, it snaps to your current component selection.
+- With components selected, it's created on them straight away, centred on the selection and facing along its normal.
+- Otherwise it follows your cursor, standing on whatever surface is under it. Left-click to drop it. Hold **Shift** to keep it upright instead of turning to the surface.
+- While it follows the cursor, hold **B** and drag (as you would to change a brush size), or **Ctrl+scroll**, to scale it.
+- **Esc** or right-click cancels.
 
 ![Placing a primitive on a sphere](images/essentials/create-snapped-primitive.png)
 
@@ -61,6 +63,24 @@ Hold a key while moving to snap:
 | **C** | Edges |
 
 ![Moving a cube with surface snapping](images/essentials/surface-snap.png)
+
+## Soft select and bridge
+
+Tap **B** to toggle soft select. Hold **B** and drag to set its radius.
+
+In edge mode with two or more edges selected, tapping **B** bridges them instead. You don't need to select exactly two borders:
+
+- Edges that aren't on an open border are ignored.
+- Several pairs of borders bridge at once, each to its nearest partner with the same number of edges.
+- A whole border round a slot (or a U shape) bridges its two long sides, leaving the short ends that join them.
+
+## Measure
+
+| Press | To |
+| --- | --- |
+| **Alt+M** | Measure the selection: distance, edge length, angle, circle, area or size, depending on what's selected. It shows in the viewport and is copied to the clipboard. |
+
+For a measurement that stays in the scene, use **Display > Measure > Distance Tool**: click a start and an end point. Hold **V**, **C** or **X** while clicking to snap to vertices, edges or the grid. The Angle and Radius tools in the same menu work the same way.
 
 ## Duplicate as you go
 
