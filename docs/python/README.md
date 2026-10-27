@@ -2,7 +2,7 @@
 
 # Python API
 
-Every command is a Python function. In the script editor and the command line (**Ctrl+\`**) commands are available by bare name; in a module, `import lila` and call `lila.ops.<command>`.
+Every command is a Python function. In the script editor and the command palette (**Ctrl+\`**) commands are available by bare name; in a module, `import lila` and call `lila.ops.<command>`.
 
 ```python
 polyCube(name="crate", width=2)

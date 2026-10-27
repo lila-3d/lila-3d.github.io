@@ -2,6 +2,20 @@
 
 What everyone should know on day one.
 
+## Reopen your last scene
+
+Press **Enter** right after Lila opens to load the scene you last had open.
+
+## Notes and todo lists
+
+**Editors > Notes** keeps notes and todo lists that save with the scene.
+
+![A note of measurements beside a todo list](images/essentials/notes.png)
+
+- The buttons at the top make a new note or todo list. Pick one from the dropdown, and type over its name to rename it.
+- In a todo list, type in the box at the bottom and press **Enter** to add an item. Paste a list to add every line; `[x]` items come in ticked.
+- Tick items to cross them off, and drag to reorder. **Remove the ticked items** clears them.
+
 ## Find any menu command
 
 Press **Ctrl+T** and type. Every menu command is searchable, so you don't need to remember which menu it lives in.
@@ -115,6 +129,8 @@ To stop, click **Pinned pivot ×** under the manipulator, or use **Modify > Rese
 
 ![Measurement display](images/essentials/measure.png)
 
+Click the copy icon beside the measurement to copy it again; **Shift**+click copies every line.
+
 For a measurement that stays in the scene, use **Display > Measure > Distance Tool**: click a start and an end point. Hold **V**, **C** or **X** while clicking to snap to vertices, edges or the grid. The Angle and Radius tools in the same menu work the same way.
 
 ## Duplicate as you go
@@ -197,11 +213,13 @@ The pieces don't need to match. They can sit anywhere, be rotated or mirrored (l
 
 <!-- todo image -->
 
-## Command line
+## Command palette
 
-Press **Ctrl+\`** to pop up a command line and type Python straight in. There's nothing to import: commands are available by name.
+Press **Ctrl+\`** to open the command palette. Type part of any menu item or command name and press **Enter** to run the top match, or **Up**/**Down** to pick another. Type Python and it runs instead; there's nothing to import, commands are available by name. **Shift+Enter** always runs the text as Python.
 
-![Command line in use](images/essentials/command-line.png)
+![Command palette in use](images/essentials/command-palette.png)
+
+<!-- todo image: replace with the palette showing matches -->
 
 ## Script editor
 
@@ -242,6 +260,16 @@ Set naming rules in **Preferences > Naming**, and Lila either warns when a name 
 
 ![Naming preferences](images/essentials/naming-convention.png)
 
+## Notes and todo lists
+
+**Windows > General Editors > Notes** keeps notes and todo lists in the scene file, so they travel with it. Make as many as you like with the buttons at the top, and edit the name in the dropdown to rename one.
+
+- Paste a list from anywhere into a todo list with **Ctrl+V**: each line becomes an item, bullets are dropped, and `[x]` lines come in ticked.
+- **Ctrl+C** copies the selected items back out as lines.
+- Double-click an item to edit it, drag to reorder, and **Delete** removes it.
+
+<!-- todo image -->
+
 ## AI agents
 
-Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command line - almost everything - an agent can too.
+Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command palette - almost everything - an agent can too.
