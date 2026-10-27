@@ -270,6 +270,24 @@ Set naming rules in **Preferences > Naming**, and Lila either warns when a name 
 
 <!-- todo image -->
 
+## Presenter mode for streams and tutorials
+
+The **Presenter Mode** button at the right end of the viewport's bottom bar shows viewers what you're doing:
+
+- the keys and mouse buttons you press, and Alt navigation
+- each action you run, with its menu path and its hotkey
+- edits from drags and panels, and commands an agent runs
+- the current tool and mode
+- a highlight around the cursor
+
+Typing into text fields is never shown. Use **Presenter Caption...** from the command palette to put a line of text on screen, such as what you're about to do.
+
+The button beside it, **Edit Presenter Layout**, lets you drag each block where you want it, scroll over a block to scale it, and pick which elements show. Turn it off again and the presenter ignores the mouse.
+
+The presenter draws in its own windows over Lila, so capture the display in OBS rather than only the Lila window.
+
+<!-- todo image -->
+
 ## AI agents
 
 Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command palette - almost everything - an agent can too.
