@@ -16,10 +16,10 @@
 - [System requirements](requirements.md)
 - [FAQ](faq.md)
 - [Performance](performance.md)
+- [File formats](formats.md)
 
 ---
 
-- [File formats](formats.md)
 - [Essentials](essentials.md)
 - [Curves](curves.md)
 - [Node editor](node-editor.md)

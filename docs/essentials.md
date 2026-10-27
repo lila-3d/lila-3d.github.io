@@ -184,6 +184,19 @@ Lila has a high-end UV toolkit and the Auto UV feature can produce worthwhile re
 
 <!-- todo image -->
 
+## Transfer UVs to a similar piece
+
+Already UV'd one piece and have another like it? Select the UV'd piece, then the other, and run **Transfer Attributes** (Shift+RMB) with **Sample Space** set to **Guided**. The second piece gets the same seams and islands, laid out where the first one's are, so you UV once and reuse it.
+
+The pieces don't need to match. They can sit anywhere, be rotated or mirrored (left and right parts), be longer or shorter, or have different topology.
+
+- **Keep Island Shape** keeps each island exactly as copied. Turn it off to relax the islands to the new piece's shape.
+- **Separate Unmatched Faces** puts faces the source doesn't have, such as a cap where the source is open, into their own island beside the layout. Turn it off to merge them into the island next to them.
+
+> Maya requires identical topology, world position, or object position. Lila uses the source as a reference guide and generally produces a usable result.
+
+<!-- todo image -->
+
 ## Command line
 
 Press **Ctrl+\`** to pop up a command line and type Python straight in. There's nothing to import: commands are available by name.
