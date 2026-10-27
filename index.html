@@ -884,6 +884,10 @@ footer p { margin: 0 0 6px; }
         <h3>Collision meshes</h3>
         <p>Generate correctly oriented bounding meshes. Use them as <code>UCX_</code> starting points or as-is.</p>
       </li>
+      <li>
+        <h3>No lost digits</h3>
+        <p>Vertices are stored in double precision, so CAD meshes and huge worlds go in and out as OBJ, FBX or a Lila scene exactly as they were, even kilometres from the origin. Maya stores vertices as 32-bit floats and rounds them on import. And since modeling, UVs, rigging, baking and texturing all happen in Lila, geometry never passes through a lossy export, unit conversion or axis flip between tools.</p>
+      </li>
     </ul>
   </section>
 

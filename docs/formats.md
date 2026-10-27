@@ -34,7 +34,10 @@ Which to use:
 | 3D printing | STL |
 | CAD drawings, laser cutting, CNC | DXF |
 | Scans, photogrammetry, point clouds | PLY |
+| CAD meshes, large worlds, anything that must stay exact | OBJ, FBX or a Lila scene |
 | Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`, `exportAlembic`, `importAlembic`) |
+
+Lila stores vertex positions in double precision, and OBJ, FBX and Lila scenes carry every digit, so a mesh comes back out bit for bit however far it sits from the origin. STL, glTF, USD, Alembic and PLY store positions as 32-bit floats: about 7 significant digits, which moves points by up to 0.04 mm at 1 km from the origin and 0.3 mm at 10 km.
 
 Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's result and not the modifiers, rigs and node graphs that build it. It hosts USD as live stages instead, the way Maya and Houdini do ([FAQ](faq.md#why-does-lila-save-lila-instead-of-usd)).
 
@@ -62,6 +65,8 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 **A stage warns that an instance was made non-instanceable.** An edit landed inside an instance, which USD only allows once the instance is no longer instanced. The other instances of its prototype stay instanced.
 
 **Houdini or Maya loads payloads that the shot left unloaded.** USD keeps payload load state per open stage, not in layers, so neither reads the state `usdStageWriteShot` records. Set it where you open the shot: in Houdini, a Configure Stage LOP's load options or the Scene Graph Tree; in Maya, the Load Payloads option when creating the stage, or Unload on the prim.
+
+**A mesh far from the origin moves slightly after export.** STL, glTF, USD, Alembic and PLY round positions to 32-bit floats. Export as OBJ or FBX to keep them exact.
 
 **A glTF or USD import lists skipped items.** The import report lists everything that didn't come across and why.
 
