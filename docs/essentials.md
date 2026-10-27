@@ -62,6 +62,15 @@ Hold a key while moving to snap:
 
 ![Moving a cube with surface snapping](images/essentials/surface-snap.png)
 
+## Duplicate as you go
+
+| Press | To |
+| --- | --- |
+| Hold **Y** + drag a gizmo handle | Clone while moving, rotating or scaling |
+| **Shift+D** | Make one more copy, stepped as far again as the last copy is from its source |
+
+Clone once with Y, then keep pressing Shift+D to repeat the step. See [Duplicate and instance](duplicate.md) for instances and arrays.
+
 ## Symmetry
 
 Symmetry in Lila stays exact across modeling, UVs, weights and joints.

@@ -17,6 +17,7 @@ Commands that take objects use the selection when none are passed.
 | [lila](python/lila.md) | Lila scripting API. |
 | [lila.nodes](python/lila.nodes.md) | Object API over the scene: handles that survive renames, attributes as properties. |
 | [lila.math](python/lila.math.md) | Unreal-flavoured vector math. |
+| [lila.debug_draw](python/lila.debug_draw.md) | Debug drawing in the viewports, after Unreal's DrawDebugHelpers (the Kismet argument order, in snake_case). |
 | [lila.ui](python/lila.ui.md) | UI from Python: run actions, switch tools, and build tool panels. |
 | [lila.prefs](python/lila.prefs.md) | Read and write prefs. Changes hit disk immediately; no save step. |
 | [lila.extension](python/lila.extension.md) | Python extensions and the commands they register. |

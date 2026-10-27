@@ -18,9 +18,9 @@ Which formats Lila reads and writes, and what to pick for each job.
 | DXF | `.dxf` | Curves and meshes | Curves and meshes |
 | SVG | `.svg` | Curves | Curves |
 | Maya | `.ma`, `.mb` | Yes, without Maya installed | No |
-| Alembic | `.abc` | No | Animated meshes |
+| Alembic | `.abc` | Animated meshes | Animated meshes |
 
-FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures. DXF brings each layer in as one curve and one mesh, with arcs, circles, ellipses and splines exact and blocks expanded where they are inserted.
+FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures, unlit materials, and each texture's wrap and filter. Animated points in USD and Alembic files come in as a `meshCache` deformer that plays the samples back at the scene time. DXF brings each layer in as one curve and one mesh, with arcs, circles, ellipses and splines exact and blocks expanded where they are inserted. Maya files bring blendShapes in as morphs: targets stored in the file or still connected as meshes, in-betweens, painted target and base weights, keyed weights, and set driven keys as driven channels.
 
 Which to use:
 
@@ -32,7 +32,7 @@ Which to use:
 | 3D printing | STL |
 | CAD drawings, laser cutting, CNC | DXF |
 | Scans, photogrammetry, point clouds | PLY |
-| Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`) |
+| Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`, `exportAlembic`, `importAlembic`) |
 
 Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's result and not the modifiers, rigs and node graphs that build it. It hosts USD as live stages instead, the way Maya and Houdini do ([FAQ](faq.md#why-does-lila-save-lila-instead-of-usd)).
 
@@ -40,9 +40,10 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **File > Open** or **Import** on a USD file makes a live stage, a `usdStage` node holding the composed stage. Nothing is flattened: variants, payloads, references and sublayers stay live, and your edits are written as overs to an edit layer. The source files are never changed.
 
-- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), editing meshes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads. Objects inside an LOD level are written into that level's variant, and so are variants switched on prims inside a level that isn't selected; the Attribute Editor lists those per level.
-- **Instances:** an edit inside an instance, or an object added under one, makes that instance non-instanceable in the edit layer, and the stage warns. Undo those edits and it is instanced again. A point instancer's instances come in as transforms: moving one moves it on the instancer, deleting one hides it (`invisibleIds`), and editing or deleting part of a copy does so in its prototype, so every instance of it changes. An object added under an instance takes that instance out of the instancer: it is hidden there and written beside it as an Xform that references its prototype, holding the new object.
-- **Joints:** an object added under a joint is written beside the skeleton, following the joint.
+- **Edits that are written:** moving objects, including animation, hiding them, deleting them (the prim is deactivated), moving them to another parent, editing meshes, joints, skin weights and blend shapes, assigning and editing materials, adding new objects under the stage, switching variants and loading or unloading payloads. Objects inside an LOD level are written into that level's variant, and so are variants switched on prims inside a level that isn't selected; the Attribute Editor lists those per level.
+- **Instances:** an edit inside an instance, or an object added under one, makes that instance non-instanceable in the edit layer, and the stage warns. Undo those edits and it is instanced again. A point instancer's instances come in as transforms: moving one moves it on the instancer, deleting one hides it (`invisibleIds`), and editing or deleting part of a copy does so in its prototype, so every instance of it changes. An object added under an instance takes that instance out of the instancer: it is hidden there and written beside it as an Xform that references its prototype, holding the new object. Once it holds only its prototype again, it goes back into the instancer.
+- **Joints:** poses are written on the skeleton's SkelAnimation, not its rest transforms. A skeleton made in Lila is written as a new Skeleton, with a SkelRoot above it and its skinned meshes bound to it. An object added under a joint is written beside the skeleton, following the joint.
+- **Reparenting:** an object moved to another parent is written as a prim at its new place that references the original, which is deactivated. Moving an object out of the stage deactivates its prim.
 - **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
 - **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
 - **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
@@ -52,7 +53,7 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 ## Troubleshooting
 
-**A USD stage edit isn't written.** Joint, skin weight and blend shape edits, new or deleted joints, and moving an object to a different parent have no override Lila writes yet. The stage lists them as warnings when it saves. Renaming an object keeps it linked to its prim.
+**A USD stage edit isn't written.** The stage lists these as warnings when it saves: objects added where no prim can hold them (inside an LOD level, under a joint or a point instance's copy), deleting parts of what a prim built, and meshes skinned to a skeleton with no prim in the stage. Renaming an object keeps it linked to its prim.
 
 **Modifiers or deformers on a stage's mesh are baked when it saves.** A layer holds only the result. The object keeps its stack in Lila, and when the stage changes it is built again under the same stack. To stop writing the result, run `usdStageExtract` on the object. That turns it into a plain Lila object and deactivates its prim.
 
@@ -84,7 +85,13 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **Laser or CNC software won't read Lila's DXF.** Export with `version` set to `r12`, which writes every curve as a polyline.
 
-**Unlit glTF materials look different.** Lila has no unlit model, so they import as emissive.
+**An unlit material exports with a warning.** glTF's unlit materials have no emissive, so Lila drops it. A texture set to **black** wrap exports as clamp to glTF and FBX, which have no black border, and mirror exports as repeat to FBX.
+
+**A Maya blendShape weight doesn't move in Lila.** Weights driven by expressions, by several set driven keys at once (a `blendWeighted` node), or by custom attributes on a control don't convert, and the import report lists each one. Rebuild those with a pose driver or a driven channel.
+
+**A Maya character with a blendShape after its skinCluster poses differently.** Lila applies morphs before skinning, as Unreal does, and the import warns. In Maya, move the blendShape ahead of the skinCluster in the object's List of Input Operations before importing.
+
+**An Alembic or USD mesh stops animating partway.** A mesh whose point count or faces change over time keeps its first sample, and the import warns. Mesh caches need the same topology on every sample.
 
 ## Options
 
@@ -96,6 +103,8 @@ Each format's options are on its import and export commands (`importGltf`, `expo
 | `exportGltf` | `embedImages` | Puts the textures inside the file. On by default for `.glb`. |
 | `exportUsd` | `splitLayers` | Writes geometry, materials and animation as separate layers under one root file. |
 | `exportUsd` | `textures` | `relative`, `absolute` or `copy` texture paths. `.usdz` always packages them. |
+| `exportFbx` | `textures` | Writes base color, normal and emissive maps with their wrap. Off by default, since LilaLink sends textures itself. |
+| `importAlembic` | `profile` | `ue5`, `ue6` or `generic`, matching the profile the file was exported with. |
 | `exportUsd` / `exportFbx` | `takes` | Several takes in one file. USD writes them as a `take` variant set. |
 | `usdStageOpen` | `editLayer` | Where the stage's edits go: empty (inside the `.lila`), a `.usda` path, or one of its sublayers. |
 | `usdStageOpen` / `importUsd` | `variants` | Variant selections, as `{"set": "variant"}` or per prim path. |
@@ -124,4 +133,4 @@ Lila does not use the Autodesk FBX SDK, so no Autodesk licence terms come with i
 | glTF | [cgltf](https://github.com/jkuhlmann/cgltf) parses the file, [Draco](https://github.com/google/draco) decodes compressed meshes | Lila's own writer, Draco for compressed meshes |
 | USD | [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD) | OpenUSD |
 | Maya | Lila's own, no Maya needed | |
-| Alembic | | [Alembic](https://github.com/alembic/alembic) (Ogawa) |
+| Alembic | [Alembic](https://github.com/alembic/alembic) | [Alembic](https://github.com/alembic/alembic) (Ogawa) |
