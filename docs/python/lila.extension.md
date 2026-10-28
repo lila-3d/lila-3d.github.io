@@ -45,7 +45,7 @@ register_command(name, fn, doc='', flags=(), positional='', undoable=True, owner
 Register fn as the Lila command `name`.
 
 - doc: a summary line, then optionally a blank line and a longer description. Defaults to fn's docstring.
-- flags: dicts {"name", "short", "type", "default", "doc", "choices", "example"} or (name, type, default, doc) tuples, where type is bool, int, float, str, list, tuple (a vec3), None (anything) or one of those names as a string. choices lists a str flag's allowed values; example is a short call using the flag.
+- flags: dicts {"name", "short", "type", "default", "doc", "choices", "example", "min", "max"} or (name, type, default, doc) tuples, where type is bool, int, float, str, list, tuple (a vec3), None (anything) or one of those names as a string. choices lists a str flag's allowed values; example is a short call using the flag; min and max bound an int or float flag (calls are clamped, option boxes use them as the range).
 - positional: description of the positional args; leave empty if the command takes none.
 - owner: extension name to file it under; defaults to the extension being loaded or the one fn comes from.
 - examples: Python snippets showing the command in use.

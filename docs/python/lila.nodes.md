@@ -155,7 +155,7 @@ True for an array input: one that takes any number of connections, addressed as 
 add_attr(name, type='float', **flags)
 ```
 
-Add an attribute to this node only (addAttr), saved with the scene. type is an attributeType (bool, long, float, double3, enum, matrix) or a dataType (string, stringArray, doubleArray, Int32Array, vectorArray); other flags are addAttr's (default_value, min_value, keyable, multi, enum_name ...). Returns its plug name.
+Add an attribute to this node only (addAttr), saved with the scene. type is an attributeType (bool, long, float, double3, enum, matrix, compound) or a dataType (string, stringArray, doubleArray, Int32Array, vectorArray); other flags are addAttr's (default_value, min_value, keyable, multi, enum_name, parent ...). Returns its plug name.
 
 ### Node.delete_attr
 

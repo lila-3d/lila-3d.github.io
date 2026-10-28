@@ -51,6 +51,30 @@ Read only.
 
 True once the user pressed Cancel.
 
+## build_id
+
+```python
+build_id()
+```
+
+The exact build: commit time (UTC) and sha, "-dirty" with uncommitted changes: "202610281430-9641744ab1".
+
+## error
+
+```python
+error(message)
+```
+
+Writes an error to the log without raising; raise an exception to stop the script.
+
+## info
+
+```python
+info(message)
+```
+
+Writes an info line to the log and the script editor output.
+
 ## undo_chunk
 
 ```python
@@ -66,6 +90,22 @@ with lila.undo_chunk("Build arm"):
 ```
 
 @lila.undo_chunk("Build arm") def build_arm(): ...
+
+## version
+
+```python
+version()
+```
+
+Lila's version, major.minor.patch: "0.1.0".
+
+## warning
+
+```python
+warning(message)
+```
+
+Writes a warning to the log, shown in the script editor output and the status line.
 
 ## workspace
 
