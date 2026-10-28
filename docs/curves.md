@@ -142,6 +142,7 @@ Adjust the look further with the parameters.
 ### Text
 
 - **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it later in the **Text** section of the Attribute Editor, with the text curve or anything built from it (a Bevel Plus) selected: Enter starts a new line, and the text updates when you pause typing. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
+- **Fonts**: the family dropdown lists the fonts this scene uses, your favourites and your recent picks first. Star a font (the star beside the style, or on its row in the dropdown) to favourite it; with a workspace open the favourites are saved with the workspace, in `.lila/fonts.json`.
 - **Text Mesh** (Curves menu) makes the text and its Bevel Plus in one step; the font, depth and bevels stay editable on the mesh.
 - **Stretched or pulled vertices**: lower **Front Width** (and **Back Width**) first. A bevel wider than the thinnest strokes meets itself in a ridge and drags the faces across the letter.
 
