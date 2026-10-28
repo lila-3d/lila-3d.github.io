@@ -1262,6 +1262,19 @@ Hang cables between anchor points: true catenaries by slack (extra length) or sa
 | `constructionHistory` | `ch` | bool | `True` | Keep the cable node so moving anchors or editing slack updates the cables. |
 | `name` | `n` | str |  | Cable curve name; made unique. |
 
+### cachedPlayback
+
+Keeps every evaluated frame in memory, so playing back over frames already seen restores them instead of recomputing. Any change to the scene drops the cache. fill evaluates the whole playback range now. Returns {enabled, frames, bytes}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `state` | `st` | bool |  | Turn cached playback on or off; remembered as a preference. |
+| `fill` | `f` | bool | `False` | Evaluate every frame of the playback range into the cache (turns it on). |
+| `clear` | `cl` | bool | `False` | Drop every cached frame. |
+| `query` | `q` | bool | `False` |  |
+
+Not undoable.
+
 ### cage
 
 Deform meshes by a closed cage mesh around them (mean value coordinates). Give the meshes first and the cage last; then edit the cage's points. Returns the deformers.

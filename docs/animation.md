@@ -1,6 +1,19 @@
 # Animation
 
-Posing a heavy character, and the stand-ins that keep it fast.
+Playing heavy scenes back, posing a heavy character, and the stand-ins that keep it fast.
+
+## Cached playback
+
+Turn on the database button at the right of the time slider. Every frame plays slowly once, then plays back at full speed from memory; cached frames show as a bar along the bottom of the time slider.
+
+- Right-click the button for **Fill Cache** (evaluates the whole playback range now, with a progress bar) and **Clear Cache**.
+- Any change to the scene drops the cache. Selecting doesn't.
+- Python: `ops.cachedPlayback(fill=True)`.
+
+### Troubleshooting
+
+- The bar stops partway: the cache reached its memory limit, half the machine's memory by default. Set `"cachedPlaybackMemoryMB"` in `prefs/general.json` to change it.
+- Frames keep recomputing: something edits the scene every frame (a script on time change, for example), which drops the cache.
 
 ## Anim proxy
 
