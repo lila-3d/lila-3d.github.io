@@ -22,6 +22,7 @@
 - [Support](support.md)
 - [Performance](performance.md)
 - [File formats](formats.md)
+- [Studio setup](studio-setup.md)
 
 ---
 

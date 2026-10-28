@@ -39,7 +39,7 @@ Yes. It opens `.mb` and `.ma` files and converts them to Lila scenes, without Ma
 
 Right away. Every change to preferences, hotkeys, marking menus, shelves and layouts is written to disk within a fraction of a second, so nothing waits for Lila to close and a crash loses nothing. Maya saves them when it quits, and loses them when it crashes.
 
-The files are plain JSON in `%APPDATA%/Lila/prefs`. Edit one in a text editor while Lila runs and the change applies live: hotkeys rebind and menus rebuild. A workspace can override any of them in its own `.lila` folder, so a project can share hotkeys or settings through source control.
+The files are plain JSON in `%APPDATA%/Lila/prefs`. Edit one in a text editor while Lila runs and the change applies live: hotkeys rebind and menus rebuild. A workspace can override any of them in its own `.lila` folder, so a project can share hotkeys or settings through source control. A studio can serve and lock them for everyone from a network folder; see [Studio setup](studio-setup.md).
 
 ### Can I use Lila for film?
 
