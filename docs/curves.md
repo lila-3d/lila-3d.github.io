@@ -133,12 +133,17 @@ Adjust the look further with the parameters.
 - **Booleans**: select the target first. Loops fill even-odd, so a letter's counter stays a hole. Inputs stay live; **Hide Inputs** hides them.
 - **Bevel Plus** extrudes toward the curves' plane normal: up for ground curves, toward you for curves drawn in the front view. Crossing curves are bevelled as their even-odd union, with a warning.
 - **Custom bevel profile**: draw it in the front view, x as inset and y as rise. It is stretched to fit width and depth.
-- **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it later in the **Text** section of the Attribute Editor, with the text curve or anything built from it (a Bevel Plus) selected: Enter starts a new line, and the text updates when you pause typing. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
 - **SVG import** scale is cm per px after the viewBox. `<text>`, `<use>` and `<image>` are skipped with a warning; stroke-only shapes come in as open curves.
 - **Roof** gables: gable edge *i* runs from footprint point *i* to *i*+1.
 - **Inset Region** (Model menu) needs flat, connected faces.
 
 <!-- TODO image: a roof built from an L-shaped footprint with a courtyard hole (images/curves/roof.png) -->
+
+### Text
+
+- **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it later in the **Text** section of the Attribute Editor, with the text curve or anything built from it (a Bevel Plus) selected: Enter starts a new line, and the text updates when you pause typing. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
+- **Text Mesh** (Curves menu) makes the text and its Bevel Plus in one step; the font, depth and bevels stay editable on the mesh.
+- **Stretched or pulled vertices**: lower **Front Width** (and **Back Width**) first. A bevel wider than the thinnest strokes meets itself in a ridge and drags the faces across the letter.
 
 ## Blend and trim
 
