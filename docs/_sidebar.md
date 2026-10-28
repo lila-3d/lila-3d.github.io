@@ -1,3 +1,7 @@
+- [← Lila home](https://lila-3d.github.io/ ':ignore')
+
+---
+
 - [Python API](python/)
   - [lila.ops](python/lila.ops.md)
   - [lila](python/lila.md)
@@ -12,7 +16,7 @@
 
 ---
 
-- [Home](/)
+- [Start here](/)
 - [System requirements](requirements.md)
 - [FAQ](faq.md)
 - [Support](support.md)
@@ -46,4 +50,3 @@
 ---
 
 - [Support Lila](https://ko-fi.com/jaredtaylor ':ignore')
-- [Back to lila-3d.github.io](https://lila-3d.github.io/ ':ignore')

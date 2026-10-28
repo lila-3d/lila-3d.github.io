@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lila: the 3D app for games and film</title>
-<meta name="description" content="One 3D app for games and film, from first polygon to animation. Maya-style workflow, Unreal-first pipeline. Coming soon.">
+<meta name="description" content="One 3D app for games and film: model, retopo, texture, rig, animate and build worlds, with a Maya-style workflow and an Unreal-first pipeline. Coming soon.">
 <meta property="og:title" content="Lila: the 3D app for games and film">
 <meta property="og:description" content="One 3D app for games and film, from first polygon to animation. Maya-style workflow, Unreal-first pipeline.">
 <meta property="og:image" content="https://lila-3d.github.io/assets/icon.png">
@@ -76,6 +76,30 @@ a:focus-visible {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .72; }
+}
+
+/* Construction stripes in the site's blue on both ends of the pill. */
+.wip {
+  display: inline-flex;
+  align-items: stretch;
+  margin: clamp(20px, 3.5cqh, 40px) 0 0;
+  overflow: hidden;
+  border: 1px solid rgba(61,139,255,.45);
+  border-radius: 6px;
+  font-size: .875rem;
+  color: var(--text);
+  background: rgba(23,25,28,.85);
+}
+
+.wip span { padding: 7px 16px; }
+
+.wip::before,
+.wip::after {
+  content: "";
+  width: 36px;
+  flex: none;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 8px, #0c0d0f 8px 16px);
+  opacity: .85;
 }
 
 /* ---- The scene ---- */
@@ -726,7 +750,154 @@ footer {
 
 footer p { margin: 0 0 6px; }
 
+/*
+ * Media slots. Each .media holds either a .ph placeholder or the real thing: swap the placeholder for
+ * <img src="..." alt="..."> or <video src="..." autoplay muted loop playsinline></video>. data-slot names the asset.
+ */
+.media {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.media > img,
+.media > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media .ph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  padding: 16px;
+  text-align: center;
+  background:
+    linear-gradient(rgba(233,234,236,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(233,234,236,.035) 1px, transparent 1px) 0 0 / 24px 24px;
+  outline: 1px dashed rgba(61,139,255,.35);
+  outline-offset: -10px;
+  border-radius: inherit;
+}
+
+.media .ph b {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+}
+
+.media .ph span {
+  max-width: 44ch;
+  font-size: .9375rem;
+  color: var(--quiet);
+}
+
+.stills {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stills .media { aspect-ratio: 4 / 3; }
+
+.pillar {
+  display: grid;
+  gap: 28px;
+  padding-block: clamp(48px, 7vw, 88px);
+  border-top: 1px solid var(--line);
+}
+
+.pillar .head h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 750;
+  font-stretch: 112%;
+  font-variation-settings: "wdth" 112;
+  line-height: 1.1;
+}
+
+.pillar .head .kicker {
+  margin: 0 0 10px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .8125rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+}
+
+.pillar .head p.lede {
+  max-width: 60ch;
+  margin: 14px 0 0;
+  font-size: 1.125rem;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.pillar ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pillar li h3 {
+  margin: 0 0 4px;
+  font-size: 1.0625rem;
+  font-weight: 650;
+}
+
+.pillar li p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pillar ul.formats { display: flex; }
+
+.formats li {
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .8125rem;
+  color: var(--muted);
+}
+
+.area .small {
+  grid-column: 2;
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (max-width: 1000px) {
+  .pillar ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 760px) {
+  .pillar ul, .stills { grid-template-columns: 1fr; }
+  .area .small { grid-column: 1; }
   .chain { flex-direction: column; align-items: flex-start; gap: 0; }
   .chain li { flex-direction: column; align-items: flex-start; }
   .chain li:not(:last-child)::after {
@@ -782,57 +953,33 @@ footer p { margin: 0 0 6px; }
   <div class="below">
     <ol class="chain" aria-label="What Lila does">
       <li>Model</li>
+      <li>Retopo</li>
       <li>Unwrap</li>
-      <li>Bake</li>
       <li>Texture</li>
       <li>Rig</li>
       <li>Animate</li>
+      <li>Build worlds</li>
       <li class="end">Unreal</li>
     </ol>
     <p class="tagline">Maya-style workflow, Unreal-first pipeline.</p>
     <div class="actions">
       <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 for the release</a>
       <a class="button quiet" href="docs/">Read the docs</a>
+      <a class="button quiet" href="#studio">Pilot it at your studio</a>
     </div>
     <p class="status">In development, not released yet</p>
+    <p class="wip"><span>This site is a work in progress: videos and images are on the way.</span></p>
   </div>
 </header>
 
 <main>
-  <figure class="shot wrap">
+  <figure class="shot wrap media" data-slot="hero-video">
     <img src="assets/screenshot.webp" alt="Lila with a procedural spike mesh in the viewport, the UV editor, modeling toolkit and node editor open" width="2560" height="1440">
   </figure>
 
   <section class="intro wrap">
     <p>Lila takes its UX and workflow from Maya, then rebuilds everything else for game developers: a modern stack, real multithreading, and high-end tools across the board.</p>
-    <p class="scale">Lila fits a solo indie as well as a AAA studio's full production pipeline, and every part of it is built to be extended. Its architecture is designed to last, not patched together.</p>
-  </section>
-
-  <section class="pipeline wrap" aria-labelledby="one-tool">
-    <h2 id="one-tool">One tool, from first polygon to Unreal</h2>
-    <p>No exporting FBXs or textures between apps, and no separate UV tool, baker, painter or material generator. Everything happens in Lila.</p>
-  </section>
-
-  <section class="area wrap" aria-labelledby="studios">
-    <h2 id="studios">Your Maya team already knows it</h2>
-    <ul>
-      <li>
-        <h3>Muscle memory transfers</h3>
-        <p>Lila was designed so someone who uses Maya every day can sit down and work. Hotkeys, selection modes, the outliner and shelves behave the way their hands expect.</p>
-      </li>
-      <li>
-        <h3>So does the knowledge</h3>
-        <p>Years of Maya experience aren't thrown away. Artists keep their workflows, and technical artists keep their command-and-flag habits in Python.</p>
-      </li>
-      <li>
-        <h3>Brings its scenes along</h3>
-        <p>Open <code>.mb</code> and <code>.ma</code> files and convert them to Lila scenes, so there's no restarting from scratch.</p>
-      </li>
-      <li>
-        <h3>Room for studio tools</h3>
-        <p>Write them as Python or C++ extensions. Their commands are called from scripts like any built-in.</p>
-      </li>
-    </ul>
+    <p class="scale">Model, retopologise, unwrap, bake, paint, rig, animate and build whole worlds in one app, then send it all to Unreal. It fits a solo indie as well as a AAA studio's full production pipeline, and every part of it is built to be extended.</p>
   </section>
 
   <section class="area wrap" aria-labelledby="speed">
@@ -862,37 +1009,59 @@ footer p { margin: 0 0 6px; }
         <h3>Crashes and hangs</h3>
         <p>Maya crashed once and hung three times on the same tests.</p>
       </li>
+      <li>
+        <span class="big">64-bit</span>
+        <h3>No lost digits</h3>
+        <p>Vertices are stored in double precision, so CAD meshes and huge worlds go in and out exactly as they were, even kilometres from the origin. Maya rounds them to 32-bit floats on import.</p>
+      </li>
+      <li>
+        <span class="big">1 app</span>
+        <h3>No lossy hand-offs</h3>
+        <p>Modeling, UVs, baking, texturing, rigging and animation all happen in Lila, so geometry never passes through an export, unit conversion or axis flip between tools.</p>
+      </li>
     </ul>
   </section>
 
-  <section class="area wrap" aria-labelledby="pipeline">
-    <h2 id="pipeline">Pipeline</h2>
+  <section class="area wrap" aria-labelledby="studio">
+    <h2 id="studio">Your Maya team already knows it</h2>
     <ul>
       <li>
-        <h3>Live Unreal sync</h3>
-        <p>Send a mesh to Unreal once. From then on every save reimports it, with no export and import dance.</p>
+        <h3>Muscle memory transfers</h3>
+        <p>Lila was designed so someone who uses Maya every day can sit down and work. Hotkeys, selection modes, marking menus, the outliner and shelves behave the way their hands expect.</p>
       </li>
       <li>
-        <h3>VFX meshes, straight to Unreal</h3>
-        <p>Build animated meshes with geometry nodes, then send them as a Niagara mesh flipbook or an Alembic cache.</p>
+        <h3>So does the knowledge</h3>
+        <p>Years of Maya experience aren't thrown away. Artists keep their workflows, and technical artists keep their command-and-flag habits in Python.</p>
       </li>
       <li>
-        <h3>Instances that stay instances</h3>
-        <p>Dress a set with instances and arrays in Lila and send it to Unreal. Each shared mesh becomes one static mesh asset, placed as actors or as a HISM component once a group gets large.</p>
+        <h3>Brings its scenes along</h3>
+        <p>Open <code>.mb</code> and <code>.ma</code> files and convert them to Lila scenes, so there's no restarting from scratch.</p>
       </li>
       <li>
-        <h3>Collision meshes</h3>
-        <p>Generate correctly oriented bounding meshes. Use them as <code>UCX_</code> starting points or as-is.</p>
+        <h3>Room for studio tools</h3>
+        <p>Write them as Python or C++ extensions. Their commands are called from scripts like any built-in.</p>
       </li>
       <li>
-        <h3>No lost digits</h3>
-        <p>Vertices are stored in double precision, so CAD meshes and huge worlds go in and out as OBJ, FBX or a Lila scene exactly as they were, even kilometres from the origin. Maya stores vertices as 32-bit floats and rounds them on import. And since modeling, UVs, rigging, baking and texturing all happen in Lila, geometry never passes through a lossy export, unit conversion or axis flip between tools.</p>
+        <h3>Free, with no revenue cap</h3>
+        <p>Use it commercially at any size. What you make with it is yours.</p>
+      </li>
+      <li>
+        <h3>Yours to keep</h3>
+        <p>The license is perpetual and binds any future owner of Lila, so an acquisition can't take it away. If Lila ever goes 24 months without a release, its source becomes Apache 2.0.</p>
       </li>
     </ul>
+    <p class="small">Want to try it on a real production? Studio pilots are open: <a href="https://vaei.github.io/">get in touch</a>.</p>
   </section>
 
-  <section class="area wrap" aria-labelledby="modeling">
-    <h2 id="modeling">Modeling, sculpting and UVs</h2>
+  <section class="pillar wrap" aria-labelledby="modeling">
+    <div class="head">
+      <p class="kicker">Model</p>
+      <h2 id="modeling">Modeling and sculpting</h2>
+      <p class="lede">Every tool is designed to save steps: snap a primitive onto a surface, join shapes with a boolean, remesh the result, and let auto-bevel pick the edges.</p>
+    </div>
+    <figure class="media" data-slot="clip-modeling">
+      <div class="ph"><b>Clip: modeling</b><span>Primitive snapped to a surface, boolean, remesh, auto-bevel</span></div>
+    </figure>
     <ul>
       <li>
         <h3>Symmetry that stays exact</h3>
@@ -903,30 +1072,110 @@ footer p { margin: 0 0 6px; }
         <p>Lila can pick the edges you'd bevel, so you don't have to select them by hand.</p>
       </li>
       <li>
+        <h3>Smart booleans</h3>
+        <p>Booleans that leave clean, workable topology behind instead of a mess to fix by hand.</p>
+      </li>
+      <li>
         <h3>Sculpting</h3>
         <p>Sculpting tools built into modeling, for shaping and refining meshes without leaving Lila.</p>
       </li>
       <li>
-        <h3>Edge loop to faces</h3>
-        <p>Turn an edge loop into the faces it encloses in one step.</p>
+        <h3>Curves and text</h3>
+        <p>Draw, sweep, loft and pipe curves, and turn any font into curves or a text mesh.</p>
       </li>
       <li>
         <h3>Geometry nodes</h3>
         <p>Procedural modeling in a node graph with keyable inputs.</p>
       </li>
+    </ul>
+  </section>
+
+  <section class="pillar wrap" aria-labelledby="retopo">
+    <div class="head">
+      <p class="kicker">Retopo</p>
+      <h2 id="retopo">Retopology, by hand and automatic</h2>
+      <p class="lede">A full retopology toolkit where hand tools and auto retopo work on the same mesh and hand off to each other. Draw the topology that matters, let Lila fill the rest.</p>
+    </div>
+    <figure class="media" data-slot="clip-retopo">
+      <div class="ph"><b>Clip: retopology</b><span>Patch, strip and cylinder tools on a character, then auto region filling the rest</span></div>
+    </figure>
+    <ul>
       <li>
-        <h3>UVs that unwrap well</h3>
-        <p>Auto-unwrap that gives good results, live physics-based relax, flatten and settle, and paintable modifiers such as relax, flatten, smooth boundary and pin.</p>
+        <h3>Patch</h3>
+        <p>Draw a closed shape and it fills with clean quads. Set the edge count per side with the wheel; Lila keeps the parity so it's always all quads.</p>
+      </li>
+      <li>
+        <h3>Strip</h3>
+        <p>Sketch a path and get a strip of square quads along it, with mitred corners and handles to twist and widen it afterwards.</p>
+      </li>
+      <li>
+        <h3>Stroke and bridge</h3>
+        <p>Draw edge chains on the surface, bridge two into a grid, or extrude straight from an existing border.</p>
+      </li>
+      <li>
+        <h3>Cylinder</h3>
+        <p>Draw lines across a limb and each becomes a ring of the cross-section, bridged to the last. Perfect loops for arms, legs and fingers.</p>
+      </li>
+      <li>
+        <h3>Auto region</h3>
+        <p>Mark an area and Lila quad-remeshes just that part, stitched to your hand-made topology at matching density.</p>
+      </li>
+      <li>
+        <h3>Guides and live relax</h3>
+        <p>Pencil in flow guides that auto retopo follows, and keep everything relaxing on the surface while you work.</p>
       </li>
     </ul>
   </section>
 
-  <section class="area wrap" aria-labelledby="texturing">
-    <h2 id="texturing">Baking and texturing</h2>
+  <section class="pillar wrap" aria-labelledby="uvs">
+    <div class="head">
+      <p class="kicker">Unwrap</p>
+      <h2 id="uvs">UVs that unwrap well</h2>
+      <p class="lede">Auto-unwrap that gives good results, then physics-based tools for the rest.</p>
+    </div>
+    <figure class="media" data-slot="clip-uvs">
+      <div class="ph"><b>Clip: UVs</b><span>Auto-unwrap, then live relax and settle</span></div>
+    </figure>
+    <ul>
+      <li>
+        <h3>Live relax, flatten and settle</h3>
+        <p>Physics-based tools that move islands while you watch, instead of running and hoping.</p>
+      </li>
+      <li>
+        <h3>Paintable modifiers</h3>
+        <p>Paint relax, flatten, smooth boundary and pin exactly where you want them.</p>
+      </li>
+      <li>
+        <h3>GPU packing</h3>
+        <p>Rotation, nesting, stacked identical islands, texel density locks and UDIMs.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="pillar wrap" aria-labelledby="texturing">
+    <div class="head">
+      <p class="kicker">Bake, texture, render</p>
+      <h2 id="texturing">Baking, texturing and looks</h2>
+      <p class="lede">No separate baker, painter or material generator. Bake on the GPU, paint materials onto the mesh, and render it the way it'll look in game, or better.</p>
+    </div>
+    <figure class="media" data-slot="clip-texturing">
+      <div class="ph"><b>Clip: texturing</b><span>Bake, then paint rust and watch every channel fill</span></div>
+    </figure>
+    <div class="stills">
+      <figure class="media" data-slot="still-cinematic">
+        <div class="ph"><b>Still: cinematic render</b><span>Ray-traced portfolio shot</span></div>
+      </figure>
+      <figure class="media" data-slot="still-toon">
+        <div class="ph"><b>Still: toon shading</b><span>Cel-shaded character with tuned normals</span></div>
+      </figure>
+      <figure class="media" data-slot="still-painterly">
+        <div class="ph"><b>Still: painterly</b><span>Brushwork and Meadowlight scene</span></div>
+      </figure>
+    </div>
     <ul>
       <li>
         <h3>GPU texture baking</h3>
-        <p>Bake the mesh maps you need for texturing on the GPU, with channel packing and UDIMs.</p>
+        <p>Bake every mesh map you need on the GPU in moments, with channel packing and UDIMs.</p>
       </li>
       <li>
         <h3>Material nodes</h3>
@@ -936,19 +1185,50 @@ footer p { margin: 0 0 6px; }
         <h3>3D painting</h3>
         <p>Paint layers directly on the mesh with materials, not just colours: paint rust and the rust material fills every channel.</p>
       </li>
+      <li>
+        <h3>Cinematic rendering</h3>
+        <p>Hardware ray tracing for shadows, reflections and global illumination, for look-dev and portfolio shots straight out of the viewport.</p>
+      </li>
+      <li>
+        <h3>Toon and cel shading</h3>
+        <p>A cel shader with the tools to get the normals right for it: transfer, smooth and edit shading normals until the shadows fall where you want them.</p>
+      </li>
+      <li>
+        <h3>Painterly looks</h3>
+        <p>A painterly shading model with ready-made looks, from soft gouache to heavy impasto, and hand-painted pastoral materials.</p>
+      </li>
     </ul>
   </section>
 
-  <section class="area wrap" aria-labelledby="animation">
-    <h2 id="animation">Rigging and animation</h2>
+  <section class="pillar wrap" aria-labelledby="rigging">
+    <div class="head">
+      <p class="kicker">Rig</p>
+      <h2 id="rigging">Rigging</h2>
+      <p class="lede">Automated rigs when you want speed, film-grade control when you don't. Bipeds, quadrupeds, insects and faces.</p>
+    </div>
+    <figure class="media" data-slot="clip-rigging">
+      <div class="ph"><b>Clip: rigging</b><span>Template placed on a quadruped, joints built, skinned</span></div>
+    </figure>
     <ul>
       <li>
-        <h3>Animation, taken further</h3>
-        <p>Inspired by Akeytsu, with Jolt physics for procedural motion and physics-based posing, and space switching built in.</p>
+        <h3>Rig templates</h3>
+        <p>Place a template's markers on a mesh and build joints with its names and orientations. Ships with UE5 Manny.</p>
       </li>
       <li>
-        <h3>Rigging your way</h3>
-        <p>Automated rigs when you want speed, film-grade control when you don't.</p>
+        <h3>Quadrupeds</h3>
+        <p>Quadruped templates and rig parts for legs, spines and tails, built for animals rather than adapted from humans.</p>
+      </li>
+      <li>
+        <h3>Spline IK</h3>
+        <p>Drive a chain along a curve: tails, tentacles, spines and insect legs.</p>
+      </li>
+      <li>
+        <h3>Facial rigging</h3>
+        <p>Build face rigs from joints, blend shapes or both, with a control board for animators.</p>
+      </li>
+      <li>
+        <h3>Deformers for Unreal</h3>
+        <p>A modern set of deformers, converted to bones or morph targets so what you see in Lila plays in Unreal.</p>
       </li>
       <li>
         <h3>No more gimbal lock</h3>
@@ -957,24 +1237,226 @@ footer p { margin: 0 0 6px; }
     </ul>
   </section>
 
+  <section class="pillar wrap" aria-labelledby="animation">
+    <div class="head">
+      <p class="kicker">Animate</p>
+      <h2 id="animation">Animation, taken further</h2>
+      <p class="lede">Animate on the joints themselves. Grab whatever control is closest to what you mean and it just works.</p>
+    </div>
+    <figure class="media" data-slot="clip-animation">
+      <div class="ph"><b>Clip: animation</b><span>Grabbing FK, then IK, on the same arm with no switch; auto-pose from a few pins</span></div>
+    </figure>
+    <ul>
+      <li>
+        <h3>IK and FK at once</h3>
+        <p>Rotate a joint for FK or grab the hand for IK, on the same chain at any moment. There's no switch, no blend channel and nothing to match.</p>
+      </li>
+      <li>
+        <h3>Full-body IK</h3>
+        <p>Pin hands, feet and hips anywhere and the whole body follows naturally.</p>
+      </li>
+      <li>
+        <h3>Auto-posing</h3>
+        <p>Move a few points and a learned model fills in a believable pose for the rest of the body.</p>
+      </li>
+      <li>
+        <h3>Physics animation</h3>
+        <p>Jolt physics for physics-based posing and ragdoll motion, recorded to an additive layer you can keep editing.</p>
+      </li>
+      <li>
+        <h3>Secondary motion</h3>
+        <p>Follow-through, lag and wobble for tails, hair and cloth chains, simulated and baked to a layer, loops included.</p>
+      </li>
+      <li>
+        <h3>Facial animation</h3>
+        <p>Animate faces from the control board or directly on the face, alongside the body in the same timeline.</p>
+      </li>
+      <li>
+        <h3>MotionBricks</h3>
+        <p>NVIDIA's real-time generative motion, built in: steer a character through locomotion and object interactions with smart primitives, then bake it to keys you can keep editing.</p>
+      </li>
+      <li>
+        <h3>Space switching</h3>
+        <p>Switch any control's space mid-shot and the pose stays put, keys and all.</p>
+      </li>
+      <li>
+        <h3>Inspired by Akeytsu</h3>
+        <p>Rig and Animate modes, foot and hand locks, the Spinner gizmo and a breakdown slider.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="pillar wrap" aria-labelledby="worlds">
+    <div class="head">
+      <p class="kicker">Build worlds</p>
+      <h2 id="worlds">Build whole worlds</h2>
+      <p class="lede">Terrain, towns, walls, plants and dressed sets, generated, placed with physics and sent to Unreal as instances it can stream.</p>
+    </div>
+    <figure class="media" data-slot="clip-worlds">
+      <div class="ph"><b>Clip: world building</b><span>Terrain erodes, a town grows over it, walls go up, a room is dressed with physics</span></div>
+    </figure>
+    <div class="stills">
+      <figure class="media" data-slot="still-settlement">
+        <div class="ph"><b>Still: settlement</b><span>A town grown over terrain</span></div>
+      </figure>
+      <figure class="media" data-slot="still-masonry">
+        <div class="ph"><b>Still: masonry</b><span>A ruined stone wall</span></div>
+      </figure>
+      <figure class="media" data-slot="still-stagehand">
+        <div class="ph"><b>Still: set dressing</b><span>A cluttered room settled with physics</span></div>
+      </figure>
+    </div>
+    <ul>
+      <li>
+        <h3>Terrain</h3>
+        <p>Heightfields from noise, images or meshes in geometry nodes, with erosion, sampled and baked for any engine.</p>
+      </li>
+      <li>
+        <h3>Settlements</h3>
+        <p>Villages, towns and cities on flat ground or any mesh: roads routed over the terrain, streets grown in a style, blocks, lots and building envelopes.</p>
+      </li>
+      <li>
+        <h3>Masonry</h3>
+        <p>Brick and stone walls laid course by course along any curve, in real bonds with bonded corners, as instances of a few shared stones.</p>
+      </li>
+      <li>
+        <h3>Set dressing with physics</h3>
+        <p>Settle, push, drop and shake props into place, then check for anything floating, overlapping or about to fall.</p>
+      </li>
+      <li>
+        <h3>Plants</h3>
+        <p>Grow trees with recursive branches and leaves, and shrubs whose blades each vary in thickness and lean.</p>
+      </li>
+      <li>
+        <h3>Tiling ground</h3>
+        <p>Scatter rocks and debris into a seamlessly tiling patch, ready to bake down to tiling textures.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="pillar wrap" aria-labelledby="sim">
+    <div class="head">
+      <p class="kicker">Simulate</p>
+      <h2 id="sim">Destruction and crowds</h2>
+      <p class="lede">Deterministic simulations you can art-direct, baked and sent to Unreal.</p>
+    </div>
+    <figure class="media" data-slot="clip-sim">
+      <div class="ph"><b>Clip: destruction and crowds</b><span>A wall breaks apart; a crowd flows through the street</span></div>
+    </figure>
+    <ul>
+      <li>
+        <h3>Destruction</h3>
+        <p>Fracture anything and let it fall: pieces held by breakable links, simulated with Jolt as a geometry node, baked to vertex animation textures, Alembic or FBX.</p>
+      </li>
+      <li>
+        <h3>Crowds</h3>
+        <p>Simulate crowds with MotionBricks moving every agent, bake them, and send them to Unreal.</p>
+      </li>
+      <li>
+        <h3>VFX meshes</h3>
+        <p>Build animated meshes with geometry nodes and send them as a Niagara mesh flipbook or an Alembic cache.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="pillar wrap" aria-labelledby="geo">
+    <div class="head">
+      <p class="kicker">Scan, survey, CAD</p>
+      <h2 id="geo">Digital twins and big worlds</h2>
+      <p class="lede">Unreal's Large World Coordinates and Cesium are both double precision, but the DCC sitting between them and the source data usually isn't. Lila is, end to end.</p>
+    </div>
+    <figure class="media" data-slot="still-geo">
+      <div class="ph"><b>Still: geospatial</b><span>A drone photogrammetry site and LiDAR point cloud, georeferenced, kilometres from the origin</span></div>
+    </figure>
+    <ul>
+      <li>
+        <h3>Double precision throughout</h3>
+        <p>Positions stay exact from import to Unreal, whether it's a mine site, a city block or a planet-scale world.</p>
+      </li>
+      <li>
+        <h3>Camera-relative rendering</h3>
+        <p>The viewport draws relative to the camera, so geometry thousands of kilometres out doesn't jitter or tear.</p>
+      </li>
+      <li>
+        <h3>Georeferencing</h3>
+        <p>Keep a scene's real-world origin and coordinate system, and round-trip it with the source data.</p>
+      </li>
+      <li>
+        <h3>Point clouds</h3>
+        <p>Import E57 and LAS/LAZ scans from terrestrial and airborne LiDAR.</p>
+      </li>
+      <li>
+        <h3>Photogrammetry and BIM</h3>
+        <p>Photogrammetry OBJ with its offset file, as RealityScan and Metashape write it, and IFC for AEC and CAD visualisation.</p>
+      </li>
+      <li>
+        <h3>Your tools on top</h3>
+        <p>Drone survey, civil, mining and infrastructure teams build their own processing on the Python API and C++ SDK.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="pillar wrap" aria-labelledby="pipeline">
+    <div class="head">
+      <p class="kicker">Unreal</p>
+      <h2 id="pipeline">Live Unreal pipeline</h2>
+      <p class="lede">Send a mesh to Unreal once. From then on every save reimports it, with no export and import dance.</p>
+    </div>
+    <figure class="media" data-slot="clip-unreal">
+      <div class="ph"><b>Clip: live Unreal sync</b><span>Split screen: save in Lila, the asset updates in Unreal</span></div>
+    </figure>
+    <ul>
+      <li>
+        <h3>Instances that stay instances</h3>
+        <p>Each shared mesh becomes one static mesh asset, placed as actors or as a HISM component once a group gets large.</p>
+      </li>
+      <li>
+        <h3>Collision meshes</h3>
+        <p>Generate correctly oriented bounding meshes. Use them as <code>UCX_</code> starting points or as-is.</p>
+      </li>
+      <li>
+        <h3>Textures and materials too</h3>
+        <p>Baked and painted texture sets arrive as material instances, and only changed tiles are re-sent.</p>
+      </li>
+      <li>
+        <h3>Skeletal meshes and animation</h3>
+        <p>Rigs, skins, morph targets and takes go over as skeletal meshes and animation sequences.</p>
+      </li>
+      <li>
+        <h3>Every format you need</h3>
+        <p>For everything that isn't Unreal, or comes from somewhere else.</p>
+      </li>
+      <li>
+        <h3>Unreal-style math</h3>
+        <p><code>lila.math</code> gives Python <code>Vector</code>, <code>Rotator</code>, <code>Quat</code> and <code>Transform</code> that behave like Unreal's, and one call converts to and from Unreal space.</p>
+      </li>
+    </ul>
+    <ul class="formats" aria-label="File formats">
+      <li>FBX</li>
+      <li>OBJ</li>
+      <li>USD</li>
+      <li>glTF</li>
+      <li>Alembic</li>
+      <li>Maya .ma/.mb</li>
+      <li>E57</li>
+      <li>LAS/LAZ</li>
+      <li>IFC</li>
+      <li>PLY</li>
+      <li>STL</li>
+      <li>DXF</li>
+    </ul>
+  </section>
+
   <section class="area wrap" aria-labelledby="workflow">
     <h2 id="workflow">Working in Lila</h2>
     <ul>
-      <li>
-        <h3>Light and quick</h3>
-        <p>Lila feels light next to other 3D apps: fast to work in, easy to learn and out of your way.</p>
-      </li>
       <li>
         <h3>Modern viewport</h3>
         <p>A Vulkan renderer built for realtime: image-based lighting, clean anti-aliasing, a neutral backdrop that doesn't skew your colours.</p>
       </li>
       <li>
         <h3>Find any tool</h3>
-        <p>Press Ctrl+T and type. No hunting through menus for the editor you can't remember the location of.</p>
-      </li>
-      <li>
-        <h3>Floating shelf</h3>
-        <p>Call your shelf up at the cursor, so your tools are right where you're working instead of across the screen.</p>
+        <p>Press Ctrl+T and type. Or call your shelf up at the cursor, so your tools are right where you're working.</p>
       </li>
       <li>
         <h3>Shareable parameter windows</h3>
@@ -982,11 +1464,7 @@ footer p { margin: 0 0 6px; }
       </li>
       <li>
         <h3>Agentic workflows</h3>
-        <p>Built-in support for AI agents, which drive the same commands you do. Describe an effect and an agent builds the geometry node graph for it.</p>
-      </li>
-      <li>
-        <h3>Themes</h3>
-        <p>Change the look to suit you.</p>
+        <p>A built-in MCP server lets AI agents drive the same commands you do. Describe an effect and an agent builds the geometry node graph for it.</p>
       </li>
     </ul>
   </section>
@@ -1007,8 +1485,8 @@ footer p { margin: 0 0 6px; }
         <p>Need to change, or gather data from, 100 scenes? Script it once, then run it over a directory with powerful file filtering.</p>
       </li>
       <li>
-        <h3>Unreal-style math</h3>
-        <p><code>lila.math</code> gives Python <code>Vector</code>, <code>Rotator</code>, <code>Quat</code>, <code>Transform</code>, <code>Box</code> and <code>LinearColor</code> that behave like Unreal's: rotators turn the same way and transforms compose in the same order. One call converts to and from Unreal space, so Unreal engineers write tools with math they already know.</p>
+        <h3>Change stream</h3>
+        <p>Other apps and services subscribe to scene changes as they happen, for live links and pipeline tools.</p>
       </li>
       <li>
         <h3>Declarative UI</h3>
@@ -1016,7 +1494,7 @@ footer p { margin: 0 0 6px; }
       </li>
       <li>
         <h3>C++ extensions</h3>
-        <p>Write extensions against a published SDK.</p>
+        <p>Write extensions against a published SDK. Terrain, Settlement, Masonry, Destruction and Puppeteer are all built on it.</p>
       </li>
     </ul>
     <div class="compare">
@@ -1035,7 +1513,7 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   <section class="area wrap" aria-labelledby="progress">
     <div>
       <h2 id="progress">Progress</h2>
-      <p class="updated">Updated <time datetime="2026-10-24T22:42Z">24 October 2026, 22:42 UTC</time></p>
+      <p class="updated">Updated <time datetime="2026-10-28T09:36Z">28 October 2026, 09:36 UTC</time></p>
     </div>
     <ul class="progress">
       <li style="--p: 95">
@@ -1108,13 +1586,13 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="name">Animation, Puppeteer and physics</span>
         <span class="bar" aria-hidden="true"><span></span></span>
         <span class="pct">40%</span>
-        <span class="note">Early prototype, mostly untested</span>
+        <span class="note">Early prototype, significant UX work required, more features to come</span>
       </li>
-      <li style="--p: 65">
+      <li style="--p: 70">
         <span class="name">Destruction physics</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">65%</span>
-        <span class="note">Prototype completed, testing phase pending</span>
+        <span class="pct">70%</span>
+        <span class="note">Prototype completed, testing successful, significant caching and performance work required</span>
       </li>
       <li style="--p: 95">
         <span class="name">Python scripting</span>
@@ -1122,27 +1600,30 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="pct">95%</span>
         <span class="note">Feature complete, further testing pending</span>
       </li>
-      <li style="--p: 90">
+      <li style="--p: 95">
         <span class="name">C++ extensions</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">90%</span>
-        <span class="note">Several extensions working, more SDK features coming</span>
+        <span class="pct">95%</span>
+        <span class="note">Multiple C++ extensions ship with Lila using this system already</span>
       </li>
-      <li style="--p: 70">
+      <li style="--p: 95">
         <span class="name">File formats</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">70%</span>
-        <span class="note">FBX and OBJ fully implemented and tested. glTF, USD, PLY and STL fully implemented, testing pending</span>
+        <span class="pct">95%</span>
+        <span class="note">Significant performance profiling and optimization completed, uncommon formats require further testing</span>
       </li>
     </ul>
   </section>
 
   <section class="area wrap" aria-labelledby="why">
-    <h2 id="why">Why Lila</h2>
+    <div>
+      <h2 id="why">Why Lila</h2>
+      <p class="more"><i>Lila</i> (<span lang="sa">लीला</span>, LEE-laah): Sanskrit for divine play, or creation.</p>
+    </div>
     <figure class="mission">
       <blockquote>
         <p>I adopted Maya's workflow because it's the best in the industry. Maya's technology is another story: the core and the modeling, UV, rigging and animation tools all date from another era. So Lila keeps the workflow and rebuilds the rest, pushing the technology forward in every one of those areas.</p>
-        <p>Other tools either boxed me in or treated speed as an afterthought. I built Lila so I could create content rapidly, and every tool is designed to save steps: snap a primitive onto a surface, join shapes with a quick boolean, remesh the result, and let auto-bevel pick the edges. With the whole pipeline in one place, nothing slows you down between steps.</p>
+        <p>Other tools either boxed me in or treated speed as an afterthought. I built Lila so I could create content rapidly, and every tool is designed to save steps. Some are tools I wanted for years, but Maya's plugin framework held them back. Lila owns its core, so I could finally build them.</p>
       </blockquote>
       <figcaption>Jared Taylor, creator of Lila</figcaption>
     </figure>
@@ -1163,12 +1644,13 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
 
   <section class="closing wrap" aria-labelledby="follow">
     <h2 id="follow">Not ready yet</h2>
-    <p>Lila is in active development and has no public build. Follow along on X for progress and the first release.</p>
+    <p>Lila is in active development and has no public build. Follow along on X for progress and the first release, or get in touch to pilot it at your studio.</p>
     <div class="actions">
       <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 on X</a>
+      <a class="button quiet" href="https://vaei.github.io/">Studio pilots</a>
       <a class="button quiet" href="docs/">Read the docs</a>
     </div>
-    <p class="platforms">Windows first. The source opens at release, so macOS and Linux users can build it themselves. Bug reports welcome.</p>
+    <p class="platforms">Windows first, then macOS and Linux. Bug reports welcome.</p>
   </section>
 </main>
 
