@@ -154,7 +154,7 @@ Clone once with Y, then keep pressing Shift+D to repeat the step. See [Duplicate
 
 ## Symmetry
 
-Symmetry in Lila stays exact across modeling, UVs, weights and joints.
+Symmetry in Lila stays exact across modeling, UVs, weights and joints. **Shift+X** toggles it on the selected meshes.
 
 > **Coming from Maya?** Maya's world and object symmetry pair vertices by position within a tolerance, so a vertex that drifts slightly off the axis stops matching and symmetry quietly breaks. Lila was built around symmetry from the start, so it doesn't drift.
 
