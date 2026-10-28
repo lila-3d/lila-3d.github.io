@@ -7531,7 +7531,7 @@ Make the last key of each curve a loop key: it mirrors the first key's value and
 
 ### setMaterialTexture
 
-Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal, ambientOcclusion, orm or emissive. Stored relative to the workspace root (or the scene folder without one).
+Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal, ambientOcclusion, orm, mro (the packed map with the MRO layout) or emissive. Stored relative to the workspace root (or the scene folder without one).
 
 **Objects:** material
 

@@ -239,6 +239,15 @@ The pieces don't need to match. They can sit anywhere, be rotated or mirrored (l
 
 <!-- todo image -->
 
+## Drop textures onto a material
+
+Drag image files from Explorer or Lila's file browser into the Material Editor.
+
+- **Several files** anywhere in the editor: each goes to the slot its name ends with, such as `_BaseColor`, `_D`, `_Normal`, `_N`, `_Roughness`, `_Metallic`, `_AO`, `_Emissive`, or `_ORM`, `_ARM`, `_CRM` and `_MRO` for packed maps. Number suffixes like `_1` are ignored. Files whose names match no slot are listed in the log.
+- **One file** on a slot: it goes in that slot, whatever its name.
+
+Pasted paths can keep the quotes from Windows' **Copy as path**; Lila removes them.
+
 ## Command palette
 
 Press **Ctrl+\`** to open the command palette. Type part of any menu item or command name and press **Enter** to run the top match, or **Up**/**Down** to pick another. Type Python and it runs instead; there's nothing to import, commands are available by name. **Shift+Enter** always runs the text as Python.
