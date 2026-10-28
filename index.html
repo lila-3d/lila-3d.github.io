@@ -102,6 +102,61 @@ a:focus-visible {
   opacity: .85;
 }
 
+/* The benchmark clip sits small in the section's left column. */
+.bench {
+  display: block;
+  width: 100%;
+  margin: 24px 0 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel);
+  cursor: zoom-in;
+}
+
+.bench video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bench-hint {
+  margin: 8px 0 0;
+  font-size: .8125rem;
+  color: var(--quiet);
+}
+
+/* Any image or video on the page opens here, enlarged. */
+.zoomable { cursor: zoom-in; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(12,13,15,.94);
+  cursor: zoom-out;
+}
+
+.lightbox.open { display: flex; }
+
+.lightbox img,
+.lightbox video {
+  display: block;
+  width: min(1600px, 100%);
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.lightbox video { cursor: default; }
+
 /* ---- The scene ---- */
 
 .scene {
@@ -468,7 +523,8 @@ a:focus-visible {
   margin: calc(-1 * clamp(24px, 16svh - 80px, 120px)) auto 0;
 }
 
-.shot img {
+.shot img,
+.shot video {
   display: block;
   width: 100%;
   height: auto;
@@ -973,7 +1029,8 @@ footer p { margin: 0 0 6px; }
 </header>
 
 <main>
-  <figure class="shot wrap media" data-slot="hero-video">
+  <!-- TODO media [hero-video] Video: hero video (screenshot shown until then) -->
+  <figure class="shot wrap" data-slot="hero-video">
     <img src="assets/screenshot-cockpit.webp" alt="Lila with a starfighter cockpit model in the viewport, the outliner, notes and display layers open" width="2560" height="1440">
   </figure>
 
@@ -987,17 +1044,21 @@ footer p { margin: 0 0 6px; }
       <h2 id="speed">Faster than Maya</h2>
       <p class="more">Timed against Maya 2026.3 on the same machine and files. Maya still wins some rows, and every result is published.</p>
       <p class="more"><a href="docs/#/performance">Full results and method</a></p>
+      <button class="bench" type="button" data-slot="clip-benchmark" aria-label="Play the Lila and Maya import comparison full screen">
+        <video src="assets/clips/lila-vs-maya-obj-import.mp4" autoplay muted loop playsinline aria-label="Lila and Maya 2026.3 importing the same 13.5-million-triangle OBJ side by side: Lila is on screen in 6.7 seconds, Maya in 55.3"></video>
+      </button>
+      <p class="bench-hint">Click to enlarge</p>
     </div>
     <ul>
       <li>
         <span class="big">8.1x</span>
-        <h3>Imports a 13.5-million-triangle OBJ</h3>
-        <p>6.8 s in Lila, 55.3 s in Maya, until it's on screen.</p>
+        <h3>Imports a 13.5-million-triangle scene</h3>
+        <p>OBJ: 6.8 s in Lila, 55.3 s in Maya. FBX: 6.0 s in Lila, 48.7 s in Maya. Both until it's on screen.</p>
       </li>
       <li>
-        <span class="big">8.1x</span>
-        <h3>Imports the same scene as FBX</h3>
-        <p>6.0 s in Lila, 48.7 s in Maya.</p>
+        <span class="big">3.9x</span>
+        <h3>Saves text scenes for source control</h3>
+        <p>The same scene as a text file: 5.0 s in Lila, 19.5 s in Maya as .ma. Opening it is 3.5x faster too.</p>
       </li>
       <li>
         <span class="big">120x</span>
@@ -1050,6 +1111,7 @@ footer p { margin: 0 0 6px; }
         <p>The license is perpetual and binds any future owner of Lila, so an acquisition can't take it away. If Lila ever goes 24 months without a release, its source becomes Apache 2.0.</p>
       </li>
     </ul>
+    <!-- TODO media [clip-maya-habits] Clip: Maya habits: W/E/R marking menus, Space hotbox, shelf at the cursor, parent() typed in the script editor. Add as a .bench button like the benchmark clip -->
     <p class="small">Want to try it on a real production? Studio pilots are open: <a href="https://vaei.github.io/">get in touch</a>.</p>
   </section>
 
@@ -1059,6 +1121,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="modeling">Modeling and sculpting</h2>
       <p class="lede">Every tool is designed to save steps: snap a primitive onto a surface, join shapes with a boolean, remesh the result, and let auto-bevel pick the edges.</p>
     </div>
+    <!-- TODO media [clip-modeling] Clip: modeling: Primitive snapped to a surface, boolean, remesh, auto-bevel -->
     <figure class="media" data-slot="clip-modeling">
       <div class="ph"><b>Clip: modeling</b><span>Primitive snapped to a surface, boolean, remesh, auto-bevel</span></div>
     </figure>
@@ -1096,6 +1159,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="retopo">Retopology, by hand and automatic</h2>
       <p class="lede">A full retopology toolkit where hand tools and auto retopo work on the same mesh and hand off to each other. Draw the topology that matters, let Lila fill the rest.</p>
     </div>
+    <!-- TODO media [clip-retopo] Clip: retopology: Patch, strip and cylinder tools on a character, then auto region filling the rest -->
     <figure class="media" data-slot="clip-retopo">
       <div class="ph"><b>Clip: retopology</b><span>Patch, strip and cylinder tools on a character, then auto region filling the rest</span></div>
     </figure>
@@ -1133,6 +1197,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="uvs">UVs that unwrap well</h2>
       <p class="lede">Auto-unwrap that gives good results, then physics-based tools for the rest.</p>
     </div>
+    <!-- TODO media [clip-uvs] Clip: UVs: Auto-unwrap, then live relax and settle -->
     <figure class="media" data-slot="clip-uvs">
       <div class="ph"><b>Clip: UVs</b><span>Auto-unwrap, then live relax and settle</span></div>
     </figure>
@@ -1158,16 +1223,20 @@ footer p { margin: 0 0 6px; }
       <h2 id="texturing">Baking, texturing and looks</h2>
       <p class="lede">No separate baker, painter or material generator. Bake on the GPU, paint materials onto the mesh, and render it the way it'll look in game, or better.</p>
     </div>
+    <!-- TODO media [clip-texturing] Clip: texturing: Bake, then paint rust and watch every channel fill -->
     <figure class="media" data-slot="clip-texturing">
       <div class="ph"><b>Clip: texturing</b><span>Bake, then paint rust and watch every channel fill</span></div>
     </figure>
     <div class="stills">
+      <!-- TODO media [still-cinematic] Still: cinematic render: Ray-traced portfolio shot -->
       <figure class="media" data-slot="still-cinematic">
         <div class="ph"><b>Still: cinematic render</b><span>Ray-traced portfolio shot</span></div>
       </figure>
+      <!-- TODO media [still-toon] Still: toon shading: Cel-shaded character with tuned normals -->
       <figure class="media" data-slot="still-toon">
         <div class="ph"><b>Still: toon shading</b><span>Cel-shaded character with tuned normals</span></div>
       </figure>
+      <!-- TODO media [still-painterly] Still: painterly: Brushwork and Meadowlight scene -->
       <figure class="media" data-slot="still-painterly">
         <div class="ph"><b>Still: painterly</b><span>Brushwork and Meadowlight scene</span></div>
       </figure>
@@ -1206,6 +1275,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="rigging">Rigging</h2>
       <p class="lede">Automated rigs when you want speed, film-grade control when you don't. Bipeds, quadrupeds, insects and faces.</p>
     </div>
+    <!-- TODO media [clip-rigging] Clip: rigging: Template placed on a quadruped, joints built, skinned -->
     <figure class="media" data-slot="clip-rigging">
       <div class="ph"><b>Clip: rigging</b><span>Template placed on a quadruped, joints built, skinned</span></div>
     </figure>
@@ -1243,6 +1313,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="animation">Animation, taken further</h2>
       <p class="lede">Animate on the joints themselves. Grab whatever control is closest to what you mean and it just works.</p>
     </div>
+    <!-- TODO media [clip-animation] Clip: animation: Grabbing FK, then IK, on the same arm with no switch; auto-pose from a few pins -->
     <figure class="media" data-slot="clip-animation">
       <div class="ph"><b>Clip: animation</b><span>Grabbing FK, then IK, on the same arm with no switch; auto-pose from a few pins</span></div>
     </figure>
@@ -1292,16 +1363,20 @@ footer p { margin: 0 0 6px; }
       <h2 id="worlds">Build whole worlds</h2>
       <p class="lede">Terrain, towns, walls, plants and dressed sets, generated, placed with physics and sent to Unreal as instances it can stream.</p>
     </div>
+    <!-- TODO media [clip-worlds] Clip: world building: Terrain erodes, a town grows over it, walls go up, a room is dressed with physics -->
     <figure class="media" data-slot="clip-worlds">
       <div class="ph"><b>Clip: world building</b><span>Terrain erodes, a town grows over it, walls go up, a room is dressed with physics</span></div>
     </figure>
     <div class="stills">
+      <!-- TODO media [still-settlement] Still: settlement: A town grown over terrain -->
       <figure class="media" data-slot="still-settlement">
         <div class="ph"><b>Still: settlement</b><span>A town grown over terrain</span></div>
       </figure>
+      <!-- TODO media [still-masonry] Still: masonry: A ruined stone wall -->
       <figure class="media" data-slot="still-masonry">
         <div class="ph"><b>Still: masonry</b><span>A ruined stone wall</span></div>
       </figure>
+      <!-- TODO media [still-stagehand] Still: set dressing: A cluttered room settled with physics -->
       <figure class="media" data-slot="still-stagehand">
         <div class="ph"><b>Still: set dressing</b><span>A cluttered room settled with physics</span></div>
       </figure>
@@ -1340,6 +1415,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="sim">Destruction and crowds</h2>
       <p class="lede">Deterministic simulations you can art-direct, baked and sent to Unreal.</p>
     </div>
+    <!-- TODO media [clip-sim] Clip: destruction and crowds: A wall breaks apart; a crowd flows through the street -->
     <figure class="media" data-slot="clip-sim">
       <div class="ph"><b>Clip: destruction and crowds</b><span>A wall breaks apart; a crowd flows through the street</span></div>
     </figure>
@@ -1365,6 +1441,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="geo">Digital twins and big worlds</h2>
       <p class="lede">Unreal's Large World Coordinates and Cesium are both double precision, but the DCC sitting between them and the source data usually isn't. Lila is, end to end.</p>
     </div>
+    <!-- TODO media [still-geo] Still: geospatial: A drone photogrammetry site and LiDAR point cloud, georeferenced, kilometres from the origin -->
     <figure class="media" data-slot="still-geo">
       <div class="ph"><b>Still: geospatial</b><span>A drone photogrammetry site and LiDAR point cloud, georeferenced, kilometres from the origin</span></div>
     </figure>
@@ -1402,6 +1479,7 @@ footer p { margin: 0 0 6px; }
       <h2 id="pipeline">Live Unreal pipeline</h2>
       <p class="lede">Send a mesh to Unreal once. From then on every save reimports it, with no export and import dance.</p>
     </div>
+    <!-- TODO media [clip-unreal] Clip: live Unreal sync: Split screen: save in Lila, the asset updates in Unreal -->
     <figure class="media" data-slot="clip-unreal">
       <div class="ph"><b>Clip: live Unreal sync</b><span>Split screen: save in Lila, the asset updates in Unreal</span></div>
     </figure>
@@ -1534,10 +1612,10 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
         <span class="pct">80%</span>
         <span class="note">More testing required</span>
       </li>
-      <li style="--p: 65">
+      <li style="--p: 75">
         <span class="name">Retopology</span>
         <span class="bar" aria-hidden="true"><span></span></span>
-        <span class="pct">65%</span>
+        <span class="pct">75%</span>
         <span class="note">Significant amount of advanced tooling in late-stage development requiring testing</span>
       </li>
       <li style="--p: 95">
@@ -1659,6 +1737,48 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   <p>Lila is not affiliated with Autodesk or Epic Games. Maya is a registered trademark of Autodesk, Inc. Unreal Engine is a trademark of Epic Games, Inc.</p>
   <p>&copy; 2026 Jared Taylor</p>
 </footer>
+
+<script>
+(function () {
+  var box = document.createElement("div");
+  box.className = "lightbox";
+  box.setAttribute("role", "dialog");
+  box.setAttribute("aria-modal", "true");
+  document.body.appendChild(box);
+
+  function close() {
+    box.classList.remove("open");
+    box.replaceChildren();
+    document.body.style.overflow = "";
+  }
+
+  function open(el) {
+    var c = el.cloneNode(true);
+    c.removeAttribute("width");
+    c.removeAttribute("height");
+    c.classList.remove("zoomable");
+    if (c.tagName === "VIDEO") {
+      c.muted = true;
+      c.loop = true;
+      c.controls = true;
+    }
+    box.replaceChildren(c);
+    box.classList.add("open");
+    document.body.style.overflow = "hidden";
+    if (c.tagName === "VIDEO") c.play().catch(function () {});
+  }
+
+  // Clicks on a video's own controls stay with the video; anywhere else closes.
+  box.addEventListener("click", function (e) { if (e.target === box || e.target.tagName === "IMG") close(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+
+  document.querySelectorAll(".shot img, .shot video, .media > img, .media > video, .bench video").forEach(function (el) {
+    var target = el.closest(".bench") || el;
+    target.classList.add("zoomable");
+    target.addEventListener("click", function (e) { e.preventDefault(); open(el); });
+  });
+})();
+</script>
 
 </body>
 </html>
