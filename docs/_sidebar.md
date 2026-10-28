@@ -15,6 +15,7 @@
 - [Home](/)
 - [System requirements](requirements.md)
 - [FAQ](faq.md)
+- [Support](support.md)
 - [Performance](performance.md)
 - [File formats](formats.md)
 
