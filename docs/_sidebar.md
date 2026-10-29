@@ -23,6 +23,7 @@
 - [Performance](performance.md)
 - [File formats](formats.md)
 - [Studio setup](studio-setup.md)
+- [Telemetry and privacy](privacy.md)
 
 ---
 
