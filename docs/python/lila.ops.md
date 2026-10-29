@@ -9092,6 +9092,7 @@ Import (or reimport) a file into the connected Unreal project. Connects first if
 | `contentPath` | `cp` | str |  | Destination asset, like /Game/Props/SM_Crate. |
 | `kind` | `k` | str | `'static'` | static \| skeletal \| animation \| meshSequence (a static mesh per frame, <contentPath>_000...) \| geometryCache (one Alembic Geometry Cache) \| vertexAnimation (a static mesh playing Vertex Animation Textures through a generated material) \| spline (a curve as an actor of spline components or landscape splines; unrealMap only, no contentPath) |
 | `skeleton` | `sk` | str |  | Skeleton asset to reuse, like /Game/Chars/SK_Hero_Skeleton. |
+| `facing` | `fc` | str |  | skeletal and animation: x keeps the character facing +X as modelled; y turns it to face +Y, Epic's mannequin convention (default the unreal pref /facing, x). Mesh and animations of one skeleton need the same value. |
 | `importMaterials` | `im` | bool |  | Create the materials Unreal does not have yet (default on). |
 | `materialFolder` | `mf` | str |  | Where materials are looked up first and created: /Game/... or relative to the asset's folder (default Materials). |
 | `keepMaterials` | `km` | bool |  | On reimport, keep materials reassigned in Unreal on slots that still exist (default on). |
@@ -9112,7 +9113,7 @@ Not undoable.
 
 ### unrealMap
 
-Map a node to an Unreal asset so saving the scene re-exports and reimports it. Stored in the workspace (.lila/unreal.json). Replaces any existing mapping for the node. An object set maps its members as one asset, exported together where they sit. kind meshSequence sends an animated mesh as a static mesh per frame (<contentPath>_000, ...; reimported in place, frames past the end deleted) and can point a Niagara mesh renderer at them; geometryCache sends it as one Alembic Geometry Cache; vertexAnimation bakes it to Vertex Animation Textures and sends the rest mesh, the textures and a material instance that plays them (sequence for the range, vat for the bake).
+Map a node to an Unreal asset so saving the scene re-exports and reimports it. Stored on the node in the scene: it follows renames, goes with deletes and duplicates don't inherit it. Static and skeletal mappings need a mesh under the node. Replaces any existing mapping for the node. An object set maps its members as one asset, exported together where they sit. kind meshSequence sends an animated mesh as a static mesh per frame (<contentPath>_000, ...; reimported in place, frames past the end deleted) and can point a Niagara mesh renderer at them; geometryCache sends it as one Alembic Geometry Cache; vertexAnimation bakes it to Vertex Animation Textures and sends the rest mesh, the textures and a material instance that plays them (sequence for the range, vat for the bake).
 
 **Objects:** node
 
@@ -9121,6 +9122,7 @@ Map a node to an Unreal asset so saving the scene re-exports and reimports it. S
 | `contentPath` | `cp` | str |  | Destination asset, like /Game/Props/SM_Crate. |
 | `kind` | `k` | str | `'static'` | static \| skeletal \| animation \| meshSequence (a static mesh per frame, <contentPath>_000...) \| geometryCache (one Alembic Geometry Cache) \| vertexAnimation (a static mesh playing Vertex Animation Textures through a generated material) \| spline (a curve as an actor of spline components or landscape splines; unrealMap only, no contentPath) |
 | `skeleton` | `sk` | str |  | Skeleton asset to reuse, like /Game/Chars/SK_Hero_Skeleton. |
+| `facing` | `fc` | str |  | skeletal and animation: x keeps the character facing +X as modelled; y turns it to face +Y, Epic's mannequin convention (default the unreal pref /facing, x). Mesh and animations of one skeleton need the same value. |
 | `importMaterials` | `im` | bool |  | Create the materials Unreal does not have yet (default on). |
 | `materialFolder` | `mf` | str |  | Where materials are looked up first and created: /Game/... or relative to the asset's folder (default Materials). |
 | `keepMaterials` | `km` | bool |  | On reimport, keep materials reassigned in Unreal on slots that still exist (default on). |
@@ -9146,11 +9148,9 @@ Map a node to an Unreal asset so saving the scene re-exports and reimports it. S
 | `width` | `wd` | float |  | spline, landscape: half-width at radius 1, cm (default 200). |
 | `deformTerrain` | `dt` | bool |  | spline, landscape: raise and lower the terrain along it (default on). |
 
-Not undoable.
-
 ### unrealMappings
 
-Every node -> Unreal asset mapping in this workspace.
+Every node -> Unreal asset mapping in this scene.
 
 Not undoable.
 
@@ -9257,7 +9257,9 @@ Not undoable.
 
 ### unrealSync
 
-Export and reimport every mapped node now, as saving does. Returns how many were queued.
+Export and reimport every mapped node now, as saving does, or only the given nodes. Returns how many were queued.
+
+**Objects:** nodes (default every mapping)
 
 Not undoable.
 
@@ -9266,8 +9268,6 @@ Not undoable.
 Remove the Unreal mapping of the given nodes (or the selection). Returns how many were removed.
 
 **Objects:** nodes
-
-Not undoable.
 
 ### uvAlignToEdge
 
