@@ -1,4 +1,5 @@
 - [← Lila home](https://lila-3d.github.io/ ':ignore')
+- [Support Lila](https://ko-fi.com/jaredtaylor ':ignore')
 
 ---
 
@@ -48,7 +49,3 @@
   - [Masonry](masonry.md)
   - [Settlement](settlement.md)
   - [Stagehand](stagehand.md)
-
----
-
-- [Support Lila](https://ko-fi.com/jaredtaylor ':ignore')
