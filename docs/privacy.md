@@ -50,6 +50,8 @@ Everything is tied to a random ID made when Lila is installed, not to you, your 
 
 Nothing is sent from `lilabatch`.
 
+Update checks are separate from telemetry: at startup Lila downloads `latest.json` from Lila's newest release on GitHub to see whether a newer version exists. Nothing about you is sent. Turn it off with **Check for Lila updates at startup** in **Preferences > General**, or `LILA_NO_UPDATE_CHECK=1`. Steam builds never check; Steam updates them.
+
 ## Your ID and your data
 
 **Reset ID** in **Preferences > General > Telemetry** gives you a new random ID. What's sent from then on can't be linked to what was sent before.
