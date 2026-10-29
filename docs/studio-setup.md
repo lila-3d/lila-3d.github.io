@@ -77,3 +77,11 @@ Settings resolve in this order, later winning: Lila's built-in defaults, studio 
 | `/fileDialog/allowMove` | `true` | Cut, copy, paste and drag-and-drop. |
 | `/fileDialog/allowDelete` | `true` | Delete. Files under source control are marked for delete; others go to the Recycle Bin or Trash, never deleted outright. |
 | `/fileDialog/native` | `false` | Use the system's file dialog instead of Lila's. |
+
+### Privacy settings worth locking
+
+| Key in `general.json` | Default | What it does |
+| --- | --- | --- |
+| `/support/allowScene` | `true` | Lets **Help > Save Support Bundle** include the open scene. Lock it `false` to keep scenes out of bundles. |
+| `/telemetry/usage` | Ticked at first run | Usage statistics (see [Telemetry and privacy](privacy.md)). |
+| `/telemetry/crashReports` | `false` | Sending crash reports. |

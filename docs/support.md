@@ -14,11 +14,11 @@ How to get help with Lila and report bugs.
 Post it in the **Bug Reports** forum of the [Steam discussions](https://steamcommunity.com/app/5520720/discussions/). Include:
 
 - What you did, what you expected, and what happened instead. Steps that reproduce it every time are the most useful thing you can send.
-- Your Lila version, from **Help > About Lila**.
+- A support bundle: **Help > Save Support Bundle** saves one zip with your Lila version, system and GPU, this session's log, your last crash reports and your preferences (tokens and passwords removed). Attach it to your post.
 - A screenshot or short video if it's visual.
 - The scene, if it only happens in one file and you're able to share it.
 
-**If Lila crashed**, click **Copy Crash Report** in the crash dialog and paste it into your post. If you closed the dialog, use **Help > Copy Last Crash Report**. The report holds the call stack, your GPU and driver, and the last log lines.
+**If Lila crashed**, the support bundle already holds the crash report. To paste one into your post instead, click **Copy Crash Report** in the crash dialog, or **Help > Copy Last Crash Report** if you closed it.
 
 ## Troubleshooting
 
