@@ -1084,7 +1084,13 @@ footer p { margin: 0 0 6px; }
   </section>
 
   <section class="area wrap" aria-labelledby="studio">
-    <h2 id="studio">Your Maya team already knows it</h2>
+    <div>
+      <h2 id="studio">Your Maya team already knows it</h2>
+      <button class="bench" type="button" data-slot="clip-maya-habits" aria-label="Play the Maya habits clip full screen">
+        <video src="assets/clips/lila-modeling.mp4" autoplay muted loop playsinline aria-label="Building a cockpit monitor in Lila: marking menus, the hotbox, the command palette and the shelf at the cursor"></video>
+      </button>
+      <p class="bench-hint">Click to enlarge</p>
+    </div>
     <ul>
       <li>
         <h3>Muscle memory transfers</h3>
@@ -1119,7 +1125,6 @@ footer p { margin: 0 0 6px; }
         <p>The license is perpetual and binds any future owner of Lila, so an acquisition can't take it away. If Lila ever goes 24 months without a release, its source becomes Apache 2.0.</p>
       </li>
     </ul>
-    <!-- TODO media [clip-maya-habits] Clip: Maya habits: W/E/R marking menus, Space hotbox, shelf at the cursor, parent() typed in the script editor. Add as a .bench button like the benchmark clip -->
     <p class="small">Want to try it on a real production? Studio pilots are open: <a href="https://vaei.github.io/">get in touch</a>.</p>
   </section>
 
@@ -1205,9 +1210,8 @@ footer p { margin: 0 0 6px; }
       <h2 id="uvs">UVs that unwrap well</h2>
       <p class="lede">Auto-unwrap that gives good results, then physics-based tools for the rest.</p>
     </div>
-    <!-- TODO media [clip-uvs] Clip: UVs: Auto-unwrap, then live relax and settle -->
     <figure class="media" data-slot="clip-uvs">
-      <div class="ph"><b>Clip: UVs</b><span>Auto-unwrap, then live relax and settle</span></div>
+      <video src="assets/clips/lila-uvs.mp4" autoplay muted loop playsinline aria-label="Auto-unwrap, the drag brush, then a physics settle in the UV editor"></video>
     </figure>
     <ul>
       <li>
@@ -1423,9 +1427,8 @@ footer p { margin: 0 0 6px; }
       <h2 id="sim">Destruction and crowds</h2>
       <p class="lede">Deterministic simulations you can art-direct, baked and sent to your engine.</p>
     </div>
-    <!-- TODO media [clip-sim] Clip: destruction and crowds: A wall breaks apart; a crowd flows through the street -->
     <figure class="media" data-slot="clip-sim">
-      <div class="ph"><b>Clip: destruction and crowds</b><span>A wall breaks apart; a crowd flows through the street</span></div>
+      <video src="assets/clips/lila-destruction.mp4" autoplay muted loop playsinline aria-label="A wall fracturing and falling with Jolt physics in Lila"></video>
     </figure>
     <ul>
       <li>
