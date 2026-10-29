@@ -26,7 +26,12 @@ Usage statistics, once per session:
 | Lila closes | Session length, minutes you were actively using it, whether it crashed, how many times each built-in command ran and whether from the UI, Python or an AI agent, how many extension or script commands ran (counted, never named), how often the Unreal link was used and the Unreal version |
 | You answer the optional questions | Your role, team size and the DCC you used before Lila |
 
-Crash reports, when Lila crashes: the call stack, the Lila version, your GPU and driver, and the last log lines, after file paths are removed. Lila asks before sending each one unless you tick **Always send**.
+Crash reports, when Lila crashes and you click **Send Crash Report** in the crash dialog (or every time, if you tick **Always send crash reports without asking**, also in **Preferences > General > Telemetry**):
+
+- The crash report: the call stack, Lila and Windows versions, your GPU and driver, and the names of the last commands you ran. Your username, computer name, file paths, log and command arguments are removed before it's sent.
+- A minidump: a snapshot of the memory Lila was using around the crash (the crashed code and the data it was working on). Sentry reads the call stack out of it and then discards it.
+
+To send a report you didn't send at the time, run `lilacrash.exe --send <folder>` from Lila's install folder, with the report's folder from **Help > Open Crash Reports Folder**.
 
 Everything is tied to a random ID made when Lila is installed, not to you, your account or your machine.
 
