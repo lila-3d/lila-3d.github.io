@@ -206,25 +206,70 @@ Lila brings many advanced modeling tools to the table.
 
 ### Auto-Bevel
 
-TODO Auto-bevel that can select the appropriate edges for you.
+**Modifiers > Auto Bevel**
+
+A live bevel that picks the edges for you: folds sharper than **Min Angle**, filtered by side (outside, inside or both), length and thickness. It keeps following the mesh as you edit it.
+
+- **Edit Edges** shows the input mesh with the picked edges selected; add or remove edges with normal selection, then **Apply**.
+- **Show Edges** keeps the picked edges highlighted when the modifier isn't selected.
+- **Complete Corners** adds the loops that join folds meeting at an angle.
+
+![Auto Bevel: the input, the edges it picks, and the result](images/essentials/auto-bevel.png)
 
 ### Split Rings
 
-TODO Like subdivide, but runs in one direction only.
+**Model > Split Rings** or **Shift+RMB Marking Menu**
 
+Subdivides one way only: adds edge loops without the cross cuts a full subdivide makes. Select edges to split every ring through them, or faces (or a whole mesh in object mode) to split them in one direction.
+
+- **Count** sets the loops per ring, evenly spaced.
+- **Direction** picks the way across faces: **Across** cuts the selection's short way, **Along** the long way.
+- **Edge Flow** curves the new loops to follow the surface instead of lying flat.
+- **Make Non-Destructive** turns it into a Split Rings modifier you can change later.
+
+![Split Rings across a disc, at count 1 and count 8](images/essentials/split-rings.png)
+
+### Grid Fill
+
+**Model > Grid Fill** or **Shift+RMB Marking Menu**
+
+Turns a triangle fan, such as a cylinder cap, into clean quads: a grid in the middle, joined to the border by a ring of quads. Select the fan's centre vertex, or the faces to rebuild. With edges selected, it fills the holes they border the same way.
+
+- **Grid Size** sets how much of the hole the grid takes; at 1 there's no ring.
+- **Rotate** turns the grid's corners round the border.
+- An odd number of border edges leaves one triangle in the ring.
+
+![Grid Fill from the marking menu, at the default grid size and at 0.86 with the corners rotated](images/essentials/grid-fill.png)
 ### Spherize
 
-TODO Push the selection into a sphere.
+**Model > Spherize** or **Shift+RMB Marking Menu**
+
+Pushes the selected components, or whole meshes in object mode, onto a sphere fitted to them.
+
+![A character spherized fully, then at half amount](images/essentials/spherize.png)
+
+- Afterwards the sphere stays in the viewport: drag the ring to change the radius, the axis squares to stretch it into an ellipsoid, or the centre to move it. **Enter** accepts, **Esc** undoes.
+- **Amount** below 1 moves part of the way, which rounds a shape out without losing it. Soft selection fades it further.
+- **Along Normals** slides each point along its own normal instead of straight toward the centre.
 
 ### Circularize
 
-TODO Adjust the selection into a circle
+**Model > Circularize** or **Shift+RMB Marking Menu**
+
+Fits the selected edge loops, vertices, or the border of a face region to a circle. The faces inside follow, so a patch of quads comes out round, ready to extrude or bridge into a pipe. An open chain becomes an arc between its ends.
+
+![A rectangle of faces circularized](images/essentials/circularize.png)
+
+- **Spacing**: **Even** spaces the points equally round the circle, **Keep** keeps their spacing along the loop, **Project** moves each one straight out to it.
+- **Radius** 0 keeps the loop's average radius.
+- **Sides** of 3 or more makes a regular polygon instead.
+- **Flatten** off keeps each point's height off the circle's plane, so it stays on a curved surface.
 
 ## Auto UV
 
 Lila has a high-end UV toolkit and the Auto UV feature can produce worthwhile results in some cases.
 
-<!-- todo image -->
+![Auto UV seams on a canopy frame and the packed layout](images/essentials/auto-uv.png)
 
 ## Transfer UVs to a similar piece
 

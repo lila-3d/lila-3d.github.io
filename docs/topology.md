@@ -17,7 +17,7 @@ Retopologize by hand. Available from the **Topology** menu or the **Topology Too
 | --- | --- |
 | **Shift**-drag | Live relax under the brush |
 | **Shift**+scroll | Brush size |
-| **Ctrl+Shift**-click | Delete the face, vertex, guide, knot or stroke under the cursor |
+| **Ctrl+Alt**-click | Delete the face, vertex, guide, knot or stroke under the cursor |
 | Scroll over a live construct | Its main count: sides, quads along, points around |
 | **Ctrl**+scroll over a live construct | Its second count: pattern, rows, row density |
 | **Enter** | Freeze the active construct |

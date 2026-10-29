@@ -5659,6 +5659,15 @@ Cap the holes bordered by the selected edges (every hole when nothing is selecte
 
 Reverse the winding of the selected faces (the whole mesh in object mode).
 
+### polyGridFill
+
+Rebuild triangle fans and other patches as a quad grid inside a ring of quads: select the fans' centre vertices or the faces. With edges selected, fills the holes they border the same way.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `gridSize` |  | float | `0.4` | The grid's size against the hole; 1 grids right to the border with no ring. |
+| `rotate` |  | int | `0` | Steps the grid's corners round the border. |
+
 ### polyIcoSphere
 
 Create a IcoSphere mesh. Returns [mesh, generator] (generator is None with generator=False).
@@ -7575,14 +7584,14 @@ Replace a target's shape with a mesh's (same point count as the base): the full 
 
 ### setPivot
 
-Move the rotate and scale pivots to a world position, or orient the pivot, without moving the objects.
+Move the rotate and scale pivots to a world position, or orient the pivot, without moving the objects. A joint's pivot is the joint itself: position= moves the joint and orient= sets its jointOrient, leaving its children where they are.
 
 **Objects:** objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `position` |  | tuple[float, float, float] |  | World position, cm. |
-| `orient` |  | tuple[float, float, float] |  | Pivot orientation relative to the object's axes, Euler XYZ degrees (pivotOrient). |
+| `orient` |  | tuple[float, float, float] |  | Pivot orientation relative to the object's axes, Euler XYZ degrees (pivotOrient); on a joint, its jointOrient. |
 
 ### setPoseDriverTarget
 
