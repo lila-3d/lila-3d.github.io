@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "in-production",
+      "type": "news",
+      "date": "2026-10-30",
+      "title": "Lila is in production",
+      "body": "Right now that means laying the groundwork: modern, fast tech under every tool, so Lila stays quick as your scenes grow.",
+      "image": "assets/news/in-production.jpg",
+      "url": "https://lila-3d.github.io/"
+    }
+  ]
+}
