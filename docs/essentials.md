@@ -41,6 +41,15 @@ Hold **F1** to show every hotkey. Release it to close.
 
 From the viewport toolbar button, click the surface afterwards.
 
+## Camera bookmarks
+
+| Press | To |
+| --- | --- |
+| **Ctrl+Shift+1** to **9** | Save the view in that slot |
+| **Alt+Shift+1** to **9** | Jump back to it (**[** undoes the jump) |
+
+Each camera has its own slots, including persp and each ortho view, and they save with the scene. Space, then click **Lila**, lists them too.
+
 ## Hide the selection highlight
 
 The **Highlight Selection** button at the left of the viewport's bottom bar turns off the selection highlight. This gets them out of the way when you adjust a modifier or attribute and want to see the mesh change.
