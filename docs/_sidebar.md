@@ -28,22 +28,31 @@
 
 ---
 
-- [Essentials](essentials.md)
-- [Curves](curves.md)
-- [Animation](animation.md)
-- [Node editor](node-editor.md)
-- [Duplicate and instance](duplicate.md)
-- [Scene origin](scene-origin.md)
-- [Lights](lights.md)
-- [Rendering](rendering.md)
-- [Topology](topology.md)
-- [Destruction](destruction.md)
-- [Change stream](change-stream.md)
-- [Viewport renderers and Hydra](viewport-renderers.md)
-- [Debug drawing](debug-drawing.md)
-- [Attributes and arrays](attributes.md)
-- [C++ extensions](cpp-extensions.md)
-- [File translators](file-translators.md)
+- <span class="nav-label">Basics</span>
+  - [Essentials](essentials.md)
+  - [Duplicate and instance](duplicate.md)
+  - [Scene origin](scene-origin.md)
+  - [Attributes and arrays](attributes.md)
+- <span class="nav-label">Modeling</span>
+  - [Curves](curves.md)
+  - [Topology](topology.md)
+- <span class="nav-label">Nodes</span>
+  - [Node editor](node-editor.md)
+    - [Geometry nodes](geometry-nodes.md)
+    - [Geometry node reference](nodes/geometry-nodes.md)
+    - [Texture node reference](nodes/texture-nodes.md)
+- <span class="nav-label">Animation and effects</span>
+  - [Animation](animation.md)
+  - [Destruction](destruction.md)
+- <span class="nav-label">Lighting and rendering</span>
+  - [Lights](lights.md)
+  - [Rendering](rendering.md)
+  - [Viewport renderers and Hydra](viewport-renderers.md)
+- <span class="nav-label">Pipeline and scripting</span>
+  - [Change stream](change-stream.md)
+  - [Debug drawing](debug-drawing.md)
+  - [C++ extensions](cpp-extensions.md)
+  - [File translators](file-translators.md)
 
 ---
 
