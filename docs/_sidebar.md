@@ -38,6 +38,7 @@
 - [Topology](topology.md)
 - [Destruction](destruction.md)
 - [Change stream](change-stream.md)
+- [Viewport renderers and Hydra](viewport-renderers.md)
 - [Debug drawing](debug-drawing.md)
 - [Attributes and arrays](attributes.md)
 - [C++ extensions](cpp-extensions.md)

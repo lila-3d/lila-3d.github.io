@@ -779,6 +779,19 @@ The maps the baker implements: id, label, default suffix, how texels resolve (av
 
 Not undoable.
 
+### bakeMeshCache
+
+Record each mesh's points over a frame range into a meshCache deformer on top of its stack, which then plays them back as they were (turn it off to see the live stack again). Returns the deformers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | int |  | First frame; the playback start by default. |
+| `end` |  | int |  | Last frame; the playback end by default. |
+| `step` |  | int | `1` | Frames between samples. |
+| `name` |  | str |  | Name for the deformers. |
+
 ### bakeModifierStack
 
 Bake meshes to their current result, deleting the generator and modifiers feeding them. Curves likewise keep what their history makes and lose the history; other objects are skipped.
@@ -1724,7 +1737,7 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `ormMap` |  | str |  | Packed occlusion/roughness/metallic texture path. |
 | `packedLayout` |  | Any |  | orm or mro: the packed map's channel order. |
 | `emissiveMap` |  | str |  | Texture path. |
-| `shadingModel` |  | Any |  | Lighting model: defaultLit (Unreal's default lit), painterly (brush strokes and a colour palette), toon (stepped ramp with tinted light and shadow) or foliage (soft gradient shading, lit through). |
+| `shadingModel` |  | Any |  | Lighting model: defaultLit (Unreal's default lit), painterly (brush strokes and a colour palette), toon (stepped ramp with tinted light and shadow), foliage (soft gradient shading, lit through) or unlit (the base colour as it is, plus emissive, with no lighting). |
 | `painterlyStrength` |  | float |  | Painterly: scales the whole effect; 0 shades exactly like defaultLit. |
 | `strokeNormal` |  | float |  | Painterly: how far the stroke sheet bends the shading normal; 0 is the plain surface. |
 | `strokeScale` |  | float |  | Painterly: size of one stroke sheet tile, cm (UV mode: tiles per UV unit is 100 / this). |
@@ -1756,6 +1769,27 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `foliageTopHighlight` |  | float |  | Foliage: brightens surfaces facing up. |
 | `foliageTranslucency` |  | float |  | Foliage: light passing through toward the camera from behind. |
 | `foliageWrap` |  | float |  | Foliage: wraps the light around the form, 0 to 1, for soft clumps. |
+| `baseColorMapWrapU` |  | Any |  | What baseColorMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `baseColorMapWrapV` |  | Any |  | What baseColorMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `baseColorMapFilter` |  | Any |  | How baseColorMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `metallicMapWrapU` |  | Any |  | What metallicMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `metallicMapWrapV` |  | Any |  | What metallicMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `metallicMapFilter` |  | Any |  | How metallicMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `roughnessMapWrapU` |  | Any |  | What roughnessMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `roughnessMapWrapV` |  | Any |  | What roughnessMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `roughnessMapFilter` |  | Any |  | How roughnessMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `normalMapWrapU` |  | Any |  | What normalMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `normalMapWrapV` |  | Any |  | What normalMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `normalMapFilter` |  | Any |  | How normalMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `ambientOcclusionMapWrapU` |  | Any |  | What ambientOcclusionMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `ambientOcclusionMapWrapV` |  | Any |  | What ambientOcclusionMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `ambientOcclusionMapFilter` |  | Any |  | How ambientOcclusionMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `ormMapWrapU` |  | Any |  | What ormMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `ormMapWrapV` |  | Any |  | What ormMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `ormMapFilter` |  | Any |  | How ormMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `emissiveMapWrapU` |  | Any |  | What emissiveMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `emissiveMapWrapV` |  | Any |  | What emissiveMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
+| `emissiveMapFilter` |  | Any |  | How emissiveMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
 
 ### createMesh
 
@@ -2661,6 +2695,7 @@ Export the evaluated meshes and transforms to a binary FBX 7.4 file. Objects def
 | `children` |  | bool | `True` | Include the descendants of the given objects. |
 | `smoothingGroups` | `sg` | bool | `True` | Write edge smoothing (hard and soft edges). |
 | `compress` |  | bool | `True` | Deflate the larger arrays as the FBX SDK does; False writes them raw. |
+| `textures` |  | bool | `False` | Write the materials' colors and base color, normal and emissive maps as file textures with their wrap modes (repeat or clamp). Off writes plain named materials. |
 | `units` | `u` | str | `'cm'` | File units: cm, m, mm, in or ft. Lengths are scaled to them. |
 | `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
 
@@ -2685,7 +2720,7 @@ Export the evaluated meshes, skeletons and cameras to glTF 2.0: binary .glb, or 
 
 Meshes go out triangulated as the viewport splits them, one primitive per material slot, with normals, MikkTSpace tangents, every UV set (flipped to glTF's V-down) and every color set. Skinned meshes go out in their bind pose with JOINTS_n/WEIGHTS_n sets (four influences each, up to maxInfluences) and inverse bind matrices; morph targets with position and normal deltas (sparse where few points move), names in extras.targetNames and their weights. Each take becomes one animation (takes=, or the current animation over start/end): sampled every frame and thinned where interpolation reproduces the samples, translate and scale curves written as their own keys with bakeAnimation=False. Cameras keep their field of view, aspect and clipping.
 
-Materials go out metallic-roughness: base color and opacity, ORM maps shared as glTF's metallic-roughness and occlusion textures (other layouts and separate maps repacked), DirectX normal maps green-flipped to OpenGL, emissive with KHR_materials_emissive_strength above 1, specular through KHR_materials_specular, alpha mode, cutoff and double sided. Textures that aren't PNG or JPEG are converted to PNG.
+Materials go out metallic-roughness: base color and opacity, ORM maps shared as glTF's metallic-roughness and occlusion textures (other layouts and separate maps repacked), DirectX normal maps green-flipped to OpenGL, emissive with KHR_materials_emissive_strength above 1, specular through KHR_materials_specular, alpha mode, cutoff and double sided; unlit materials as KHR_materials_unlit with their base color. Each map's wrap and filter go in its texture's sampler (black borders clamp). Textures that aren't PNG or JPEG are converted to PNG.
 
 draco=True compresses every primitive with KHR_draco_mesh_compression (then required to read the file), quantized per the dracoBits flags: positions, normals, UVs, colors and generic attributes (tangents, skin weights; joint indices stay exact). Morph targets stay uncompressed accessors, as the extension requires, with the points encoded in order so they still line up. Returns the path.
 
@@ -3831,6 +3866,21 @@ Create an image plane for modelling from reference images, or edit the image pla
 | `placement` | `pl` | str |  | behind, inScene or inFront of the geometry. |
 | `locked` | `lk` | bool |  | Not pickable in the viewport (reference mode). |
 
+### importAlembic
+
+Import an Alembic (.abc) file's PolyMeshes as meshes, each placed through its transforms at its first sample. A mesh whose points move over time gets a meshCache deformer playing every sample (interpolated between them); one whose topology changes keeps its first sample. Returns the new mesh names, or with report=True a dict of nodes, meshCaches, start, end and warnings.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `profile` | `ax` | str | `'ue5'` | Axis profile the file was written in, as exportAlembic's: ue5, ue6 or generic (the scene's axes). |
+| `scale` | `sc` | float | `1.0` | Multiplies every length (10 undoes an export at 0.1). |
+| `parent` | `p` | str |  | Parent the new meshes under this node. |
+| `setPlayback` |  | bool | `True` | Set the playback range to the caches' samples. |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+| `select` |  | bool | `True` | Select the new meshes. |
+
 ### importDeformerWeights
 
 Read a weight map written by exportDeformerWeights onto a deformer (or a field's painted layer): by point id when the point counts match, else by closest surface point to the exported mesh.
@@ -3895,7 +3945,7 @@ Import a glTF 2.0 file (.gltf with its .bin and images, embedded data URIs, or b
 
 Each mesh becomes one Lila mesh, its primitives becoming material slots, with normals (hard edges where they split), tangents, every UV set (flipped to Lila's V-up) and every vertex color set; vertices split for seams weld back into points. Skins become skinClusters on joints with every JOINTS_n/WEIGHTS_n influence and the inverse bind matrices; a joint's rest rotation goes into its jointOrient. Morph targets become a morph with their names and default weights. Animation channels become curves: LINEAR and STEP keys exactly, CUBICSPLINE with its tangents (rotations sampled every frame); with several animations each becomes a take, the first active. Cameras keep their field of view and clipping.
 
-Materials become material nodes: base color and alpha mode, metallic and roughness (packed into an ORM map, written as a new image when the file's layout differs), occlusion, emissive with KHR_materials_emissive_strength, normal map (kept OpenGL style), double sided, KHR_materials_ior/specular as specular, KHR_texture_transform baked into the UVs, and KHR_materials_unlit approximated as emissive. Embedded and converted images are written to textureDir. KHR_mesh_quantization, sparse accessors, EXT_meshopt_compression and KHR_draco_mesh_compression are decoded (a Draco primitive that fails to decode falls back to its uncompressed data when the file has it). KHR_lights_punctual lights come in as lights, intensity in candela or lux.
+Materials become material nodes: base color and alpha mode, metallic and roughness (packed into an ORM map, written as a new image when the file's layout differs), occlusion, emissive with KHR_materials_emissive_strength, normal map (kept OpenGL style), double sided, KHR_materials_ior/specular as specular, KHR_texture_transform baked into the UVs, KHR_materials_unlit as the unlit shading model, and each texture's sampler as its map's wrap and filter. Embedded and converted images are written to textureDir. KHR_mesh_quantization, sparse accessors, EXT_meshopt_compression and KHR_draco_mesh_compression are decoded (a Draco primitive that fails to decode falls back to its uncompressed data when the file has it). KHR_lights_punctual lights come in as lights, intensity in candela or lux.
 
 Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, lights, morphs, materials, images, takes, take, fps, start, end, curves, skipped, warnings and errors.
 
@@ -4681,6 +4731,14 @@ Not undoable.
 Bake layers (and any between them) down into the layer under the lowest, or the base animation: the result is sampled every frame across their keys, so it evaluates the same. Returns the layer merged into.
 
 **Objects:** layers
+
+### meshCacheInfo
+
+A meshCache's samples: {points, samples, start, end} (seconds). Give the deformer or a mesh with one.
+
+**Objects:** meshCache or mesh
+
+Not undoable.
 
 ### meshCheck
 
@@ -7540,7 +7598,7 @@ Make the last key of each curve a loop key: it mirrors the first key's value and
 
 ### setMaterialTexture
 
-Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal, ambientOcclusion, orm, mro (the packed map with the MRO layout) or emissive. Stored relative to the workspace root (or the scene folder without one).
+Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal, ambientOcclusion, orm, mro (the packed map with the MRO layout) or emissive. Stored relative to the workspace root (or the scene folder without one). wrap, wrapU, wrapV and filter set how it is sampled; given without path they change only that.
 
 **Objects:** material
 
@@ -7548,6 +7606,10 @@ Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal
 | --- | --- | --- | --- | --- |
 | `channel` | `c` | str |  | Texture channel. |
 | `path` | `p` | str |  | Image file; empty clears. |
+| `wrap` |  | str |  | Both wrap modes. One of `repeat`, `clamp`, `mirror`, `black`. |
+| `wrapU` |  | str |  | Wrap along U. One of `repeat`, `clamp`, `mirror`, `black`. |
+| `wrapV` |  | str |  | Wrap along V. One of `repeat`, `clamp`, `mirror`, `black`. |
+| `filter` |  | str |  | linear or nearest. |
 
 ### setMembers
 
@@ -10683,7 +10745,7 @@ Available when the OpenUSD extension is loaded.
 
 Export to a USD file. The extension picks the format: .usda text, .usdc binary, .usd binary (or text with format='usda') and .usdz, a package holding the stage and its textures. Objects default to the selection (or every root with selectionOnly=False); their descendants come too.
 
-Defaults suit Unreal's USD importer: Z up, metersPerUnit 0.01 (centimetres), UsdPreviewSurface materials and UsdSkel. The stage has one root prim named after the file, its defaultPrim, with the exported nodes under it and the materials in a Materials scope. Transforms are written as translate, rotate (in the node's rotate order) and scale ops, or a matrix when sheared. Meshes keep their n-gons (triangulate=True writes the viewport's triangles), split normals, every UV set (as st, st1, ...), the current color set as displayColor/displayOpacity and the others as color primvars, edge creases, and a GeomSubset per material slot when there are several. Materials map to UsdPreviewSurface: a UsdUVTexture per map read through one UsdPrimvarReader_float2, packed ORM/MRO maps as one texture feeding occlusion, roughness and metallic, DirectX normal maps flipped to USD's OpenGL convention by the texture's scale and bias, emissive intensity as the texture's scale, masked and translucent opacity from the base color's alpha, and twoSided as doubleSided on the meshes using it.
+Defaults suit Unreal's USD importer: Z up, metersPerUnit 0.01 (centimetres), UsdPreviewSurface materials and UsdSkel. The stage has one root prim named after the file, its defaultPrim, with the exported nodes under it and the materials in a Materials scope. Transforms are written as translate, rotate (in the node's rotate order) and scale ops, or a matrix when sheared. Meshes keep their n-gons (triangulate=True writes the viewport's triangles), split normals, every UV set (as st, st1, ...), the current color set as displayColor/displayOpacity and the others as color primvars, edge creases, and a GeomSubset per material slot when there are several. Materials map to UsdPreviewSurface: a UsdUVTexture per map read through one UsdPrimvarReader_float2, packed ORM/MRO maps as one texture feeding occlusion, roughness and metallic, DirectX normal maps flipped to USD's OpenGL convention by the texture's scale and bias, emissive intensity as the texture's scale, masked and translucent opacity from the base color's alpha, each map's wrap as wrapS and wrapT (nearest filtering as magFilter and minFilter), unlit materials as their base color emitted over a black surface, and twoSided as doubleSided on the meshes using it. Meshes a meshCache drives write their points as time samples.
 
 Joints become a Skeleton (bind and rest transforms) under a SkelRoot shared with the meshes skinned to it; skins write jointIndices and jointWeights (pruned to maxInfluences) and the mesh's geomBindTransform, in the bind pose. Morph targets become BlendShapes with their in-betweens; a mesh with morphs and no skin gets a one-joint skeleton of its own so Unreal imports them. Nodes parented to joints are written beside the skeleton, their joint's motion baked into them. Cameras write their lens, film back and clipping. Curves write as BasisCurves (linear or cubic bezier) or, for NURBS, NurbsCurves. LOD groups whose levels are plain meshes become Unreal's LOD variant set.
 
@@ -10734,7 +10796,7 @@ Import a USD file (.usd, .usda, .usdc or .usdz) into the scene. The stage is ope
 
 Prims become nodes with their names and hierarchy: Xform, Scope and untyped prims transforms (every xformOp kind and order resolved; translate, rotate in any order, scale and pivot land on the channels as authored), Mesh prims meshes with their n-gons, normals, every UV set (st, st1, ... in order, then other texCoord primvars), displayColor/displayOpacity and other color primvars as color sets, other numeric primvars as mesh attributes, edge creases, holes left out and materialBind GeomSubsets as material slots. Cube, Sphere, Cylinder, Cone, Capsule and Plane are tessellated to meshes. Cameras keep their lens, film back, clipping and projection; BasisCurves (linear, bezier, bspline, catmullRom; periodic and pinned) and NurbsCurves become curve nodes. Invisible prims arrive hidden; proxy and guide prims are skipped unless purposes asks for them.
 
-UsdPreviewSurface materials become Lila materials (Unreal's default lit) with their textures: packed occlusion/roughness/metallic textures as an ORM or MRO map, normal maps' green convention read from the texture's scale, emissive intensity from its scale, and opacity from the base color texture's alpha as masked or translucent. Direct and collection bindings both resolve. Textures inside a .usdz are unpacked beside it.
+UsdPreviewSurface materials become Lila materials (Unreal's default lit) with their textures: packed occlusion/roughness/metallic textures as an ORM or MRO map, normal maps' green convention read from the texture's scale, emissive intensity from its scale, opacity from the base color texture's alpha as masked or translucent, and each texture's wrapS, wrapT and magFilter as its map's wrap and filter. Unlit materials Lila wrote and MaterialX ND_surface_unlit surfaces become unlit materials. Direct and collection bindings both resolve. Textures inside a .usdz are unpacked beside it. Meshes with time-sampled points get a meshCache deformer playing every sample (interpolated between them); a mesh whose topology changes over time keeps its rest frame.
 
 UsdSkel skeletons become joints, SkelBindingAPI skins skinClusters with their weights and bind pose, BlendShapes morph targets with their in-betweens, and SkelAnimation keys on the joints and target weights. Time samples become keys (linear, or stepped on a held stage), and the stage's timeCodesPerSecond, framesPerSecond and time range set the scene's fps and playback range. Instanceable prims and PointInstancers are realized: each instance its own transform, sharing the prototype's mesh data.
 
@@ -10810,7 +10872,7 @@ usdStageLoad("set", load=False)
 
 Open a USD file as a live stage: a usdStage node holding the composed stage, its prims built below it as objects. Nothing is flattened: variants, payloads, references and sublayers stay live. Edits to the objects are written as overs to the stage's edit layer when the scene saves (and before a reload or a variant or payload switch); the source files are never changed. File > Open and Import of a USD file run this; importUsd flattens instead.
 
-Written: moving objects (with animation), hiding them, deleting them (the prim is deactivated), mesh edits, material assignments and edits, new objects under the stage, variant selections and payload loading. Joint, skin weight and blend shape edits and reparenting are not written; saving lists them as warnings. Returns the stage node, or with report=True a dict of stage, prims, nodes, materials, skipped and warnings.
+Written: moving objects (with animation), hiding them, deleting them (the prim is deactivated), mesh edits, material assignments and edits, new objects under the stage, objects moved to another parent, joint poses and keys, new joints, skin weights, blend shapes and their weights, variant selections and payload loading. What can't be written is listed as a warning when saving. Returns the stage node, or with report=True a dict of stage, prims, nodes, materials, skipped and warnings.
 
 **Objects:** path
 
@@ -10835,7 +10897,7 @@ usdStageOpen("shot.usda", editLayer="shot_lila.usda")
 
 ### usdStagePrim
 
-Every composed property of a stage object's prim, custom schemas included: {prim, type, schemas, instanceProxy, properties: [{name, type, value, custom, timeSamples, authored}]}. Values are usda text at the current time; long arrays are summarized unless full=True; relationships list their targets.
+Every composed property of a stage object's prim, custom schemas included: {prim, type, schemas, instanceProxy, properties: [{name, type, value, custom, timeSamples, authored}]}. Values are usda text at the current time; long arrays are summarized unless full=True; relationships list their targets. An object inside an LOD level adds level, the level's variant.
 
 **Objects:** object
 

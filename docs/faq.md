@@ -77,7 +77,7 @@ Its own, on Vulkan 1.3.
 
 ### Does Lila support Hydra?
 
-Not yet. Lila draws USD stages with its own renderer, so Hydra isn't needed to see or edit them. Hydra support is planned for later, for the things Lila can't draw itself: Hydra procedurals and prim types Lila has no equivalent for.
+Yes, as a viewport renderer. Any Hydra render delegate, Storm or your own engine's, can draw a viewport while Lila keeps its gizmos and selection on top, and it sees both Lila's objects and live USD stages. See [Viewport renderers and Hydra](viewport-renderers.md).
 
 ### How does undo work?
 

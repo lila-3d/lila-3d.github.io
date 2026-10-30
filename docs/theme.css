@@ -87,6 +87,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/debug-drawing"]::before,
 .sidebar-nav a[href="#/lights"]::before,
 .sidebar-nav a[href="#/change-stream"]::before,
+.sidebar-nav a[href="#/viewport-renderers"]::before,
 .sidebar-nav a[href="#/cpp-extensions"]::before,
 .sidebar-nav a[href="#/file-translators"]::before,
 .sidebar-nav a[href="#/faq"]::before,
@@ -127,6 +128,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/debug-drawing"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16zM14 6l4 4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/lights"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3z'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/change-stream"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h4l3-8 4 16 3-8h4'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/viewport-renderers"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h18v14H3zM8 21h8'/%3E%3Ccircle cx='12' cy='11' r='4'/%3E%3Cpath d='M12 7l2 4M16 11h-4M10 14.5l2-3.5'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/cpp-extensions"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/file-translators"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H6v18h12V7zM14 3v4h4M9 14h6M13 11l3 3-3 3'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/support"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6'/%3E%3C/svg%3E"); }
