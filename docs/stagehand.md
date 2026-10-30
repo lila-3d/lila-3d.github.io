@@ -4,7 +4,7 @@ Push, drop and settle props into place with physics, fill shelves and scatter de
 
 ## Get it working
 
-**Push things into place by hand.** Select what may move, then **Dress > Grab with Physics**. Whatever touches the selection may move too; everything else is hit but stays put.
+**Push things into place by hand.** Select what may move, then **Level > Physics Tools > Grab with Physics**. Whatever touches the selection may move too; everything else is hit but stays put.
 
 | Key | Does |
 | --- | --- |
@@ -26,7 +26,7 @@ drop("mug", onto="desk", at=[40, 0, 10])
 dressCheck(["mug", "plate"])["issues"]                # anything floating, overlapping or about to fall
 ```
 
-**Place from the prop library.** **Dress > Prop Library**, then drag a thumbnail into a viewport. It stands on the surface under the cursor. Hold Shift on release to drop it with physics, Ctrl to place an independent copy instead of an instance. **Add Selection** saves the selection as a new asset.
+**Place from the prop library.** **Level > Prop Library**, then drag a thumbnail into a viewport. It stands on the surface under the cursor. Hold Shift on release to drop it with physics, Ctrl to place an independent copy instead of an instance. **Add Selection** saves the selection as a new asset.
 
 ```python
 librarySearch("wooden crate")
@@ -44,7 +44,7 @@ This gives you a live arrangement whose seed, gap and lean inputs re-arrange it.
 
 <!-- TODO image: a bookshelf filled with fillShelf, some books leaning, a stack lying flat, the boards sagging (images/stagehand/shelf.png) -->
 
-**Snap kit pieces.** Give each piece snap points where it joins others, then drag pieces with **Dress > Kit Place Tool**: they jump to compatible points.
+**Snap kit pieces.** Give each piece snap points where it joins others, then drag pieces with **Level > Level Kit > Kit Place Tool**: they jump to compatible points.
 
 ```python
 addSnapPoint("Wall_A", type="wallEnd", position=[200, 0, 0], normal=[1, 0, 0])

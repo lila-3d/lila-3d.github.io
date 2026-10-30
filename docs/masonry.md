@@ -5,7 +5,7 @@ Brick and stone walls laid course by course along any line or loop, then ruined,
 ## Get it working
 
 1. Draw the wall's base line or loop as a mesh with loose edges (or give the points from Python). Y is up; the wall stands on the lowest point.
-2. **Create > Masonry Wall** on the selection.
+2. **Level > Masonry > Masonry Wall** on the selection.
 3. Change **bond**, **height**, **thickness** and the stone sizes on the modifier in the attribute editor.
 
 ```python
