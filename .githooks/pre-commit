@@ -1,0 +1,3 @@
+#!/bin/sh
+# Every page in docs/_sidebar.md needs an icon in docs/theme.css.
+exec python "$(git rev-parse --show-toplevel)/.githooks/check_sidebar_icons.py"
