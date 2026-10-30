@@ -10741,11 +10741,34 @@ masonryInfo(tower['mesh'])
 
 Available when the OpenUSD extension is loaded.
 
+### exportMaterialX
+
+Write Lila materials to a MaterialX document (.mtlx): each a surfacematerial with its shader and a nodegraph of image nodes (UV set as texcoord index, wrap as address modes, nearest filtering as closest), packed ORM/MRO maps split by a separate3 node, normal maps through normalmap (DirectX maps flipped to MaterialX's OpenGL convention), emissive and opacity from the base color's alpha. Unlit materials use surface_unlit. Settings MaterialX has no input for are kept on the material node for importMaterialX. Objects stand for the materials their meshes use; without any, the selection's, or every material. Returns the path, or with report=True {path, materials, warnings}.
+
+**Objects:** path materialsOrObjects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `surface` |  | str | `'openPBR'` | The lit surface: openPBR (OpenPBR Surface, where the industry is converging) or standardSurface. |
+| `textures` | `tex` | str | `'relative'` | How texture files are referenced: relative to the file, absolute, or copy (into <name>_textures beside it). |
+| `selectionOnly` | `sl` | bool | `True` | Without names: the selection's materials; False writes every material. |
+| `report` |  | bool | `False` | Return {path, materials, warnings} instead of the path. |
+
+Not undoable.
+
+```python
+exportMaterialX("C:/out/props.mtlx", "Brick", "Glass")
+```
+
+```python
+exportMaterialX("C:/out/all.mtlx", selectionOnly=False, surface="standardSurface")
+```
+
 ### exportUsd
 
 Export to a USD file. The extension picks the format: .usda text, .usdc binary, .usd binary (or text with format='usda') and .usdz, a package holding the stage and its textures. Objects default to the selection (or every root with selectionOnly=False); their descendants come too.
 
-Defaults suit Unreal's USD importer: Z up, metersPerUnit 0.01 (centimetres), UsdPreviewSurface materials and UsdSkel. The stage has one root prim named after the file, its defaultPrim, with the exported nodes under it and the materials in a Materials scope. Transforms are written as translate, rotate (in the node's rotate order) and scale ops, or a matrix when sheared. Meshes keep their n-gons (triangulate=True writes the viewport's triangles), split normals, every UV set (as st, st1, ...), the current color set as displayColor/displayOpacity and the others as color primvars, edge creases, and a GeomSubset per material slot when there are several. Materials map to UsdPreviewSurface: a UsdUVTexture per map read through one UsdPrimvarReader_float2, packed ORM/MRO maps as one texture feeding occlusion, roughness and metallic, DirectX normal maps flipped to USD's OpenGL convention by the texture's scale and bias, emissive intensity as the texture's scale, masked and translucent opacity from the base color's alpha, each map's wrap as wrapS and wrapT (nearest filtering as magFilter and minFilter), unlit materials as their base color emitted over a black surface, and twoSided as doubleSided on the meshes using it. Meshes a meshCache drives write their points as time samples.
+Defaults suit Unreal's USD importer: Z up, metersPerUnit 0.01 (centimetres), UsdPreviewSurface materials and UsdSkel. The stage has one root prim named after the file, its defaultPrim, with the exported nodes under it and the materials in a Materials scope. Transforms are written as translate, rotate (in the node's rotate order) and scale ops, or a matrix when sheared. Meshes keep their n-gons (triangulate=True writes the viewport's triangles), split normals, every UV set (as st, st1, ...), the current color set as displayColor/displayOpacity and the others as color primvars, edge creases, and a GeomSubset per material slot when there are several. Materials map to UsdPreviewSurface: a UsdUVTexture per map read through one UsdPrimvarReader_float2, packed ORM/MRO maps as one texture feeding occlusion, roughness and metallic, DirectX normal maps flipped to USD's OpenGL convention by the texture's scale and bias, emissive intensity as the texture's scale, masked and translucent opacity from the base color's alpha, each map's wrap as wrapS and wrapT (nearest filtering as magFilter and minFilter), unlit materials as their base color emitted over a black surface, and twoSided as doubleSided on the meshes using it. materialX='openPBR' (or 'standardSurface') adds the same material as a MaterialX network under outputs:mtlx:surface, which previewSurface=False writes alone. Meshes a meshCache drives write their points as time samples.
 
 Joints become a Skeleton (bind and rest transforms) under a SkelRoot shared with the meshes skinned to it; skins write jointIndices and jointWeights (pruned to maxInfluences) and the mesh's geomBindTransform, in the bind pose. Morph targets become BlendShapes with their in-betweens; a mesh with morphs and no skin gets a one-joint skeleton of its own so Unreal imports them. Nodes parented to joints are written beside the skeleton, their joint's motion baked into them. Cameras write their lens, film back and clipping. Curves write as BasisCurves (linear or cubic bezier) or, for NURBS, NurbsCurves. LOD groups whose levels are plain meshes become Unreal's LOD variant set.
 
@@ -10759,6 +10782,8 @@ Animation is sampled every frame over the range and written as time samples, at 
 | `upAxis` | `up` | str | `'z'` | File up axis: z (Unreal) or y. Assets land the same way through either, as with FBX. |
 | `metersPerUnit` | `mpu` | float | `0.01` | Scene unit of the file in metres: 0.01 is centimetres (Unreal), 1 metres. Lengths are scaled to it. |
 | `materials` | `mat` | bool | `True` | Write UsdPreviewSurface materials and bind them. |
+| `materialX` | `mx` | str | `'none'` | Also write each material as a MaterialX network under outputs:mtlx:surface: openPBR (OpenPBR Surface, the successor to Standard Surface that renderers are converging on) or standardSurface. One of `none`, `openPBR`, `standardSurface`. |
+| `previewSurface` |  | bool | `True` | Write the UsdPreviewSurface network; False writes only the MaterialX one. |
 | `textures` | `tex` | str | `'relative'` | How texture files are referenced: relative to the file, absolute, or copy (copied into <name>_textures beside the file). A .usdz packages them whatever this says. |
 | `animation` | `anim` | bool | `True` | Write the animation as time samples. |
 | `takes` |  | Any |  | Scene takes to write: 'all' or a list of names, one 'take' variant each. Default: the active take. Example: `exportUsd("hero.usd", "Hero", takes="all")` |
@@ -10790,13 +10815,27 @@ exportUsd("C:/out/hero.usdz", "Hero", textures="copy")
 exportUsd("C:/out/shot.usda", selectionOnly=False, takes="all", splitLayers=True)
 ```
 
+### importMaterialX
+
+Import the materials of a MaterialX document (.mtlx) as Lila materials, mapped as importUsd maps MaterialX networks: OpenPBR, Standard Surface, glTF PBR, UsdPreviewSurface and unlit surfaces with their image textures, UV sets, address modes and filters, normal maps and the constant and arithmetic nodes that fold to a value or one texture's channels. Documents Lila wrote come back with every setting. A material whose name the scene already has is left as it is. Returns the new material names, or with report=True a dict of materials, created, skipped and warnings.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+
+```python
+importMaterialX("C:/library/metals.mtlx")
+```
+
 ### importUsd
 
 Import a USD file (.usd, .usda, .usdc or .usdz) into the scene. The stage is opened and composed first, so references, payloads, sublayers and variant selections all resolve, and what arrives is the composed result.
 
 Prims become nodes with their names and hierarchy: Xform, Scope and untyped prims transforms (every xformOp kind and order resolved; translate, rotate in any order, scale and pivot land on the channels as authored), Mesh prims meshes with their n-gons, normals, every UV set (st, st1, ... in order, then other texCoord primvars), displayColor/displayOpacity and other color primvars as color sets, other numeric primvars as mesh attributes, edge creases, holes left out and materialBind GeomSubsets as material slots. Cube, Sphere, Cylinder, Cone, Capsule and Plane are tessellated to meshes. Cameras keep their lens, film back, clipping and projection; BasisCurves (linear, bezier, bspline, catmullRom; periodic and pinned) and NurbsCurves become curve nodes. Invisible prims arrive hidden; proxy and guide prims are skipped unless purposes asks for them.
 
-UsdPreviewSurface materials become Lila materials (Unreal's default lit) with their textures: packed occlusion/roughness/metallic textures as an ORM or MRO map, normal maps' green convention read from the texture's scale, emissive intensity from its scale, opacity from the base color texture's alpha as masked or translucent, and each texture's wrapS, wrapT and magFilter as its map's wrap and filter. Unlit materials Lila wrote and MaterialX ND_surface_unlit surfaces become unlit materials. Direct and collection bindings both resolve. Textures inside a .usdz are unpacked beside it. Meshes with time-sampled points get a meshCache deformer playing every sample (interpolated between them); a mesh whose topology changes over time keeps its rest frame.
+UsdPreviewSurface materials become Lila materials (Unreal's default lit) with their textures: packed occlusion/roughness/metallic textures as an ORM or MRO map, normal maps' green convention read from the texture's scale, emissive intensity from its scale, opacity from the base color texture's alpha as masked or translucent, and each texture's wrapS, wrapT and magFilter as its map's wrap and filter. Unlit materials Lila wrote become unlit materials. MaterialX networks (outputs:mtlx:surface: OpenPBR, Standard Surface, glTF PBR, UsdPreviewSurface and unlit surfaces, also from referenced .mtlx files) map the same way, preferred over a UsdPreviewSurface beside them: image and tiledimage nodes with their UV set, address modes and filter, normalmap, and constant, multiply, add, mix, extract, separate and convert nodes that fold to a constant or one texture's channels. What has no Lila equivalent (coat, transmission, subsurface, other node kinds) is listed in the report's skipped entries. Direct and collection bindings both resolve. Textures inside a .usdz are unpacked beside it. Meshes with time-sampled points get a meshCache deformer playing every sample (interpolated between them); a mesh whose topology changes over time keeps its rest frame.
 
 UsdSkel skeletons become joints, SkelBindingAPI skins skinClusters with their weights and bind pose, BlendShapes morph targets with their in-betweens, and SkelAnimation keys on the joints and target weights. Time samples become keys (linear, or stepped on a held stage), and the stage's timeCodesPerSecond, framesPerSecond and time range set the scene's fps and playback range. Instanceable prims and PointInstancers are realized: each instance its own transform, sharing the prototype's mesh data.
 
@@ -10882,6 +10921,7 @@ Written: moving objects (with animation), hiding them, deleting them (the prim i
 | `name` | `n` | str |  | The stage node's name; the file's name by default. |
 | `editLayer` | `el` | str |  | Where edits go: empty keeps them inside the .lila, a .usda path writes them to that file, one of the stage's sublayers edits it directly. |
 | `loadPayloads` |  | bool | `True` | Load payloads; False leaves them unloaded (usdStageLoad loads them). |
+| `materialX` | `mx` | str |  | The MaterialX surface new and edited materials get beside their UsdPreviewSurface: openPBR, standardSurface or none. Empty follows the stage: OpenPBR when it already uses MaterialX. |
 | `variants` |  | Any |  | Variant selections, written to the edit layer: {'set': 'variant'} for every prim with that set, or {'/prim/path': {'set': 'variant'}} for one prim. Example: `usdStageOpen("chair.usd", variants={"modelingVariant": "Rocking"})` |
 | `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the stage. |
 | `report` |  | bool | `False` | Return the report instead of just the stage node. |

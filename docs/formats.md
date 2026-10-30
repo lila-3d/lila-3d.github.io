@@ -21,6 +21,7 @@ Which formats Lila reads and writes, and what to pick for each job.
 | SVG | `.svg` | Curves | Curves |
 | Maya | `.ma`, `.mb` | Yes, without Maya installed | No |
 | Alembic | `.abc` | Animated meshes | Animated meshes |
+| MaterialX | `.mtlx` | Materials | Materials |
 
 FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures, unlit materials, and each texture's wrap and filter. Animated points in USD and Alembic files come in as a `meshCache` deformer that plays the samples back at the scene time. DXF brings each layer in as one curve and one mesh, with arcs, circles, ellipses and splines exact and blocks expanded where they are inserted. Maya files bring blendShapes in as morphs: targets stored in the file or still connected as meshes, in-betweens, painted target and base weights, keyed weights, and set driven keys as driven channels.
 
@@ -52,9 +53,10 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 - **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
 - **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
 - **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
-- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`; Lila's Python has no `pxr` module.
+- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`, or Pixar's own API: `lila.usd.stage("kitchen")` returns the `pxr.Usd.Stage`, whose edit target is the edit layer.
 - **Changes made by other tools or scripts** to the stage's layers show up as they happen, on the prims they touch, without a reload.
 - **To flatten instead**, run `importUsd`, which converts the stage into plain Lila objects.
+- **MaterialX materials** (OpenPBR, Standard Surface, glTF PBR, also from referenced `.mtlx` files) come in as Lila materials, preferred over a `UsdPreviewSurface` beside them. Materials you add or edit get an OpenPBR network next to their `UsdPreviewSurface` when the stage already uses MaterialX; set the stage's **MaterialX** attribute to change that.
 
 ## Troubleshooting
 
@@ -102,7 +104,7 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 ## Options
 
-Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
+Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`, `importMaterialX`, `exportMaterialX`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
 
 | Command | Option | What it does |
 | --- | --- | --- |
@@ -113,6 +115,7 @@ Each format's options are on its import and export commands (`importGltf`, `expo
 | `exportFbx` | `textures` | Writes base color, normal and emissive maps with their wrap. Off by default, since LilaLink sends textures itself. |
 | `importAlembic` | `profile` | `ue5`, `ue6` or `generic`, matching the profile the file was exported with. |
 | `exportUsd` / `exportFbx` | `takes` | Several takes in one file. USD writes them as a `take` variant set. |
+| `exportUsd` | `materialX` | Also writes each material as a MaterialX network: `openPBR` or `standardSurface`. With `previewSurface=False`, only that network. |
 | `usdStageOpen` | `editLayer` | Where the stage's edits go: empty (inside the `.lila`), a `.usda` path, or one of its sublayers. |
 | `usdStageOpen` / `importUsd` | `variants` | Variant selections, as `{"set": "variant"}` or per prim path. |
 | `usdStageOpen` / `importUsd` | `loadPayloads` | Off opens the file without its payloads. |

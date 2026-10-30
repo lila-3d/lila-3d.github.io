@@ -6,7 +6,10 @@ Draw Lila's viewport with another renderer, such as your engine's, through Hydra
 
 ## Get it working: Storm
 
-1. In a viewport's toolbar, open the **Renderer** menu and pick **Hydra: Storm**.
+1. In a viewport's toolbar, click the **Renderer** button (the camera aperture, after the palette button; in the **»** menu when the view is narrow) and pick **Hydra: Storm**.
+
+   ![The Renderer menu in a viewport's toolbar](images/viewport-renderers/renderer-menu.png)
+
 2. The view redraws through Pixar's Storm. Move an object or change a material and the view follows.
 
 Every Hydra render delegate Lila finds is listed in that menu as **Hydra: \<name\>**. Lila ships Storm and Embree.
@@ -61,7 +64,7 @@ The id is `hydra` followed by the letters and digits of `displayName`.
 - **Lila's objects** as prims under `/Lila`, flat, with world transforms: `mesh`, `basisCurves`, `camera`, and lights as `sphereLight` (point and spot, with shaping), `distantLight`, `rectLight`, `diskLight` and `domeLight`. Units are centimetres, in the scene's up axis.
 - **Meshes** with face-varying `normals`, UVs (`st`, `st1`, ...), `displayColor` and `displayOpacity`. A mesh with smooth preview on comes refined, so you never need subdivision.
 - **Materials** under `/LilaMaterials` as `UsdPreviewSurface` networks: a `UsdUVTexture` per map, read through `UsdPrimvarReader_float2` from `st`. Each mesh binds its material for every purpose (`allPurpose`, `preview` and `full`).
-- **Live USD stages** through UsdImaging, under a prim per stage, so everything UsdImaging produces reaches you too, including your own schemas if your delegate handles them.
+- **Live USD stages** through UsdImaging, under a prim per stage, so everything UsdImaging produces reaches you too, including your own schemas if your delegate handles them, and MaterialX networks as authored for prims Lila doesn't draw itself.
 - **Edits as they happen**: a moved object dirties only its transform, a deformed mesh only its points, so a drag never rebuilds the scene.
 
 ### What Lila needs back
