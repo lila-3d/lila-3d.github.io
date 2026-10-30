@@ -78,9 +78,11 @@ When creating a primitive, lower **Fraction** to create only part of it.
 
 ![A torus created with a lower fraction](images/essentials/primitive-fraction.png)
 
-## Drag things off the Create menu
+## Tear off a menu as a palette
 
-Drag any item off a **Create** menu (primitives, lights, locators, cameras and so on) into a viewport to create it where you drop it instead of at the origin. It lands on the surface under the cursor, or on the ground grid. Drag it out of the open menu, or from a torn-off copy of the menu. One undo removes it.
+Click the dashed line at the top of any menu to tear it off into a floating palette that stays open (a section title tears off just that section). Click an item to run it, or drag it into a viewport to create it where you drop it instead of at the origin: primitives, lights, locators, cameras and so on land on the surface under the cursor, or on the ground grid. Dragging works straight out of an open **Create** menu too. One undo removes it.
+
+![A torn-off Light menu with Point Light being dragged into the viewport](images/essentials/menu-tear-off.png)
 
 ## Snapping
 
