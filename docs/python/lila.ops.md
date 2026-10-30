@@ -1333,6 +1333,7 @@ Render several views offscreen and tile them into one PNG contact sheet (row by 
 | `frameSelection` | `fs` | bool | `False` | Frame the selected objects or components instead of everything shown. |
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
 | `showSelection` |  | bool | `True` | Tint selected components. |
+| `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `path` | `p` | str |  | PNG file to write. |
 | `count` | `c` | int | `4` | Views around the up axis, starting at the front. |
 | `columns` |  | int | `0` | Tiles per row; 0 picks. |
@@ -1356,6 +1357,7 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `frameSelection` | `fs` | bool | `False` | Frame the selected objects or components instead of everything shown. |
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
 | `showSelection` |  | bool | `True` | Tint selected components. |
+| `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `path` | `p` | str |  | PNG file to write. |
 
 Not undoable.
@@ -1737,7 +1739,7 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `ormMap` |  | str |  | Packed occlusion/roughness/metallic texture path. |
 | `packedLayout` |  | Any |  | orm or mro: the packed map's channel order. |
 | `emissiveMap` |  | str |  | Texture path. |
-| `shadingModel` |  | Any |  | Lighting model: defaultLit (Unreal's default lit), painterly (brush strokes and a colour palette), toon (stepped ramp with tinted light and shadow), foliage (soft gradient shading, lit through) or unlit (the base colour as it is, plus emissive, with no lighting). |
+| `shadingModel` |  | Any |  | Lighting model: defaultLit (Unreal's default lit), painterly (brush strokes and a colour palette), toon (stepped ramp with tinted light and shadow), foliage (soft gradient shading, lit through), unlit (the base colour as it is, plus emissive, with no lighting), skin (light scattering under the surface), cloth (velvet sheen), clearcoat (a glossy layer on top), hair (stretched strand highlights, for hair cards) or eye (an iris under a glossy cornea; UVs centred on the pupil). |
 | `painterlyStrength` |  | float |  | Painterly: scales the whole effect; 0 shades exactly like defaultLit. |
 | `strokeNormal` |  | float |  | Painterly: how far the stroke sheet bends the shading normal; 0 is the plain surface. |
 | `strokeScale` |  | float |  | Painterly: size of one stroke sheet tile, cm (UV mode: tiles per UV unit is 100 / this). |
@@ -1769,6 +1771,19 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `foliageTopHighlight` |  | float |  | Foliage: brightens surfaces facing up. |
 | `foliageTranslucency` |  | float |  | Foliage: light passing through toward the camera from behind. |
 | `foliageWrap` |  | float |  | Foliage: wraps the light around the form, 0 to 1, for soft clumps. |
+| `subsurfaceColor` |  | tuple[float, float, float] |  | Skin: linear colour of the light scattered under the surface. |
+| `subsurfaceAmount` |  | float |  | Skin: how far light spreads under the surface, 0 to 1. |
+| `sheenColor` |  | tuple[float, float, float] |  | Cloth: linear colour of the sheen at grazing angles. |
+| `sheenRoughness` |  | float |  | Cloth: spread of the sheen, 0 to 1. |
+| `clearcoat` |  | float |  | Clearcoat and eye: strength of the glossy top layer, 0 to 1. |
+| `clearcoatRoughness` |  | float |  | Clearcoat and eye: roughness of the top layer. |
+| `anisotropy` |  | float |  | Hair: how far highlights stretch across the strands, 0 to 1. |
+| `anisotropyRotation` |  | float |  | Hair: degrees from the UVs' V direction to the strands. |
+| `hairShift` |  | float |  | Hair: how far the two highlights shift apart along the strand, 0 to 1. |
+| `irisRadius` |  | float |  | Eye: iris radius in UV units, around the UV centre. |
+| `irisDepth` |  | float |  | Eye: how deep the iris sits under the cornea; it shifts with the view. |
+| `limbalRing` |  | float |  | Eye: darkening around the iris's edge, 0 to 1. |
+| `bevelRadius` |  | float |  | Rounds hard edges as they shade, by ray tracing the surfaces within this many cm; 0 is off. Needs a GPU with ray tracing. Bake a roundedNormal map to keep it for game engines. |
 | `baseColorMapWrapU` |  | Any |  | What baseColorMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `baseColorMapWrapV` |  | Any |  | What baseColorMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `baseColorMapFilter` |  | Any |  | How baseColorMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
@@ -2922,6 +2937,31 @@ Bake animated meshes (geometry nodes, deformers, skins, anything that changes ov
 | `exrBits` | `eb` | int |  | EXR depth: 16 (half float) or 32 (float). Default 32 for rigid, 16 otherwise. |
 
 Not undoable.
+
+### exportWebViewer
+
+Write a folder to upload to a website for showing a model interactively: model.glb (exported as by exportGltf, materials and textures embedded), index.html (Google's <model-viewer> loaded from a CDN, with orbit controls, turntable and a caption) and environment.hdr (the viewport's HDRI).
+
+The page must be served over http(s); browsers block model.glb when index.html is opened from disk. Returns the folder.
+
+**Objects:** folder
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `selection` | `sl` | bool |  | Export the selection; False exports the whole scene. Default: the selection when there is one. |
+| `title` | `t` | str |  | Caption title, also the page title. |
+| `author` | `au` | str |  | Caption line under the title. |
+| `autoRotate` | `ar` | bool | `True` | Start with the turntable spinning. |
+| `background` | `bg` | tuple[float, float, float] |  | Page background, sRGB 0 to 1; the viewport background by default. |
+| `exposure` | `ex` | float |  | Exposure in stops; the viewport exposure by default. |
+| `tonemapper` | `tm` | str | `'neutral'` | Tone mapping: neutral, aces or agx. |
+| `environment` | `env` | bool | `True` | Light with the viewport's HDRI (copied as environment.hdr); off uses model-viewer's neutral lighting. |
+
+Not undoable.
+
+```python
+lila.ops.exportWebViewer("C:/Portfolio/Ship", title="Ship", author="Jared Taylor")
+```
 
 ### extendCurve
 
@@ -4266,6 +4306,16 @@ Create a light. Returns its path. Flags left out keep the light's defaults.
 | `provider` | `prv` | str |  | Light provider asked first for this light. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new light. |
 
+### lightRig
+
+Light the selection (or everything shown) with a studio rig of area lights under one group, aimed and scaled to fit it. threePoint: key, fill and rim; rim: two back lights for silhouettes; product: soft top and side boxes. Returns the group.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str | `'threePoint'` | threePoint, rim or product. |
+| `intensity` | `i` | float | `1.0` | Scales every light of the rig. |
+| `name` | `n` | str | `'lightRig'` | The group's name; made unique. |
+
 ### listAnimLayers
 
 The layer stack from the bottom: BaseAnimation first, then each layer's settings and members.
@@ -4721,6 +4771,7 @@ Draw the scene offscreen several times like captureView and return the median GP
 | `frameSelection` | `fs` | bool | `False` | Frame the selected objects or components instead of everything shown. |
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
 | `showSelection` |  | bool | `True` | Tint selected components. |
+| `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `frames` |  | int | `20` | Frames to draw; the result is their median. |
 | `ambientOcclusion` | `ao` | bool |  | Force ambient occlusion on or off instead of the viewport pref. |
 
@@ -5791,6 +5842,10 @@ Knife / multi-cut: cut a mesh along a path of points, splitting the faces betwee
 | `deleteEdge` |  | int | `-1` | Dissolve this edge, joining its two faces, instead of cutting. |
 | `select` |  | bool | `True` | Select the new edges. |
 
+### polyLockNormals
+
+Store the current shading normals of the selected meshes as split normals, so later edits keep them.
+
 ### polyMerge
 
 Weld selected vertices closer than a distance (all of a mesh's points if it has no component selection). Exactly two selected vertices weld whatever the distance.
@@ -6034,6 +6089,21 @@ Triangulate the selected faces (the whole mesh in object mode), deterministicall
 | `beauty` |  | bool | `True` | Flip n-gon diagonals toward the largest smallest angle (what display and export use). |
 | `quadSplit` |  | str | `'shortest'` | Quads split along the shorter diagonal (what display, export and MikkTSpace use) or always from the first corner. One of `shortest`, `first`. |
 
+### polyUnlockNormals
+
+Drop the stored split normals of the selected meshes, so shading comes from the hard and soft edges again.
+
+### polyWeightedNormals
+
+Face-weighted normals on the selected faces (whole meshes in object mode): each smooth fan takes the normal of its biggest faces, so chamfered or bevelled low poly shades its large faces flat and only the chamfers bend. Written as locked split normals, which export to FBX. polyUnlockNormals goes back to computed ones.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str | `'area'` | What weighs a face: area, angle (its corner angle) or areaAngle. |
+| `dominance` | `d` | float | `0.5` | Faces under this fraction of the heaviest face in a fan are left out; 0 keeps all. |
+| `keepSharp` | `ks` | bool | `True` | Keep hard edges split. |
+| `faceStrength` | `fs` | bool | `True` | Only the faces with the highest face int faceStrength count, when the mesh has it. |
+
 ### poseDriver
 
 Make a pose driver reading a joint (or any transform) against its rest: output is 1 at the joint's pose now and falls to 0 over radius degrees. Connect its output with connectAttr or driveChannel. Returns the driver.
@@ -6054,6 +6124,15 @@ Make a pose driver reading a joint (or any transform) against its rest: output i
 The pose drivers: [{node, transform, twistAxis, radius, twistWeight, falloff, restRotation, targetRotation, multipliedBy, drives, output}].
 
 Not undoable.
+
+### postProcess
+
+Create a post process node, or with no new one needed, return the active one. Returns its name.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name; made unique. |
+| `existing` | `e` | bool | `False` | Return the active post process if there is one instead of creating another. |
 
 ### projectCurve
 
@@ -6454,6 +6533,25 @@ Rename a saved theme.
 
 Not undoable.
 
+### render
+
+Render one frame of the scene through a camera, with the post process and lens, and write it. Returns the path.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `camera` | `c` | str |  | Camera to render through; the active view's camera when left out. |
+| `width` | `w` | int |  | Pixels; the scene's render resolution when left out. |
+| `height` | `h` | int |  | Pixels; the scene's render resolution when left out. |
+| `scale` |  | float |  | Percent of the resolution (screen percentage); 100 by default. |
+| `samples` | `s` | int |  | Jittered frames averaged per picture: antialiasing, depth of field and motion blur; 64 by default. |
+| `motionBlur` | `mb` | bool |  | Blur what moves across the camera's shutter. |
+| `transparent` | `tr` | bool |  | No backdrop: alpha is coverage (png, tif, exr, psd). |
+| `renderPass` | `rp` | str | `'beauty'` | beauty; wireframe (beauty with every edge drawn, for breakdowns); or id (each object a flat colour from its path, for compositing mattes). |
+| `path` | `p` | str |  | Image to write: png, jpg, tga, tif, exr (linear light) or psd. The Render Output images, numbered, when left out. |
+| `frame` | `f` | float |  | Frame to render; the current one when left out. |
+
+Not undoable.
+
 ### renderMaterialThumbnail
 
 Render a material's thumbnail offscreen on the standard shader ball (or mesh= of the scene, at the material's real-world scale) and cache it by graph hash. material is a library id, .lilamat path or texture set; all=True renders every library material. Returns {file, cached} (a list with all).
@@ -6468,6 +6566,56 @@ Render a material's thumbnail offscreen on the standard shader ball (or mesh= of
 | `force` |  | bool | `False` | Render even when cached. |
 | `backend` |  | str |  | gpu or cpu for the graph. |
 | `all` |  | bool | `False` | Every library material (the scene's sets excluded). |
+
+Not undoable.
+
+### renderSequence
+
+Render a frame range through a camera into an image sequence, an .mp4, or both. Returns {frames, path, video}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `camera` | `c` | str |  | Camera to render through; the active view's camera when left out. |
+| `width` | `w` | int |  | Pixels; the scene's render resolution when left out. |
+| `height` | `h` | int |  | Pixels; the scene's render resolution when left out. |
+| `scale` |  | float |  | Percent of the resolution (screen percentage); 100 by default. |
+| `samples` | `s` | int |  | Jittered frames averaged per picture: antialiasing, depth of field and motion blur; 64 by default. |
+| `motionBlur` | `mb` | bool |  | Blur what moves across the camera's shutter. |
+| `transparent` | `tr` | bool |  | No backdrop: alpha is coverage (png, tif, exr, psd). |
+| `renderPass` | `rp` | str | `'beauty'` | beauty; wireframe (beauty with every edge drawn, for breakdowns); or id (each object a flat colour from its path, for compositing mattes). |
+| `path` | `p` | str |  | Images to write, #### standing for the frame number (added when missing). The Render Output images when left out. |
+| `video` | `v` | str |  | An .mp4 to encode the frames into. |
+| `codec` |  | str |  | Video codec: h264 (default) or hevc. |
+| `quality` | `q` | float |  | Video quality, 0 to 1 (0.6 by default). |
+| `start` | `st` | float |  | First frame; the playback range's when left out. |
+| `end` | `en` | float |  | Last frame; the playback range's when left out. |
+| `step` | `by` | float |  | Frames between renders (1 by default). |
+
+Not undoable.
+
+### renderTurntable
+
+Render a loop turning around the selection (or everything shown), framed to fit, into images, an .mp4, or both. The last frame stops one step short of the first, so the video loops. Returns {frames, path, video}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `camera` | `c` | str |  | Camera to render through; the active view's camera when left out. |
+| `width` | `w` | int |  | Pixels; the scene's render resolution when left out. |
+| `height` | `h` | int |  | Pixels; the scene's render resolution when left out. |
+| `scale` |  | float |  | Percent of the resolution (screen percentage); 100 by default. |
+| `samples` | `s` | int |  | Jittered frames averaged per picture: antialiasing, depth of field and motion blur; 64 by default. |
+| `motionBlur` | `mb` | bool |  | Blur what moves across the camera's shutter. |
+| `transparent` | `tr` | bool |  | No backdrop: alpha is coverage (png, tif, exr, psd). |
+| `renderPass` | `rp` | str | `'beauty'` | beauty; wireframe (beauty with every edge drawn, for breakdowns); or id (each object a flat colour from its path, for compositing mattes). |
+| `path` | `p` | str |  | Images to write, #### standing for the frame number. Left out with video= given, video only. |
+| `video` | `v` | str |  | An .mp4 to encode the turntable into. |
+| `codec` |  | str |  | Video codec: h264 (default) or hevc. |
+| `quality` | `q` | float |  | Video quality, 0 to 1 (0.6 by default). |
+| `frames` | `fr` | int | `120` | Frames for the whole turn. |
+| `turns` |  | float | `1.0` | Turns over the frames. |
+| `spin` |  | str | `'object'` | object (the model turns in fixed light), camera (the camera circles, the light stays), or lights. |
+| `pitch` |  | float | `-15.0` | Camera elevation, degrees (negative looks down). |
+| `yaw` |  | float | `35.0` | Starting angle around the up axis, degrees. |
 
 Not undoable.
 
@@ -12551,6 +12699,125 @@ Only the targets (and dynamic bodies) move. One undo step. Returns the same repo
 wiggle(['book_01', 'book_02', 'book_03'], strength=60)
 ```
 
+## Tailor extension
+
+Available when the Tailor extension is loaded.
+
+### tailorCreateBlock
+
+Start a garment from a parametric block (tee, tunic, cloak, ...) and drape it onto a collider mesh.
+
+Makes a tailorGarment node feeding a new mesh. With no collider, the first selected mesh is used. Returns [mesh, garment].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`. |
+| `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
+| `name` | `n` | str | `'Garment'` | Name of the new mesh. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
+| `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the block placed them. |
+| `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
+
+```python
+tailorCreateBlock(block='tunic', collider='Body')
+```
+
+### tailorFreeze
+
+Freeze panels so they collide without moving, or set them back to active, deactivated or strengthened.
+
+Returns the panels changed.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | list |  | Panels by name or index; all when left out. |
+| `state` | `s` | str | `'frozen'` | What the panels become. One of `active`, `frozen`, `deactivated`, `strengthened`. |
+
+```python
+tailorFreeze('Tunic')
+```
+
+```python
+tailorFreeze('Cloak', panel=['Hood'], state='active')
+```
+
+### tailorImportGarmentCode
+
+Import a GarmentCode / ChatGarment sewing pattern (pygarment JSON) as a garment and drape it onto a collider mesh.
+
+Makes a tailorGarment node feeding a new mesh. With no collider, the first selected mesh is used. Returns [mesh, garment].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | The pattern specification JSON. |
+| `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
+| `name` | `n` | str | `'Garment'` | Name of the new mesh. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
+| `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the file placed them. |
+| `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
+
+```python
+tailorImportGarmentCode(file='C:/patterns/tee_spec.json', collider='Body')
+```
+
+### tailorSetFabric
+
+Set the fabric of a garment, or of some of its panels.
+
+Without panels it sets the garment's fabric preset; with them, those panels get the preset as their own fabric.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `panel` | `p` | list |  | Panels by name or index; all panels' shared fabric when left out. |
+
+```python
+tailorSetFabric('Garment', fabric='Leather', panel=['Belt'])
+```
+
+### tailorSew
+
+Sew two runs of panel outline together, point to point by arc length.
+
+Each side is panel:from:to (outline vertex indices, walking forward), several joined by commas for a chain. Returns the new seam's index.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sideA` | `a` | str |  | First side, e.g. "Front:0:4" or "Front:0:4,Sleeve:2:5". |
+| `sideB` | `b` | str |  | Second side, same form. |
+| `reversed` | `r` | bool | `False` | Walk side B backwards. |
+| `foldAngle` | `fa` | float | `0.0` | Rest angle across the seam, degrees; 0 lies flat. |
+| `shrink` | `sh` | float | `1.0` | Rest length scale across the seam. |
+
+```python
+tailorSew('Garment', sideA='Front:1:2', sideB='Back:3:4', reversed=True)
+```
+
+### tailorSimulate
+
+Drape a garment: run the solver for a number of frames from its placed panels and keep the result.
+
+Returns the draped mesh's vertex and triangle counts and any warning.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `frames` | `fr` | int |  | Solver frames to run; the garment's own setting when left out. |
+| `simulate` | `sim` | bool | `True` | Off shows the panels undraped. |
+
+```python
+tailorSimulate('Garment', frames=200)
+```
+
 ## Terrain extension
 
 Available when the Terrain extension is loaded.
@@ -12748,4 +13015,261 @@ A plain mesh copy of the terrain as it is now, in world space: quads facing up, 
 
 ```python
 terrainToMesh('Terrain', step=4)
+```
+
+## TrimSheets extension
+
+Available when the TrimSheets extension is loaded.
+
+### trimApply
+
+Map the selected faces (whole selected meshes in object mode) onto one trim: each island is split by angle, rectified, turned to suit the trim and fitted to it (stretched to a strip's height and slid along it, or fitted inside a rectangle). Faces get the sheet's material and remember their trim (face int 'trim', index + 1). Returns per mesh the islands placed.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `uvSet` |  | str | `'uv0'` | UV set to write. |
+| `trim` | `t` | Any |  | Trim index or name. |
+| `rotate` | `r` | str | `'auto'` | auto (whichever fits), on or off. |
+| `splitAngle` | `sa` | float | `30.0` | Split islands where faces meet sharper than this, degrees. |
+| `orient` | `o` | str | `'worldUp'` | worldUp, longestU or asIs. |
+| `seed` | `s` | int | `0` | Offset along strips. |
+| `randomOffset` | `ro` | bool | `True` | Slide islands along tiling strips. |
+
+```python
+trimApply(trim='Plate128')
+```
+
+```python
+trimApply(trim=3, rotate='on')
+```
+
+### trimAuto
+
+Hotspot the selected faces (whole selected meshes in object mode) onto a trim sheet in one go: islands split by angle and rectified, measured in world size from 3D, matched to the trim whose shape and size fit best (strips for long islands, rectangles for panels, round trims for discs), then placed with seeded variation. Same seed, same result; cycle=n takes the n-th best match. showError paints a colour set trimError (green good, yellow loose, red poor or unmatched). Faces get the sheet's material and remember their trim. Returns per mesh: islands, matched, poor, failed, and each island's trim and size error.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `uvSet` |  | str | `'uv0'` | UV set to write. |
+| `splitAngle` | `sa` | float | `30.0` | Faces meeting sharper than this, degrees, become separate islands; 0 keeps the seams. |
+| `orient` | `o` | str | `'worldUp'` | worldUp (up runs up the trim), longestU or asIs. |
+| `tag` | `tg` | str |  | Only trims with this tag (edge, radial, flat or your own); unique and flat trims need one. |
+| `seed` | `s` | int | `0` | Variation seed: offsets along strips, picks among equal trims. |
+| `cycle` | `c` | int | `0` | Take the n-th best trim instead of the best: run again with cycle+1 to try the next. |
+| `randomOffset` | `ro` | bool | `True` | Slide islands along tiling strips so repeats don't line up. |
+| `randomFlip` | `rf` | bool | `False` | Turn islands 180 degrees at random where the trim allows it. |
+| `randomMirror` | `rm` | bool | `False` | Mirror islands at random. |
+| `allowRotate` | `ar` | bool | `True` | Let islands turn 90 degrees to fit. |
+| `maxSizeError` | `mse` | float | `1.0` | Islands off a trim's world size by more than this many doublings count as poor matches. |
+| `aspectWeight` | `aw` | float | `1.0` | How much shape matters. |
+| `sizeWeight` | `sw` | float | `1.0` | How much world size matters. |
+| `normalWeight` | `nw` | float | `0.5` | How much facing matters, for trims with a preferred direction. |
+| `showError` | `se` | bool | `False` | Paint match quality into the colour set trimError. |
+
+```python
+trimAuto()
+```
+
+```python
+trimAuto(seed=3, randomFlip=True, showError=True)
+```
+
+```python
+trimAuto(tag='edge', orient='longestU')
+```
+
+### trimEdges
+
+Trim the selected edges with a bevel strip: each edge gets a one-segment chamfer of width= cm, the chamfer faces are hotspotted onto the sheet's edge-tagged trims (long side along U, so the bevel's crest runs along the chamfer), and the meshes get face-weighted normals so their big faces stay flat. Returns the bevel, the trim result and the chamfer faces.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `uvSet` |  | str | `'uv0'` | UV set to write. |
+| `width` | `w` | float | `1.0` | Chamfer width, cm. |
+| `tag` | `tg` | str | `'edge'` | Trims to use for the chamfers. |
+| `weightedNormals` | `wn` | bool | `True` | Set face-weighted normals on the meshes afterwards. |
+
+```python
+trimEdges(width=1.5)
+```
+
+### trimSheetBake
+
+Bake a trim sheet: its generated high onto the flat low, tiling strips wrapped so the textures tile, maps per the sheet's maps list, into its texture folder as T_<name>_<map>.png, plus an exact trim ID map. trims= rebakes just those trims into the existing textures (after trimSheetEdit). Updates the Lila material M_<name>. Returns the Baker's result, the files, seamError (0 is seamless across the U wrap) and seconds.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `trims` | `t` | list |  | Trim indices or names to rebake; all when not given. |
+| `backend` |  | str | `'auto'` | auto, gpu or cpu. |
+
+Not undoable.
+
+```python
+trimSheetBake()
+```
+
+```python
+trimSheetBake(trims=['Plate128'])
+```
+
+### trimSheetCreate
+
+Make a trim sheet from a preset and bake it: the layout and every trim's profile go in a .lilatrim file, the generated high is baked onto a flat plane into normal, AO, curvature, height and cavity maps plus an exact trim ID map, and a Lila material M_<name> shows them. An existing file is kept (its settings may have been changed) and only baked when its textures are missing, so calling this again is cheap. Presets: industrialMetal, sciFiHull, woodTrims, concrete, stoneMouldings, hotspotGrid, ladder. The new sheet becomes current. Returns the sheet summary (trims with world sizes, textures, warnings) and the bake result.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str | `'industrialMetal'` | Layout and profiles to start from. One of `industrialMetal`, `sciFiHull`, `woodTrims`, `concrete`, `stoneMouldings`, `hotspotGrid`, `ladder`. |
+| `width` | `w` | int | `0` | Texture width, px (0: the preset's). |
+| `file` | `f` | str |  | Where to save; default <workspace>/TrimSheets/<name>.lilatrim. |
+| `name` | `n` | str |  | Sheet name (texture prefix); default the preset's, T_<Preset>. |
+| `pxPerM` |  | float |  | Texels per metre: sets every trim's world size. |
+| `bake` | `b` | bool | `True` | Bake when the textures are missing. |
+| `overwrite` |  | bool | `False` | Replace an existing file with the preset. |
+| `backend` |  | str | `'auto'` | Bake backend: auto, gpu or cpu. |
+
+Not undoable.
+
+```python
+trimSheetCreate(preset='sciFiHull')
+```
+
+```python
+trimSheetCreate(preset='woodTrims', width=1024, pxPerM=1024)['trims'][0]
+```
+
+### trimSheetCurrent
+
+The current trim sheet, which trim tools use when no sheet= is given; give a .lilatrim to make it current.
+
+**Objects:** sheet to make current (optional)
+
+Not undoable.
+
+### trimSheetEdit
+
+Change a trim sheet and save it. values= merges into the trim given by trim= (index or name), or into the sheet itself without trim=: e.g. {'profile': {'style': 'groove', 'bevelPx': 6}}, {'tags': ['edge']}, {'pxPerM': 1024}. add= appends a trim ({'name', 'min': [x, y], 'max': [x, y], 'kind', 'profile'}) and remove= deletes one. Profile styles: flat, raised, recessed, doubleBevel, step, halfPipe, groove, ribs, rivets, bolts, vents, tread, planks. Kinds: stripU, stripV, rect, radial, unique, flat. Rebake afterwards (trimSheetBake, trims= for just the changed ones). Returns the sheet summary.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `trim` | `t` | Any |  | Trim index or name to change. |
+| `values` | `v` | Any |  | Fields to merge. |
+| `add` |  | Any |  | A trim to append. |
+| `remove` |  | Any |  | Trim index or name to delete. |
+
+Not undoable.
+
+```python
+trimSheetEdit(trim='Plate128', values={'profile': {'style': 'rivets', 'spacingPx': 48}})
+```
+
+```python
+trimSheetEdit(add={'name': 'Cap', 'min': [0, 1792], 'max': [256, 2048], 'kind': 'radial', 'profile': {'style': 'halfPipe'}})
+```
+
+### trimSheetExport
+
+Write a trim sheet's layout for another tool: rect (Valve .rect for Source 2 and Hammer), svg, idmap (a png with one flat colour per trim) or json. Returns the file written.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `format` | `fmt` | str | `'rect'` | rect, svg, idmap or json. |
+| `file` | `f` | str |  | Output file; default beside the sheet. |
+
+Not undoable.
+
+### trimSheetGenerate
+
+Put a sheet's generated high and low in the scene as <name>_High and <name>_Low (replacing earlier ones), to look at or to sculpt on before baking from them yourself. The plane lies on XZ facing +Y, one texel per pxPerM. Returns both names and the high's face count.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `tile` |  | bool | `False` | Repeat tiling strips one sheet width to each side, as the bake does. |
+
+### trimSheetImport
+
+Make a trim sheet from another tool's layout: a Valve .rect (needs width and height), an SVG of rects, an ID map image (one trim per flat colour), or a mesh's uv islands (source is a mesh name). Full-width rows become tiling strips, the rest hotspot rectangles, all with a raised bevel profile to change with trimSheetEdit. Saves to file= (default beside the source) and makes it current. Returns the sheet summary.
+
+**Objects:** source file or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Where to save the .lilatrim. |
+| `width` | `w` | int | `2048` | Sheet width, px, for .rect and mesh sources. |
+| `height` | `h` | int | `2048` | Sheet height, px, for .rect and mesh sources. |
+| `name` | `n` | str |  | Sheet name; default T_<source name>. |
+| `pxPerM` |  | float | `512.0` | Texels per metre. |
+
+Not undoable.
+
+```python
+trimSheetImport('C:/maps/metal_trims.rect', width=1024, height=1024)
+```
+
+```python
+trimSheetImport('C:/maps/hotspots_id.png')
+```
+
+### trimSheetInfo
+
+What a trim sheet holds: size, texels per metre, world size, each trim (index, name, kind, pixel rect, uv rect, world size in cm, tags, profile), which textures are baked, and layout warnings (overlaps, borders off the mip grid, mixed bevel widths).
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+
+Not undoable.
+
+```python
+[t['name'] for t in trimSheetInfo()['trims']]
+```
+
+### trimSheetSend
+
+Send a trim sheet to Unreal: its baked textures go to <folder>/Textures, the trim master material M_LilaTrim is generated (or rebuilt with regenerateMaster) and an instance MI_<name> is made with the sheet's maps, and every mapped mesh in the scene that uses this sheet gets the instance on its sheet slot. Returns what Unreal made; wait=False queues it.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `folder` | `f` | str | `'/Game/Lila/Trims'` | Content folder; the sheet's assets go in <folder>/<name>. |
+| `regenerateMaster` |  | bool | `False` | Rebuild M_LilaTrim's graph from this version of Lila, discarding edits to it. |
+| `wait` | `w` | bool | `True` | Block until Unreal has imported everything. |
+
+Not undoable.
+
+```python
+trimSheetSend()
+```
+
+### trimShift
+
+Move the selected faces' islands to the next trim up or down the sheet (Insomniac's shift UVs): strips step to the neighbouring strip, rectangles to the neighbouring rectangle, keeping how each island was turned. Faces must have been mapped by trimApply or trimAuto. Returns per mesh how many islands moved and where.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `uvSet` |  | str | `'uv0'` | UV set to write. |
+| `steps` | `n` | int | `1` | Trims to move; negative goes up the sheet. |
+
+```python
+trimShift(steps=1)
+```
+
+```python
+trimShift(steps=-2)
 ```

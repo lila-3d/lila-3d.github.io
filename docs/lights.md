@@ -1,6 +1,6 @@
 # Lights
 
-Lights light and shadow the viewport and renders, on top of the environment.
+Lights illuminate and cast shadows in the viewport and renders, on top of the environment.
 
 > A custom C++ extension can add its own lights and render them: see [Make your own lights](#make-your-own-lights).
 
@@ -13,7 +13,7 @@ Lights light and shadow the viewport and renders, on top of the environment.
 light(type="spot", intensity=8, outerConeAngle=30, position=[0, 300, 0])
 ```
 
-Spot, directional, area and disc lights shine down their local -Z, the same way a camera looks. An intensity of 1 (unitless) lights about as brightly as the default environment, at a metre for point, spot and area lights.
+Spot, directional, area and disc lights shine down their local -Z, the same way a camera looks. Scaling a light scales its size and range: an area light's width and height, a light's source radius and range. An intensity of 1 (unitless) lights about as brightly as the default environment, at a metre for point, spot and area lights.
 
 Lights keep their original units and any settings Lila has no field for, so they come back out the same in the format they came in.
 

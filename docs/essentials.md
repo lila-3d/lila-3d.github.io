@@ -78,6 +78,10 @@ When creating a primitive, lower **Fraction** to create only part of it.
 
 ![A torus created with a lower fraction](images/essentials/primitive-fraction.png)
 
+## Drag things off the Create menu
+
+Drag any item off a **Create** menu (primitives, lights, locators, cameras and so on) into a viewport to create it where you drop it instead of at the origin. It lands on the surface under the cursor, or on the ground grid. Drag it out of the open menu, or from a torn-off copy of the menu. One undo removes it.
+
 ## Snapping
 
 Hold a key while moving to snap:

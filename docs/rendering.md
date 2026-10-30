@@ -2,6 +2,10 @@
 
 Renders are the viewport's own picture, supersampled: post process, depth of field and motion blur included, with no grid, wires or selection.
 
+Lila does not ship with an offline path-traced software renderer. It renders with the same real-time renderer you work in, taking seconds instead of hours, and matches the viewport.
+
+> You can add any renderer using a [C++ extension](cpp-extensions.md). For path tracing, a [viewport renderer](viewport-renderers.md) draws the view with a Hydra delegate such as Cycles or Arnold.
+
 ## Get it working
 
 1. **Render > Render Output** to pick the camera, samples and where images and video go.
