@@ -25,7 +25,7 @@ Both run another group, picked from the node's side panel like a Group node; dou
 
 ## Wrangle and Expression
 
-Per-element code, VEX-like. Wrangle writes attributes; Expression returns a value as a field.
+Per-element code, VEX-like. Wrangle writes attributes; Expression returns a value as a field. Type the code in the node's properties and press Ctrl+Enter (or Apply) to run it; Escape discards unapplied edits.
 
 ```c
 // Wrangle, domain point: lift by noise, colour by height
