@@ -35,6 +35,7 @@
 - [Duplicate and instance](duplicate.md)
 - [Scene origin](scene-origin.md)
 - [Lights](lights.md)
+- [Rendering](rendering.md)
 - [Topology](topology.md)
 - [Destruction](destruction.md)
 - [Change stream](change-stream.md)

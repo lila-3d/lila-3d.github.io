@@ -1,45 +1,41 @@
 # Lights
 
-Lila has no lighting of its own: nothing lights the viewport, and there is no renderer. Lights here are placeholders that hold a light's settings, so lights survive import, save and export, and light extensions can render them.
+Lights light and shadow the viewport and renders, on top of the environment.
 
 > A custom C++ extension can add its own lights and render them: see [Make your own lights](#make-your-own-lights).
 
 ## Get it working
 
 1. **Create > Light**, then pick a type.
-2. Set colour, intensity and its units, cone, size and so on in the attribute editor.
+2. Set colour, intensity and its units, cone, size and **cast shadows** in the attribute editor.
 
 ```python
-light(type="spot", intensity=800, units="candela", outerConeAngle=30, position=[0, 300, 0])
+light(type="spot", intensity=8, outerConeAngle=30, position=[0, 300, 0])
 ```
 
-Spot, directional, area and disc lights shine down their local -Z, the same way a camera looks.
-
-The **Placeholder Lights** extension only places and draws them. A light extension renders them. Lights that nothing renders have their **outliner icon struck through**.
+Spot, directional, area and disc lights shine down their local -Z, the same way a camera looks. An intensity of 1 (unitless) lights about as brightly as the default environment, at a metre for point, spot and area lights.
 
 Lights keep their original units and any settings Lila has no field for, so they come back out the same in the format they came in.
 
-<!-- TODO image: outliner with a struck-through placeholder light next to a normal one (images/lights/outliner.png) -->
-
 ## Troubleshooting
 
-**Every light is flagged.** No enabled extension renders lights. Enable one in **Windows > Extension Manager**, or turn off **Show > Flag Placeholder Lights** in the outliner.
+**A light makes no shadow.** Check **cast shadows** is on. On GPUs with ray tracing the first four shadowed lights of any kind trace their shadows (**Render > Ray-Traced Shadows**), soft by the light's size (a directional light's **source radius** is its angle in degrees). Without ray tracing only directional and spot lights cast shadows, from the first four.
 
-**Some lights are flagged and others aren't.** The enabled light extension doesn't handle those types (a renderer with no dome light, for example). Placeholder Lights stands in for those lights.
+**Shadows look blocky while the view moves.** They soften and settle as soon as the view holds still. Turn on **Antialiasing > Temporal** in Preferences > Viewport if it's off.
 
-**Create > Light is gone.** A light extension is enabled, so Placeholder Lights hands creation over to it and removes its own menu. Use that extension's menu, or the `light` command.
+**The scene is far too bright or dark with lights from another app.** Lila keeps the file's intensity and its units: candela or lux from glTF, nits from USD, unitless from Maya and FBX (FBX stores 100 for 1). Physical units are scaled down by 100 to sit with the environment; set the light's units to unitless and the intensity to taste.
 
-**A light draws as a crosshair.** Neither Placeholder Lights nor a light extension is enabled. The light is still there and still exports.
+**Lights don't light anything in Flat lighting.** Flat shows base colours only. Switch the viewport to Environment or Studio lighting.
+
+**A light draws as a crosshair and lights nothing.** The Lights extension is off. Turn it on in **Windows > Extension Manager**.
 
 **An area, disc or dome light is missing from a glTF file.** glTF only has point, spot and directional lights. The export warns about each light it leaves out.
-
-**An imported light is much brighter or dimmer than in the app it came from.** Lila keeps the file's intensity and its units: candela or lux from glTF, nits from USD, unitless from Maya and FBX (FBX stores 100 for 1). Arnold's exposure is folded into the intensity.
 
 **An Arnold mesh light came in as a plain transform.** Lila has no mesh lights. The import report lists it.
 
 ## Make your own lights
 
-A C++ extension registers a light provider. Lights it handles stop being placeholders. Placeholder Lights removes its menu and drawing while any provider is installed.
+A C++ extension registers a light provider. Lights it handles are its own: Lila no longer lights them, and the extension renders them.
 
 ```cpp
 #include <lila/Extension.h>
@@ -65,4 +61,4 @@ See [C++ extensions](cpp-extensions.md) for building and loading.
 
 | Option | Default | What it does |
 | --- | --- | --- |
-| Outliner **Show > Flag Placeholder Lights** (`/outliner/flagPlaceholderLights`) | on | Strikes through the icon of lights that nothing renders. |
+| Outliner **Show > Flag Placeholder Lights** (`/outliner/flagPlaceholderLights`) | on | Strikes through the icon of lights nothing renders. |
