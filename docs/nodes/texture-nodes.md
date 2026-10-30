@@ -2082,3 +2082,57 @@ Passes on input a or b, for toggling variations without relinking.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `selected` | `a`, `b` | `a` |  |
+
+## TrimSheets extension
+
+Available when the TrimSheets extension is loaded.
+
+### Mesh
+
+#### Trim Gradient
+
+Type `trimGradient`.
+
+Where a texel sits inside its trim: out runs 0 to 1 along the chosen axis (v from the trim's bottom to its top, u from left to right), uv gives both, and random is a value per trim. Mirror makes out 0 at both edges and 1 in the middle, for wear that follows a strip's edges.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+| `uv` | vector | output |  |  |
+| `random` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `axis` | `u`, `v` | `v` |  |
+| `mirror` |  | `false` |  |
+| `seed` |  | `0` |  |
+
+#### Trim Mask
+
+Type `trimMask`.
+
+White on the trim sheet's trims first to last (indices as the sheet's palette numbers them), black elsewhere. As a layer mask it keeps a smart material to some strips; trimSheetTexture with trims= adds these for you, tags included.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `first` |  | `0` |  |
+| `last` |  | `-1` | -1 is the same as first. |
+| `invert` |  | `false` |  |
+
+#### Trim Sheet Normal
+
+Type `trimSheetNormal`.
+
+The trim sheet's baked normal map (its bevels and details), in the graph's OpenGL convention. Put it under the layers so their height adds to it. Needs the set's bake project to be the sheet's (trimSheetTexture sets that up).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `greenDown` |  | `true` | The sheet was baked DirectX (green down), as trim sheets are by default. |

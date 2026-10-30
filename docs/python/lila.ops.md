@@ -13021,6 +13021,30 @@ terrainToMesh('Terrain', step=4)
 
 Available when the TrimSheets extension is loaded.
 
+### trimAlongCurve
+
+Lay a trim along curves: a strip of quads following each curve, width= cm across, on a tiling trim that repeats along U at the sheet's density (so it never stretches; loops repeat it a whole number of times), with head and tail caps from the sheet's cap-tagged trim. Flat strips lie on the ground (kerbs, floor edging, road lines), wall strips stand up (skirting, cornices, trim bands). Makes <curve>_Trim meshes with the sheet's material. Returns [{curve, mesh, trim, cap, length}].
+
+**Objects:** curves (default the selected ones)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `trim` | `t` | Any |  | Trim index, name or tag; the strip whose world height is closest to width= when not given. |
+| `width` | `w` | float |  | Strip width, cm; the trim's world height when not given. |
+| `orient` | `o` | str | `'flat'` | flat (lies on the ground) or wall (stands up). |
+| `offset` | `of` | float | `0.0` | Lift along the strip's normal, cm. |
+| `caps` | `cp` | bool | `True` | Cap the ends with the sheet's cap-tagged trim when it has one. |
+| `seed` | `s` | int | `0` | Slides the pattern along tiling trims. |
+
+```python
+trimAlongCurve('curve1', width=15)
+```
+
+```python
+trimAlongCurve(orient='wall', trim='Plate128')
+```
+
 ### trimApply
 
 Map the selected faces (whole selected meshes in object mode) onto one trim: each island is split by angle, rectified, turned to suit the trim and fitted to it (stretched to a strip's height and slid along it, or fitted inside a rectangle). Faces get the sheet's material and remember their trim (face int 'trim', index + 1). Returns per mesh the islands placed.
@@ -13077,6 +13101,27 @@ trimAuto(seed=3, randomFlip=True, showError=True)
 
 ```python
 trimAuto(tag='edge', orient='longestU')
+```
+
+### trimDecal
+
+Trim decals over the selected edges: a strip wrapping each run of edges, half its width on each face beside them, floating offset= cm off the surface and mapped onto an edge trim with its crest on the edge, as <mesh>_Decal with the sheet's material. cut=True carves it into the mesh instead (Trim Cut): a groove depth= cm deep whose floor and walls carry the trim. Returns [{mesh, decal or cut, chains, trim}].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `trim` | `t` | Any |  | Trim index, name or tag; the edge-tagged strip closest to width= when not given. |
+| `width` | `w` | float | `2.0` | Strip width across the edge, cm. |
+| `offset` | `of` | float | `0.05` | Float off the surface, cm, so the decal doesn't fight it. |
+| `cut` | `c` | bool | `False` | Carve the strip into the mesh as a groove instead of floating it. |
+| `depth` | `d` | float | `0.5` | Groove depth for cut, cm. |
+
+```python
+trimDecal(width=3)
+```
+
+```python
+trimDecal(cut=True, depth=0.4)
 ```
 
 ### trimEdges
@@ -13161,6 +13206,8 @@ Change a trim sheet and save it. values= merges into the trim given by trim= (in
 | `values` | `v` | Any |  | Fields to merge. |
 | `add` |  | Any |  | A trim to append. |
 | `remove` |  | Any |  | Trim index or name to delete. |
+| `moveBorder` |  | Any |  | Drag a border: {axis: 'x' or 'y', at: px of the line, along: px on it, to: px}. Moves it for the whole strip or row of trims on the line, never thinner than a pixel. |
+| `split` |  | Any |  | Split a trim in two: {trim, axis: 'x' (a vertical cut) or 'y', at: px}. |
 
 Not undoable.
 
@@ -13237,6 +13284,16 @@ Not undoable.
 [t['name'] for t in trimSheetInfo()['trims']]
 ```
 
+### trimSheetPaint
+
+Get a trim sheet ready to paint by hand: its texture set (as trimSheetTexture makes it) and a flat <name>_Sheet plane with the sheet's material, selected, for the texture paint tool or the UV editor. Strokes land on the sheet's shared texels, so every mesh using the sheet shows them. Returns {set, plane}.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+
 ### trimSheetSend
 
 Send a trim sheet to Unreal: its baked textures go to <folder>/Textures, the trim master material M_LilaTrim is generated (or rebuilt with regenerateMaster) and an instance MI_<name> is made with the sheet's maps, and every mapped mesh in the scene that uses this sheet gets the instance on its sheet slot. Returns what Unreal made; wait=False queues it.
@@ -13254,6 +13311,28 @@ Not undoable.
 
 ```python
 trimSheetSend()
+```
+
+### trimSheetTexture
+
+Texture a trim sheet with a smart material. The sheet's bake becomes the mesh maps of its texture set TS_<name>, so edge wear, cavity dirt and chips land on the bevels, and the set paints M_<name> live on every mesh using the sheet. The first call makes the set with a Sheet Bake layer (the baked normal and AO) and bakes the sheet if it has no textures; each call adds the smart material on top, kept to trims= (indices, names or tags) by Trim Mask masks when given. Returns {set, project, layer, material, trims, maps}.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `material` | `m` | str |  | Smart material name or .lilasmart; the sheet's own when not given. |
+| `trims` | `t` | Any |  | Only on these trims: an index, name or tag, or a list of them. |
+| `name` | `n` | str |  | Layer name; the smart material's when not given. |
+| `replace` | `r` | bool | `False` | First remove every layer but Sheet Bake, so the sheet starts over. |
+
+```python
+trimSheetTexture()
+```
+
+```python
+trimSheetTexture(material='Rusty Iron', trims=['edge'])
 ```
 
 ### trimShift
