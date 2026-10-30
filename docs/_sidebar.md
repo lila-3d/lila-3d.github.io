@@ -60,3 +60,4 @@
   - [Masonry](masonry.md)
   - [Settlement](settlement.md)
   - [Stagehand](stagehand.md)
+  - [Trim Sheets](trim-sheets.md)
