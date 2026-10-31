@@ -52,6 +52,7 @@
   - [Viewport renderers and Hydra](viewport-renderers.md)
 - <span class="nav-label">Pipeline and scripting</span>
   - [Change stream](change-stream.md)
+  - [Validation](validation.md)
   - [Debug drawing](debug-drawing.md)
   - [Viewport toasts](viewport-toasts.md)
   - [C++ extensions](cpp-extensions.md)
