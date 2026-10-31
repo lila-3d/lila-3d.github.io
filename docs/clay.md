@@ -10,7 +10,7 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 2. **Add Clay Shape** adds a sphere, ellipsoid, box, capsule, cylinder, cone or torus. Pick the shape in the option box.
 3. Move, rotate and scale shapes like any object. The surface follows.
 4. **Add Clay Cut** carves into everything before it.
-5. When the form is done, **Convert Clay to Mesh**. Tick **Remesh** in its option box for clean quads.
+5. When the form is done, **Convert Clay to Mesh**. The clay stays, hidden, so you can change it and convert again. Tick **Remesh** in its option box for clean quads.
 
 > Shapes join in Outliner order: a cut only reaches the shapes above it.
 
@@ -26,7 +26,7 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 | **1**-**7** | Sphere, ellipsoid, box, capsule, cylinder, cone, torus |
 | **S** | Strokes: drag over the clay to lay a tube. Start on a stroke's tip to extend or branch it |
 | **T** | Taper strokes |
-| **[** **]** | Radius |
+| **B**-drag | Radius |
 | **,** **.** | Blend |
 | **Esc** | Exit |
 
@@ -46,10 +46,10 @@ The **Clay** node melts spheres at points and tubes along curves into one mesh, 
 
 ## Joints
 
-`clayJoints` makes a root joint for the body and a joint chain down each stroke. Give it the converted mesh (**Convert Clay to Mesh** with **Keep Source**) and it binds it, starting each vertex's weights from the clay shapes it lies nearest:
+`clayJoints` makes a root joint for the body and a joint chain down each stroke. Give it the converted mesh and it binds it, starting each vertex's weights from the clay shapes it lies nearest:
 
 ```python
-mesh = ops.convertClayToMesh("Worm", keepSource=True)
+mesh = ops.convertClayToMesh("Worm")
 ops.clayJoints("Worm", mesh=mesh)
 ```
 
