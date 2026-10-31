@@ -1334,6 +1334,7 @@ Render several views offscreen and tile them into one PNG contact sheet (row by 
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
 | `showSelection` |  | bool | `True` | Tint selected components. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
+| `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `path` | `p` | str |  | PNG file to write. |
 | `count` | `c` | int | `4` | Views around the up axis, starting at the front. |
 | `columns` |  | int | `0` | Tiles per row; 0 picks. |
@@ -1358,6 +1359,7 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
 | `showSelection` |  | bool | `True` | Tint selected components. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
+| `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `path` | `p` | str |  | PNG file to write. |
 
 Not undoable.
@@ -4772,6 +4774,7 @@ Draw the scene offscreen several times like captureView and return the median GP
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
 | `showSelection` |  | bool | `True` | Tint selected components. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
+| `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `frames` |  | int | `20` | Frames to draw; the result is their median. |
 | `ambientOcclusion` | `ao` | bool |  | Force ambient occlusion on or off instead of the viewport pref. |
 
@@ -13058,7 +13061,7 @@ Map the selected faces (whole selected meshes in object mode) onto one trim: eac
 | `splitAngle` | `sa` | float | `30.0` | Split islands where faces meet sharper than this, degrees. |
 | `orient` | `o` | str | `'worldUp'` | worldUp, longestU or asIs. |
 | `seed` | `s` | int | `0` | Offset along strips. |
-| `randomOffset` | `ro` | bool | `True` | Slide islands along tiling strips. |
+| `randomOffset` | `ro` | bool | `False` | Slide islands to a random place along tiling strips; off centres them, so motifs sit symmetrically. |
 
 ```python
 trimApply(trim='Plate128')
@@ -13152,6 +13155,8 @@ Bake a trim sheet: its generated high onto the flat low, tiling strips wrapped s
 | `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
 | `trims` | `t` | list |  | Trim indices or names to rebake; all when not given. |
 | `backend` |  | str | `'auto'` | auto, gpu or cpu. |
+| `high` | `hi` | list |  | Scene meshes to bake as extra high poly detail, laid on the sheet as trimSheetGenerate shows it; remembered by the sheet for later bakes. An empty list goes back to the generated relief alone. |
+| `highReplaces` | `hr` | bool |  | The high meshes are the whole high poly, instead of adding to the generated one. |
 
 Not undoable.
 
