@@ -22,6 +22,7 @@ Which formats Lila reads and writes, and what to pick for each job.
 | Maya | `.ma`, `.mb` | Yes, without Maya installed | No |
 | Alembic | `.abc` | Animated meshes | Animated meshes |
 | MaterialX | `.mtlx` | Materials | Materials |
+| ZBrush GoZ | `.GoZ` | Yes | Yes |
 
 FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures, unlit materials, and each texture's wrap and filter. Animated points in USD and Alembic files come in as a `meshCache` deformer that plays the samples back at the scene time. DXF brings each layer in as one curve and one mesh, with arcs, circles, ellipses and splines exact and blocks expanded where they are inserted. Maya files bring blendShapes in as morphs: targets stored in the file or still connected as meshes, in-betweens, painted target and base weights, keyed weights, and set driven keys as driven channels.
 
@@ -30,6 +31,7 @@ Which to use:
 | Job | Use |
 | --- | --- |
 | Into Unreal | LilaLink (**Send to Unreal**), else FBX |
+| Sculpting in ZBrush | **Send to ZBrush** ([ZBrush](zbrush.md)) |
 | Studio pipelines, Houdini, Omniverse, Apple | USD |
 | Web, Godot, Blender, Sketchfab | glTF (`.glb` for a single file) |
 | 3D printing | STL |
@@ -72,6 +74,8 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 **A mesh far from the origin moves slightly after export.** STL, glTF, USD, Alembic and PLY round positions to 32-bit floats. Export as OBJ or FBX to keep them exact.
 
 **A glTF or USD import lists skipped items.** The import report lists everything that didn't come across and why.
+
+**A value isn't the one you set.** A stronger opinion wins. Select the object and click **Opinions...** in its USD Prim section, or **...** beside one property: every layer's opinion is listed strongest first, with the arc it comes through, and the one the value comes from in bold. A property whose edit is hidden shows a warning icon, and setting it logs which layer wins. Scripts use `usdStageOpinions`.
 
 **An edit written to a sublayer doesn't show.** With the Edit layer set to one of the stage's sublayers, the source file's own opinions are stronger than that sublayer's, so they win wherever both set the same property. The stage warns when it saves. Use an edit layer of its own (empty, or a separate `.usda`) for edits that must win.
 
@@ -141,6 +145,7 @@ Lila does not use the Autodesk FBX SDK, so no Autodesk licence terms come with i
 | STL | Lila's own | Lila's own |
 | PLY | Lila's own | Lila's own |
 | DXF | Lila's own | Lila's own |
+| GoZ | Lila's own | Lila's own |
 | glTF | [cgltf](https://github.com/jkuhlmann/cgltf) parses the file, [Draco](https://github.com/google/draco) decodes compressed meshes | Lila's own writer, Draco for compressed meshes |
 | USD | [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD) | OpenUSD |
 | Maya | Lila's own, no Maya needed | |
