@@ -9926,7 +9926,7 @@ Pack the uv islands of the selected faces (or whole meshes) into 0-1 with paddin
 | `effort` |  | int | `1` | Search effort 0-3: island orders tried per scale (1, 3, 6, 12). Higher packs denser, slower. |
 | `timeLimit` |  | float | `0.0` | Stop refining after this many seconds (0 never); results can then vary between runs. |
 | `workingResolution` |  | int | `0` | Search raster cells across a tile; 0 uses the resolution up to 4096. |
-| `layout` |  | str | `'fill'` | fill: fill the UDIM tiles in order. groupTiles: one tile per group. groupRegions: one part of tile 1001 per group, sized by its area. keepTile: islands stay in the tile they are in. |
+| `layout` |  | str | `'fill'` | fill: fill the UDIM tiles in order. groupTiles: one tile per group. groupRegions: one part of tile 1001 per group, sized by its area. keepTile: islands stay in the tile they are in. groupLayouts: each group packs on its own into the full tiles, overlapping the others (a texture set per material). |
 | `groupBy` |  | str | `'none'` | What makes a group: object, material slot, or the face int attribute groupAttr. One of `none`, `object`, `material`, `attribute`. |
 | `groupAttr` |  | str | `'uvGroup'` | Face int attribute holding each face's group, for groupBy=attribute. |
 | `keep` |  | str | `'none'` | selected: the selected islands stay where they are and the rest pack around them. unselected: only the selection packs, around the rest. One of `none`, `selected`, `unselected`. |
@@ -11310,6 +11310,20 @@ importUsd("hero.usdz", report=True)
 importUsd("set.usd", loadPayloads=False, variants={"lod": "proxy"})
 ```
 
+### usdStageAddLayer
+
+Add a layer to a stage, under its edits and over its source: a new .usda (with the stage's up axis and units) when the file doesn't exist, else that file. It is listed as a sublayer of the edit layer, so the source files stay unchanged, and usdStageWriteShot carries it along. Other tools write into it; Lila picks up their changes. Returns the added layers, strongest first.
+
+**Objects:** path stage (default the selected one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | int | `0` | Where among the added layers: 0 is the strongest. |
+
+```python
+usdStageAddLayer("C:/shots/sh010_lighting.usda", "kitchen")
+```
+
 ### usdStageExtract
 
 Turn stage objects into plain Lila objects: each one moves out of its stage, keeping its place, modifiers and everything below it, and its prim is deactivated in the edit layer. Use it before adding modifiers or deformers that should stay live, since a stage's layer holds only their result. Returns the objects.
@@ -11401,6 +11415,16 @@ usdStageReload()
 
 ```python
 usdStageReload("kitchen")
+```
+
+### usdStageRemoveLayer
+
+Take a layer usdStageAddLayer added out of a stage. The file stays on disk. Returns the added layers left.
+
+**Objects:** path stage (default the selected one)
+
+```python
+usdStageRemoveLayer("C:/shots/sh010_lighting.usda", "kitchen")
 ```
 
 ### usdStageSetProperty
