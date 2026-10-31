@@ -804,6 +804,22 @@ Simple collision for Unreal, per island or for the whole mesh: a convex hull, an
 | `shape` | `hull`, `decompose`, `box`, `sphere`, `capsule` | `hull` |  |
 | `per` | `island`, `whole` | `island` |  |
 
+### Imposter
+
+Bakes what reaches it into an octahedral imposter for Unreal: Bake in the side panel views it from Frames x Frames directions and writes a base colour atlas (alpha is coverage), a normal atlas (alpha is depth), a card mesh FBX and a JSON of the material inputs into imposters/ next to the scene. Base colour comes from the mesh's current colour set, else light grey. Geometry passes through; Card is the square the imposter draws on.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `frames` | int | input | `12` | Views per side of the atlas. Range 2 to 32. |
+| `resolution` | int | input | `256` | Pixels per view. Range 16 to 2048. |
+| `geometry` | geometry | output |  |  |
+| `card` | geometry | output |  | A square through the centre, as wide as the bounding sphere, facing +Z. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `layout` | `octahedral`, `hemi-octahedral` | `hemi-octahedral` | octahedral: views from every side; hemi-octahedral: only from above, twice the detail for things seen from the ground. |
+
 ### Lightmap UV
 
 Unreal's lightmap channel: the source set's islands made non-overlapping and packed with padding for the lightmap resolution into the target set.
@@ -989,6 +1005,21 @@ Unwraps the selected faces' islands. Seams come from the seam input when it is l
 | `method` | `slim`, `conformal`, `bff` | `slim` |  |
 | `seams` | `existing`, `auto` | `existing` |  |
 
+### Vertex Animation Texture
+
+Encodes the animation of what reaches it (a simulation, anything that changes over time) into Vertex Animation Textures for Unreal: Encode in the side panel samples this node's input over the playback range and writes a rest mesh FBX, position and normal textures and a JSON of the material inputs into vat/ next to the scene. The geometry passes through unchanged.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `auto`, `constant`, `soup`, `rigid` | `auto` | auto: soup when the topology changes, rigid when every point has a piece attribute and pieces only move, else constant. constant: a column per point. soup: a triangle soup padded to the largest frame. rigid: a transform per piece. |
+| `format` | `exr`, `png16`, `png8` | `exr` | Position texture format: EXR keeps exact values; PNG is normalised by bounds. |
+| `positions` | `offset`, `absolute` | `offset` | offset from the rest mesh (for World Position Offset), or absolute. |
+
 ### Walkable Surface
 
 Faces a character can stand on: no steeper than the slope, with clearance above (a ray up from the face centre), plus step faces no taller than the step height beside them. Selects them, or keeps only them.
@@ -1008,6 +1039,19 @@ Faces a character can stand on: no steeper than the slope, with clearance above 
 | `mode` | `select`, `separate` | `select` |  |
 
 ## Geometry
+
+### Bake
+
+Saves what reaches it to disk, then gives that back instead of evaluating the nodes before it: freeze an expensive result, or a simulation, so playing and editing downstream stay fast. Bake and Delete Bake are in the Node Editor's side panel. Still saves one result; Animation saves one per frame over the playback range. Items carry values besides the geometry.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `still`, `animation` | `still` | still: one result for every frame; animation: one per frame. |
 
 ### Bounding Box
 
@@ -1215,6 +1259,10 @@ Moves, rotates and scales all of the geometry.
 | `rotation` | rotation | input | `[0, 0, 0]` |  |
 | `scale` | vector | input | `[1, 1, 1]` |  |
 | `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
 
 ## Group
 
@@ -1501,6 +1549,14 @@ Each instance's scale.
 | --- | --- | --- | --- | --- |
 | `scale` | vector | output, field |  |  |
 
+### Instance Transform
+
+Each instance's whole transform as a matrix.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `transform` | matrix | output, field |  |  |
+
 ### Instances to Points
 
 Type `InstancesToPoints`.
@@ -1562,6 +1618,10 @@ Sets instances' translation, rotation and scale. Rotation and scale change only 
 | `rotation` | rotation | input, field | `[0, 0, 0]` |  |
 | `scale` | vector | input, field | `[1, 1, 1]` |  |
 | `instances` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
 
 ### Translate Instances
 
@@ -1643,6 +1703,23 @@ Joins pairs of open border loops among the selected edges with quads.
 | `divisions` | int | input | `0` | Extra rows of faces between the loops. Range 0 to 1000. |
 | `mesh` | geometry | output |  |  |
 | `bridge` | bool | output, field |  | The new faces. |
+
+### Clay
+
+Melts spheres at points and tubes along curves into one surface with smooth joins: blobby creatures, vines, roots, horns. Either input can cut instead, carving into the other.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | geometry | input |  |  |
+| `pointRadius` | float | input, field | `5` | At least 0. |
+| `cutWithPoints` | bool | input | `false` | The spheres carve into the tubes instead of adding. |
+| `curves` | geometry | input |  |  |
+| `curveRadius` | float | input, field | `2` | At least 0. |
+| `cutWithCurves` | bool | input | `false` | The tubes carve into the spheres instead of adding. |
+| `blend` | float | input | `2` | Radius of the smooth joins, cm; 0 is a hard edge. At least 0. |
+| `voxelSize` | float | input | `0.5` | Lattice spacing, cm. Smaller is finer and slower. At least 0.01. |
+| `sharpEdges` | bool | input | `false` | Keep hard joins sharp (dual contouring). |
+| `mesh` | geometry | output |  |  |
 
 ### Decimate
 
@@ -3004,6 +3081,49 @@ Limits a value to a range. range mode also works when min is above max.
 | --- | --- | --- | --- |
 | `clampType` | `minMax`, `range` | `minMax` |  |
 
+### Combine Bundle
+
+Packs values of any type into one bundle, each under its item's name, so several values travel along one link.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bundle` | bundle | output |  |  |
+
+### Combine Matrix
+
+A 4x4 matrix from its sixteen values, column by column; the last column is the translation.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `c0r0` | float | input, field | `1` | Column 1, row 1. |
+| `c0r1` | float | input, field | `0` | Column 1, row 2. |
+| `c0r2` | float | input, field | `0` | Column 1, row 3. |
+| `c0r3` | float | input, field | `0` | Column 1, row 4. |
+| `c1r0` | float | input, field | `0` | Column 2, row 1. |
+| `c1r1` | float | input, field | `1` | Column 2, row 2. |
+| `c1r2` | float | input, field | `0` | Column 2, row 3. |
+| `c1r3` | float | input, field | `0` | Column 2, row 4. |
+| `c2r0` | float | input, field | `0` | Column 3, row 1. |
+| `c2r1` | float | input, field | `0` | Column 3, row 2. |
+| `c2r2` | float | input, field | `1` | Column 3, row 3. |
+| `c2r3` | float | input, field | `0` | Column 3, row 4. |
+| `c3r0` | float | input, field | `0` | Column 4, row 1. |
+| `c3r1` | float | input, field | `0` | Column 4, row 2. |
+| `c3r2` | float | input, field | `0` | Column 4, row 3. |
+| `c3r3` | float | input, field | `1` | Column 4, row 4. |
+| `matrix` | matrix | output, field |  |  |
+
+### Combine Transform
+
+A transform matrix from translation, rotation and scale: scaled first, then rotated, then moved.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `translation` | vector | input, field | `[0, 0, 0]` |  |
+| `rotation` | rotation | input, field | `[0, 0, 0]` |  |
+| `scale` | vector | input, field | `[1, 1, 1]` |  |
+| `transform` | matrix | output, field |  |  |
+
 ### Combine XYZ
 
 Builds a vector from three floats.
@@ -3047,6 +3167,14 @@ Reads a field at another element of the same geometry: the value at the index, e
 | --- | --- | --- | --- |
 | `dataType` | `float`, `int`, `vector`, `bool`, `rotation`, `color` | `float` |  |
 | `domain` | `point`, `edge`, `face`, `corner`, `curve`, `instance` | `point` |  |
+
+### Evaluate Closure
+
+Runs a closure with these inputs and gives back its outputs, matched by name. Linking a closure in fills the inputs and outputs from it when the node has none.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `closure` | closure | input |  |  |
 
 ### Evaluate on Domain
 
@@ -3140,6 +3268,25 @@ Integer math on values or fields. Division by zero gives zero.
 | --- | --- | --- | --- |
 | `operation` | `absolute`, `add`, `divide`, `divideCeil`, `divideFloor`, `divideRound`, `flooredModulo`, `gcd`, `lcm`, `maximum`, `minimum`, `modulo`, `multiply`, `multiplyAdd`, `negate`, `power`, `sign`, `subtract` | `add` |  |
 
+### Invert Matrix
+
+The transform that undoes this one. A matrix that can't be inverted (a zero scale) passes through, with Invertible false.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `matrix` | matrix | input, field |  |  |
+| `matrix` | matrix | output, field |  |  |
+| `invertible` | bool | output, field |  |  |
+
+### Join Bundle
+
+Merges bundles into one. Where two hold the same name, the later link wins.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bundle` | bundle | input, multi |  |  |
+| `bundle` | bundle | output |  |  |
+
 ### Map Range
 
 Remaps a value from one range to another.
@@ -3174,6 +3321,15 @@ Float math on values or fields.
 | `operation` | `absolute`, `add`, `arccosine`, `arcsine`, `arctan2`, `arctangent`, `ceil`, `compare`, `cosh`, `cosine`, `degrees`, `divide`, `exponent`, `floor`, `flooredModulo`, `fraction`, `greaterThan`, `inverseSqrt`, `lessThan`, `logarithm`, `maximum`, `minimum`, `modulo`, `multiply`, `multiplyAdd`, `pingpong`, `power`, `radians`, `round`, `sign`, `sine`, `sinh`, `smoothMax`, `smoothMin`, `snap`, `sqrt`, `subtract`, `tangent`, `tanh`, `truncate`, `wrap` | `add` |  |
 | `clamp` | `false`, `true` | `false` | Clamp the result to 0..1. |
 
+### Matrix Determinant
+
+How much the transform scales volume; negative when it mirrors.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `matrix` | matrix | input, field |  |  |
+| `determinant` | float | output, field |  |  |
+
 ### Menu Switch
 
 Picks the input named by menu from a list of named entries (options: a comma list). Expose menu as a string group input to offer the choice on the modifier.
@@ -3206,6 +3362,26 @@ Blends a and b by factor.
 | `dataType` | `float`, `vector`, `rotation`, `color` | `float` |  |
 | `clampFactor` | `true`, `false` | `true` |  |
 
+### Multiply Matrices
+
+A times B: the transform that applies B first, then A.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | matrix | input, field |  |  |
+| `b` | matrix | input, field |  |  |
+| `matrix` | matrix | output, field |  |  |
+
+### Project Point
+
+Transforms a point by a projection matrix and divides by w, as a camera projects into its view.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `vector` | vector | input, field | `[0, 0, 0]` |  |
+| `transform` | matrix | input, field |  |  |
+| `vector` | vector | output, field |  |  |
+
 ### Random Value
 
 Random numbers that stay the same for an element as long as its ID and the seed do.
@@ -3221,6 +3397,49 @@ Random numbers that stay the same for an element as long as its ID and the seed 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `dataType` | `float`, `int`, `vector`, `bool`, `rotation` | `float` |  |
+
+### Separate Bundle
+
+Unpacks a bundle's values by name. An item the bundle lacks reads as its type's default; one of another type is converted where it can be.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bundle` | bundle | input |  |  |
+
+### Separate Matrix
+
+The sixteen values of a 4x4 matrix, column by column.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `matrix` | matrix | input, field |  |  |
+| `c0r0` | float | output, field |  | Column 1, row 1. |
+| `c0r1` | float | output, field |  | Column 1, row 2. |
+| `c0r2` | float | output, field |  | Column 1, row 3. |
+| `c0r3` | float | output, field |  | Column 1, row 4. |
+| `c1r0` | float | output, field |  | Column 2, row 1. |
+| `c1r1` | float | output, field |  | Column 2, row 2. |
+| `c1r2` | float | output, field |  | Column 2, row 3. |
+| `c1r3` | float | output, field |  | Column 2, row 4. |
+| `c2r0` | float | output, field |  | Column 3, row 1. |
+| `c2r1` | float | output, field |  | Column 3, row 2. |
+| `c2r2` | float | output, field |  | Column 3, row 3. |
+| `c2r3` | float | output, field |  | Column 3, row 4. |
+| `c3r0` | float | output, field |  | Column 4, row 1. |
+| `c3r1` | float | output, field |  | Column 4, row 2. |
+| `c3r2` | float | output, field |  | Column 4, row 3. |
+| `c3r3` | float | output, field |  | Column 4, row 4. |
+
+### Separate Transform
+
+A transform matrix's translation, rotation and scale. Shear is lost; a mirrored matrix gives a negative X scale.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `transform` | matrix | input, field |  |  |
+| `translation` | vector | output, field |  |  |
+| `rotation` | rotation | output, field |  |  |
+| `scale` | vector | output, field |  |  |
 
 ### Separate XYZ
 
@@ -3259,6 +3478,10 @@ Turns and scales a direction by a rotation and scale; translation doesn't apply 
 | `scale` | vector | input, field | `[1, 1, 1]` |  |
 | `direction` | vector | output, field |  |  |
 
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
+
 ### Transform Point
 
 Moves a point by a transform given as translation, rotation and scale (scale first, then rotation, then translation).
@@ -3270,6 +3493,19 @@ Moves a point by a transform given as translation, rotation and scale (scale fir
 | `rotation` | rotation | input, field | `[0, 0, 0]` |  |
 | `scale` | vector | input, field | `[1, 1, 1]` |  |
 | `vector` | vector | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
+
+### Transpose Matrix
+
+Rows become columns. For a pure rotation this is its inverse.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `matrix` | matrix | input, field |  |  |
+| `matrix` | matrix | output, field |  |  |
 
 ### Vector Math
 
@@ -3481,6 +3717,89 @@ The volume's surface as quads, joined with any mesh the geometry already has. De
 | `threshold` | float | input | `0.1` |  |
 | `mesh` | geometry | output |  |  |
 
+## Zones
+
+### Closure Input
+
+Start of a closure zone: its outputs are the closure's inputs, given by whichever Evaluate Closure runs it. Its inputs and outputs are set in the Node Editor's side panel.
+
+### Closure Output
+
+End of a closure zone: the nodes between Closure Input and here become a closure, a value that Evaluate Closure runs later with its own inputs. Values the zone reads from outside are captured where the closure is made.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `closure` | closure | output |  | The zone as a closure, with the values it reads from outside captured. |
+
+### For Each Element Input
+
+Type `ForEachInput`.
+
+Start of a for-each zone: the nodes between it and For Each Output run once per element (each mesh part, face, curve or instance), in parallel, each seeing only its element as the geometry. Values carried through besides the geometry are items, added in the Node Editor's side panel.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  | Geometry going into the zone. |
+| `index` | int | output, field |  | The element's number. |
+| `count` | int | output, field |  | How many elements there are. |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `element` | `part`, `face`, `curve`, `instance` | `part` | part: each connected mesh part; face: each mesh face; curve: each curve; instance: each instance, realized. |
+
+### For Each Element Output
+
+Type `ForEachOutput`.
+
+End of a for-each zone: the elements' geometry joined; items come from the last element.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `geometry` | geometry | output |  |  |
+
+### Repeat Input
+
+Start of a repeat zone: the nodes between it and Repeat Output run Iterations times, each pass taking the last one's geometry and items. Values carried through besides the geometry are items, added in the Node Editor's side panel.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `iterations` | int | input | `1` | Number of passes; 0 passes the inputs through. Range 0 to 100000. |
+| `geometry` | geometry | input |  | Geometry going into the zone. |
+| `iteration` | int | output, field |  | The pass number, from 0. |
+| `geometry` | geometry | output |  |  |
+
+### Repeat Output
+
+End of a repeat zone: what reaches it feeds the next pass, and after the last pass comes out here.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `geometry` | geometry | output |  |  |
+
+### Simulation Input
+
+Start of a simulation zone: the nodes between it and Simulation Output step the geometry and items forward one frame at a time from Start Frame, each step starting from the last. Items keep single values; store per-element state as attributes. Values carried through besides the geometry are items, added in the Node Editor's side panel.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `startFrame` | int | input | `1` | Frame the simulation starts on; before it, the inputs pass through. |
+| `substeps` | int | input | `1` | Steps per frame. Range 1 to 64. |
+| `geometry` | geometry | input |  | Geometry going into the zone. |
+| `deltaTime` | float | output, field |  | Seconds the step covers. |
+| `geometry` | geometry | output |  |  |
+
+### Simulation Output
+
+End of a simulation zone: the state at the current frame, cached frame by frame.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `geometry` | geometry | output |  |  |
+
 ## Destruction extension
 
 Available when the Destruction extension is loaded.
@@ -3549,6 +3868,32 @@ Lays stones in courses along footprint lines (curves, or a mesh's loose edges) a
 | `geometry` | geometry | output |  | Stones and core together. |
 | `stones` | geometry | output |  | The stones, as instances. |
 | `core` | geometry | output |  | The mortar core, a mesh. |
+
+## NanoVDB extension
+
+Available when the NanoVDB extension is loaded.
+
+### Volume
+
+#### Read NanoVDB
+
+A float grid from a NanoVDB file (.nvdb) as a volume: level sets as signed distances, fog volumes as densities. Read whole over the grid's active voxels.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | string | input |  | The .nvdb file; relative paths are against the scene. |
+| `grid` | string | input |  | Grid name; empty reads the first. |
+| `volume` | geometry | output |  |  |
+
+#### Read VDB
+
+A float grid from an OpenVDB file (.vdb, from Houdini, Blender or EmberGen) as a volume: level sets as signed distances, fog volumes as densities. Read whole over the grid's active voxels.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | string | input |  | The .vdb file; relative paths are against the scene. |
+| `grid` | string | input |  | Grid name, such as density; empty reads the first float grid. |
+| `volume` | geometry | output |  |  |
 
 ## Settlement extension
 

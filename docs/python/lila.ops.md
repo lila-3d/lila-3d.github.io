@@ -43,6 +43,56 @@ Add an attribute to objects (Maya's addAttr): attributeType for a single value o
 | `usedAsColor` | `uac` | bool | `False` | A double3 holding a colour: editors show a swatch. |
 | `doc` |  | str |  | What it is for: editors show it as a tooltip. |
 
+### addClayPrimitive
+
+Add a clay shape to a clay object or group, after its other shapes. Given a shape, adds next to it. Returns the new shape.
+
+**Objects:** clay object, group or shape
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shape` | `sh` | str | `'sphere'` | Primitive shape. One of `sphere`, `ellipsoid`, `box`, `capsule`, `cylinder`, `cone`, `torus`. |
+| `operation` | `op` | str | `'add'` | Add to, subtract from, or intersect with the clay before it. One of `add`, `subtract`, `intersect`. |
+| `blend` | `b` | float |  | Smooth join radius, cm; 0 is a hard edge. |
+| `radius` | `r` | float |  | Sphere radius; capsule and cone radius at -Y; cylinder radius; torus ring radius. cm. |
+| `endRadius` | `er` | float |  | Capsule and cone radius at +Y; torus tube radius. cm. |
+| `length` | `l` | float |  | Capsule, cylinder and cone length along Y, cm. |
+| `extents` | `ex` | tuple[float, float, float] |  | Box half sizes, ellipsoid semi-axes, cm. |
+| `rounding` | `rn` | float |  | Box, cylinder and cone edge rounding, cm. |
+| `color` | `c` | tuple[float, float, float] |  | Linear colour, written to the clay color set. |
+| `position` | `p` | tuple[float, float, float] |  | World position. |
+| `rotation` | `ro` | tuple[float, float, float] |  | Rotation in degrees. |
+| `name` | `n` | str |  | Name; made unique. |
+
+```python
+addClayPrimitive("Dog", shape="capsule", radius=4, endRadius=3, length=20, position=[8, 10, 0], rotation=[0, 0, 90])
+```
+
+```python
+addClayPrimitive("Dog", shape="sphere", operation="subtract", radius=2, blend=0.5)
+```
+
+### addClayStroke
+
+Add a capsule chain through world points to a clay object or group: tentacles, horns, limbs and strokes drawn over the surface. The spans go in a new group. Returns the group.
+
+**Objects:** clay object, group or shape
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | World points, two or more: [[x, y, z], ...]. |
+| `radius` | `r` | float | `2.0` | Radius at the first point, cm. |
+| `endRadius` | `er` | float |  | Radius at the last point, cm; defaults to radius. |
+| `operation` | `op` | str | `'add'` | How the stroke joins the clay before it. One of `add`, `subtract`, `intersect`. |
+| `blend` | `b` | float |  | Smooth join radius of the stroke, cm. |
+| `color` | `c` | tuple[float, float, float] |  | Linear colour. |
+| `extend` | `x` | bool | `False` | Given a stroke group (or one of its spans), add the spans to it rather than to a new group. |
+| `name` | `n` | str |  | Group name; made unique. |
+
+```python
+addClayStroke("Dog", points=[[0, 20, -10], [0, 24, -18], [0, 30, -22]], radius=2, endRadius=0.5)
+```
+
 ### addCollider
 
 Add colliders to a collision deformer: meshes, or transforms as capsules along their Y.
@@ -1449,6 +1499,38 @@ Create an exact circle (a rational NURBS). Returns its name.
 | `radius` | `r` | float | `10.0` | cm. |
 | `name` | `n` | str |  | Name; made unique. |
 
+### clayJoints
+
+Joints from a clay object: a root at the object for the body, and a chain down each stroke (a group of capsules). Given a mesh (the converted clay), binds it and starts its weights from the clay: each point leans on the joints of the shapes it lies nearest. Returns [root, skinCluster or None].
+
+**Objects:** clay object
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | Mesh to bind, usually the clay converted with convertClayToMesh. |
+| `maxInfluences` | `mi` | int | `4` | Influences per point. |
+
+```python
+mesh = convertClayToMesh("Dog")
+clayJoints("Dog", mesh=mesh)
+```
+
+### clayShapeAt
+
+The clay shape of a clay object at a world point: the one the point is deepest inside, else the nearest. Cuts count. Returns its path, or None for an object without shapes.
+
+**Objects:** clay object or anything in it
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | tuple[float, float, float] |  | World point. |
+
+Not undoable.
+
+```python
+clayShapeAt("Dog", point=[3, 20, 8])
+```
+
 ### clearLoopKey
 
 Turn the loop key off on curves (nodes, plugs or curves, default the selection): the last key is an ordinary key again and cycling post infinity goes back to constant. Returns the number of curves changed.
@@ -1575,6 +1657,28 @@ Slice meshes into curves at evenly spaced parallel planes (Rhino's Contour): eve
 | `constructionHistory` | `ch` | bool | `True` | Keep the contour node so the curves follow the meshes and settings. |
 | `name` | `n` | str |  | Curve name; made unique. |
 
+### convertClayToMesh
+
+Bake a clay object into a plain mesh at the surface's finalVoxelSize, optionally quad remeshed. The clay object stays, hidden, unless keepSource is off. Returns the new mesh.
+
+**Objects:** clay object
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `voxelSize` | `vs` | float |  | Lattice spacing, cm; defaults to the surface's finalVoxelSize. |
+| `keepSource` | `ks` | bool | `True` | Keep the clay object, hidden, to edit and convert again; off deletes it. |
+| `remesh` | `rm` | bool | `False` | Quad remesh the result. |
+| `targetFaces` | `tf` | int | `2000` | Face count for remesh. |
+| `name` | `n` | str |  | Mesh name; made unique. Defaults to the clay object's name. |
+
+```python
+convertClayToMesh("Dog")
+```
+
+```python
+convertClayToMesh("Dog", remesh=True, targetFaces=3000)
+```
+
 ### convertCurve
 
 Convert curves to another kind: poly, Bezier or NURBS (exact where the shape allows, fitted within tolerance otherwise).
@@ -1700,6 +1804,22 @@ Create a bake project: output folder, file naming, resolution and the maps to ba
 | `name` | `n` | str |  | Name; bakeProject1 when empty. |
 | `target` | `t` | str |  | Apply a target profile's maps and naming (see bakeTargets). |
 | `folder` | `fo` | str |  | Output folder; relative paths are under the workspace, else the scene file's folder. |
+
+### createClay
+
+Create a clay object: a transform holding clay shapes, and a mesh under it that shows them blended by a claySurface. Starts with one sphere unless empty. Returns [object, mesh, surface, firstShape or None].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'Clay'` | Object name; made unique. |
+| `position` | `p` | tuple[float, float, float] |  | World position. |
+| `voxelSize` | `vs` | float |  | Lattice spacing while editing, cm. |
+| `symmetry` | `sy` | str |  | Mirror across the object's YZ plane. One of `off`, `x`. |
+| `empty` | `e` | bool | `False` | Start with no shapes. |
+
+```python
+createClay(name="Dog", symmetry="x")
+```
 
 ### createDisplayLayer
 
@@ -3431,7 +3551,7 @@ Add an exposed group input that isn't wired to anything yet (link it from GroupI
 
 ### gnAddNode
 
-Add a node to a group. Returns its name. gnNodeTypes lists the types.
+Add a node to a group. Returns its name. gnNodeTypes lists the types. A zone node adds its input and output, paired.
 
 **Objects:** group type
 
@@ -3445,6 +3565,33 @@ Add a node to a group. Returns its name. gnNodeTypes lists the types.
 Add a group's modifier to the top of a mesh's stack. Its exposed inputs are keyable attrs. Returns the modifier name.
 
 **Objects:** mesh group
+
+### gnBake
+
+Bake a Bake node: evaluate a mesh running its group, save what reaches the node (once, or per frame in animation mode) and switch the node to reading the saved files. Returns the folder written.
+
+**Objects:** group node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | int |  | First frame (animation mode); defaults to the playback range's. |
+| `end` |  | int |  | Last frame (animation mode); defaults to the playback range's. |
+| `modifier` |  | str |  | The modifier to evaluate when several meshes run the group; defaults to the first. |
+| `directory` |  | str |  | Folder for the files; defaults to bakes/<group>_<node> next to the scene. |
+
+### gnBakeImposter
+
+Bake an Imposter node: evaluate a mesh running its group at the current frame, view what reaches the node from every atlas direction and write the base colour and normal-depth atlases, a card mesh FBX and a JSON of the material inputs. Returns {files, materialParams}.
+
+**Objects:** group node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` |  | str |  | Where to write; defaults to imposters/ next to the scene. |
+| `name` |  | str |  | File base name; defaults to the mesh's. |
+| `modifier` |  | str |  | The modifier to evaluate when several meshes run the group; defaults to the first. |
+
+Not undoable.
 
 ### gnBuildGroup
 
@@ -3476,9 +3623,15 @@ Create a geometry-nodes group (Group Input wired to Group Output). Returns its n
 
 **Objects:** name
 
+### gnDeleteBake
+
+Delete a Bake node's saved files and go back to evaluating the nodes before it.
+
+**Objects:** group node
+
 ### gnDeleteNode
 
-Delete nodes from a group, with their links.
+Delete nodes from a group, with their links. A zone's input and output go together.
 
 **Objects:** group nodes...
 
@@ -3501,6 +3654,22 @@ Copy nodes with the links between them. Returns the new names in order.
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `offset` |  | list | `[40, 40]` | [x, y] shift for the copies. |
+
+### gnEncodeVat
+
+Encode a Vertex Animation Texture node: sample what reaches it on a mesh running its group, frame by frame, and write the vertex animation textures (see exportVertexAnimation for the files). Returns {files, materialParams}.
+
+**Objects:** group node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | float |  | First frame; defaults to the playback range's. |
+| `end` |  | float |  | Last frame; defaults to the playback range's. |
+| `folder` |  | str |  | Where to write; defaults to vat/ next to the scene. |
+| `name` |  | str | `'{name}'` | File base name; {name} is the mesh. |
+| `modifier` |  | str |  | The modifier to sample when several meshes run the group; defaults to the first. |
+
+Not undoable.
 
 ### gnExportGroup
 
@@ -3685,6 +3854,16 @@ Set an exposed input's interface: label, description (tooltip), subtype, min/max
 | `default` |  | Any |  | Default value. |
 | `panel` |  | str |  | Panel (category) the input shows under; empty for none. |
 
+### gnSetItems
+
+Set the items a zone, bundle node or Evaluate Closure carries: gnSetItems(group, 'RepeatOutput', 'items', [{'name': 'count', 'type': 'float'}]). A zone's items live on its output node, and naming its input works too. Closures have two lists, inputs and outputs. Links and values follow items through renames; links to removed items go.
+
+**Objects:** group node list items
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `renames` |  | Any |  | {old: new} item names, so their links and values carry over. |
+
 ### gnSetNodeFlags
 
 Set how nodes draw and run: gnSetNodeFlags(group, 'Math', 'Noise', muted=True). muted bypasses a node (its first input of a matching type passes through to each output); collapsed draws only its header; hideUnused draws only its linked sockets. Flags left out stay as they are.
@@ -3708,6 +3887,21 @@ Replace a group's zip ties: gnSetTies(group, [{links: [[fromNode, fromSocket, to
 Set an unlinked input's value or a property: gnSetValue(group, 'Grid.sizeX', 200), gnSetValue(group, 'Math.operation', 'multiply'). GroupInput.<input> sets an exposed input's default. Rotations are in degrees.
 
 **Objects:** group node.socket value
+
+### gnSpreadsheet
+
+The evaluated geometry of a mesh's top geometry-nodes modifier (or the modifier named) as a table: one row per element of a component's domain, a column per attribute. Without a geometry-nodes modifier, the mesh as it ends up. Also lists every component with its element counts.
+
+**Objects:** target
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `component` |  | str | `'mesh'` | mesh, points, curves, instances or volume. |
+| `domain` |  | str | `'point'` | point, edge, face or corner for meshes; point or curve for curves. |
+| `start` |  | int | `0` | First row. |
+| `count` |  | int | `1000` | Most rows to return. |
+
+Not undoable.
 
 ### gnUngroup
 
@@ -3760,6 +3954,22 @@ Group objects under a new transform, or create an empty group with empty=True.
 | `name` | `n` | str |  | Group name. |
 | `empty` | `em` | bool | `False` | Create an empty group. |
 | `parent` | `p` | str |  | Parent for the new group. |
+
+### groupClay
+
+Group clay shapes that share a parent, so they join each other first and then the clay before them as one. The group takes the first shape's place in the join order. Returns the group.
+
+**Objects:** shapes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `operation` | `op` | str | `'add'` | How the group joins the clay before it. One of `add`, `subtract`, `intersect`. |
+| `blend` | `b` | float |  | Smooth join radius of the group, cm. |
+| `name` | `n` | str | `'ClayGroup'` | Group name; made unique. |
+
+```python
+groupClay(["Ear", "EarCut"], blend=1)
+```
 
 ### growSelection
 
@@ -6300,6 +6510,16 @@ Not undoable.
 Every reference: namespace, path, loaded, and its local edits.
 
 Not undoable.
+
+### refreshClay
+
+Rewire clay objects to their shapes after shapes were reordered or reparented outside the clay commands. Siblings join in outliner order. Returns the objects refreshed.
+
+**Objects:** clay objects or anything in them
+
+```python
+refreshClay("Dog")
+```
 
 ### relaxMesh
 
@@ -9517,6 +9737,8 @@ Automatic uvs: seams, low-stretch unwrap and pack, in one step.
 | `method` |  | str | `'split'` | split (hard edges, open to disks, split where stretched) or optcuts (Auto Seams 2: seams and distortion optimised together). |
 | `distortionBound` |  | float | `0.05` | optcuts: stretch (symmetric Dirichlet excess, all islands) to get under. |
 | `seamWeight` |  | float | `0.5` | optcuts: price of seam length against stretch; higher keeps seams shorter. |
+| `useViews` |  | bool | `True` | Keep seams out of sight of the seam views (uvSeamView). |
+| `views` |  | list |  | Cameras or locators seams hide from; every seam view in the scene when not given. |
 | `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
 | `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
 | `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
@@ -9554,6 +9776,8 @@ Place seams for game assets on the selected faces: hard edges, then cuts that op
 | `method` |  | str | `'split'` | split (hard edges, open to disks, split where stretched) or optcuts (Auto Seams 2: seams and distortion optimised together). |
 | `distortionBound` |  | float | `0.05` | optcuts: stretch (symmetric Dirichlet excess, all islands) to get under. |
 | `seamWeight` |  | float | `0.5` | optcuts: price of seam length against stretch; higher keeps seams shorter. |
+| `useViews` |  | bool | `True` | Keep seams out of sight of the seam views (uvSeamView). |
+| `views` |  | list |  | Cameras or locators seams hide from; every seam view in the scene when not given. |
 
 ### uvBff
 
@@ -9584,6 +9808,14 @@ Cut the uvs along the selected edges (or edges= on the named mesh): marks them a
 ### uvCutEdges
 
 Mark the selected edges as uv seams.
+
+### uvDelete
+
+Delete the uvs of the selected faces, leaving the faces: their uvs collapse to 0,0, so unwrap and projections treat them as having none. With whole meshes selected, removes the uv set.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
 
 ### uvLayout
 
@@ -9732,8 +9964,19 @@ Project uvs onto the selected faces: planar, box, cylindrical, spherical or came
 | `offsetV` |  | float | `0.0` | V offset, applied after the scale. |
 | `viewDir` |  | tuple[float, float, float] |  | World direction the camera looks along, for the seam; the UI passes the active view's. |
 | `normalize` |  | bool | `True` | Fit into 0-1 keeping proportions. |
+| `keepSeams` |  | bool | `True` | Keep the seams already cut inside the faces; off joins the faces into the projection's islands. |
 | `matrix` |  | list |  | Camera projection, column major, for type=camera. |
 | `pack` |  | bool | `False` | Pack the resulting islands afterwards. |
+
+### uvSeamView
+
+Create a seam view: a locator that uvAuto and uvAutoSeams keep seams out of sight of, such as where a first person camera sits or where a character's face is seen from. Move it and run Auto UV again to see the seams move. Its seamView attribute is the weight: higher hides seams harder, negative draws them towards it. Returns its path.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` | `p` | tuple[float, float, float] |  | World position. |
+| `weight` | `w` | float | `1.0` | How hard seams avoid what it sees; negative draws them towards it. |
+| `name` | `n` | str | `'seamView'` | Name; made unique among its siblings. |
 
 ### uvSetCurrent
 
@@ -9848,7 +10091,7 @@ Unpin the uvs of the selected components (all=True: of the whole meshes).
 
 ### uvUnwrap
 
-Unwrap the selected faces' islands along their seams (LSCM, refined with SLIM for low stretch). Closed or holed islands are cut open first. Islands keep their place unless pack=True or they had no uvs.
+Unwrap the selected faces' islands along their seams (LSCM, refined with SLIM for low stretch). Closed or holed islands are an error unless openIslands=True cuts them open. Islands keep their place unless pack=True or they had no uvs.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -9857,6 +10100,7 @@ Unwrap the selected faces' islands along their seams (LSCM, refined with SLIM fo
 | `iterations` |  | int | `12` | SLIM iterations. |
 | `pins` |  | bool | `True` | Respect pinned uvs (corner attribute uvPin). |
 | `pack` |  | bool | `False` | Pack the unwrapped islands into 0-1. |
+| `openIslands` |  | bool | `False` | Cut closed or holed islands open where they cannot unfold, instead of stopping. |
 | `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
 | `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
 | `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
@@ -10887,6 +11131,30 @@ tower = masonryWall(points=[[100 * math.cos(a / 12 * math.tau), 0, 100 * math.si
 setAttr(tower['modifier'] + '.bond', 'english')
 masonryInfo(tower['mesh'])
 ```
+
+## NanoVDB extension
+
+Available when the NanoVDB extension is loaded.
+
+### exportNanoVDB
+
+Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to a NanoVDB file: a sparse float grid, a level set for signed distances and a fog volume for densities. Returns the file written.
+
+**Objects:** target path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `compress` |  | bool | `True` | Zip-compress the grid. |
+
+Not undoable.
+
+### exportVDB
+
+Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to an OpenVDB file: a sparse float grid, a level set for signed distances and a fog volume for densities, for Unreal's sparse volume textures, Houdini or Blender. Returns the file written.
+
+**Objects:** target path
+
+Not undoable.
 
 ## OpenUSD extension
 

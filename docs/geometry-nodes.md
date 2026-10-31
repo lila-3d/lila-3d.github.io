@@ -16,12 +16,29 @@ gnApply("Ground", "Scatter")
 
 Distances are in centimetres, angles on sockets in radians unless the socket says degrees, and Y is up.
 
-## Loops: Repeat and For Each Element
+## Zones: Repeat, For Each, Simulation, Closure
 
-Both run another group, picked from the node's side panel like a Group node; double-click to open it.
+Adding a zone adds its input and output node together; the nodes you put between them run inside the zone, drawn as a tinted region. Values besides the geometry that travel through a zone are **items**: select either zone node and add them in the side panel. Nodes inside a zone can read anything outside it.
 
-- **Repeat** runs the group *iterations* times. Its output geometry is the next pass's input, and any output named like an input feeds that input on the next pass (a counter, an accumulated value). An Int input named `iteration` reads the pass number from 0.
-- **For Each Element** runs the group once per mesh part, face, curve or instance, each run seeing only that element, and joins the results. Int inputs named `index` and `count` read the element's number and the total. Runs are parallel, so don't rely on order.
+- **Repeat** runs its nodes *Iterations* times, each pass starting from the last pass's geometry and items. *Iteration* is the pass number from 0.
+- **For Each Element** runs its nodes once per mesh part, face, curve or instance, each seeing only its element, and joins the results. Runs are parallel, so don't rely on order.
+- **Simulation** steps its geometry and items forward one frame at a time from *Start Frame*, cached frame by frame; scrubbing back reads the cache. *Delta Time* is the step's length in seconds. Items keep one value each, so store per-point state as attributes on the geometry.
+- **Closure** turns its nodes into a value you link elsewhere and run with **Evaluate Closure**. Set the closure's inputs and outputs in the side panel; linking a closure into an empty Evaluate Closure copies them.
+
+The older **Repeat** and **For Each Element** nodes that run a separate group still work: pick the group in the side panel and double-click the node to open it.
+
+## Bundles and matrices
+
+- **Combine Bundle** packs several values of any type into one link; **Separate Bundle** takes them out by name, and **Join Bundle** merges bundles. Linking a Combine Bundle into an empty Separate Bundle copies its items.
+- **Matrix** sockets carry a whole transform. Build one with **Combine Transform**, read it with **Separate Transform**, and use it in **Transform Geometry**, **Transform Point**, **Transform Direction** and **Set Instance Transform** by setting their mode to *matrix*. A rotation links straight into a matrix socket.
+
+## Bake
+
+Put a **Bake** node after anything slow (a big boolean, a simulation) and press **Bake** in its side panel. It saves what reaches it next to the scene (`bakes/<group>_<node>`) and from then on reads the file instead of running the nodes before it. *Animation* mode saves every frame of the playback range. **Delete Bake** goes back to live evaluation.
+
+## Spreadsheet
+
+**Editors > Spreadsheet** lists the selected mesh's evaluated geometry: a row per point, edge, face, corner, curve or instance, a column per attribute. Pick the component and domain at the top; volumes show their resolution, voxel size and value range.
 
 ## Wrangle and Expression
 
@@ -56,13 +73,26 @@ A node graph reaches the scene as one mesh, so game nodes mark their results wit
 | Pivot Painter | UV set N and N+1, colour `pivotAxis` | Pivot xy; pivot z and 0..1 element index; axis and relative length. |
 | Lightmap UV | a second UV set | Packed with padding for the lightmap resolution. |
 
+## Vertex animation and imposters
+
+- **Vertex Animation Texture**: put it where the animated geometry should be captured and press **Encode** in its side panel. It samples what reaches it over the playback range and writes the rest mesh FBX, position and normal textures and a JSON of the material inputs into `vat/` next to the scene, the same files as **exportVertexAnimation**.
+- **Imposter**: press **Bake** to view what reaches it from every direction of a Frames x Frames grid and write a base colour atlas, a normal atlas (depth in alpha), a card mesh FBX and the material inputs into `imposters/`. Hemi-octahedral only views from above, for things seen from the ground. Base colour comes from the mesh's current colour set. Its **Card** output is the square the imposter draws on.
+
 ## Volumes
 
-Volume nodes make a voxel grid (signed distance or density) that you shape with SDF Boolean, Offset and Smooth. Volumes don't draw in the viewport and never reach the modifier stack: end the branch with **Volume to Mesh**.
+Volume nodes make a voxel grid (signed distance or density) that you shape with SDF Boolean, Offset and Smooth. A volume shows in the viewport as a see-through surface inside its grid's box, but only meshes reach the modifier stack: end the branch with **Volume to Mesh** to keep it as geometry.
+
+Volumes go out to OpenVDB (`.vdb`, for Unreal's sparse volume textures, Houdini and Blender) with `exportVDB("Box", "smoke.vdb")`, or to NanoVDB with `exportNanoVDB`. **Read VDB** and **Read NanoVDB** bring a float grid in, from EmberGen or Houdini for instance. All four come with the NanoVDB extension, on by default.
 
 ## Troubleshooting
 
 **"no group named ..." on a Group, Repeat or For Each node.** The group it runs was renamed or deleted. Pick it again in the side panel.
+
+**"has no zone output to pair with".** One half of a zone was deleted outside the Node Editor. Delete the other half and add the zone again.
+
+**A Bake node says its baked file is missing.** The `bakes` folder was moved or deleted. Bake again, or Delete Bake to evaluate live.
+
+**A simulation zone doesn't move.** It starts at *Start Frame* and only steps forward from there; check the frame is past it and the modifier is enabled.
 
 **A Wrangle error with a line and column.** Its code didn't compile; the position points at the problem. Writing `@N` or writing `@P` on edge, face or corner domains is an error.
 
