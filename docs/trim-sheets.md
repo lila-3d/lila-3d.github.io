@@ -36,7 +36,7 @@ trimSheetTexture(material="Rusty Iron", trims=["edge"])   # only the thin edge s
 trimSheetTexture(replace=True)                            # start over from the sheet's own material
 ```
 
-The texture set is `TS_<name>` in the Texture Set panel, with a **Sheet Bake** layer at the bottom carrying the baked normal and AO. Edit it like any other set. Three texture nodes read the sheet: **Trim Mask** (white on trims first to last), **Trim Gradient** (where a texel sits inside its trim, plus a random value per trim) and **Trim Sheet Normal**.
+The smart materials whose names start with **Trim** are made for sheets: they vary tone strip by strip and keep wear to the bevels. Others work too, but treat the sheet as one surface. The texture set is `TS_<name>` in the Texture Set panel, with a **Sheet Bake** layer at the bottom carrying the baked normal and AO. Edit it like any other set. Three texture nodes read the sheet: **Trim Mask** (white on trims first to last), **Trim Gradient** (where a texel sits inside its trim, plus a random value per trim) and **Trim Sheet Normal**.
 
 **Paint** puts a flat `<name>_Sheet` plane in the scene and starts texture painting on it. Strokes land on the sheet itself, so every mesh using it shows them. The UV editor paints the sheet too.
 
