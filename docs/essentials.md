@@ -4,7 +4,7 @@ What everyone should know on day one.
 
 ## Reopen your last scene
 
-Press **Enter** right after Lila opens to load the scene you last had open.
+Press **Enter** or **Space** right after Lila opens to load the scene you last had open.
 
 ## Find any menu command
 
