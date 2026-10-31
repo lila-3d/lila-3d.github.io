@@ -34,6 +34,7 @@
   - [Scene origin](scene-origin.md)
   - [Attributes and arrays](attributes.md)
 - <span class="nav-label">Modeling</span>
+  - [Clay](clay.md)
   - [Curves](curves.md)
   - [Topology](topology.md)
 - <span class="nav-label">Nodes</span>

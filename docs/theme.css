@@ -70,6 +70,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/requirements"]::before,
 .sidebar-nav a[href="#/performance"]::before,
 .sidebar-nav a[href="#/essentials"]::before,
+.sidebar-nav a[href="#/clay"]::before,
 .sidebar-nav a[href="#/curves"]::before,
 .sidebar-nav a[href="#/animation"]::before,
 .sidebar-nav a[href="#/topology"]::before,
@@ -117,6 +118,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/requirements"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h18v12H3zM8 20h8M12 16v4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/performance"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 18a8 8 0 1 1 16 0M12 18l4-6'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/essentials"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7l1-8z'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/clay"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='13' r='6'/%3E%3Ccircle cx='17' cy='8' r='4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/curves"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20C6 6 18 18 20 4'/%3E%3Ccircle cx='4' cy='20' r='1.5'/%3E%3Ccircle cx='20' cy='4' r='1.5'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/animation"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20h18M7 20v-2M17 20v-2M12 4l5 5-5 5-5-5z'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/topology"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 5h18v14H3zM3 12c6-4 12-4 18 0M12 5c-3 5-3 9 0 14'/%3E%3C/svg%3E"); }
