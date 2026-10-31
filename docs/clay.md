@@ -14,6 +14,24 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 
 > Shapes join in Outliner order: a cut only reaches the shapes above it.
 
+## Clay Tool
+
+**Mesh > Clay > Clay Tool** works on the selected clay object, or makes one at your first click.
+
+| Input | Does |
+| --- | --- |
+| Click, drag | Place a shape where you click; drag to size it |
+| **Ctrl** | Place a cut instead |
+| **Shift**-click | Select the shape under the cursor |
+| **1**-**7** | Sphere, ellipsoid, box, capsule, cylinder, cone, torus |
+| **S** | Strokes: drag over the clay to lay a tube. Start on a stroke's tip to extend or branch it |
+| **T** | Taper strokes |
+| **[** **]** | Radius |
+| **,** **.** | Blend |
+| **Esc** | Exit |
+
+With a clay object selected, its shapes show as outlines; cuts are red. Click an outline to select its shape.
+
 ## Joins
 
 Each shape has an **operation** (add, subtract, intersect) and a **blend** radius in cm. Blend 0 is a hard edge; larger values melt the join.
@@ -38,4 +56,5 @@ On the **claySurface** node:
 | **voxelSize** | Surface detail while editing, cm |
 | **finalVoxelSize** | Surface detail for Convert, cm |
 | **symmetry** | Mirror the clay across the object's YZ plane. Model either side |
+| **sharpEdges** | Keep box edges and hard joins sharp, for hard-surface clay. Slower |
 | **colors** | Write each shape's **color** to the `clay` color set, blended across joins |
