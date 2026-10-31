@@ -2123,6 +2123,22 @@ White on the trim sheet's trims first to last (indices as the sheet's palette nu
 | `last` |  | `-1` | -1 is the same as first. |
 | `invert` |  | `false` |  |
 
+#### Trim Random
+
+Type `trimRandom`.
+
+A random value per trim, the same over the whole trim: give each board, panel or course its own tone. As a layer mask at low opacity it varies a material from strip to strip.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `seed` |  | `0` |  |
+| `low` |  | `0` |  |
+| `high` |  | `1` |  |
+
 #### Trim Sheet Normal
 
 Type `trimSheetNormal`.
