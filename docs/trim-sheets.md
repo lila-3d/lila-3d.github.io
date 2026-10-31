@@ -6,8 +6,9 @@ One tiling texture of bevelled strips and panels, shared by every mesh that maps
 
 1. In the Level Toolkit's **Trim Sheets** section, pick a preset and press **New**. The sheet is generated and baked (normal, AO, curvature, height, cavity); the first time takes a few seconds.
 2. Press **Texture** to put the preset's smart material on it. Wear, dirt and chips follow the baked bevels.
-3. Select faces or meshes and press **Auto**. Each island goes to the trim that fits its shape and world size, running up the trim where its faces stand up. Press **Cycle** for the next-best fit, or click a trim in the palette to put the selection on that one.
-4. Press **Unreal** to send it (connected with `unrealConnect()`).
+3. Press **Test** to see it on a blockout (wall, beam, steps, pillar, slab) at real sizes before mapping your own meshes.
+4. Select faces or meshes and press **Auto**. Each island goes to the trim that fits its shape and world size, running up the trim where its faces stand up. Faces taller than every strip are cut into courses at the tallest strip's height, so a wall becomes rows of boards or panels at true scale (`trimAuto(sliceOversized=False)` keeps them whole). Press **Cycle** for the next-best fit, or click a trim in the palette to put the selection on that one.
+5. Press **Unreal** to send it (connected with `unrealConnect()`).
 
 ```python
 trimSheetCreate(preset="industrialMetal")
