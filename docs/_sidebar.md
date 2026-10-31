@@ -53,6 +53,7 @@
 - <span class="nav-label">Pipeline and scripting</span>
   - [Change stream](change-stream.md)
   - [Debug drawing](debug-drawing.md)
+  - [Viewport toasts](viewport-toasts.md)
   - [C++ extensions](cpp-extensions.md)
   - [File translators](file-translators.md)
 

@@ -10274,6 +10274,27 @@ The active viewport's last finished frame as the GPU measured it: {frames, gpuMs
 
 Not undoable.
 
+### viewportToast
+
+Pop up a short message in the bottom-right corner of the active viewport; it fades out after duration. Showing the same text again restarts it instead of adding another.
+
+**Objects:** text
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `all` | `a` | bool |  | Show it in every viewport, not only the active one. |
+| `duration` | `d` | float | `2.0` | Seconds before it is gone, including the fade. |
+
+Not undoable.
+
+```python
+viewportToast("Exported 12 meshes")
+```
+
+```python
+viewportToast("Render done", all=True, duration=4)
+```
+
 ### voxelRemesh
 
 Rebuild meshes as one closed, manifold quad surface from a voxel grid, whatever state they are in: closes holes, fuses intersecting and inner shells. For dirty scans and kitbashed blockouts; UVs are not kept.
