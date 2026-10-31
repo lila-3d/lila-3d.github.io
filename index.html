@@ -744,7 +744,7 @@ footer p { margin: 0 0 6px; }
 
 /*
  * Media slots. Each .media holds either a .ph placeholder or the real thing: swap the placeholder for
- * <img src="..." alt="..."> or <video src="..." poster="..." data-autoplay muted loop playsinline preload="none"></video>.
+ * <img src="..." alt="..."> or <video src="..." poster="..." autoplay muted loop playsinline></video>.
  * data-slot names the asset.
  */
 .media {
@@ -960,7 +960,7 @@ footer p { margin: 0 0 6px; }
 
 <main>
   <figure class="shot wrap frame" data-slot="hero-video">
-    <video src="assets/clips/lila-pitch.mp4" poster="assets/screenshot-cockpit.webp" data-autoplay muted loop playsinline preload="auto" width="1920" height="1080" aria-label="Lila for Maya users: startup, the Maya benchmark, a Maya scene opening, the modeling tools and the live link to Unreal"></video>
+    <video src="assets/clips/lila-pitch.mp4" poster="assets/screenshot-cockpit.webp" autoplay muted loop playsinline width="1920" height="1080" aria-label="Lila for Maya users: startup, the Maya benchmark, a Maya scene opening, the modeling tools and the live link to Unreal"></video>
   </figure>
 
   <section class="intro wrap">
@@ -974,7 +974,7 @@ footer p { margin: 0 0 6px; }
       <p class="more">Timed against Maya 2026.3 on the same machine and files. Maya still wins some rows, and every result is published.</p>
       <p class="more"><a href="docs/#/performance">Full results and method</a></p>
       <figure class="bench frame" data-slot="clip-benchmark">
-        <video src="assets/clips/lila-vs-maya-obj-import.mp4" poster="assets/clips/lila-vs-maya-obj-import.webp" data-autoplay muted loop playsinline preload="none" aria-label="Lila and Maya 2026.3 importing the same 13.5-million-triangle OBJ side by side: Lila is on screen in 6.8 seconds, Maya in 55.3"></video>
+        <video src="assets/clips/lila-vs-maya-obj-import.mp4" poster="assets/clips/lila-vs-maya-obj-import.webp" autoplay muted loop playsinline aria-label="Lila and Maya 2026.3 importing the same 13.5-million-triangle OBJ side by side: Lila is on screen in 6.8 seconds, Maya in 55.3"></video>
       </figure>
     </div>
     <ul>
@@ -1091,7 +1091,7 @@ footer p { margin: 0 0 6px; }
       <p class="lede">Auto-unwrap that gives good results, then physics-based tools for the rest.</p>
     </div>
     <figure class="media frame" data-slot="clip-uvs">
-      <video src="assets/clips/lila-uvs.mp4" poster="assets/clips/lila-uvs.webp" data-autoplay muted loop playsinline preload="none" aria-label="Auto-unwrap, the drag brush, then a physics settle in the UV editor"></video>
+      <video src="assets/clips/lila-uvs.mp4" poster="assets/clips/lila-uvs.webp" autoplay muted loop playsinline aria-label="Auto-unwrap, the drag brush, then a physics settle in the UV editor"></video>
     </figure>
     <ul>
       <li>
@@ -1247,7 +1247,7 @@ footer p { margin: 0 0 6px; }
       <p class="lede">Deterministic simulations you can art-direct, baked and sent to your engine.</p>
     </div>
     <figure class="media frame" data-slot="clip-sim">
-      <video src="assets/clips/lila-destruction.mp4" poster="assets/clips/lila-destruction.webp" data-autoplay muted loop playsinline preload="none" aria-label="A wall fracturing and falling with Jolt physics in Lila"></video>
+      <video src="assets/clips/lila-destruction.mp4" poster="assets/clips/lila-destruction.webp" autoplay muted loop playsinline aria-label="A wall fracturing and falling with Jolt physics in Lila"></video>
     </figure>
     <ul>
       <li>
@@ -1504,7 +1504,7 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     }
   });
 
-  // Clips play only while on screen, never under reduced motion, and stay paused once the viewer pauses them.
+  // Clips autoplay from markup; here they also pause off screen, never play under reduced motion, and stay paused once the viewer pauses them.
   var watcher = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       var v = en.target;
@@ -1538,8 +1538,11 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     enlarge.addEventListener("click", function () { open(v, enlarge); });
     v.addEventListener("click", function () { open(v, enlarge); });
 
+    if (reduce.matches) {
+      v.removeAttribute("autoplay");
+      v.pause();
+    }
     if (watcher) watcher.observe(v);
-    else if (!reduce.matches) v.play().catch(function () {});
   });
 })();
 </script>
