@@ -38,6 +38,10 @@ Each shape has an **operation** (add, subtract, intersect) and a **blend** radiu
 
 **Group Clay Shapes** joins the selected shapes to each other first. A cut inside a group only carves that group, so an eye socket can cut the head without touching the eyeball added after it.
 
+## Geometry nodes
+
+The **Clay** node melts spheres at points and tubes along curves into one mesh, radii from fields. Tick **Cut with Points** or **Cut with Curves** to carve with one input instead.
+
 ## Troubleshooting
 
 | Problem | Fix |
