@@ -105,6 +105,7 @@ The SDK is C++, not a C ABI. Binding it from another language means handling `st
 | `entry` | One of `entry` or `python` | The DLL, as a path or `{"windows": ..., "linux": ..., "macos": ...}`. |
 | `python` | One of `entry` or `python` | A Python module in the package, loaded alongside or instead of the DLL. |
 | `resources` | No | Folder of icons, presets and other files. Defaults to `resources`. |
+| `usdPlugins` | No | Folders of USD plugins, such as a Hydra render delegate for the viewport's Renderer menu. See [Viewport renderers](viewport-renderers.md). |
 | `dependencies` | No | Extension ids, or `{"id": ..., "version": ...}`, loaded first. |
 | `enabledByDefault` | No | Load at startup without the user enabling it. |
 | `name`, `vendor`, `description` | No | Shown in the Extension Manager. |

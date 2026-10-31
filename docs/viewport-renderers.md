@@ -49,7 +49,27 @@ hdMyEngine/resources/plugInfo.json
 }
 ```
 
-3. Point `PXR_PLUGINPATH_NAME` at the folder holding `hdMyEngine/`, or at `hdMyEngine/resources` as other USD apps expect (several folders are separated by `;`), and start Lila. Set it machine-wide or in the shortcut that starts Lila; Lila reads it at startup.
+3. Ship it in a Lila extension: put that layout in a folder of the package and list the folder under `usdPlugins` in its `extension.json`. Your engine's other DLLs can sit beside `hdMyEngine.dll`.
+
+```
+MyEngine.lilaext/extension.json
+MyEngine.lilaext/usd/hdMyEngine.dll
+MyEngine.lilaext/usd/hdMyEngine/resources/plugInfo.json
+```
+
+```json
+{
+    "id": "MyEngine",
+    "version": "1.0.0",
+    "sdk": "1.0",
+    "usdPlugins": ["usd"],
+    "enabledByDefault": true
+}
+```
+
+   The delegate joins the Renderer menu when the extension loads and leaves it when it unloads. An extension with a DLL can also add a folder from code, with `usdPlugins::add(ctx, folder)` from `<lila/UsdPlugins.h>`.
+
+   Without an extension, point `PXR_PLUGINPATH_NAME` at the folder holding `hdMyEngine/`, or at `hdMyEngine/resources` as other USD apps expect (several folders are separated by `;`), and start Lila. Lila reads it at startup.
 4. Pick **Hydra: My Engine** from a viewport's **Renderer** menu, or in a script:
 
 ```python
@@ -77,9 +97,9 @@ The camera is set with `SetFreeCameraMatrices` (OpenGL clip space) at the viewpo
 
 ## Troubleshooting
 
-**My delegate isn't in the Renderer menu.** Lila lists delegates from `plugInfo.json` files without loading them: check `PXR_PLUGINPATH_NAME` was set before Lila started, that it points at the folder holding `hdMyEngine/` (or at the `plugInfo.json` itself), and that the type lists `HdRendererPlugin` in `bases`.
+**My delegate isn't in the Renderer menu.** Lila lists delegates from `plugInfo.json` files without loading them: check the extension is loaded (Extension Manager), or that `PXR_PLUGINPATH_NAME` was set before Lila started; that the folder holds `hdMyEngine/` (or the `plugInfo.json` itself); and that the type lists `HdRendererPlugin` in `bases`.
 
-**Picking it logs "Hydra: My Engine: no render delegate ... on the plugin path".** USD couldn't load the DLL. Usually it was built against another OpenUSD version or build settings, or one of its dependencies isn't found: put your engine's DLLs on `PATH` or next to `lila.exe`.
+**Picking it logs "Hydra: My Engine: no render delegate ... on the plugin path".** USD couldn't load the DLL. Usually it was built against another OpenUSD version or build settings, or one of its dependencies isn't found: put your engine's DLLs beside `hdMyEngine.dll` in the `usdPlugins` folder, or on `PATH`.
 
 **"Hydra: My Engine: it can't run here".** Your plugin's `IsSupported` returned false. Lila passes `gpuEnabled` true and its Vulkan `Hgi` as the render driver.
 
