@@ -13085,6 +13085,7 @@ Hotspot the selected faces (whole selected meshes in object mode) onto a trim sh
 | `randomFlip` | `rf` | bool | `False` | Turn islands 180 degrees at random where the trim allows it. |
 | `randomMirror` | `rm` | bool | `False` | Mirror islands at random. |
 | `allowRotate` | `ar` | bool | `True` | Let islands turn 90 degrees to fit. |
+| `sliceOversized` | `so` | bool | `True` | Cut islands taller than every strip into courses at the tallest strip's height, so walls read as rows of boards or panels at true scale. |
 | `maxSizeError` | `mse` | float | `1.0` | Islands off a trim's world size by more than this many doublings count as poor matches. |
 | `aspectWeight` | `aw` | float | `1.0` | How much shape matters. |
 | `sizeWeight` | `sw` | float | `1.0` | How much world size matters. |
@@ -13311,6 +13312,21 @@ Not undoable.
 
 ```python
 trimSheetSend()
+```
+
+### trimSheetTest
+
+Put a test blockout in the scene, <name>_Test, and auto trim it onto the sheet: a wall with a skirting, a beam, steps, a pillar and a slab, sized like a real level, so you see how the sheet reads before mapping your own meshes. Replaces an earlier one. Returns trimAuto's result.
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `seed` | `s` | int | `0` | Variation seed for the auto trim. |
+
+```python
+trimSheetTest()
 ```
 
 ### trimSheetTexture

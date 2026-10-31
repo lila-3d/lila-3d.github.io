@@ -1263,6 +1263,20 @@ Runs a node group again and again, each pass taking the last one's results: its 
 
 ## Input
 
+### Active Camera
+
+The camera of the viewport last clicked or focused, in world space. A group using this re-evaluates as that camera moves. Angles are in radians.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `location` | vector | output |  |  |
+| `rotation` | rotation | output |  |  |
+| `forward` | vector | output |  |  |
+| `horizontalFov` | float | output |  |  |
+| `verticalFov` | float | output |  |  |
+| `orthographic` | bool | output |  |  |
+| `orthoSize` | vector | output |  |  |
+
 ### Boolean
 
 A constant bool.
@@ -1306,6 +1320,14 @@ A constant int.
 | --- | --- | --- | --- | --- |
 | `value` | int | input | `0` |  |
 | `value` | int | output |  |  |
+
+### Is Viewport
+
+True while the viewport shows the result; false while it is exported, sent to Unreal or rendered. Switch on it to keep the viewport light and the output detailed.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `isViewport` | bool | output |  |  |
 
 ### Normal
 
