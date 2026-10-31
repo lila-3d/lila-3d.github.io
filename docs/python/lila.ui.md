@@ -150,6 +150,119 @@ actions()
 
 [(id, label, category)] for every registered action.
 
+## add_action
+
+```python
+add_action(id, fn, label=None, category='Python', doc='', owner=None, icon='', checked=None)
+```
+
+Register fn as the UI action `id`, so menus, hotkeys, marking menus and shelves can run it. `icon` is a Tabler icon name for menu rows. checked makes it a toggle: a function returning whether it is on, shown as a check in menus and icon bars. For a choice of several, add an action per option, each checked when its option is the current one.
+
+## add_bar_item
+
+```python
+add_bar_item(bar='toolBox', action=None, icon='', label='', kind=None, actions=None, id='', after='', before='', owner=None)
+```
+
+Add a button to an icon bar: "toolBox" (the left edge of the window), "outliner", or a bar of your own. kind:
+"action" (a button running action), "menu" (a dropdown of the action ids in actions, "" for a separator, "#Title" for a section; with an action too, a click runs it and holding opens the menu) or "separator". icon is a Tabler icon name. Returns the item's id.
+
+## add_hotkey_layer
+
+```python
+add_hotkey_layer(id, contexts, mode='', owner=None)
+```
+
+Default key bindings, {"global": {"Ctrl+K": "my.action"}}; with a mode, only while it is on.
+
+## add_layout
+
+```python
+add_layout(name, layout, owner=None)
+```
+
+A read-only layout (shaped like a saved one, or {"preset": {...}}), with a layout.apply.<name> action.
+
+## add_marking_menu
+
+```python
+add_marking_menu(name, definition, owner=None)
+```
+
+A marking menu ("set/name" puts it in a set), as defaults the Marking Menu Editor can still change.
+
+## add_marking_menu_item
+
+```python
+add_marking_menu_item(menu, item, slot='overflow', owner=None)
+```
+
+Add {"label", "action"} to an existing marking menu, in a compass slot ("N" ... "NW") or the overflow list.
+
+## add_marking_menu_set
+
+```python
+add_marking_menu_set(set, menus, owner=None)
+```
+
+Every menu of a set: {name: definition}. A mode whose marking_menu_set is `set` shows these instead.
+
+## add_menu
+
+```python
+add_menu(id, title=None, area='menuBar', before='', docs='', sets=None, owner=None)
+```
+
+A menu bar menu (area "menuBar") or a hotbox panel menu ("hotbox"). Items go in with add_menu_item. docs names a docs page ("curves", "essentials?id=snapping") whose "Open <Page> Docs" row ends the menu. sets lists the menu sets ("Modeling", "Rigging", "Animation", "Level") whose menu bar shows it; None shows it in every set.
+
+## add_menu_item
+
+```python
+add_menu_item(menu, action=None, label=None, kind=None, id='', after='', before='', owner=None)
+```
+
+Add a row to a menu path: a menu's id as add_menu was given it, then any submenu labels ("Mesh", "Mesh/Symmetry", "my.menu/Sync"). A path naming no menu logs a warning. kind: "action" (default with an action), "separator", "section" (a separator titled by label) or "submenu" (label names it; its rows use the path "<menu>/<label>"). Returns the item's id.
+
+## add_mode
+
+```python
+add_mode(id, label=None, doc='', layout='', hotkeys=None, marking_menu_set='', shelf='', gizmo_provider='', selection_handler='', on_enter=None, on_exit=None, icon='', owner=None)
+```
+
+A mode: entering it applies its layout, hotkey layer, marking-menu set and shelf, then calls on_enter(). hotkeys is shaped like the hotkeys prefs' "contexts"; naming only "press" or only "hold" for a key keeps its other slots, so {"viewport": {"Space": {"press": "my.action"}}} rebinds Space's tap and keeps the hotbox.
+
+## add_panel
+
+```python
+add_panel(id, build, title=None, area='right', icon='', open=True, docs='', owner=None)
+```
+
+A dockable panel. build() returns a QWidget or a Column/Row; it is called when the dock is made. A window.<id> action toggles it. docs names a docs page ("topology", "curves?id=pipes-and-hoses") that a help button in the panel's title bar opens.
+
+## add_preferences_page
+
+```python
+add_preferences_page(id, title, rows, file='general', build=None, owner=None)
+```
+
+A Preferences tab whose rows the search finds. rows: {"section": "Title"} or {"type": "toggle" | "number" | "choice" | "text" | "color", "label", "key", "default", ...} ("number" takes min, max, step, decimals; "choice" takes options [[text, value]]). build() may return one more QWidget for anything the rows can't express.
+
+## add_shelf
+
+```python
+add_shelf(name, items, owner=None)
+```
+
+A shelf of buttons [{"label", "icon", "target", "tooltip"}], as defaults the user can still edit.
+
+## bar_items
+
+```python
+bar_items(bar='toolBox')
+```
+
+The items of an icon bar in display order: [{id, action, icon, label, owner}].
+
 ## main_window
 
 ```python
@@ -157,6 +270,22 @@ main_window()
 ```
 
 Lila's main window as a PySide6 QMainWindow, or None in batch mode.
+
+## mode
+
+```python
+mode()
+```
+
+The current mode's id.
+
+## modes
+
+```python
+modes()
+```
+
+Every mode as a dict.
 
 ## panel
 
@@ -166,6 +295,100 @@ panel(name, area='right')
 
 Decorator: the function returns a layout (or a QWidget); show_panel(name) docks it in the main window.
 
+## remove_action
+
+```python
+remove_action(id)
+```
+
+## remove_bar_item
+
+```python
+remove_bar_item(id)
+```
+
+## remove_hotkey_layer
+
+```python
+remove_hotkey_layer(id)
+```
+
+## remove_layout
+
+```python
+remove_layout(name)
+```
+
+## remove_marking_menu
+
+```python
+remove_marking_menu(name)
+```
+
+## remove_marking_menu_item
+
+```python
+remove_marking_menu_item(id)
+```
+
+## remove_marking_menu_set
+
+```python
+remove_marking_menu_set(set)
+```
+
+## remove_menu
+
+```python
+remove_menu(id)
+```
+
+## remove_menu_item
+
+```python
+remove_menu_item(id)
+```
+
+## remove_mode
+
+```python
+remove_mode(id)
+```
+
+## remove_owned
+
+```python
+remove_owned(owner)
+```
+
+Remove everything owner registered in the UI and on the event bus.
+
+## remove_panel
+
+```python
+remove_panel(id, owner=None)
+```
+
+## remove_preferences_page
+
+```python
+remove_preferences_page(id)
+```
+
+## remove_shelf
+
+```python
+remove_shelf(name)
+```
+
+## reveal
+
+```python
+reveal(path)
+```
+
+Show a file in Explorer with it selected, or open its folder where that isn't possible.
+
 ## run_action
 
 ```python
@@ -173,6 +396,14 @@ run_action(action_id)
 ```
 
 Run a registered UI action, e.g. run_action("viewport.frameAll").
+
+## set_mode
+
+```python
+set_mode(id)
+```
+
+Switch modes. Returns False for an unknown id.
 
 ## set_tool
 

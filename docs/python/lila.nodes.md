@@ -347,6 +347,14 @@ face_arrays(base=False)
 
 (counts, points): uint32 numpy arrays of corners per face and every face's point indices in a row, so face i is points[offsets[i]:offsets[i] + counts[i]] with offsets = numpy.cumsum(counts) - counts.
 
+### Node.material_array
+
+```python
+material_array(base=False)
+```
+
+(slots, names): a uint32 numpy array of each face's material slot, in face_arrays' face order, and the slot names it indexes, so face i uses names[slots[i]]. listMaterials gives the material bound to each slot name.
+
 ### Node.normals_array
 
 ```python

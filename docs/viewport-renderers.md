@@ -86,6 +86,12 @@ The id is `hydra` followed by the letters and digits of `displayName`.
 - **Materials** under `/LilaMaterials` as `UsdPreviewSurface` networks: a `UsdUVTexture` per map, read through `UsdPrimvarReader_float2` from `st`. Each mesh binds its material for every purpose (`allPurpose`, `preview` and `full`).
 - **Live USD stages** through UsdImaging, under a prim per stage, so everything UsdImaging produces reaches you too, including your own schemas if your delegate handles them, and MaterialX networks as authored for prims Lila doesn't draw itself.
 - **Edits as they happen**: a moved object dirties only its transform, a deformed mesh only its points, so a drag never rebuilds the scene.
+- **Render settings**: `CreateDelegate` gets `lila:metersPerUnit` (`0.01`) and `lila:upAxis` (`"Y"` or `"Z"`), plus every value saved for your delegate. The settings in your `GetRenderSettingDescriptors` (bools, numbers and strings) appear under **Renderer Settings...** in the Renderer menu. A changed value is set with `SetRenderSetting` on every viewport using your delegate and saved for next time. In a script:
+
+```python
+lila.ops.viewportRendererSetting()                                # [{key, name, value}, ...]
+lila.ops.viewportRendererSetting("myEngine:metersPerUnit", 0.01)
+```
 
 ### What Lila needs back
 
