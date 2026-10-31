@@ -290,6 +290,8 @@ Lila has a high-end UV toolkit and the Auto UV feature can produce worthwhile re
 
 ![Auto UV seams on a canopy frame and the packed layout](images/essentials/auto-uv.png)
 
+To keep seams out of sight, such as away from a first person camera or a character's face, use **UV > Add Seam View**. It drops a locator where the camera is; move it and run Auto UV again. Its **Seam View** attribute sets how hard seams avoid it, and a negative value draws them towards it instead. Add as many as you need.
+
 ## Transfer UVs to a similar piece
 
 Already UV'd one piece and have another like it? Select the UV'd piece, then the other, and run **Transfer Attributes** (Shift+RMB) with **Sample Space** set to **Guided**. The second piece gets the same seams and islands, laid out where the first one's are, so you UV once and reuse it.
