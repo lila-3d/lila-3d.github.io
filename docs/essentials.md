@@ -14,7 +14,7 @@ Press **Ctrl+T** and type. Every menu command is searchable, so you don't need t
 
 - **Enter** runs the highlighted command.
 - **Shift+Enter**, or clicking the square at the end of a row, opens the command's options.
-- **Ctrl+F** switches to searching the scene.
+- **Ctrl+F** switches to searching the scene, **Shift+T** to [tearing off a menu](#tear-off-a-menu-as-a-palette).
 
 ## Hotkey cheat sheet
 
@@ -80,9 +80,17 @@ When creating a primitive, lower **Fraction** to create only part of it.
 
 ## Tear off a menu as a palette
 
-Click the dashed line at the top of any menu to tear it off into a floating palette that stays open (a section title tears off just that section). Click an item to run it, or drag it into a viewport to create it where you drop it instead of at the origin: primitives, lights, locators, cameras and so on land on the surface under the cursor, or on the ground grid. Dragging works straight out of an open **Create** menu too. One undo removes it.
+Press **Shift+T** and type part of a menu or section name. Press **Enter** and the palette appears under your cursor; click to drop it where you want it. **Esc** or right-click puts it back.
 
-![A torn-off Light menu with Point Light being dragged into the viewport](images/essentials/menu-tear-off.png)
+![Tear-off search showing results for "light"](images/essentials/tear-off-search.png)
+
+![The Light palette following the cursor](images/essentials/tear-off-placing.png)
+
+You can also click the dashed line at the top of any menu to tear it off where it is (a section title tears off just that section).
+
+> You can drag items from any create-based menu, treating them like an artist's palette.
+
+![Dragging Point Light from the Light palette onto a character](images/essentials/menu-tear-off.png)
 
 ## Snapping
 
