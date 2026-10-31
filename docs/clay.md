@@ -32,6 +32,8 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 
 With a clay object selected, its shapes show as outlines; cuts are red. Click an outline to select its shape.
 
+With one shape selected, drag its solid ring to size it and its dashed ring to set its blend.
+
 ## Joins
 
 Each shape has an **operation** (add, subtract, intersect) and a **blend** radius in cm. Blend 0 is a hard edge; larger values melt the join.
@@ -41,6 +43,15 @@ Each shape has an **operation** (add, subtract, intersect) and a **blend** radiu
 ## Geometry nodes
 
 The **Clay** node melts spheres at points and tubes along curves into one mesh, radii from fields. Tick **Cut with Points** or **Cut with Curves** to carve with one input instead.
+
+## Joints
+
+`clayJoints` makes a root joint for the body and a joint chain down each stroke. Give it the converted mesh (**Convert Clay to Mesh** with **Keep Source**) and it binds it, starting each vertex's weights from the clay shapes it lies nearest:
+
+```python
+mesh = ops.convertClayToMesh("Worm", keepSource=True)
+ops.clayJoints("Worm", mesh=mesh)
+```
 
 ## Troubleshooting
 
