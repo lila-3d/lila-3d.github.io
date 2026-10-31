@@ -22,6 +22,7 @@
 - [FAQ](faq.md)
 - [Support](support.md)
 - [Performance](performance.md)
+- [Progress](progress.md)
 - [File formats](formats.md)
 - [Studio setup](studio-setup.md)
 - [Telemetry and privacy](privacy.md)
