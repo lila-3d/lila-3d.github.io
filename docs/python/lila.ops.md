@@ -1248,6 +1248,32 @@ Create a Bezier curve through anchors, with auto handles unless handles are give
 | `closed` | `c` | bool | `False` | A closed loop. |
 | `name` | `n` | str |  | Name; made unique. |
 
+### blendConvert
+
+Convert a Blender .blend file to a Lila scene: opened as its own scene, saved, and the scene left empty. Returns the destination, skipped features and warnings.
+
+**Objects:** source
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `src` | str |  | The .blend file. |
+| `destination` | `dst` | str |  | The .lila or .lilaa to write; <file>.lila beside the source by default. |
+| `force` | `f` | bool | `False` | Discard unsaved changes in the current scene. |
+| `namespace` | `ns` | str |  | Put every imported name in this namespace. |
+| `collections` |  | bool | `True` | Collections become groups holding their objects; off puts every object at the top. |
+| `materials` |  | bool | `True` | Create materials from the Principled BSDF and its image textures; packed images are written out. |
+| `skins` |  | bool | `True` | Rebuild Armature modifiers as skins from the vertex groups. |
+| `morphs` |  | bool | `True` | Rebuild shape keys as morphs. |
+| `animation` | `anim` | bool | `True` | Import keyframed actions on objects, bones, shape keys, camera lenses and light power. |
+| `modifiers` |  | bool | `True` | Rebuild the modifiers Lila has (mirror, subdivision, bevel, array, triangulate, solidify, decimate, weighted normals) live. |
+| `hidden` |  | bool | `True` | Import objects and collections hidden in Blender's viewport, hidden; off skips them. |
+| `evaluate` |  | str | `'off'` | off; unsupported: objects with modifiers Lila can't rebuild get Blender's evaluated mesh, baked; all: every object with modifiers does. Runs an installed Blender in the background. |
+| `blenderPath` |  | str |  | The Blender executable for evaluate; the newest installed one when empty. |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the file. |
+| `textureDir` |  | str |  | Where packed images are written; <file>.textures beside the .blend when empty. |
+
+Not undoable.
+
 ### blendCurve
 
 Bridge two curves with a blend curve, live: G0 position, G1 tangent, G2 curvature or G3 curvature-rate continuity at each end, with bulge. Joins the nearest ends unless endA/endB or parameterA/parameterB say otherwise; mesh= and edge= blend to a mesh border instead of the second curve. Returns [curve, curveBlend].
@@ -1271,6 +1297,68 @@ Bridge two curves with a blend curve, live: G0 position, G1 tangent, G2 curvatur
 | `edgeT` |  | float | `0.5` | Where along the edge, 0 to 1. |
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
 | `name` | `n` | str |  | Name of the blend curve. |
+
+### blendImport
+
+Import a Blender .blend file into the scene, without Blender: collections, objects, meshes (UVs, colors, sharp edges, creases, attributes), materials with their image textures, cameras, lights, curves, collection instances, armatures with skins, shape keys, animation and the modifiers Lila has. Anything it can't convert is reported (report=True returns the lists), and objects with modifiers it dropped are flagged as issues.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` |  | str |  | The .blend file (or pass it first). |
+| `parent` | `p` | str |  | Parent the imported roots under this node. |
+| `namespace` | `ns` | str |  | Put every imported name in this namespace. |
+| `collections` |  | bool | `True` | Collections become groups holding their objects; off puts every object at the top. |
+| `materials` |  | bool | `True` | Create materials from the Principled BSDF and its image textures; packed images are written out. |
+| `skins` |  | bool | `True` | Rebuild Armature modifiers as skins from the vertex groups. |
+| `morphs` |  | bool | `True` | Rebuild shape keys as morphs. |
+| `animation` | `anim` | bool | `True` | Import keyframed actions on objects, bones, shape keys, camera lenses and light power. |
+| `modifiers` |  | bool | `True` | Rebuild the modifiers Lila has (mirror, subdivision, bevel, array, triangulate, solidify, decimate, weighted normals) live. |
+| `hidden` |  | bool | `True` | Import objects and collections hidden in Blender's viewport, hidden; off skips them. |
+| `evaluate` |  | str | `'off'` | off; unsupported: objects with modifiers Lila can't rebuild get Blender's evaluated mesh, baked; all: every object with modifiers does. Runs an installed Blender in the background. |
+| `blenderPath` |  | str |  | The Blender executable for evaluate; the newest installed one when empty. |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the file. |
+| `textureDir` |  | str |  | Where packed images are written; <file>.textures beside the .blend when empty. |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+| `select` |  | bool | `True` | Select the imported roots. |
+
+### blendInfo
+
+Read a Blender .blend file without importing it: the Blender version that saved it, its datablocks by type, object types, the modifiers, constraints and nodes it uses, linked libraries and packed images.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` |  | str |  | The .blend file (or pass it first). |
+
+Not undoable.
+
+### blendOpen
+
+Open a Blender .blend file as a new, untitled scene (save it to keep it as .lila). Not undoable. Returns the import report.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` |  | str |  | The .blend file (or pass it first). |
+| `force` | `f` | bool | `False` | Discard unsaved changes. |
+| `namespace` | `ns` | str |  | Put every imported name in this namespace. |
+| `collections` |  | bool | `True` | Collections become groups holding their objects; off puts every object at the top. |
+| `materials` |  | bool | `True` | Create materials from the Principled BSDF and its image textures; packed images are written out. |
+| `skins` |  | bool | `True` | Rebuild Armature modifiers as skins from the vertex groups. |
+| `morphs` |  | bool | `True` | Rebuild shape keys as morphs. |
+| `animation` | `anim` | bool | `True` | Import keyframed actions on objects, bones, shape keys, camera lenses and light power. |
+| `modifiers` |  | bool | `True` | Rebuild the modifiers Lila has (mirror, subdivision, bevel, array, triangulate, solidify, decimate, weighted normals) live. |
+| `hidden` |  | bool | `True` | Import objects and collections hidden in Blender's viewport, hidden; off skips them. |
+| `evaluate` |  | str | `'off'` | off; unsupported: objects with modifiers Lila can't rebuild get Blender's evaluated mesh, baked; all: every object with modifiers does. Runs an installed Blender in the background. |
+| `blenderPath` |  | str |  | The Blender executable for evaluate; the newest installed one when empty. |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the file. |
+| `textureDir` |  | str |  | Where packed images are written; <file>.textures beside the .blend when empty. |
+
+Not undoable.
 
 ### borderBlend
 
@@ -3849,6 +3937,22 @@ Save a group to the user library (prefs folder) or the workspace's .lila/geometr
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `scope` |  | str | `'user'` | user or workspace. |
+
+Not undoable.
+
+### gnSendImposter
+
+Bake an Imposter node (as gnBakeImposter) and import it into the connected Unreal project: the card mesh, both atlases and a material instance of LilaLink's imposter material, which turns the card to the camera's nearest view. Returns {files, contentPath}, plus Unreal's {assets, warnings, errors} with wait=True.
+
+**Objects:** group node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `contentPath` |  | str |  | The card mesh in Unreal; defaults to /Game/Lila/Imposters/SM_<name>. |
+| `folder` |  | str |  | Where to write the bake; defaults to imposters/ next to the scene. |
+| `name` |  | str |  | File base name; defaults to the mesh's. |
+| `modifier` |  | str |  | The modifier to evaluate when several meshes run the group; defaults to the first. |
+| `wait` | `w` | bool | `False` | Block until Unreal finishes and return its reply. |
 
 Not undoable.
 
@@ -13226,6 +13330,53 @@ wiggle(['book_01', 'book_02', 'book_03'], strength=60)
 
 Available when the Tailor extension is loaded.
 
+### tailorAddPanel
+
+Add a rectangular panel, placed flat in front of the garment's other panels, ready to reshape and sew.
+
+Returns the new panel's name.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'Panel'` | Name; made unique. |
+| `width` | `w` | float | `40.0` | cm. |
+| `height` | `ht` | float | `60.0` | cm. |
+| `layer` | `l` | int | `0` | Layer: higher layers sit outside lower ones. |
+
+```python
+tailorAddPanel('Garment', name='Pocket', width=15, height=18)
+```
+
+### tailorBake
+
+Turn a draped garment into a plain mesh for the game: the drape as it stands, seams welded and thickness applied as set on the garment, uv0 packed, uv1 the fabric pattern, and point attribute clothMaxDistance (cm from the body) as a runtime cloth mask.
+
+When the collider is skinned, the new mesh is bound to the same joints and takes its weights by closest point, ready to export with the character. Returns the new mesh.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name of the new mesh; the garment mesh's name plus _baked when left out. |
+| `skin` | `sk` | bool | `True` | Bind to the collider's joints and copy its weights when it is skinned. |
+| `maxInfluences` | `mi` | int | `4` | Influences per point. |
+| `retopo` | `rt` | int | `0` | Quad remesh to about this many faces, seams kept as edge loops; 0 keeps the cloth triangles. |
+| `lods` | `lod` | int | `0` | Extra levels of detail to generate in a LOD group. |
+
+```python
+tailorBake('Outfit')
+```
+
+```python
+tailorBake('Cloak', name='SM_Cloak', skin=False)
+```
+
+```python
+tailorBake('Tunic', retopo=3000, lods=2)
+```
+
 ### tailorCreateBlock
 
 Start a garment from a parametric block (tee, tunic, cloak, ...) and drape it onto a collider mesh.
@@ -13241,9 +13392,87 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the block placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
+| `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
+| `fit` | `ft` | bool | `True` | Size the block to the collider's measurements and stand it where the collider stands. |
 
 ```python
 tailorCreateBlock(block='tunic', collider='Body')
+```
+
+### tailorDeletePanel
+
+Delete panels and every seam that sews them. Returns the number of seams removed.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | list |  | Panels by name or index. |
+
+```python
+tailorDeletePanel('Garment', panel=['Pocket'])
+```
+
+### tailorDeletePoint
+
+Delete an outline point from a panel (it keeps at least 3). Seams ending there end at the next point; a seam left without length is removed. Returns the number of seams removed.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `index` | `i` | int |  | The point to delete. |
+
+```python
+tailorDeletePoint('Garment', panel='Front', index=2)
+```
+
+### tailorDrawPanel
+
+Make a panel from a closed outline drawn on the body: the points (world, cm) are unrolled around the body's vertical axis into a flat pattern piece that wraps back onto the body at a clearance.
+
+Adds to the named or selected garment; with none, starts a garment on the selected mesh. Returns [garment, panel names].
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pt` | list |  | The outline, [[x, y, z], ...] in world cm, at least 3. |
+| `name` | `n` | str | `'Panel'` | Panel name; made unique. |
+| `mirror` | `m` | bool | `False` | Also add the mirror image across the body's centre. |
+| `clearance` | `cl` | float | `1.5` | How far the panel starts outside the body, cm. |
+| `layer` | `l` | int | `0` | Layer: higher layers sit outside lower ones. |
+| `collider` | `c` | str |  | The body, when a new garment is started; the selected mesh otherwise. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `particleDistance` | `pd` | float | `2.0` | Cloth edge length of a new garment, cm. |
+| `simulate` | `sim` | bool | `True` | Drape a new garment. |
+| `frames` | `fr` | int | `90` | Solver frames for a new garment. |
+| `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
+
+```python
+tailorDrawPanel(points=[[-15, 140, 12], [15, 140, 12], [15, 100, 14], [-15, 100, 14]], name='Bib', collider='Mannequin')
+```
+
+### tailorEditPanel
+
+Change a panel: its outline points (same count), grain, particle distance, layer or name.
+
+Points are pattern space, cm, counter-clockwise. Seams keep their vertex indices. Returns the panel's name.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `outline` | `o` | list |  | Outline points [[x, y], ...], cm; the count must match. |
+| `grainAngle` | `ga` | float |  | Warp direction in pattern space, degrees. |
+| `particleDistance` | `pd` | float |  | This panel's cloth edge length, cm. |
+| `layer` | `l` | int |  | Layer: higher layers sit outside lower ones. |
+| `rename` | `rn` | str |  | New name. |
+
+```python
+tailorEditPanel('Garment', panel='Front', grainAngle=90)
 ```
 
 ### tailorFreeze
@@ -13282,9 +13511,66 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the file placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
+| `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
 
 ```python
 tailorImportGarmentCode(file='C:/patterns/tee_spec.json', collider='Body')
+```
+
+### tailorInsertPoint
+
+Insert an outline point into a panel before point index, at a position in pattern space (cm). Seams keep sewing the same stretch of outline. Returns the new point's index.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `index` | `i` | int |  | The new point's index; the old point there moves up one. |
+| `position` | `pos` | list |  | [x, y], cm. |
+
+```python
+tailorInsertPoint('Garment', panel='Front', index=2, position=[10, 40])
+```
+
+### tailorLive
+
+Keep a garment simulating in real time (on) or stop it where it got to (off). Live garments answer pattern edits as they happen and can be pulled with the Grab Cloth tool. Returns whether it is live.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` | `o` | bool | `True` | Live or not. |
+
+```python
+tailorLive('Garment')
+```
+
+```python
+tailorLive('Garment', on=False)
+```
+
+### tailorMannequin
+
+Make a stand-in body with the measurements the blocks are cut for, to drape garments onto.
+
+Feet on the ground, facing +Z, in an A-pose. Blocks measure whatever they drape onto, so any size fits. Returns the new mesh.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'Mannequin'` | Name of the new mesh. |
+| `height` | `ht` | float | `180.0` | Standing height, cm. |
+| `chest` | `ch` | float | `96.0` | Chest girth, cm. |
+| `waist` | `wa` | float | `82.0` | Waist girth, cm. |
+| `hip` | `hp` | float | `98.0` | Hip girth, cm. |
+
+```python
+tailorMannequin()
+```
+
+```python
+tailorCreateBlock(block='cloakTunicBelt', collider=tailorMannequin())
 ```
 
 ### tailorSetFabric
@@ -13336,9 +13622,24 @@ Returns the draped mesh's vertex and triangle counts and any warning.
 | --- | --- | --- | --- | --- |
 | `frames` | `fr` | int |  | Solver frames to run; the garment's own setting when left out. |
 | `simulate` | `sim` | bool | `True` | Off shows the panels undraped. |
+| `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
 
 ```python
-tailorSimulate('Garment', frames=200)
+tailorSimulate('Garment', frames=200, wait=True)
+```
+
+### tailorUnsew
+
+Remove seams by index. Returns how many were removed.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seam` | `s` | list |  | Seam indices, as tailorSew returned them. |
+
+```python
+tailorUnsew('Garment', seam=[3])
 ```
 
 ## Terrain extension
