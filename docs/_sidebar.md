@@ -64,5 +64,6 @@
   - [Masonry](masonry.md)
   - [Settlement](settlement.md)
   - [Stagehand](stagehand.md)
+  - [Tailor](tailor.md)
   - [Trim Sheets](trim-sheets.md)
   - [ZBrush](zbrush.md)
