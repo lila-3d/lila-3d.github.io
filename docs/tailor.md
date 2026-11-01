@@ -38,6 +38,17 @@ Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's 
 - **Tailor > Draw Panel on Body** draws a new panel straight onto the body: click around it, press Enter. M mirrors it across the body.
 - **Tailor > Live Drape** keeps the garment simulating, so edits show as you make them. **Tailor > Grab Cloth** pulls it around in the viewport.
 
+## Animate it
+
+Turn on **animate** on the garment node to simulate it over the timeline against the body as it moves (skinned or keyed). It starts draped at **startFrame**, caches each frame like other simulations, and scrubs back from the cache. Export the result for a game or a cutscene:
+
+```python
+ops.tailorExportAnimation('Cloak', end=120, path='anim/cloak.abc')  # Unreal Geometry Cache
+ops.tailorExportAnimation('Cloak', end=120, format='vat')            # vertex animation textures
+```
+
+`tailorRefit(garment, collider='Hero')` moves a garment onto another body, grading the pattern by the two bodies' measurements.
+
 ## Troubleshooting
 
 **The garment doesn't fit the body.** Blocks read height and chest, waist, hip, neck and head girths from horizontal slices of the body. A body lying down, facing another axis, or with arms fused to the torso reads wrong. Stand it in +Y facing +Z, or pass `fit=False` and use the default 180 cm body.
@@ -49,6 +60,8 @@ Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's 
 **Bake didn't skin the mesh.** The body has no skinCluster. Skin it, then bake again.
 
 **A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again.
+
+**An animated garment lags or stays put.** Frames simulate when Lila is idle; `ops.simulate('TailorGarment', frame=120)` runs them now.
 
 **Retopo warns about folds.** Tight folds under the arms are hard to quad. Raise `retopo` or drape with a larger `particleDistance`.
 
@@ -64,6 +77,8 @@ Set these on the garment node in the Attribute Editor.
 | `floor` | on | A ground at the body's feet the cloth rests on. |
 | `weldSeams` | on | Merges sewn points so the garment is one connected mesh. |
 | `thickness` | `0` cm | Grows a closed shell towards the body, with rims on open edges. |
+| `fitMap` | off | Colours the drape red where the cloth stretches past its pattern and blue where it bunches; show it with vertex colours. |
+| `animate`, `startFrame` | off, `0` | Simulates over the timeline from that frame. |
 
 A seam's `foldAngle` holds it pressed at that angle (a hem, a collar); `shrink` below 1 gathers it like elastic. Set both with `tailorSew`.
 
