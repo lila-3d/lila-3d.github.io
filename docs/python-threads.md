@@ -11,14 +11,46 @@ ship = lila.node("Ship")
 points = ship.points_array()                 # (N, 3) float64
 counts, face_points = ship.face_arrays()     # corners per face, then every face's point indices in a row
 normals = ship.normals_array()               # (C, 3) float32, one per face-vertex
+tangents = ship.tangents_array("uv0")        # (C, 4) float32, w is the bitangent sign
 uvs = ship.uvs_array("uv0")                  # (C, 2) float32, one per face-vertex
+colors, domain = ship.attribute_array("color")
 ```
 
-`points_array()` is a view of the mesh itself, so it costs nothing however big the mesh is. The other arrays are copies, made on every core.
+`points_array()` is a view of the mesh itself, so it costs nothing however big the mesh is. `normals_array()` and `tangents_array()` are computed once per mesh state: later calls return the same array until the mesh changes. The other arrays are copies, made on every core.
 
 The arrays are read-only snapshots: editing the mesh later never changes them, so any thread can read them.
 
 Don't use `Node.points` on big meshes: it builds one Python object per point, thousands of times slower.
+
+### Which row is which
+
+Each attribute lives on one domain, and its array has one row per element of that domain:
+
+| Domain | Rows | Same order as |
+| --- | --- | --- |
+| `point` | `N` points | `points_array()` |
+| `edge` | `E` edges | `edge_arrays()` |
+| `face` | `F` faces | `face_arrays()` counts |
+| `corner` | `C` face-vertices: faces in order, corners around each face | `face_arrays()` points |
+
+Normals, tangents and uvs are per corner, never per point: a point on a hard edge or uv seam has a different value in each face. Corner `k`'s point is `face_points[k]`. Vertex colors can be per point or per corner, so `attribute_array` returns the domain with the array; `attribute_names()` lists every attribute as `(name, domain, type)`.
+
+### Write into your own buffer
+
+Every getter takes `out=`: it fills your numpy array and returns it, instead of allocating a new one. It converts while it copies, so `out=` in the dtype your engine or GPU buffer wants saves a pass:
+
+```python
+import numpy as np
+
+n_points, n_edges, n_faces, n_corners = ship.mesh_counts()
+positions = np.empty((n_points, 3), np.float32)
+uvs = np.empty(n_corners * 2, np.float32)       # flat works too
+ship.points_array(out=positions)
+ship.uvs_array("uv0", out=uvs)
+counts, face_points = ship.face_arrays(out=(np.empty(n_faces, np.int32), np.empty(n_corners, np.int32)))
+```
+
+`out` must be writable, C-contiguous, and either the getter's shape or flat. Float data takes float32 or float64; indices and int attributes take any of float32, float64, int32, uint32, int64 or bool.
 
 ## Use worker threads
 
@@ -101,7 +133,7 @@ From a worker, `lila.tasks.call_on_main(fn, *args)` runs anything on the main th
 
 | From a worker thread | Safe |
 | --- | --- |
-| Reading arrays from `points_array`, `face_arrays`, `normals_array`, `uvs_array`, `get_colors` | Yes |
+| Reading arrays the getters returned (`points_array`, `normals_array`, `get_colors` and the rest) | Yes |
 | numpy, file reading and writing, your own data | Yes |
 | `print` | Yes, it goes to the log |
 | `lila.tasks.call_on_main`, `job.cancel()`, `progress.step()` | Yes |
@@ -196,6 +228,14 @@ Wait for every running job in `lilaExtensionUninit`: a job must not run the exte
 
 **"ValueError: assignment destination is read-only".** Arrays from the getters are snapshots. Copy before editing in place: `pts = ship.points_array().copy()`.
 
+**"points_array: out= must have shape (N, 3) or (3N,)".** The buffer is sized for another mesh state. Size it from `mesh_counts()` taken after your last edit; `base=True` counts the base mesh.
+
+**"out= must be float32 or float64 for this data".** Positions, normals, uvs and float attributes don't go into integer buffers. Convert them yourself for integers.
+
+**"Ship has color on more than one domain".** Pass the one you want: `attribute_array("color", domain="corner")`.
+
+**The first `tangents_array()` on a huge mesh takes seconds.** MikkTSpace runs on one core per connected piece of the mesh. Later calls are free until the mesh changes.
+
 **Threads are no faster.** The work is a Python loop, which holds the GIL. Move the inner loop into numpy, or into a C++ extension.
 
 **`done` never runs in lilabatch.** The script ended before the job did. Call `job.wait()` at the end.
@@ -204,10 +244,18 @@ Wait for every running job in `lilaExtensionUninit`: a job must not run the exte
 
 | Call | Returns |
 | --- | --- |
-| `Node.points_array(base=False, world=False)` | `(N, 3)` float64 points. `base` reads the mesh under its modifiers, `world` gives world space (a copy). |
-| `Node.face_arrays(base=False)` | `(counts, points)`, both uint32. Face `i` is `points[offsets[i]:offsets[i] + counts[i]]` with `offsets = numpy.cumsum(counts) - counts`. |
-| `Node.normals_array(base=False)` | `(C, 3)` float32, per face-vertex: faces in order, corners around each face. The mesh's custom normals when it has them, else smooth normals split at hard edges. |
-| `Node.uvs_array(uv_set="uv0", base=False)` | `(C, 2)` float32, per face-vertex in the same order. `Node.uv_sets` lists the sets. |
+| `Node.mesh_counts(base=False)` | `(points, edges, faces, corners)`, without building any array. |
+| `Node.points_array(base=False, world=False, out=None)` | `(N, 3)` float64 points. `base` reads the mesh under its modifiers, `world` gives world space (a copy). |
+| `Node.face_arrays(base=False, out=None)` | `(counts, points)`, both uint32. Face `i` is `points[offsets[i]:offsets[i] + counts[i]]` with `offsets = numpy.cumsum(counts) - counts`. `out` is a pair. |
+| `Node.edge_arrays(base=False, out=None)` | `(E, 2)` uint32, each edge's two point indices. |
+| `Node.material_array(base=False, out=None)` | `(slots, names)`: each face's uint32 slot, and the slot names it indexes. |
+| `Node.normals_array(base=False, out=None)` | `(C, 3)` float32, per corner. The mesh's custom normals when it has them, else smooth normals split at hard edges. |
+| `Node.tangents_array(uv_set="uv0", base=False, out=None)` | `(C, 4)` float32 MikkTSpace tangents per corner, as Unreal computes them. `w` is the bitangent sign, +1 or -1. |
+| `Node.bitangents_array(uv_set="uv0", base=False, out=None)` | `(C, 3)` float32: `cross(normal, tangent.xyz) * tangent.w`. |
+| `Node.uvs_array(uv_set="uv0", base=False, out=None)` | `(C, 2)` float32, per corner. `Node.uv_sets` lists the sets. |
+| `Node.attribute_names(base=False)` | `[(name, domain, type)]`; type is `float`, `float2`, `float3`, `float4`, `int` or `bool`. |
+| `Node.attribute_array(name, domain=None, base=False, out=None)` | `(array, domain)`: float types as float32 `(rows,)` or `(rows, k)`, `int` as int32, `bool` as bool. Built-in names: `color`, `crease`, `bevelWeight`, `hard`, `seam` (edge), `smoothGroup`, `material` (face). |
+| `Node.morph_targets()` | One dict per morph target, in-betweens as their own entries: `name`, `weight`, `indices` (K,) uint32 rows of `points_array(base=True)`, `deltas` (K, 3) float64 object-space offsets. Dense: `d = numpy.zeros((N, 3)); d[t["indices"]] = t["deltas"]`. |
 | `Node.set_points(points)` | Moves every base point; one undo step. Also `setMeshPoints(mesh, points=[[x, y, z], ...])`. |
 | `lila.run_in_background(fn, on_done=None, *, args=(), kwargs=None, on_error=None, title=None, total=0)` | A `Job`: `running`, `finished`, `cancel()`, `wait(timeout)`, `result(timeout)`. |
 | `lila.tasks.call_on_main(fn, *args, **kwargs)` | A `concurrent.futures.Future`. Don't wait on it from the main thread. |

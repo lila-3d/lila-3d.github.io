@@ -331,10 +331,18 @@ bake_array(mode='instance')
 
 Turns this live array into a plain group holding its sources and a real object per copy: instances of the sources ("instance"), copies ("copy") or references ("reference"). Returns the group Node.
 
+### Node.mesh_counts
+
+```python
+mesh_counts(base=False)
+```
+
+(points, edges, faces, corners): the sizes of the arrays below, without building any.
+
 ### Node.points_array
 
 ```python
-points_array(base=False, world=False)
+points_array(base=False, world=False, out=None)
 ```
 
 (N, 3) float64 numpy array of the points in points' order, read-only. A view of the mesh itself when it can be (object space, no deleted points), else a copy. base=True reads the base mesh under modifiers; world=True world space. Safe to read from any thread: it is a snapshot that later edits don't change.
@@ -342,15 +350,23 @@ points_array(base=False, world=False)
 ### Node.face_arrays
 
 ```python
-face_arrays(base=False)
+face_arrays(base=False, out=None)
 ```
 
-(counts, points): uint32 numpy arrays of corners per face and every face's point indices in a row, so face i is points[offsets[i]:offsets[i] + counts[i]] with offsets = numpy.cumsum(counts) - counts.
+(counts, points): uint32 numpy arrays of corners per face and every face's point indices in a row, so face i is points[offsets[i]:offsets[i] + counts[i]] with offsets = numpy.cumsum(counts) - counts. out is a pair.
+
+### Node.edge_arrays
+
+```python
+edge_arrays(base=False, out=None)
+```
+
+(E, 2) uint32 numpy array of each edge's two point indices, in the order of edge attributes.
 
 ### Node.material_array
 
 ```python
-material_array(base=False)
+material_array(base=False, out=None)
 ```
 
 (slots, names): a uint32 numpy array of each face's material slot, in face_arrays' face order, and the slot names it indexes, so face i uses names[slots[i]]. listMaterials gives the material bound to each slot name.
@@ -358,18 +374,59 @@ material_array(base=False)
 ### Node.normals_array
 
 ```python
-normals_array(base=False)
+normals_array(base=False, out=None)
 ```
 
-(C, 3) float32 numpy array of normals per face-vertex (faces in order, corners around each face), as drawn.
+(C, 3) float32 numpy array of normals per face-vertex (faces in order, corners around each face), as drawn. Cached per mesh state: calls until the next edit return the same read-only array.
+
+### Node.tangents_array
+
+```python
+tangents_array(uv_set='uv0', base=False, out=None)
+```
+
+(C, 4) float32 numpy array of MikkTSpace tangents per face-vertex, in normals_array's order; w is the bitangent sign (see bitangents_array). Cached like normals_array.
+
+### Node.bitangents_array
+
+```python
+bitangents_array(uv_set='uv0', base=False, out=None)
+```
+
+(C, 3) float32 bitangents per face-vertex: cross(normal, tangent.xyz) * tangent.w, as MikkTSpace and Unreal derive them.
 
 ### Node.uvs_array
 
 ```python
-uvs_array(uv_set='uv0', base=False)
+uvs_array(uv_set='uv0', base=False, out=None)
 ```
 
 (C, 2) float32 numpy array of a uv set per face-vertex, in normals_array's order.
+
+### Node.attribute_names
+
+```python
+attribute_names(base=False)
+```
+
+[(name, domain, type)] of every mesh attribute: domain point/edge/face/corner, type float..float4/int/bool.
+
+### Node.attribute_array
+
+```python
+attribute_array(name, domain=None, base=False, out=None)
+```
+
+(array, domain): an attribute (vertex colors, crease, hard, smoothGroup, your own...) in its domain's order:
+points_array rows, edge_arrays rows, face_arrays faces, or face-vertex for corner. Float types come back float32 (N,) or (N, k), int int32, bool bool. domain is needed only when the name is on more than one domain.
+
+### Node.morph_targets
+
+```python
+morph_targets()
+```
+
+The mesh's morph targets as exporters write them, in-betweens expanded to their own entries: a list of {"name", "weight", "indices", "deltas"}, with sparse float64 (K, 3) object-space deltas on points_array(base=True) rows. Dense: d = numpy.zeros((N, 3)); d[t["indices"]] = t["deltas"].
 
 ### Node.uv_sets
 
