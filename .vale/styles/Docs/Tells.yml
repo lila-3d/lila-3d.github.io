@@ -1,0 +1,22 @@
+extends: existence
+message: "'%s' reads as filler prose; rewrite plainly."
+level: warning
+ignorecase: true
+tokens:
+  - delv(?:e|es|ing)
+  - it'?s worth noting
+  - in today'?s
+  - whether you'?re
+  - let'?s dive
+  - dive (?:in|into)
+  - a testament to
+  - plays? a (?:crucial|key|vital) role
+  - comprehensive
+  - navigat(?:e|ing) the (?:complexities|world|landscape)
+  - in the (?:realm|world|landscape) of
+  - at its core
+  - ever-evolving
+  - rest assured
+  - look no further
+  - without further ado
+  - "here'?s (?:the thing|how|what)"

@@ -11,7 +11,7 @@ Lila first checks that every node can follow. After the move it compares every t
 If it refuses:
 
 - **May hold world-space data**: the scene has a node Lila can't move safely: Edge to Curve history, an extension node its extension doesn't describe, or a skeleton edit in progress. Finish the skeleton edit or delete the history, then run it again.
-- **Object Info node ... reads ...'s world transform**: a geometry nodes group reads another object's world position, so moving both would change the result. Set that Object Info node's **Relative To** to **owner**, which reads the object against the mesh the group runs on.
+- **Object Info node ... reads ...'s world transform**: a geometry nodes group reads another object's world position, so moving both would change the result. Set **Relative To** on that Object Info node to **owner**, which reads the object against the mesh the group runs on.
 - **Keyed on separate X, Y and Z curves**: with **Rotation** set, a root keyed on Euler curves can only turn about the outermost axis of its rotate order. Set **Rotation** to None, or convert its keys to a rotation curve (`convertRotationCurves`) first.
 - **Links ... which moves, and ... which doesn't**: with **Only the selected hierarchies**, a skin, deformer or constraint ties something inside to something outside. Select both.
 - **The parent is animated**: a hierarchy can only take a fixed move under a parent that stays still. Pick the top of the hierarchy.

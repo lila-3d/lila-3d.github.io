@@ -1,0 +1,13 @@
+extends: existence
+message: "Describe how it works now, not how it changed ('%s'). Change history belongs in release notes."
+level: warning
+ignorecase: true
+tokens:
+  - used to
+  - previously
+  - formerly
+  - now (?:supports|uses|has|lets|works|shows|runs|handles)
+  - has been (?:added|removed|renamed|replaced|changed|improved)
+  - (?:we'?ve|we have) (?:added|changed|improved|removed|renamed)
+  - new in (?:v|version )?\d
+  - as of (?:v|version )?\d

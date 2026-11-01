@@ -11,7 +11,7 @@ Lila is free and made by one developer. Telemetry is how I find out what to work
 - Which tools get used, so they get the polish, and which don't, so I can find out why.
 - Where Lila crashes, on which GPUs and versions, so the worst crashes get fixed first.
 - Whether people keep using Lila after the first week, and whether a release made that better or worse.
-- How many people come from Maya, Blender or elsewhere, and how many work in studios, so Lila's workflows and pipeline features fit the people actually using it.
+- How many people come from Maya, Blender or elsewhere, and how many work in studios, so Lila's workflows and pipeline features fit the people using it.
 - How many people use the Unreal link and which Unreal versions to support.
 
 It's never sold, never used for advertising, and never shared except as totals, such as "40% of users came from Maya". If Lila is ever funded or acquired, those totals may be shown to the people involved; the data itself stays under this page's terms.
@@ -63,6 +63,6 @@ To have your data deleted, email [lila3d.app@gmail.com](mailto:lila3d.app@gmail.
 | Data | Service | Kept for |
 | --- | --- | --- |
 | Usage statistics | PostHog, EU region | 1 year |
-| Crash reports | Sentry, US region | 30 days |
+| Crash reports | Sentry, United States region | 30 days |
 
 Sending happens in the background, at startup and every half hour. If it fails it tries again later, and gives up on an event after five tries. It never slows Lila down or stops it working offline.

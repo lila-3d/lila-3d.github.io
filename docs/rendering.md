@@ -29,7 +29,7 @@ renderTurntable(video="turntable.mp4", frames=120, spin="object")
 
 A material's **Bevel** (cm) rounds its hard edges as it shades, traced against the real geometry, like a high-poly bevel without the polygons (GPUs with ray tracing). Bake a **roundedNormal** map to keep the look in a game engine.
 
-**Render > Three-Point / Rim / Product Light Rig** puts area lights around the selection, aimed and sized to fit it.
+**Render > Three-Point Light Rig**, **Rim Light Rig** or **Product Light Rig** puts area lights around the selection, aimed and sized to fit it.
 
 For framing, **Render > Safe Frames** and **Rule of Thirds** draw inside the resolution gate.
 

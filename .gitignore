@@ -4,3 +4,8 @@ desktop.ini
 .idea/
 .vscode/
 docs/template.md
+# Vale packages, restored by `vale sync`
+.vale/styles/Google/
+.vale/styles/write-good/
+.vale/styles/proselint/
+__pycache__/

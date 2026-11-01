@@ -1,0 +1,8 @@
+extends: existence
+message: "Lila's add-ons are extensions. Keep '%s' only for an Unreal, Qt, Maya or USD plugin."
+level: warning
+ignorecase: true
+tokens:
+  - Lila plug-?ins?
+  - plug-?ins? for Lila
+  - Lila's plug-?ins?

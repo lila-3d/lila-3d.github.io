@@ -1,0 +1,22 @@
+extends: existence
+message: "'%s' is marketing; say what it does instead."
+level: warning
+ignorecase: true
+tokens:
+  - powerful
+  - seamless(?:ly)?
+  - blazing(?:ly)?(?:[- ]fast)?
+  - robust
+  - cutting[- ]edge
+  - state[- ]of[- ]the[- ]art
+  - world[- ]class
+  - effortless(?:ly)?
+  - revolutionary
+  - game[- ]chang(?:er|ing)
+  - intuitive
+  - leverag(?:e|es|ing)
+  - empower(?:s|ing)?
+  - supercharg(?:e|es|ing)
+  - next[- ]level
+  - best[- ]in[- ]class
+  - out of the box

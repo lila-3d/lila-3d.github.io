@@ -1,0 +1,8 @@
+extends: existence
+message: "Link text '%s' says nothing out of context; link the words that name the target."
+level: warning
+scope: raw
+ignorecase: true
+nonword: true
+tokens:
+  - '\[(?:here|click here|this|this link|link|this page|read more|more)\]\('

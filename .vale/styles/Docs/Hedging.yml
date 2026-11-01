@@ -1,0 +1,13 @@
+extends: existence
+message: "'%s' hedges; state what happens."
+level: suggestion
+ignorecase: true
+tokens:
+  - should work
+  - might want to
+  - may want to
+  - try to
+  - hopefully
+  - probably
+  - in most cases
+  - generally speaking

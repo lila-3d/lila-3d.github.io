@@ -1,0 +1,10 @@
+extends: existence
+message: "Skip the signposting ('%s'); start with the content."
+level: warning
+ignorecase: true
+tokens:
+  - in this (?:section|guide|page|document|article|tutorial),?
+  - this (?:section|guide|page|document|article|tutorial) (?:will|explains|describes|covers|shows|walks)
+  - as (?:mentioned|described|discussed|noted) (?:above|earlier|before|previously)
+  - (?:let'?s|we will|we'?ll) (?:look|take a look|walk|go through|explore|learn)
+  - read on to

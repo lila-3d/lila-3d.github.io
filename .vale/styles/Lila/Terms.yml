@@ -1,0 +1,11 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: error
+ignorecase: false
+swap:
+  DCC: 3D app
+  DCCs: 3D apps
+  add-on: extension
+  add-ons: extensions
+  addon: extension
+  addons: extensions

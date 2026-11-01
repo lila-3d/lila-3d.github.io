@@ -1,0 +1,18 @@
+extends: existence
+message: "'%s' is a heading with no job for the reader. Cut the section or name what it lets them do."
+level: warning
+scope: heading
+ignorecase: true
+tokens:
+  - '^intro(?:duction)?$'
+  - '^overview$'
+  - '^conclusion$'
+  - '^summary$'
+  - '^background$'
+  - '^motivation$'
+  - '^(?:key )?features$'
+  - '^why .+'
+  - '^about(?: this .+)?$'
+  - '^what is .+'
+  - '^next steps$'
+  - '^wrapping up$'

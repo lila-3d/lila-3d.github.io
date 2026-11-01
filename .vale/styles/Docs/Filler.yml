@@ -1,0 +1,22 @@
+extends: existence
+message: "Cut '%s': it adds nothing a reader acts on."
+level: warning
+ignorecase: true
+tokens:
+  - simply
+  - just
+  - easily
+  - obviously
+  - of course
+  - basically
+  - actually
+  - really
+  - very
+  - clearly
+  - note that
+  - it should be noted
+  - it is important to note
+  - please
+  - in order to
+  - quite
+  - fairly
