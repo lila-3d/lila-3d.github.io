@@ -14,8 +14,15 @@ Make clothing from sewing patterns, drape it on a body and bake it to a skinned 
 from lila import ops
 body = ops.tailorMannequin(height=175, chest=100)
 mesh, garment = ops.tailorCreateBlock(block='cloakTunicBelt', collider=body, wait=True)
-ops.tailorBake(mesh)
+ops.tailorBake(mesh, retopo=3000, lods=2)
 ```
+
+## Edit the pattern
+
+- **Tailor > Pattern Editor** shows the selected garment's panels flat. Drag points to reshape, double-click an edge to add a point, Delete removes the hovered point. Seams show in matching colours; a red label means the two sides differ in length.
+- In **Sew** mode, click one edge and then another to sew them. Hold Shift on the second click to sew them the same way round. Right-click an edge to unsew it.
+- **Tailor > Draw Panel on Body** draws a new panel straight onto the body: click around it, press Enter. M mirrors it across the body.
+- **Tailor > Live Drape** keeps the garment simulating, so edits show as you make them. **Tailor > Grab Cloth** pulls it around in the viewport.
 
 ## Troubleshooting
 
@@ -27,6 +34,8 @@ ops.tailorBake(mesh)
 
 **Bake didn't skin the mesh.** The body has no skinCluster. Skin the body first, then bake again.
 
+**Retopo warns about folds.** Tight folds under the arms are hard to quad. Raise `retopo` or drape with a larger `particleDistance`.
+
 ## Options
 
 Set these on the garment node in the Attribute Editor.
@@ -35,8 +44,12 @@ Set these on the garment node in the Attribute Editor.
 | --- | --- | --- |
 | `particleDistance` | `2` cm | Cloth edge length. Smaller is finer and slower. |
 | `frames` | `90` | Solver frames per drape. |
+| `gpu` | on | Drapes on the GPU while the viewport runs; batch runs use the CPU. |
+| `floor` | on | A ground at the body's feet the cloth rests on. |
 | `weldSeams` | on | Merges sewn points so the garment is one connected mesh. |
 | `thickness` | `0` cm | Grows a closed shell towards the body, with rims on open edges. |
+
+A seam's `foldAngle` holds it pressed at that angle (a hem, a collar); `shrink` below 1 gathers it like elastic. Set both with `tailorSew`.
 
 The output mesh has two UV sets: `uv0` packs the panels into 0 to 1 with the grain upright, and `uv1` is the flat pattern at 1 unit per metre, so a fabric texture tiles at its real size. Baked meshes also carry the point attribute `clothMaxDistance`, each point's distance from the body in cm, for a runtime cloth mask such as Chaos Cloth's Max Distance.
 

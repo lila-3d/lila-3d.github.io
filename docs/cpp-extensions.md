@@ -115,3 +115,5 @@ The SDK is C++, not a C ABI. Binding it from another language means handling `st
 Lila looks for packages in these folders, in order: `LILA_EXTENSION_PATH` (separated by `;`), the folders listed under `/extensions/paths` in `%APPDATA%/Lila/prefs/general.json`, `<workspace>/.lila/extensions`, `%APPDATA%/Lila/extensions`, and the `extensions` folder beside `lila.exe`. `listExtensions(searchPaths=True)` prints them.
 
 `lilaExtensionUninit(ext::Context&)` is optional: export it to free the extension's own state when it unloads.
+
+GPU compute (`<lila/GpuCompute.h>`, UI extensions): a `lila::gpu::Session` owns buffers and kernels, and `Session::run` records work on the render thread and waits for it. Buffers are reached from Slang through device addresses, so pass them in push constants or another buffer. Compile shaders with `lila_add_shaders(<target> FILES a.slang OUTPUT_DIR <package>/shaders)` (needs `slangc`), and load them with `Recorder::kernel` by absolute path from `ext::Context::root()`. It needs the viewport running: `lila::gpu::available()` is false in batch runs, so keep a CPU path.
