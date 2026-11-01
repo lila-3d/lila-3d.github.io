@@ -67,6 +67,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 
 /* Icons on the top-level pages, masked so they take the link colour. */
 .sidebar-nav a[href="#/"]::before,
+.sidebar-nav a[href="#/getting-started"]::before,
 .sidebar-nav a[href="#/requirements"]::before,
 .sidebar-nav a[href="#/performance"]::before,
 .sidebar-nav a[href="#/progress"]::before,
@@ -120,6 +121,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 }
 
 .sidebar-nav a[href="#/"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5M5 9v12h14V9M10 21v-6h4v6'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/getting-started"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m15.5 8.5-2 5-5 2 2-5z'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/requirements"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h18v12H3zM8 20h8M12 16v4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/performance"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 18a8 8 0 1 1 16 0M12 18l4-6'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/progress"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16M4 12h10M4 18h6'/%3E%3C/svg%3E"); }

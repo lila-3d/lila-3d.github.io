@@ -25,7 +25,7 @@ Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches an
 
 ## EZ Curve
 
-Click two points. When both land on a mesh, the curve follows its surface between them and stays out of any mesh the straight line between them passes through. Until you start the next curve, reshape it in place:
+Click two points. When both land on a mesh, the curve follows its surface and stays out of any mesh the straight line passes through. Until you start the next curve, reshape it in place:
 
 | Input | Does |
 | --- | --- |
@@ -83,15 +83,15 @@ Place the pipe's points.
 
 ![Drawing a pipe](images/curves/pipe-02-draw-pipe.png)
 
-Snap to vertices, edges and surfaces to place them accurately.
+Snap to vertices, edges and surfaces.
 
 ![Surface snapping the pipe](images/curves/pipe-03-snap.png)
 
-Pick a preset for the look.
+Pick a preset.
 
 ![Pipe presets](images/curves/pipe-04-preset.png)
 
-Tune it with the parameters.
+Tune the parameters.
 
 ![Pipe params](images/curves/pipe-05-params.png)
 
@@ -141,9 +141,9 @@ Tune it with the parameters.
 
 ### Text
 
-- **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it in the **Text** section of the Attribute Editor with the text curve or anything built from it (a Bevel Plus) selected: Enter starts a new line, and the text updates when you pause typing. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
-- **Fonts**: the family dropdown lists the fonts this scene uses, your favourites and your recent picks first. Star a font (the star beside the style, or on its row in the dropdown) to favourite it; with a workspace open the favourites are saved with the workspace, in `.lila/fonts.json`.
-- **Text Mesh** (Curves menu) makes the text and its Bevel Plus in one step; the font, depth and bevels stay editable on the mesh.
+- **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it in the **Text** section of the Attribute Editor with the text curve or anything built from it (a Bevel Plus) selected. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
+- **Fonts**: with a workspace open, starred fonts are saved in `.lila/fonts.json`.
+- **Text Mesh** (Curves menu) makes the text and its Bevel Plus in one step.
 - **Stretched or pulled vertices**: lower **Front Width** (and **Back Width**) first. A bevel wider than the thinnest strokes meets itself in a ridge and drags the faces across the letter.
 
 ## Blend and trim
@@ -233,7 +233,7 @@ Tune it with the parameters.
 
 **A network or border blend won't build.** The reason is in the node's **Warning** attribute. Network messages name curves by input slot (curve0, curve1, ...); every U curve must cross every V curve.
 
-**A deform, array or flow modifier does nothing.** It has no curve or surface connected; the modifier stack shows why.
+**A deform, array or flow modifier does nothing.** It has no curve or surface connected.
 
 **A curve kept on a surface dips through it.** Only points and handles are projected. Add points there.
 

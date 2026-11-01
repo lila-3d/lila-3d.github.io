@@ -6,7 +6,7 @@ What Lila needs to run.
 
 ## Get it working
 
-Lila runs on **64-bit Windows 10 or 11** for now. Linux and macOS are planned.
+Lila runs on **64-bit Windows 10 or 11**.
 
 | | Minimum | Recommended |
 | --- | --- | --- |

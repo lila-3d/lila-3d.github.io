@@ -4,6 +4,7 @@ Lila has no public build yet. These pages cover what's built so far. [Back to th
 
 ## Start here
 
+- [Getting started](getting-started.md): camera, selection and the keys to get around.
 - [System requirements](requirements.md): what Lila needs to run.
 - [Essentials](essentials.md): what everyone should know on day one, especially coming from Maya.
 - [FAQ](faq.md) and [Support](support.md): answers, help and bug reports.

@@ -30,7 +30,7 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 | **,** **.** | Blend |
 | **Esc** | Exit |
 
-With a clay object selected, its shapes show as outlines; cuts are red. Click an outline to select its shape.
+With a clay object selected, its shapes show as outlines; cuts are red.
 
 With one shape selected, drag its solid ring to size it and its dashed ring to set its blend.
 

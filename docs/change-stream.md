@@ -7,7 +7,7 @@ Feed scene changes to your own process as JSON deltas over a local socket: one l
 ## Get it working
 
 1. Turn it on in **Preferences > General > Change Stream**, or run `changeStream(enable=True)` in the script editor. It listens on `127.0.0.1:8742`.
-2. Connect and read one JSON object per line. A complete Python client:
+2. Connect and read one JSON object per line:
 
 ```python
 import json, socket
@@ -72,15 +72,15 @@ Start from a snapshot, then apply each message whose `seq` is greater than the s
 
 **One command arrives as two groups with the same `command`.** A snapshot was taken while it was still running (a dialog open) or during a drag. The first group has the snapshot's `seq` and is already in it; the second holds what came after.
 
-**Mesh values are `{"summary": "mesh", ...}`.** Meshes, and data over 4 KB, go as counts and a hash by default. The hash is taken from the mesh's content (points, faces, attribute layers), so any change to them changes it. Subscribe with `"full": true` for whole values.
+**Mesh values are `{"summary": "mesh", ...}`.** Meshes, and data over 4 KB, go as counts and a hash by default. The hash covers points, faces and attribute layers. Subscribe with `"full": true` for whole values.
 
 **`evaluated` changes for a command that moved time arrive late.** Anything that moves time sends what that changed in the `frame` after its `group`.
 
 **Another machine can't connect.** It only listens on localhost. Turn off **Localhost only**, or run `changeStream(allowRemote=True)`. Windows asks to let it through the firewall.
 
-**`wrong token` or `this server needs a token`, then the connection closes.** With remote connections allowed, or `requireToken=True`, each client must send the token first: `{"op": "auth", "token": "..."}`, or `"token"` in its subscribe. `changeStream()["token"]` shows it, and it is kept in general.json as `/changeStream/token`. A client that sends nothing is dropped after 10 seconds. Localhost-only needs no token unless you ask for it. To try a token client without the firewall prompt, use `changeStream(enable=True, requireToken=True)`: the same check, on localhost.
+**`wrong token` or `this server needs a token`, then the connection closes.** With remote connections allowed, or `requireToken=True`, each client must send the token first: `{"op": "auth", "token": "..."}`, or `"token"` in its subscribe. `changeStream()["token"]` shows it, and it is kept in general.json as `/changeStream/token`. A client that sends nothing is dropped after 10 seconds. To try a token client without the firewall prompt, use `changeStream(enable=True, requireToken=True)`.
 
-**`lilabatch` streams nothing.** It ignores the preferences, so batch jobs running side by side don't fight over a port or open one unasked. Pass `--change-stream` (port 8742) or `--change-stream 0` (any free port, printed in the log) before any `--batch-run`, or set `LILA_CHANGE_STREAM` to a port. It listens on localhost only and stops when the job ends, after sending what is queued.
+**`lilabatch` streams nothing.** It ignores the preferences. Pass `--change-stream` (port 8742) or `--change-stream 0` (any free port, printed in the log) before any `--batch-run`, or set `LILA_CHANGE_STREAM` to a port. It listens on localhost only and stops when the job ends, after sending what is queued.
 
 ## Options
 
@@ -136,4 +136,4 @@ lila::stream::subscribe(ctx, [](const nlohmann::json& msg) {
 }, filter);
 ```
 
-`snapshot(filter)` returns the whole scene as a snapshot message in both. Called while a command is still running, its `seq` still tells you exactly which later messages to apply.
+`snapshot(filter)` returns the whole scene as a snapshot message in both. Called while a command is still running, its `seq` still tells you which later messages to apply.

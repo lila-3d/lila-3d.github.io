@@ -40,7 +40,7 @@ replaceWith(["box1", "box2"], asset="Props/Crate", fit=True)   # blockout cubes 
 fillShelf(["Shelf_1", "Shelf_2"], items=["Books/Hardback", "Books/Paperback"], sag=True)
 ```
 
-This makes a live arrangement; its seed, gap and lean inputs re-arrange it. `realize=True` places real objects instead, which you can push, edit and check one by one. `scatterProps`, `pileProps` and `stackProps` work the same way.
+This makes a live arrangement; its seed, gap and lean inputs re-arrange it. `realize=True` places real objects to push, edit and check one by one. `scatterProps`, `pileProps` and `stackProps` work the same way.
 
 <!-- TODO image: a bookshelf filled with fillShelf, some books leaning, a stack lying flat, the boards sagging (images/stagehand/shelf.png) -->
 
@@ -78,7 +78,7 @@ openSnapPoints()        # joins still missing
 | `variants=` | `pool` (a few bowed variants per mesh, shared, cheap in Unreal), `unique` (one each) or `none`. |
 | `fillShelf(sagAmount=)` | Sag at a board's middle for 10 kg there, cm. |
 
-Library folders, searched in this order: `<workspace>/Library/`, studio folders (`libraryPaths(add="P:/Studio/Props")` or `LILA_LIBRARY_PATH`), then your own library. Assets are `<Collection>/<Asset>/` folders with `asset.json`, the model and `thumb.png`, so they check in like any other file. Placements are instances by default; set the `stagehand` pref `/library/insertMode` to `copy` to change that.
+Library folders, searched in this order: `<workspace>/Library/`, studio folders (`libraryPaths(add="P:/Studio/Props")` or `LILA_LIBRARY_PATH`), then your own library. Assets are `<Collection>/<Asset>/` folders with `asset.json`, the model and `thumb.png`. Placements are instances by default; set the `stagehand` pref `/library/insertMode` to `copy` to change that.
 
 The arrangement graphs are ordinary geometry-nodes groups. The **Stagehand** node category has Row Along Line, Stack Items, Pile Items, Scatter Props, Settle Instances (with contacts out), Contact Wear, Dent At Contacts, Sag Under Load and Variant Pool, for building your own.
 

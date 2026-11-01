@@ -10,7 +10,7 @@ Copies that share their mesh, repeat a transform, or stay live as an array. All 
 | **Shift+D** | Duplicate with Transform: one more copy, stepped as far again as the last copy is from its source |
 | Hold **Y** + drag a gizmo handle | Clone while moving, rotating or scaling. Shift+D then carries on the same step |
 
-Shift+D measures the step from where the last copy is, so move, rotate or scale it first. It keeps working after you select other things, as long as that copy exists.
+Shift+D measures the step from where the last copy is, so move, rotate or scale it first. It works after you select other things, as long as that copy exists.
 
 ## Instance or reference
 

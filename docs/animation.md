@@ -24,7 +24,7 @@ An anim proxy is a set of light pieces, each following one joint, shown in place
 3. Press Enter. Each piece is remeshed, bound to the joint that dominates it, and grouped under `<mesh>_animProxy`. The real mesh hides.
 4. Tune the result in the popup that opens: remesh, face count, **Piece Faces** (`0:150 3:80` sets those pieces' counts) and **Exact Pieces** (`1 4` keeps those pieces as the real surface). Each change regenerates the pieces.
 
-Undo after creating gives you the tool back with your planes. Selecting the mesh, its set or a piece and opening the tool again loads the set's planes, and Enter regenerates it.
+Undo after creating gives you the tool back with your planes. Opening the tool on the mesh, its set or a piece loads the set's planes; Enter regenerates it.
 
 **Rig > Anim Proxy > Create Anim Proxy** does the same in one go with the suggested planes. **Toggle Proxy/Real** swaps between the pieces and the real meshes; in Puppeteer the Spinner has the same toggle on its settings tab.
 
@@ -36,7 +36,7 @@ Model any mesh, select a proxy set and the mesh, and run **Add Selected to Proxy
 
 ### The real head for facial animation
 
-Give the head a true piece: `animProxyFromMesh("Body", trueJoints=["head"])`, or set its piece's remesh to `none`. A true piece is the real surface, split but skinned like the real mesh, so face joints deform it. Select the head joint and run **Toggle Real Piece** (right-click the Spinner's proxy button) to show the real head while the body stays proxy; run it again to follow the set.
+Give the head a true piece: `animProxyFromMesh("Body", trueJoints=["head"])`, or set its piece's remesh to `none`. A true piece is the real surface, split but skinned, so face joints deform it. Select the head joint and run **Toggle Real Piece** (right-click the Spinner's proxy button) to show the real head while the body stays proxy; run it again to follow the set.
 
 ### Proxies per LOD
 

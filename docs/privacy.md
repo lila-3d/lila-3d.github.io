@@ -2,16 +2,16 @@
 
 What Lila sends when you opt in, and how to turn it off.
 
-Usage statistics and crash reports are separate checkboxes, shown when Lila first starts and in **Help > Telemetry and Privacy** or **Preferences > General > Telemetry**. Usage statistics start ticked in that first dialog, so untick them there if you'd rather not send them. Crash reports start off. Click **What's Sent...** there to see the exact data queued on your machine.
+Usage statistics and crash reports are separate checkboxes, shown when Lila first starts and in **Help > Telemetry and Privacy** or **Preferences > General > Telemetry**. Usage statistics start ticked in that first dialog; crash reports start off. **What's Sent...** shows the exact data queued on your machine.
 
 ## What it's used for
 
-Lila is free and made by one developer. Telemetry is how I find out what to work on next:
+Lila is free and made by one developer. Telemetry decides what to work on next:
 
-- Which tools get used, so they get the polish, and which don't, so I can find out why.
+- Which tools get used, so they get the polish, and which don't.
 - Where Lila crashes, on which GPUs and versions, so the worst crashes get fixed first.
-- Whether people keep using Lila after the first week, and whether a release made that better or worse.
-- How many people come from Maya, Blender or elsewhere, and how many work in studios, so Lila's workflows and pipeline features fit the people using it.
+- Whether people keep using Lila after the first week, and whether a release changed that.
+- How many people come from Maya, Blender or elsewhere, and how many work in studios.
 - How many people use the Unreal link and which Unreal versions to support.
 
 It's never sold, never used for advertising, and never shared except as totals, such as "40% of users came from Maya". If Lila is ever funded or acquired, those totals may be shown to the people involved; the data itself stays under this page's terms.
@@ -50,7 +50,7 @@ Everything is tied to a random ID made when Lila is installed, not to you, your 
 
 Nothing is sent from `lilabatch`.
 
-Update checks are separate from telemetry: at startup Lila downloads `latest.json` from Lila's newest release on GitHub to see whether a newer version exists. Nothing about you is sent. Turn it off with **Check for Lila updates at startup** in **Preferences > General**, or `LILA_NO_UPDATE_CHECK=1`. Steam builds never check; Steam updates them.
+Update checks are separate from telemetry: at startup Lila downloads `latest.json` from its newest GitHub release. Nothing about you is sent. Turn it off with **Check for Lila updates at startup** in **Preferences > General**, or `LILA_NO_UPDATE_CHECK=1`. Steam builds never check; Steam updates them.
 
 ## Your ID and your data
 
@@ -65,4 +65,4 @@ To have your data deleted, email [lila3d.app@gmail.com](mailto:lila3d.app@gmail.
 | Usage statistics | PostHog, EU region | 1 year |
 | Crash reports | Sentry, United States region | 30 days |
 
-Sending happens in the background, at startup and every half hour. If it fails it tries again later, and gives up on an event after five tries. It never slows Lila down or stops it working offline.
+Sending happens in the background, at startup and every half hour. A failed send is retried later; an event is dropped after five tries. It never slows Lila down or stops it working offline.

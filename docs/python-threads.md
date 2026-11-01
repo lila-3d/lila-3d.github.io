@@ -16,13 +16,13 @@ uvs = ship.uvs_array("uv0")                  # (C, 2) float32, one per face-vert
 
 `points_array()` is a view of the mesh itself, so it costs nothing however big the mesh is. The other arrays are copies, made on every core.
 
-The arrays are read-only snapshots. Editing the mesh later never changes an array you already have, so any thread can read it.
+The arrays are read-only snapshots: editing the mesh later never changes them, so any thread can read them.
 
-Don't use `Node.points` on big meshes. It builds one Python object per point, which is thousands of times slower.
+Don't use `Node.points` on big meshes: it builds one Python object per point, thousands of times slower.
 
 ## Use worker threads
 
-numpy releases Python's GIL while it crunches, so threads from `threading` or `concurrent.futures` run at the same time. Split the array into chunks and give each thread one:
+numpy releases the GIL, so threads from `threading` or `concurrent.futures` run at the same time. Give each thread a chunk:
 
 ```python
 import os
@@ -47,8 +47,6 @@ A plain `points.mean(axis=0)` is already fast. Threads pay off when each chunk d
 
 Pure Python loops (`for p in points:`) hold the GIL, so threads don't speed them up. Keep the inner loop in numpy.
 
-See [Benchmark](python-threads.md#benchmark) for a full example with timings.
-
 ## Write results back
 
 Compute on any thread, then write on the main thread:
@@ -59,13 +57,13 @@ points = ship.points_array(base=True)
 ship.set_points(points * 1.1)                # one undo step
 ```
 
-`set_points` moves every point of the base mesh (the mesh under its modifiers), so read with `base=True` when the mesh has modifiers. The array must have one row per point, in `points_array`'s order.
+`set_points` moves every point of the base mesh (the mesh under its modifiers), so read with `base=True` when the mesh has modifiers. One row per point, in `points_array`'s order.
 
 Vertex colors work the same way: `get_colors()` and `set_colors()`.
 
 ## Background jobs with progress
 
-`lila.run_in_background` runs a function on a worker thread and calls you back on the main thread when it's done.
+`lila.run_in_background` runs a function on a worker thread, then `on_done` on the main thread.
 
 ```python
 import numpy as np
@@ -95,7 +93,7 @@ With a `title`, the job shows as a progress indicator with a Cancel button, and 
 
 Errors go to `on_error(exception)`, or to the script editor's log by default. `job.cancel()` asks the function to stop, and `job.result()` waits for it and returns its value.
 
-In `lilabatch`, call `job.wait()` before the script ends. The batch exits when the script does, and `wait()` also runs `done`.
+In `lilabatch`, call `job.wait()` before the script ends; it also runs `done`.
 
 From a worker, `lila.tasks.call_on_main(fn, *args)` runs anything on the main thread and returns a `Future`.
 
@@ -109,7 +107,7 @@ From a worker, `lila.tasks.call_on_main(fn, *args)` runs anything on the main th
 | `lila.tasks.call_on_main`, `job.cancel()`, `progress.step()` | Yes |
 | `lila.ops.*`, Node attributes, `points_array` and the other getters, `set_points`, `set_colors` | No: main thread only |
 
-The main-thread-only calls raise a `CommandError` on any other thread. Get the arrays on the main thread first, then hand them to the workers.
+The main-thread-only calls raise a `CommandError` on any other thread.
 
 The user keeps working while a job runs, so check in `done` that what it edits still exists.
 
@@ -184,7 +182,7 @@ LILA_EXTENSION_EXPORT void lilaExtensionUninit(ext::Context&)
 - `Task::progress` is a `progress::Scope`: `step()` it from any thread. `Task::cancelled()` and `checkCancel()` see Cancel and `Job::cancel()`.
 - `tasks::runAndWait(fn)` runs `fn` on a worker and returns when it has, keeping the UI painting meanwhile. Use it inside a command that must finish before it returns. Open a `progress::Scope` around it for a title and bar.
 - `tasks::postToMain(fn)` queues `fn` for the main thread from any thread. `tasks::isMainThread()` tells you where you are.
-- `tbb::parallel_for` and the rest of TBB run on Lila's own thread pool, sharing the cores with Lila.
+- TBB runs on Lila's own thread pool.
 
 Wait for every running job in `lilaExtensionUninit`: a job must not run the extension's code after it unloads.
 
@@ -217,7 +215,7 @@ Wait for every running job in `lilaExtensionUninit`: a job must not run the exte
 
 ## Benchmark
 
-The same per-vertex maths, timed in Lila and in Maya. Each app gathers every vertex position into an `(N, 3)` float64 numpy array, then runs `compute(points)` from `mesh_compute.py` three ways: numpy on one thread, numpy split across `os.cpu_count()` worker threads, and pure Python on 100,000 vertices, extrapolated. The checksum (the mean and the covariance trace) shows every way and every app computed the same thing.
+The same per-vertex maths, timed in Lila and in Maya. Each app gathers every vertex position into an `(N, 3)` float64 numpy array, then runs the maths in `mesh_compute.py` three ways: numpy on one thread, numpy across `os.cpu_count()` worker threads, and pure Python on 100,000 vertices, extrapolated. The checksum shows every way and every app computed the same thing.
 
 ```
 set LILA_EXAMPLE_MESH=X:/Tress/Art/Ship/Gen/manyships.obj
@@ -225,7 +223,7 @@ lilabatch -b python/examples/mesh_compute_benchmark.py
 mayapy tools/benchmarks/maya_mesh_compute.py
 ```
 
-The Maya script measures the meshes in the scene, or imports `MAYA_BENCH_MESH` as OBJ when there are none. It gathers through `MFnMesh.getRawPoints` when it can, else `MFnMesh.getPoints`.
+The Maya script measures the meshes in the scene, or imports `MAYA_BENCH_MESH` as OBJ when there are none.
 
 | manyships.obj, 13.5M triangles, 6,748,920 vertices | Lila | Maya |
 | --- | --- | --- |

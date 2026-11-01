@@ -2,9 +2,7 @@
 
 Add any file format to File > Open and Import, in Python or C++.
 
-These examples read Blender 5.0's default scene: a cube, a camera and a point light in a collection.
-
-Lila opens `.blend` files with its own translator ([File formats](formats.md)); these examples show the API, not a replacement.
+The examples read Blender 5.0's default scene: a cube, a camera and a point light in a collection. Lila opens `.blend` files with its own translator ([File formats](formats.md)); these show the API, not a replacement.
 
 ## Get it working
 
@@ -66,7 +64,7 @@ What the example reads:
 
 ## Troubleshooting
 
-**"not a Blender 5.0 file".** The header isn't `BLENDER17-01v`. Blender 4.x and older use a 12-byte header and 24-byte block headers. Supporting them means branching on the header.
+**"not a Blender 5.0 file".** The header isn't `BLENDER17-01v`. Blender 4.x and older use a 12-byte header and 24-byte block headers; branch on the header to support them.
 
 **"compressed .blend files need Python 3.14 or later".** `compression.zstd` is missing. Run it in Lila's Python, or save the `.blend` uncompressed (**File > Save As > Compress** off in Blender).
 
@@ -74,4 +72,4 @@ What the example reads:
 
 **Mesh comes in with no faces.** Older Blender versions keep geometry in `vdata`/`ldata` (`CustomData`) rather than `attribute_storage`.
 
-**Two translators claim `.blend`.** Lila's own Blender translator claims it too, and so does the other example when both are loaded. Give yours a higher `priority`, or unload one example.
+**Two translators claim `.blend`.** Lila's own translator claims it, and so does the other example if both are loaded. Give yours a higher `priority`, or unload one example.

@@ -18,6 +18,7 @@
 ---
 
 - [Start here](/)
+- [Getting started](getting-started.md)
 - [System requirements](requirements.md)
 - [FAQ](faq.md)
 - [Support](support.md)

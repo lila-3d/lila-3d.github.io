@@ -6,16 +6,16 @@ Give every artist the same preferences, shelves, hotkeys and marking menus from 
 
 1. Make a folder everyone can read, for example `\\server\lila\prefs`. Only the people who manage it need write access.
 2. Point Lila at it on every workstation:
-   - Set the environment variable `LILA_STUDIO_PREFS=\\server\lila\prefs`, from your launcher or system settings.
+   - Set the environment variable `LILA_STUDIO_PREFS=\\server\lila\prefs`.
    - Or put a `studio.json` next to `lila.exe` in your deployed install: `{"prefs": ["\\\\server\\lila\\prefs"]}`. A relative path is read from the install folder.
 3. Put prefs files in the folder. They have the same names and layout as an artist's own prefs in `%APPDATA%/Lila/prefs` (`~/.config/Lila/prefs` on Linux, `~/Library/Application Support/Lila/prefs` on macOS). Set things up in your own Lila, then copy the files you want, such as `general.json`, `hotkeys.json` or `shelves/Rigging.json`.
-4. Start Lila. The log shows `prefs: studio folder \\server\lila\prefs`, and the values from the folder are in effect.
+4. Start Lila. The log shows `prefs: studio folder \\server\lila\prefs`.
 
-Any value in the studio folder is a default: an artist who changes it keeps their own value. To stop that, lock it (below).
+Any value in the studio folder is a default: an artist who changes it keeps their own value, unless it's locked.
 
 ## Lock settings
 
-List JSON pointers under `"$locked"` in a studio file. Locked keys always take the studio value; artists can't change them, and their rows in **Preferences** are greyed out with "Set by your studio".
+List JSON pointers under `"$locked"` in a studio file. Locked keys always take the studio value; their rows in **Preferences** are greyed out with "Set by your studio".
 
 ```json
 {
@@ -41,7 +41,7 @@ A file in `shelves/` in the studio folder appears as a shelf for everyone. Lock 
 }
 ```
 
-Unlocked, it's a starting shelf each artist can rearrange as their own.
+Unlocked, each artist can rearrange it as their own.
 
 Hotkeys (`hotkeys.json`), naming rules (`naming.json`) and Lila's marking menus (`markingMenus/<name>.json`) work the same way. Layouts don't.
 
@@ -57,14 +57,14 @@ Edit the files in the studio folder. Every running Lila picks up the change with
 
 **An artist is off the network.** Lila keeps a copy of each studio file in `%APPDATA%/Lila/studioCache` and uses it while the folder can't be reached, so locks still hold. It catches up when the folder is back.
 
-**A setting won't change in Preferences.** It's locked by the studio. Take it out of `"$locked"` to let artists change it.
+**A setting won't change in Preferences.** It's locked by the studio. Take it out of `"$locked"`.
 
 ## Options
 
 | Option | What it does |
 | --- | --- |
 | `LILA_STUDIO_PREFS` | One or more folders, separated by `;` on Windows and `:` on Linux and macOS. The first wins, so list the most specific first: `\\server\lila\shows\nova;\\server\lila\prefs`. Overrides `studio.json`. |
-| `studio.json` `"prefs"` | The same list, for installs where setting environment variables is awkward. |
+| `studio.json` `"prefs"` | The same list, without an environment variable. |
 | `"$locked"` | Per file: the keys artists can't change. |
 
 Settings resolve in this order, later winning: Lila's built-in defaults, studio folders, the artist's own prefs, the project's `.lila` folder. Locked keys skip the last two.

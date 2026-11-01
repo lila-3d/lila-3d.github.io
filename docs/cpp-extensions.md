@@ -6,7 +6,7 @@
 
 You need the Lila SDK package for your Lila version, MSVC 2022 and CMake 3.28 or later. UI extensions also need the exact Qt version Lila uses.
 
-1. Make a folder with three files.
+1. Make a folder with three files:
 
 `extension.json`:
 
@@ -78,11 +78,11 @@ Windows locks a loaded DLL, so unload before you build: `unloadExtension("hello"
 
 **"could not load ...: The specified module could not be found".** A DLL the extension needs isn't next to it or on the PATH. Put its own dependencies in the package folder beside its DLL.
 
-**"failed to initialize (code N)".** `lilaExtensionInit` returned N. Anything other than 0 is a failure, and Lila unloads it.
+**"failed to initialize (code N)".** `lilaExtensionInit` returned N; anything but 0 is a failure, and Lila unloads it.
 
 **The configure step fails with "includes Lila's internal header".** Include only `<lila/...>` headers. The rest of Lila's headers can change in any release.
 
-**Crashes on load or when calling into Lila.** The extension was built with a different compiler, toolset or Qt version. C++ types such as `std::string`, `std::function` and Qt objects cross between Lila and the extension, so they must match exactly. The SDK's CMake warns when they don't.
+**Crashes on load or when calling into Lila.** The extension was built with a different compiler, toolset or Qt version. C++ types such as `std::string`, `std::function` and Qt objects cross between Lila and the extension, so these must match exactly; the SDK's CMake warns when they don't.
 
 ## Compatibility
 

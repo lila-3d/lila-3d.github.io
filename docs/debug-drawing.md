@@ -22,7 +22,7 @@ dd.draw_debug_string((0, 120, 0), "spawn")
 
 ![A circle and its 8 points drawn from the script editor](images/debug-drawing/circle-points.png)
 
-Every draw has a `duration` in seconds. Leave it out for the default, or pass `0` for the next redraw only, for code that redraws on every change.
+Every draw has a `duration` in seconds. Pass `0` for the next redraw only, for code that redraws on every change.
 
 Draws that stay need `persistent=True` and a channel, and you clear them:
 

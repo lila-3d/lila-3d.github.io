@@ -10,7 +10,7 @@ Draw Lila's viewport with another renderer, such as your engine's, through Hydra
 
    ![The Renderer menu in a viewport's toolbar](images/viewport-renderers/renderer-menu.png)
 
-2. The view redraws through Pixar's Storm and follows your edits.
+2. The view redraws through Pixar's Storm.
 
 Every Hydra render delegate Lila finds is listed in that menu as **Hydra: \<name\>**. Lila ships Storm and Embree.
 
@@ -84,9 +84,9 @@ The id is `hydra` followed by the letters and digits of `displayName`.
 - **Lila's objects** as prims under `/Lila`, flat, with world transforms: `mesh`, `basisCurves`, `camera`, and lights as `sphereLight` (point and spot, with shaping), `distantLight`, `rectLight`, `diskLight` and `domeLight`. Units are centimetres, in the scene's up axis.
 - **Meshes** with face-varying `normals`, UVs (`st`, `st1`, ...), `displayColor` and `displayOpacity`. A mesh with smooth preview on comes refined, so you never need subdivision.
 - **Materials** under `/LilaMaterials` as `UsdPreviewSurface` networks: a `UsdUVTexture` per map, read through `UsdPrimvarReader_float2` from `st`. Each mesh binds its material for every purpose (`allPurpose`, `preview` and `full`).
-- **Live USD stages** through UsdImaging, under a prim per stage, so everything UsdImaging produces reaches you too, including your own schemas if your delegate handles them, and MaterialX networks as authored for prims Lila doesn't draw itself.
+- **Live USD stages** through UsdImaging, under a prim per stage: everything UsdImaging produces, including your own schemas if your delegate handles them, and MaterialX networks as authored for prims Lila doesn't draw itself.
 - **Edits as they happen**: a moved object dirties only its transform, a deformed mesh only its points.
-- **Render settings**: `CreateDelegate` gets `lila:metersPerUnit` (`0.01`) and `lila:upAxis` (`"Y"` or `"Z"`), plus every value saved for your delegate. The settings in your `GetRenderSettingDescriptors` (bools, numbers and strings) appear under **Renderer Settings...** in the Renderer menu. A changed value is set with `SetRenderSetting` on every viewport using your delegate and saved. In a script:
+- **Render settings**: `CreateDelegate` gets `lila:metersPerUnit` (`0.01`) and `lila:upAxis` (`"Y"` or `"Z"`), plus every value saved for your delegate. The settings in your `GetRenderSettingDescriptors` (bools, numbers and strings) appear under **Renderer Settings...** in the Renderer menu. A change is set with `SetRenderSetting` on every viewport using your delegate, and saved. In a script:
 
 ```python
 lila.ops.viewportRendererSetting()                                # [{key, name, value}, ...]
@@ -103,7 +103,7 @@ The camera is set with `SetFreeCameraMatrices` (OpenGL clip space) at the viewpo
 
 ## Troubleshooting
 
-**My delegate isn't in the Renderer menu.** Lila lists delegates from `plugInfo.json` files without loading them: check the extension is loaded (Extension Manager), or that `PXR_PLUGINPATH_NAME` was set before Lila started; that the folder holds `hdMyEngine/` (or the `plugInfo.json` itself); and that the type lists `HdRendererPlugin` in `bases`.
+**My delegate isn't in the Renderer menu.** Lila lists delegates from `plugInfo.json` without loading them: check the extension is loaded (Extension Manager), or that `PXR_PLUGINPATH_NAME` was set before Lila started; that the folder holds `hdMyEngine/` (or the `plugInfo.json` itself); and that the type lists `HdRendererPlugin` in `bases`.
 
 **Picking it logs "Hydra: My Engine: no render delegate ... on the plugin path".** USD couldn't load the DLL: it was built against another OpenUSD version or build settings, or a dependency isn't found: put your engine's DLLs beside `hdMyEngine.dll` in the `usdPlugins` folder, or on `PATH`.
 

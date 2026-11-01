@@ -17,7 +17,7 @@ ops.reportIssue("/World/crate.health:max", m="Max health must be above 0", sever
                 fix="lila.ops.setAttr('crate.health:max', 100)")
 ```
 
-2. The row gets a badge. Hover it for every issue on the object. Select it, and the Attribute Editor lists them at the top and badges the attributes. Click an issue to scroll to it, or **Fix** to run its fix.
+2. The row gets a badge; hover it for every issue on the object. Select it, and the Attribute Editor lists them at the top and badges the attributes.
 
 3. Make it a validator so it runs again on demand and replaces its old results:
 

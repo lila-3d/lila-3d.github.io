@@ -6,18 +6,18 @@
 
 64-bit Windows 10 and 11. See [System requirements](requirements.md).
 
-- **Linux** is planned. It needs only a small port, and Linux GPU drivers support everything Lila uses, including hardware ray tracing.
-- **macOS** is harder. It has no native Vulkan, so Lila would run on Metal through MoltenVK. MoltenVK has no hardware ray tracing, so bakes would still run on the GPU, through Lila's software tracer, slower than on a ray-tracing card.
+- **Linux** is planned. Linux GPU drivers support everything Lila uses, including hardware ray tracing.
+- **macOS** has no native Vulkan, so Lila would run on Metal through MoltenVK, which has no hardware ray tracing: bakes would run on Lila's GPU software tracer, slower than on a ray-tracing card.
 
 The source opens at release, so macOS and Linux users can build it themselves.
 
 ### Can I try it?
 
-Not yet. There's no public build. Follow [@Vaei00 on X](https://x.com/Vaei00) for the first release.
+Not yet. Follow [@Vaei00 on X](https://x.com/Vaei00) for the first release.
 
 ### What does Lila cost?
 
-Nothing. Lila is free. To support development, use [GitHub Sponsors](https://github.com/sponsors/Vaei) or [Ko-fi](https://ko-fi.com/jaredtaylor).
+Nothing. To support development, use [GitHub Sponsors](https://github.com/sponsors/Vaei) or [Ko-fi](https://ko-fi.com/jaredtaylor).
 
 ### Does Lila use AI?
 
@@ -29,7 +29,7 @@ Only when you ask it to.
 
 ### Was Lila built with AI?
 
-Yes, as a coding assistant. Lila's creator designed its architecture, tools and workflows, and every feature was tested and reworked by hand until it worked the way it should. AI made a tool of this scope possible for one person.
+Yes, as a coding assistant. Lila's creator designed its architecture, tools and workflows, and every feature was tested and reworked by hand. AI made a tool of this scope possible for one person.
 
 ### Does Lila open Maya scenes?
 
@@ -61,7 +61,7 @@ Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no
 
 ### Why does Lila save `.lila` instead of USD?
 
-Because a `.lila` file saves how a scene is built, and USD stores the result. A Lila scene is a live graph: modifier stacks, generators, rigs, deformers, constraints and node graphs. Saving it as USD would bake all of that down, or wrap it in custom schemas that only Lila can evaluate. Houdini and Maya would see unknown prims, so the file would still be Lila's own format.
+Because a `.lila` file saves how a scene is built, and USD stores the result. A Lila scene is a live graph: modifier stacks, generators, rigs, deformers, constraints and node graphs. Saving it as USD would bake all of that down, or wrap it in custom schemas that Houdini and Maya see as unknown prims, so the file would still be Lila's own format.
 
 Maya (`.ma`/`.mb`) and Houdini (`.hip`) take the same route: a native scene format that hosts USD stages. Lila opens a USD file as a live stage, never flattened. Your edits go to a layer as overs, and Houdini or Maya pick that layer up. See [USD stages](formats.md#usd-stages).
 
@@ -84,7 +84,7 @@ Every command, tool drag and selection change is one undo step. Selection steps 
 
 Undo is unlimited by default, within a 2 GB memory budget: past that, the oldest steps drop. A mesh shared by several steps counts once. Change the budget, or set a step limit instead, in **Preferences > General > Undo**. Opening or creating a scene clears the history.
 
-In a script, group edits into one step with `with`, so the step always closes, even if the script fails:
+In a script, group edits into one step with `with`; the step closes even if the script fails:
 
 ```python
 with lila.undo_chunk("Build arm"):
@@ -115,4 +115,4 @@ C++ types cross the boundary, so build with MSVC, as Lila is.
 
 ### Can scripts use threads?
 
-Yes. Meshes come out as numpy arrays (`Node.points_array()`), which any thread can read, and numpy releases the GIL, so worker threads from `threading` or `concurrent.futures` run on every core. `lila.run_in_background` runs a job with progress and Cancel and calls you back on the main thread. Scene commands stay on the main thread. See [Threads and big meshes](python-threads.md).
+Yes. Meshes come out as numpy arrays (`Node.points_array()`) that any thread can read, and numpy releases the GIL, so worker threads from `threading` or `concurrent.futures` run on every core. `lila.run_in_background` runs a job with progress and Cancel and calls you back on the main thread. Scene commands stay on the main thread. See [Threads and big meshes](python-threads.md).

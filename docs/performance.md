@@ -10,7 +10,7 @@ The same 13.5 million triangles in each app, as drawn during these tests, both w
 
 ![Maya 2026.3 viewport with the ships](images/performance/maya-viewport.png)
 
-> Same machine, same files, timed the way a user experiences them in the running app - from the command, until the result draws on the screen.
+> Same machine, same files, timed in the running app from the command until the result draws on the screen.
 
 ## Measured on
 
@@ -73,7 +73,7 @@ Results are coloured by how far they are from the best on their row: <span style
 | Crashes | <span style="color:#e0453a">1</span>: subdividing the ships (exception 0xc0000409, in one of two sessions) | <span style="color:#22a447">0</span> |
 | Hangs | <span style="color:#e0453a">3 of 3</span>: welding the single ship at 0.01 cm, ended with End Task after several minutes | <span style="color:#22a447">0</span>: the same weld finished in 0.6 s |
 
-The 0.01 cm weld is extreme: the ship is about 1 cm long, so almost every edge is shorter than that and the whole mesh collapses. Lila does what was asked; Maya never returns.
+The 0.01 cm weld is extreme: the ship is about 1 cm long, so almost every edge is shorter than that and the whole mesh collapses.
 
 If Lila crashes, hangs or is slow on your files, report it.
 
@@ -101,7 +101,7 @@ Lila's accurate ambient occlusion only darkens ambient light, at the cost of dra
 | Compute with numpy on 32 threads | <span style="color:#c9a400">0.711 s</span> | <span style="color:#c9a400">0.698 s</span> | ≈ even |
 | Compute in pure Python<br><small>100,000 vertices timed, extrapolated</small> | <span style="color:#cd9509">27.3 s</span> | <span style="color:#aea40c;font-weight:700">18.8 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.5x faster** |
 
-Lila's FBX export writes tangents and binormals by default, so Unreal uses the same tangent space Lila shows; Maya's doesn't write them. Tangents are most of the gap in FBX size: turn them off in the FBX export options (`exportFbx(path, tangents=False)`) when Unreal should compute its own.
+Lila's FBX export writes tangents and binormals by default, so Unreal uses the same tangent space Lila shows. Tangents are most of the gap in FBX size: turn them off in the FBX export options (`exportFbx(path, tangents=False)`) when Unreal should compute its own.
 
 ### Other formats
 
@@ -118,7 +118,7 @@ Lila only. Each file was written by Lila's own exporter from the ships.
 
 ## How it was measured
 
-Maya and Lila were each started fresh, with nothing else running, and timed one at a time. Both viewports were about 2 million pixels: Maya's 1864 x 1157, Lila's 1557 x 1283. Times "until on screen" run from the command to the first frame drawn afterwards, as a user sees it.
+Each app was started fresh, with nothing else running, and timed alone. Both viewports were about 2 million pixels: Maya's 1864 x 1157, Lila's 1557 x 1283. Times "until on screen" run from the command to the first frame drawn afterwards.
 
 ### Maya
 
@@ -153,7 +153,7 @@ Viewport: shaded, 8x antialiasing, framed with Frame All. The camera orbits whil
 
 ### Python
 
-The same maths runs in both apps from one file, `tools/benchmarks/mesh_compute.py` in the Lila repository. Each vertex gets a 4x4 matrix from its position, the matrix transforms it, and the result goes through normalisation, trigonometry and a mean and covariance. Both apps give the same checksum: mean -0.343375486 -0.065308194 0.008460365, covariance trace 0.027830457.
+The same maths runs in both apps from one file, `tools/benchmarks/mesh_compute.py` in the Lila repository. Both apps give the same checksum: mean -0.343375486 -0.065308194 0.008460365, covariance trace 0.027830457.
 
 Gathering the positions:
 

@@ -27,7 +27,7 @@ settlementSuggest(ground="Terrain", water=rivers, count=3)          # best sites
 settlementRegion(ground="Terrain", water=rivers, cities=1, towns=3, villages=8)
 ```
 
-`settlementRegion` puts cities on the best sites (flat, by a river but out of its flood, near confluences), towns between them and villages filling in, routes roads between neighbours (bridging rivers where it must), then lays out each place with its main roads continuing the regional ones. The roads and rivers land on a `Region` mesh; each place gets its own settlement mesh.
+`settlementRegion` puts cities on the best sites (flat, by a river but out of its flood, near confluences), towns between them and villages filling in, routes roads between neighbours, then lays out each place with its main roads continuing the regional ones. The roads and rivers land on a `Region` mesh; each place gets its own settlement mesh.
 
 <!-- TODO image: a river valley with a city, two towns and villages joined by roads (images/settlement/region.png) -->
 
@@ -37,7 +37,7 @@ Buildings are not modelled here. Each lot gets an envelope: the footprint, floor
 
 **"the settlement outline has no area".** The outline loop crosses itself or has fewer than three points.
 
-**Streets stop short on hills.** Streets refuse grades over the profile's **maxGrade** and turn across the slope instead. Raise it in **overrides**: `{"maxGrade": 0.2}`.
+**Streets stop short on hills.** Streets refuse grades over the profile's **maxGrade**. Raise it in **overrides**: `{"maxGrade": 0.2}`.
 
 **`checks.components` above 1.** Some streets do not join the rest, usually streets you drew that end before reaching another. Extend them, or let **growth** fill in.
 

@@ -2,8 +2,6 @@
 
 Pop a short message in the bottom-right corner of the viewport, such as "Exported 12 meshes", from a script or extension. It fades out by itself.
 
-> Available for Python (`lila.ops.viewportToast`) and C++ (`#include <lila/Viewport.h>`, `lila::ui::viewportToast`).
-
 ## Get it working
 
 Run in the script editor:

@@ -20,11 +20,14 @@ Which formats Lila reads and writes, and what to pick for each job.
 | DXF | `.dxf` | Curves and meshes | Curves and meshes |
 | SVG | `.svg` | Curves | Curves |
 | Maya | `.ma`, `.mb` | Yes, without Maya installed | No |
+| Blender | `.blend` | Yes, without Blender installed | No |
 | Alembic | `.abc` | Animated meshes | Animated meshes |
 | MaterialX | `.mtlx` | Materials | Materials |
 | ZBrush GoZ | `.GoZ` | Yes | Yes |
 
 FBX, glTF and USD all carry the hierarchy, meshes with every UV and color set, material slots, skeletons, skin weights, morph targets, animation and cameras. glTF and USD also carry full PBR materials and their textures, unlit materials, and each texture's wrap and filter. Animated points in USD and Alembic files come in as a `meshCache` deformer that plays the samples back at the scene time. DXF brings each layer in as one curve and one mesh, with arcs, circles, ellipses and splines exact and blocks expanded where they are inserted. Maya files bring blendShapes in as morphs: targets stored in the file or still connected as meshes, in-betweens, painted target and base weights, keyed weights, and set driven keys as driven channels.
+
+Blender files bring collections in as groups, collection instances as instances, and armatures, vertex groups and shape keys as joints, skins and morphs, with their keyframed animation. Materials come from the Principled BSDF, inside node groups too, and packed images are written to a `<file>.textures` folder beside the `.blend`. Mirror, Subdivision Surface, Bevel, Array, Triangulate, Solidify, Decimate and Weighted Normal modifiers come in as live Lila modifiers, and Smooth by Angle as hard edges. Files from Blender 3.6 onward open.
 
 Which to use:
 
@@ -42,7 +45,7 @@ Which to use:
 
 Lila stores vertex positions in double precision, and OBJ, FBX and Lila scenes carry every digit, so a mesh comes back out bit for bit however far it sits from the origin. STL, glTF, USD, Alembic and PLY store positions as 32-bit floats: about 7 significant digits, which moves points by up to 0.04 mm at 1 km from the origin and 0.3 mm at 10 km.
 
-Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's result and not the modifiers, rigs and node graphs that build it. It hosts USD as live stages instead, the way Maya and Houdini do ([FAQ](faq.md#why-does-lila-save-lila-instead-of-usd)).
+Lila saves its own `.lila` scenes and hosts USD as live stages, the way Maya and Houdini do ([FAQ](faq.md#why-does-lila-save-lila-instead-of-usd)).
 
 ### USD stages
 
@@ -54,7 +57,7 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 - **Reparenting:** an object moved to another parent is written as a prim at its new place that references the original, which is deactivated. Moving an object out of the stage deactivates its prim.
 - **The edit layer** is saved inside the `.lila` by default. Set the stage's **Edit layer** to a `.usda` file to share it, or to one of the stage's own sublayers to edit that file directly.
 - **More layers:** **Add Layer...** in the stage's Attribute Editor section adds a layer under your edits and over the source. Pick a new `.usda` to create one, or an existing layer. Other tools can write into it while Lila is open, and **Write Shot...** keeps it. Scripts use `usdStageAddLayer` and `usdStageRemoveLayer`.
-- **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source, ready to open or sublayer. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
+- **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
 - **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
 - **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`, or Pixar's own API: `lila.usd.stage("kitchen")` returns the `pxr.Usd.Stage`, whose edit target is the edit layer.
 - **Changes made by other tools or scripts** to the stage's layers show up as they happen, on the prims they touch, without a reload.
@@ -105,11 +108,19 @@ Lila saves its own `.lila` scenes rather than USD, because USD stores a scene's 
 
 **A Maya character with a blendShape after its skinCluster poses differently.** Lila applies morphs before skinning, as Unreal does, and the import warns. In Maya, move the blendShape ahead of the skinCluster in the object's List of Input Operations before importing.
 
+**A Blender object looks unfinished, and the Validation panel flags it.** Its modifier stack has one Lila can't rebuild, usually Geometry Nodes, so the mesh stops before it. With Blender installed, import with `evaluate` set to `unsupported`: Lila runs Blender in the background and bakes those objects' finished meshes. Objects with an armature or shape keys are never baked, so they stay animatable.
+
+**Evaluate warns that no Blender was found.** Lila looks for the newest version under `C:/Program Files/Blender Foundation`, then on `PATH`. Point `blenderPath` at `blender.exe` for any other install.
+
+**A Blender material is flat grey or missing its textures.** Only the Principled BSDF (or a Diffuse or Emission shader) is read; procedural textures, shader math and mix shaders are approximated, and the import report names each material. Image paths that pointed outside the `.blend` must still exist where the file says; the report lists any that don't.
+
+**Grease pencil, hair curves, metaballs or text from Blender are empty groups.** These don't convert; the import report lists each one.
+
 **An Alembic or USD mesh stops animating partway.** A mesh whose point count or faces change over time keeps its first sample, and the import warns. Mesh caches need the same topology on every sample.
 
 ## Options
 
-Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`, `importMaterialX`, `exportMaterialX`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
+Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`, `importMaterialX`, `exportMaterialX`, `blendImport`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
 
 | Command | Option | What it does |
 | --- | --- | --- |
@@ -133,6 +144,9 @@ Each format's options are on its import and export commands (`importGltf`, `expo
 | `importDxf` | `merge` | One curve and one mesh for the whole file instead of one per layer. |
 | `exportDxf` | `version` | `2000` (default) writes splines and polyface meshes; `r12` writes polylines only. |
 | `exportDxf` | `splines` | Off writes curves as polylines within `tolerance`. |
+| `blendImport` | `evaluate` | `off` (default), `unsupported` bakes objects whose modifiers Lila can't rebuild, `all` bakes every object with modifiers. Needs Blender installed. |
+| `blendImport` | `collections` | Off puts every object at the top instead of in a group per collection. |
+| `blendConvert` | | Converts a `.blend` to a `.lila` in one step. `blendInfo` lists what a file holds without importing it. |
 
 ## What reads and writes each format
 
@@ -149,4 +163,5 @@ Lila does not use the Autodesk FBX SDK, so no Autodesk licence terms come with i
 | glTF | [cgltf](https://github.com/jkuhlmann/cgltf) parses the file, [Draco](https://github.com/google/draco) decodes compressed meshes | Lila's own writer, Draco for compressed meshes |
 | USD | [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD) | OpenUSD |
 | Maya | Lila's own, no Maya needed | |
+| Blender | Lila's own, no Blender needed; optional evaluation by an installed Blender | |
 | Alembic | [Alembic](https://github.com/alembic/alembic) | [Alembic](https://github.com/alembic/alembic) (Ogawa) |

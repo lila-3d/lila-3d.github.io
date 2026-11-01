@@ -31,7 +31,7 @@ Each stone mesh is imported once into `/Game/Lila/Masonry/<mesh>` with three LOD
 
 The core carries the wall's collision as convex UCX pieces; stones have none.
 
-The stones also get a baked atlas: each stone's worn shape is baked onto its plain box as normal, AO and curvature, all stones in one texture set in `<folder>/<mesh>/Textures`. All three LODs read it through uv0; the tiling projection for a stone surface texture is in uv1.
+Stones also get a baked atlas: each stone's worn shape baked onto its plain box as normal, AO and curvature, all stones in one texture set in `<folder>/<mesh>/Textures`. All three LODs read it through uv0; the tiling projection for a stone surface texture is in uv1.
 
 Materials are instances of one master, `M_LilaMasonry` in `/Game/LilaLink/Masters`, made the first time and then yours to edit; only `regenerateMaster=True` overwrites it. Each wall gets its instances in `<folder>/<mesh>/Materials`:
 
@@ -46,7 +46,7 @@ To set the look from Lila, make materials named `MasonryStone` and `MasonryMorta
 
 Per-stone variation comes from instance custom data on HISM and ISM (0 a stable random, 1 height up the wall, 0 bottom course to 1 top) and from vertex colour R and G on merged meshes.
 
-To use your own master instead, pass its path: `masonryShip(mesh, material="/Game/Art/M_MyStone")`. It needs the same parameter names. `material="none"` skips the instances and matches or makes materials by slot name.
+To use your own master (with the same parameter names), pass its path: `masonryShip(mesh, material="/Game/Art/M_MyStone")`. `material="none"` skips the instances and matches or makes materials by slot name.
 
 Other modes:
 
@@ -65,7 +65,7 @@ Other modes:
 
 **Stones in Unreal but nothing in the level after a resend.** Errors from the editor go to Lila's log as `masonryShip <wall>: ...`; `wait=True` returns them in `["unreal"]["errors"]`.
 
-**Baking is slow.** It runs on the GPU when Lila has one, else the CPU; `["bakeBackend"]` in the result says which. Lower `textureSize`, or send with `textures=False` to skip the atlas.
+**Baking is slow.** It runs on the GPU when there is one, else the CPU; `["bakeBackend"]` in the result says which. Lower `textureSize`, or send with `textures=False` to skip the atlas.
 
 **Far stones look smooth.** The far LODs need the atlas normal map on `MasonryStoneFar`. Without textures they are plain boxes.
 
@@ -93,4 +93,4 @@ Other modes:
 | masonryShip `collisionBands` | Height bands the core's collision is split into (default 1). |
 | masonryShip `folder` | Content folder; the wall's assets go in `<folder>/<mesh name>`. |
 
-Stones are instances of a few shared meshes, with `stone`, `wall`, `course`, `role` (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler), `face` (0 outer, 1 inner, 2 through), `random`, `variant` and `size` attributes for geometry nodes to filter or shade by. The graph is a normal geometry-nodes group: open it to put nodes after the **Masonry Wall** node.
+Stones are instances of a few shared meshes, with `stone`, `wall`, `course`, `role` (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler), `face` (0 outer, 1 inner, 2 through), `random`, `variant` and `size` attributes for geometry nodes to filter or shade by. The graph is a normal geometry-nodes group: add nodes after **Masonry Wall**.

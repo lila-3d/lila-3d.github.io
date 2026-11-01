@@ -2,13 +2,13 @@
 
 Renders are the viewport's own picture, supersampled: post process, depth of field and motion blur included, with no grid, wires or selection.
 
-Lila has no offline path tracer: it renders with the same real-time renderer you work in, in seconds.
+Lila has no offline path tracer: it renders with the real-time renderer you work in, in seconds.
 
-> You can add any renderer using a [C++ extension](cpp-extensions.md). For path tracing, a [viewport renderer](viewport-renderers.md) draws the view with a Hydra delegate such as Cycles or Arnold.
+> A [C++ extension](cpp-extensions.md) can add any renderer. For path tracing, a [viewport renderer](viewport-renderers.md) draws the view with a Hydra delegate such as Cycles or Arnold.
 
 ## Get it working
 
-1. **Render > Render Output** to pick the camera, samples and where images and video go.
+1. **Render > Render Output** sets the camera, samples and output paths.
 2. **Render > Render Frame** for a still, **Render Sequence** for the frame range, **Render Turntable** for a loop around the selection.
 
 ```python
@@ -25,7 +25,7 @@ renderTurntable(video="turntable.mp4", frames=120, spin="object")
 
 ## Look
 
-**Render > Post Process** selects the scene's post process (making one if there's none). Its attributes set the tonemapper (Neutral, AgX, ACES), exposure and auto exposure, white balance, contrast, saturation, lift/gamma/gain, bloom, vignette, grain, chromatic aberration, lens distortion, sharpen, a `.cube` LUT, and height fog lit by the sun. The viewport shows it too; **Render > Post Effects** turns its grading and lens effects off in the viewport only.
+**Render > Post Process** selects the scene's post process (making one if there's none): tonemapper (Neutral, AgX, ACES), exposure, grading, lens effects, a `.cube` LUT and height fog lit by the sun. The viewport shows it too; **Render > Post Effects** turns its grading and lens effects off in the viewport only.
 
 A material's **Bevel** (cm) rounds its hard edges as it shades, traced against the real geometry, like a high-poly bevel without the polygons (GPUs with ray tracing). Bake a **roundedNormal** map to keep the look in a game engine.
 
@@ -53,7 +53,7 @@ On a camera, turn on **depth of field** and set **f-stop** and **focus distance*
 
 **The video won't play on Linux or macOS builds.** Video is Windows only; render an image sequence.
 
-**The view shimmers while it moves, then settles.** That's temporal antialiasing catching up. Preferences > Viewport > **Still frames averaged** sets how far it goes.
+**The view shimmers while it moves, then settles.** Temporal antialiasing is catching up. Preferences > Viewport > **Still frames averaged** sets how far it goes.
 
 ## Options
 

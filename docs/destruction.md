@@ -29,7 +29,7 @@ collapse("Destruction", part="Ground", start=125, duration=75, direction=[1, 0, 
 
 Ground that should stay put while the rest falls (a pit's rim) goes in as `colliders=[...]`: pieces hit it, it never moves or breaks.
 
-`collapse` makes a part give way from one side to the other: its pieces rumble as the failure nears, then fall, taking anything on them along. The floor is lowered by `depth` so there's somewhere to fall. A full example is in `resources/examples/Destruction`.
+`collapse` makes a part give way from one side to the other: its pieces rumble, then fall, taking anything on them along. The floor is lowered by `depth` so there's somewhere to fall. A full example is in `resources/examples/Destruction`.
 
 ## Troubleshooting
 
@@ -54,7 +54,7 @@ On the modifier (keyable):
 | Option | What it does |
 | --- | --- |
 | `pieces` | Roughly how many pieces. |
-| `seed` | Another seed gives another crack pattern. |
+| `seed` | Crack pattern. |
 | `impact` | Where it's hit, in the mesh's own space. Pieces are smaller there. |
 | `roughness` | How jagged the cracks are, cm. |
 | `strength` | How hard it is to break, in N per cm² of area two pieces share. |
@@ -63,7 +63,7 @@ On the modifier (keyable):
 
 ## Scripting it in geometry nodes
 
-Open the modifier's group in the Node Editor: **Fracture > Anchor Pieces > Rigid Body Solver > Realize Instances**. Edit it, or build your own from the Destruction category.
+The modifier's group in the Node Editor is **Fracture > Anchor Pieces > Rigid Body Solver > Realize Instances**. Edit it, or build your own from the Destruction category.
 
 - Pieces are instances. The solver reads these instance attributes when present: `density` (kg/m³), `friction`, `bounce`, `active` (0 follows its own transform until it turns 1), `guide` (0 to 1: pulled back toward its own animated transform, for directed collapses), `velocity` (cm/s), `angularVelocity`.
 - **Effects > Destruction > Show Destruction Links** draws the selected destruction's links, coloured by strength; broken ones disappear.
@@ -87,4 +87,4 @@ exportAlembic("Wall", path="Export/Wall.abc", rigidPieces=True)  # each piece a 
 - The breaks `.csv` imports into Unreal as a Data Table. Positions are already in Unreal's axes.
 - After `bakePiecesToJoints`, edit the fall with the animation tools, then send it as an FBX skeletal mesh with animation. Best below a few hundred pieces.
 
-> **Note:** For Unreal, Rigid pieces layout stores one position and rotation per piece per frame, so 2000 pieces over 120 frames is two 2048x120 textures. Pick it under **VAT layout** in Send Animated Mesh Options; Automatic picks it on its own for broken-apart meshes.
+> For Unreal, Rigid pieces layout stores one position and rotation per piece per frame, so 2000 pieces over 120 frames is two 2048x120 textures. Pick it under **VAT layout** in Send Animated Mesh Options; Automatic picks it on its own for broken-apart meshes.

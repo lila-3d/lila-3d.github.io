@@ -23,7 +23,7 @@ Lights keep their original units and any settings Lila has no field for, so they
 
 **The scene is far too bright or dark with lights from another app.** Lila keeps the file's intensity and its units: candela or lux from glTF, nits from USD, unitless from Maya and FBX (FBX stores 100 for 1). Physical units are scaled down by 100 to sit with the environment; set the light's units to unitless and the intensity to taste.
 
-**Lights don't light anything in Flat lighting.** Flat shows base colours only. Switch the viewport to Environment or Studio lighting.
+**Lights don't light anything in Flat lighting.** Flat shows base colours only. Switch to Environment or Studio lighting.
 
 **A light draws as a crosshair and lights nothing.** The Lights extension is off. Turn it on in **Windows > Extension Manager**.
 

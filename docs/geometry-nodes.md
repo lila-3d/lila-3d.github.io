@@ -6,7 +6,7 @@ Node graphs that build or change a mesh, live on its modifier stack. Every node 
 
 1. **Mesh > Node Editor**, then **New** on its toolbar.
 2. Add nodes between Group Input and Group Output (**Tab** or **Shift+A** over the canvas).
-3. Apply the group to a mesh. The result updates as you edit; the group's exposed inputs are keyable attributes on the modifier.
+3. Apply the group to a mesh. The group's exposed inputs are keyable attributes on the modifier.
 
 ```python
 gnCreateGroup("Scatter")
@@ -18,7 +18,7 @@ Distances are in centimetres, angles on sockets in radians unless the socket say
 
 ## Zones: Repeat, For Each, Simulation, Closure
 
-A zone's input and output nodes are added together; the nodes between them run inside the zone, drawn as a tinted region. Values other than geometry that pass through a zone are **items**: select either zone node and add them in the side panel. Nodes inside can read anything outside.
+A zone's input and output nodes are added together; the nodes between them (a tinted region) run inside the zone. Values other than geometry that pass through a zone are **items**: select either zone node and add them in the side panel. Nodes inside can read anything outside.
 
 - **Repeat** runs its nodes *Iterations* times, each pass starting from the last pass's geometry and items. *Iteration* counts from 0.
 - **For Each Element** runs its nodes once per mesh part, face, curve or instance, each seeing only its element, and joins the results. Runs are parallel, so don't rely on order.
@@ -34,7 +34,7 @@ The **Repeat** and **For Each Element** nodes in the Group category run a separa
 
 ## Bake
 
-Put a **Bake** node after anything slow (a big boolean, a simulation) and press **Bake** in its side panel. It saves what reaches it to `bakes/<group>_<node>` next to the scene and reads that instead of running the nodes before it. *Animation* mode saves every frame of the playback range. **Delete Bake** evaluates live again.
+Put a **Bake** node after anything slow (a big boolean, a simulation) and press **Bake** in its side panel. It saves what reaches it to `bakes/<group>_<node>` next to the scene and reads that instead. *Animation* mode saves every frame of the playback range. **Delete Bake** evaluates live again.
 
 ## Spreadsheet
 
@@ -86,7 +86,7 @@ Volume nodes make a voxel grid (signed distance or density) that SDF Boolean, Of
 
 ## Troubleshooting
 
-**"no group named ..." on a Group, Repeat or For Each node.** The group it runs was renamed or deleted. Pick it again in the side panel.
+**"no group named ..." on a Group, Repeat or For Each node.** Its group was renamed or deleted. Pick it again in the side panel.
 
 **"has no zone output to pair with".** One half of a zone was deleted outside the Node Editor. Delete the other half and add the zone again.
 

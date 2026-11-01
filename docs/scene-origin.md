@@ -6,7 +6,7 @@
 
 Select what should end up at 0,0,0 (the ground under a character, a building) and run it. The whole scene moves so the bottom centre of the selection lands on the world origin. Skin, deformers, constraints, IK, spaces and keys in every take move with it, so nothing changes shape or animation. One undo step.
 
-Lila first checks that every node can follow. After the move it compares every transform and every deformed point, at several frames and in every take, with where it was. If anything is off by more than 0.00001 mm, the scene is put back as it was and the message names the node.
+Lila first checks that every node can follow. After the move it compares every transform and deformed point, at several frames in every take, with where it was; if anything is off by more than 0.00001 mm, it puts the scene back and names the node.
 
 If it refuses:
 
@@ -26,8 +26,8 @@ Options:
 - **To**: where that point lands instead of the origin.
 - **Axes**: `xz` keeps every height.
 - **Rotation**: **Yaw** turns the scene about the up axis so the selected object faces along the world axes; **Full** lines up its whole orientation.
-- **Only the selected hierarchies**: move one character or asset instead of the whole scene.
-- **Offset**: move by an exact amount instead.
+- **Only the selected hierarchies**: move one character or asset, not the whole scene.
+- **Offset**: move by an exact amount.
 
 In Python, `relocateScene(dryRun=True)` reports what would move without changing anything, and `from="Hero"` takes the point from an object's pivot.
 

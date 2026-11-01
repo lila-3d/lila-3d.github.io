@@ -86,7 +86,7 @@ Press **Shift+T** and type part of a menu or section name. Press **Enter** and t
 
 ![The Light palette following the cursor](images/essentials/tear-off-placing.png)
 
-You can also click the dashed line at the top of any menu to tear it off where it is (a section title tears off only that section).
+Or click the dashed line at the top of any menu to tear it off where it is (a section title tears off only that section).
 
 > Drag items from any create-based menu, like paint from a palette.
 
@@ -173,7 +173,7 @@ For a measurement that stays in the scene, use **Display > Measure > Distance To
 | Hold **Y** + drag a gizmo handle | Clone while moving, rotating or scaling |
 | **Shift+D** | Make one more copy, stepped as far again as the last copy is from its source |
 
-Clone once with Y, then keep pressing Shift+D to repeat the step. See [Duplicate and instance](duplicate.md) for instances and arrays.
+See [Duplicate and instance](duplicate.md) for instances and arrays.
 
 ## Symmetry
 
@@ -193,7 +193,7 @@ Pick **Radial** in the viewport toolbar's symmetry menu, or **Mesh > Symmetry Ra
 
 ## Filter the outliner
 
-The box at the top of the outliner filters what it shows. It has a regex toggle and a clear button.
+The box at the top of the outliner filters what it shows.
 
 | Type | To |
 | --- | --- |
@@ -205,7 +205,7 @@ The box at the top of the outliner filters what it shows. It has a regex toggle 
 
 - Parents of matching items stay visible, dimmed.
 - Clearing the filter restores whatever you had expanded before.
-- Clicking the box selects its text. **Esc** clears it.
+- **Esc** clears it.
 - With the regex toggle on, a pattern that isn't valid shows everything rather than nothing.
 
 ## Search the scene
@@ -227,7 +227,7 @@ Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It
 
 **Modifiers > Auto Bevel**
 
-A live bevel that picks the edges for you: folds sharper than **Min Angle**, filtered by side (outside, inside or both), length and thickness. It keeps following the mesh as you edit it.
+A live bevel that picks the edges for you: folds sharper than **Min Angle**, filtered by side (outside, inside or both), length and thickness.
 
 - **Edit Edges** shows the input mesh with the picked edges selected; add or remove edges with normal selection, then **Apply**.
 - **Show Edges** keeps the picked edges highlighted when the modifier isn't selected.
@@ -263,6 +263,7 @@ Turns a triangle fan, such as a cylinder cap, into clean quads: a grid in the mi
 - An odd number of border edges leaves one triangle in the ring.
 
 ![Grid Fill from the marking menu, at the default grid size and at 0.86 with the corners rotated](images/essentials/grid-fill.png)
+
 ### Spherize
 
 **Model > Spherize** or **Shift+RMB Marking Menu**
@@ -279,7 +280,7 @@ Pushes the selected components, or whole meshes in object mode, onto a sphere fi
 
 **Model > Circularize** or **Shift+RMB Marking Menu**
 
-Fits the selected edge loops, vertices, or the border of a face region to a circle. The faces inside follow, so a patch of quads comes out round, ready to extrude or bridge into a pipe. An open chain becomes an arc between its ends.
+Fits the selected edge loops, vertices, or the border of a face region to a circle. The faces inside follow, so a patch of quads comes out round. An open chain becomes an arc between its ends.
 
 ![A rectangle of faces circularized](images/essentials/circularize.png)
 
@@ -326,8 +327,6 @@ Press **Ctrl+\`** to open the command palette. Type part of any menu item or com
 
 ## Script editor
 
-The script editor has completion, signature help, auto-format, inline docs and relative line numbers.
-
 ![Script editor with the API reference open at polyCube](images/essentials/script-editor.png)
 
 - **Ctrl+Enter** runs the selection, or the whole tab. **Ctrl+Shift+Enter** runs the `# %%` cell under the cursor.
@@ -365,7 +364,7 @@ Set naming rules in **Preferences > Naming**, and Lila either warns when a name 
 
 ## Notes and todo lists
 
-**Windows > Editors > Scene > Notes** keeps notes and todo lists in the scene file, so they travel with it. Edit the name in the dropdown to rename one.
+**Windows > Editors > Scene > Notes** keeps notes and todo lists in the scene file. Edit the name in the dropdown to rename one.
 
 - Paste a list from anywhere into a todo list with **Ctrl+V**: each line becomes an item, bullets are dropped, and `[x]` lines come in ticked.
 - **Ctrl+C** copies the selected items back out as lines.
@@ -395,4 +394,4 @@ The presenter draws in its own windows over Lila, so capture the display in OBS 
 
 ## AI agents
 
-Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command palette, an agent can too.
+Lila supports AI agents through MCP and skills. Agents drive the same commands you do.

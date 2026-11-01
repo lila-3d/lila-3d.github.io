@@ -19,7 +19,7 @@ trimSheetSend(wait=True)
 
 <!-- TODO image: a blockout building trimmed in one click, next to the sheet (images/trim-sheets/auto.png) -->
 
-Sheets are `.lilatrim` files in `<workspace>/TrimSheets`, textures beside them in `<name>_Textures`. Every mesh mapped onto a sheet uses the material `M_<name>`, so one change to the sheet shows everywhere.
+Sheets are `.lilatrim` files in `<workspace>/TrimSheets`, textures beside them in `<name>_Textures`. Every mesh mapped onto a sheet uses the material `M_<name>`.
 
 ### Lay out your own
 
@@ -36,9 +36,9 @@ trimSheetTexture(material="Rusty Iron", trims=["edge"])   # only the thin edge s
 trimSheetTexture(replace=True)                            # start over from the sheet's own material
 ```
 
-The smart materials whose names start with **Trim** are made for sheets: they vary tone strip by strip and keep wear to the bevels. Others work too, but treat the sheet as one surface. The texture set is `TS_<name>` in the Texture Set panel, with a **Sheet Bake** layer at the bottom carrying the baked normal and AO. Three texture nodes read the sheet: **Trim Mask** (white on trims first to last), **Trim Gradient** (where a texel sits inside its trim, plus a random value per trim) and **Trim Sheet Normal**.
+Smart materials whose names start with **Trim** vary tone strip by strip and keep wear to the bevels; others treat the sheet as one surface. The texture set is `TS_<name>` in the Texture Set panel, with a **Sheet Bake** layer at the bottom carrying the baked normal and AO. Three texture nodes read the sheet: **Trim Mask** (white on trims first to last), **Trim Gradient** (where a texel sits inside its trim, plus a random value per trim) and **Trim Sheet Normal**.
 
-**Paint** puts a flat `<name>_Sheet` plane in the scene and starts texture painting on it. Strokes land on the sheet itself, so every mesh using it shows them. The UV editor paints the sheet too.
+**Paint** puts a flat `<name>_Sheet` plane in the scene and starts texture painting on it. Every mesh using the sheet shows the strokes. The UV editor paints the sheet too.
 
 ### Edges, curves and decals
 
@@ -51,7 +51,7 @@ The smart materials whose names start with **Trim** are made for sheets: they va
 
 ### Live in geometry nodes
 
-The **Hotspot UV** node re-maps its input onto a sheet whenever the input changes, so procedural blockouts stay trimmed while you edit them. **Trim Sheet Generator** outputs a sheet's high and low.
+The **Hotspot UV** node re-maps its input onto a sheet whenever the input changes. **Trim Sheet Generator** outputs a sheet's high and low.
 
 ## Troubleshooting
 
@@ -85,7 +85,7 @@ Change any of them with `trimSheetEdit(values={...})` and rebake. In Unreal, `M_
 
 ![What you'll make: a sandstone wall with a rosette frieze and a dentil course, all from one trim sheet](images/trim-sheets/tutorial-hero.png)
 
-A sheet changes four ways, quickest first: the strips' layout and profiles, the smart material, painting, and your own modelled detail. This tutorial builds the sheet behind the wall above, then the wall.
+Build the sheet behind the wall above, then the wall.
 
 ## 1. Start a new sheet
 
@@ -113,13 +113,13 @@ Give every strip, the two thin edge strips at the bottom included, the same **Be
 
 ![Editing the Frieze strip in the Trim Sheet Editor](images/trim-sheets/tutorial-2-editor.png)
 
-3. Press **Bake**. The strips get their new profiles.
+3. Press **Bake**.
 
 ![The strips baked with their profiles](images/trim-sheets/tutorial-3-profiles.png)
 
 ## 3. Model the carved detail
 
-Profiles are cross sections only. Model anything that repeats along a strip: rosettes, studs, dentils, carving.
+Profiles are cross sections only; model anything that repeats along a strip.
 
 Choose **Level > Trim Sheets > Show Trim Sheet High/Low**. The sheet's high poly appears lying flat at the origin: its width along X, its strips running down Z from the top one at Z 0, 200 cm square. Hide `T_TrimLadder_Low` and model on top of the high with any tools.
 
@@ -143,7 +143,7 @@ Choose **Level > Trim Sheets > Show Trim Sheet High/Low**. The sheet's high poly
 
 ![Rosettes and dentils on the high poly](images/trim-sheets/tutorial-5-motifs.png)
 
-Three rules decide whether detail survives the bake:
+For detail to survive the bake:
 
 - **Repeat it a whole number of times across the sheet**: here 200 / 40 = 5 rosettes and 200 / 10 = 20 dentils. Strips tile along their length, so any other spacing shows a seam where the texture repeats.
 - **Sit it on the profile, not inside it.** The Step profile stands about 3.5 cm tall, which is why the dentils start at a height of 3.5. Detail buried in the profile bakes to nothing.
@@ -159,7 +159,7 @@ The sheet keeps the detail: every later **Bake** uses it, in this scene or any o
 
 ## 5. Texture it
 
-In the Trim Sheet Editor, pick **Trim Sandstone** in the material list next to **Texture**, then press **Texture**. Wear, grime and moss follow the bevels and the carving. Try others from the list: each press replaces the last.
+In the Trim Sheet Editor, pick **Trim Sandstone** in the material list next to **Texture**, then press **Texture**. Each press replaces the last material.
 
 ![Choosing the smart material in the Trim Sheet Editor](images/trim-sheets/tutorial-7-texture.png)
 
@@ -180,7 +180,7 @@ A wall built for a trim sheet is a stack of bands, each as tall as the strip it 
 
 ![With a band selected, click its strip in the palette](images/trim-sheets/tutorial-8-palette.png)
 
-Clicking a strip lines each face up with the strip's motifs: a short end shows one motif in its middle, a long face ends between motifs, so corners stay tidy. Hide the high poly and the motifs to see the finished wall.
+Clicking a strip lines each face up with its motifs, so corners stay tidy. Hide the high poly and the motifs to see the finished wall.
 
 For walls you trim with **Auto** instead, click the Frieze in the editor and tick **Reserved**: Auto never picks a reserved strip, so it goes only where you click it.
 
