@@ -33,6 +33,8 @@ Statistics of a field over the selected elements of a domain.
 
 Averages a field with its neighbours, repeated iterations times: points across edges, edges sharing a point, faces across edges, corners within their face, curve points along their curve. Weight scales how much the neighbours count.
 
+![Blur Attribute](../images/nodes/BlurAttribute.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `value` | float | input, field | `0` |  |
@@ -216,6 +218,8 @@ Type `CurveToMesh`.
 
 Sweeps the profile curve along each curve (scaled by the "radius" attribute). Without a profile, gives edges. The profile's X and Z run across the path, so Curve Circle makes a tube.
 
+![Curve to Mesh](../images/nodes/CurveToMesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `curve` | geometry | input |  |  |
@@ -228,6 +232,8 @@ Sweeps the profile curve along each curve (scaled by the "radius" attribute). Wi
 Type `CurveToPoints`.
 
 Points along curves: evenly spaced by count or by length, or at every evaluated point. Point and curve attributes carry over. Rotation turns X along the tangent and Y onto the normal, for instancing.
+
+![Curve to Points](../images/nodes/CurveToPoints.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -246,6 +252,8 @@ Points along curves: evenly spaced by count or by length, or at every evaluated 
 ### Deform Along Curve
 
 Bends the mesh along the first curve: its forward axis runs along the curve from the start, the cross-section rides the curve's frame (tilt and radius included). Stretch fits the mesh to the curve's length.
+
+![Deform Along Curve](../images/nodes/DeformAlongCurve.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -276,6 +284,8 @@ True for the first start and last end points of each curve.
 
 Fills each curve with a face (open curves are closed first).
 
+![Fill Curve](../images/nodes/FillCurve.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `curve` | geometry | input |  |  |
@@ -288,6 +298,8 @@ Fills each curve with a face (open curves are closed first).
 ### Fillet Curve
 
 Rounds (arc), cuts (chamfer) or blends (g2) curve corners by radius; a point's cornerRadius attribute wins where set.
+
+![Fillet Curve](../images/nodes/FilletCurve.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -317,6 +329,8 @@ Type `MeshToCurve`.
 
 Chains the selected edges into poly curves.
 
+![Mesh to Curve](../images/nodes/MeshToCurve.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -326,6 +340,8 @@ Chains the selected edges into poly curves.
 ### Offset Curve
 
 Offsets each curve within its plane by a distance: outward for closed curves, to the left for open ones. Loops the offset makes are trimmed, so a curve can give several.
+
+![Offset Curve](../images/nodes/OffsetCurve.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -354,6 +370,8 @@ A point of a curve, picked by its place when the curve's points are sorted by we
 ### Resample Curve
 
 Rebuilds curves with evenly spaced points, by count or by segment length.
+
+![Resample Curve](../images/nodes/ResampleCurve.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -449,6 +467,8 @@ Type `StringToCurves`.
 
 Text as closed Bezier outlines in the XY plane, the first baseline on y = 0. Fill Curve makes faces of it. Character is each curve's character index.
 
+![String to Curves](../images/nodes/StringToCurves.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `string` | string | input | `Text` |  |
@@ -470,6 +490,8 @@ Text as closed Bezier outlines in the XY plane, the first baseline on y = 0. Fil
 
 Adds points to every segment without changing the shape. Cuts is read per point, for the segment that starts there.
 
+![Subdivide Curve](../images/nodes/SubdivideCurve.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `curve` | geometry | input |  |  |
@@ -479,6 +501,8 @@ Adds points to every segment without changing the shape. Cuts is read per point,
 ### Trim Curve
 
 Keeps the part of each curve between start and end, as factors of its length or as lengths from its start. Closed curves open; Bezier and NURBS curves come out as poly.
+
+![Trim Curve](../images/nodes/TrimCurve.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -500,6 +524,8 @@ Type `CurveArc`.
 
 An arc: by radius and angles in the ground plane, or through three points. Resolution is the point count. Connect Center closes it through the centre, Invert Arc takes the other way round.
 
+![Arc](../images/nodes/CurveArc.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `resolution` | int | input | `16` | Range 2 to 100000. |
@@ -518,6 +544,8 @@ An arc: by radius and angles in the ground plane, or through three points. Resol
 
 A cubic Bezier between two points, evaluated to a poly curve.
 
+![Bezier Segment](../images/nodes/BezierSegment.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `resolution` | int | input | `16` | Range 1 to 100000. |
@@ -531,6 +559,8 @@ A cubic Bezier between two points, evaluated to a poly curve.
 
 A closed circle in the ground plane. As a Curve to Mesh profile its X and Z map across the path.
 
+![Curve Circle](../images/nodes/CurveCircle.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `resolution` | int | input | `32` | Range 3 to 100000. |
@@ -540,6 +570,8 @@ A closed circle in the ground plane. As a Curve to Mesh profile its X and Z map 
 ### Curve Line
 
 A straight two-point curve.
+
+![Curve Line](../images/nodes/CurveLine.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -552,6 +584,8 @@ A straight two-point curve.
 Type `CurveQuadrilateral`.
 
 A closed four-point curve in the ground plane: rectangle, parallelogram, trapezoid, kite, or four given points.
+
+![Quadrilateral](../images/nodes/CurveQuadrilateral.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -569,6 +603,8 @@ Type `CurveSpiral`.
 
 A spiral rising up the Y axis.
 
+![Spiral](../images/nodes/CurveSpiral.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `resolution` | int | input | `32` | Points per turn. Range 1 to 10000. |
@@ -585,6 +621,8 @@ Type `CurveStar`.
 
 A closed star in the ground plane, alternating outer and inner points. Outer Points selects the tips.
 
+![Star](../images/nodes/CurveStar.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `points` | int | input | `8` | Range 3 to 100000. |
@@ -599,6 +637,8 @@ A closed star in the ground plane, alternating outer and inner points. Outer Poi
 ### Bend
 
 Bends geometry round an arc across a range of the axis; past the range it carries on straight.
+
+![Bend](../images/nodes/Bend.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -618,6 +658,8 @@ Bends geometry round an arc across a range of the axis; past the range it carrie
 ### Taper
 
 Scales geometry across the axis, blending from the start scale to the end scale.
+
+![Taper](../images/nodes/Taper.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -639,6 +681,8 @@ Scales geometry across the axis, blending from the start scale to the end scale.
 ### Twist
 
 Twists geometry about the axis, the angle blending from low to high.
+
+![Twist](../images/nodes/Twist.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -728,6 +772,8 @@ One explosion for the Rigid Body Solver's blasts: on its frame, pieces within Ra
 
 Breaks a closed mesh into pieces the way a material cracks, and links the pieces that touch so the Rigid Body Solver holds them together until they break. Concrete gives chunky rough pieces, glass shards radiating from the impact, wood long splinters along the grain. The same inputs always give the same pieces.
 
+![Fracture](../images/nodes/Fracture.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  | A closed mesh. |
@@ -788,6 +834,8 @@ Turns a mesh into pieces the Rigid Body Solver can move: one per separate part, 
 
 Simple collision for Unreal, per island or for the whole mesh: a convex hull, an approximate convex decomposition, or a fitted box, sphere or capsule. Gives the pieces as one mesh with face attributes "collision" (piece) and "collisionShape" (0 UCX_ hull, 1 UBX_ box, 2 USP_ sphere, 3 UCP_ capsule), the prefix each piece exports with.
 
+![Collision](../images/nodes/Collision.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -806,7 +854,9 @@ Simple collision for Unreal, per island or for the whole mesh: a convex hull, an
 
 ### Imposter
 
-Bakes what reaches it into an octahedral imposter for Unreal: Bake in the side panel views it from Frames x Frames directions and writes a base colour atlas (alpha is coverage), a normal atlas (alpha is depth), a card mesh FBX and a JSON of the material inputs into imposters/ next to the scene. Base colour comes from the mesh's current colour set, else light grey. Geometry passes through; Card is the square the imposter draws on.
+Bakes what reaches it into an octahedral imposter for Unreal: Bake in the side panel views it from Frames x Frames directions and writes a base colour atlas (alpha is coverage), a normal atlas (alpha is depth), a card mesh FBX and a JSON of the material inputs into imposters/ next to the scene; Send to Unreal bakes and imports it through LilaLink with a material that turns the card to the nearest view. Base colour comes from the mesh's current colour set, else light grey. Geometry passes through; Card is the square the imposter draws on.
+
+![Imposter](../images/nodes/Imposter.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -838,6 +888,8 @@ Unreal's lightmap channel: the source set's islands made non-overlapping and pac
 Type `LodChain`.
 
 Levels of detail: LOD0 is the mesh, each further level keeps ratio^level of its triangles. Gives one instance per level (identity transforms, or spaced along X for a preview) with "lod" and "screenSize" instance attributes, and the mesh of one level.
+
+![LOD Chain](../images/nodes/LodChain.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -872,6 +924,8 @@ True on faces using the named material.
 ### Occluder Mesh
 
 A closed low-poly proxy that sits inside the mesh, for occlusion culling or a far fallback: voxel remeshed, pulled in by the inset, then reduced to the triangle budget.
+
+![Occluder Mesh](../images/nodes/OccluderMesh.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -942,6 +996,8 @@ Sets the selected faces' material slot by number.
 Type `SnapToGrid`.
 
 Rounds selected points, curve points and instance positions to a grid, for modular kits. A rotation step also rounds instance rotations, in degrees. Zero on an axis leaves it free.
+
+![Snap to Grid](../images/nodes/SnapToGrid.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1024,6 +1080,8 @@ Encodes the animation of what reaches it (a simulation, anything that changes ov
 
 Faces a character can stand on: no steeper than the slope, with clearance above (a ray up from the face centre), plus step faces no taller than the step height beside them. Selects them, or keeps only them.
 
+![Walkable Surface](../images/nodes/WalkableSurface.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1057,6 +1115,8 @@ Saves what reaches it to disk, then gives that back instead of evaluating the no
 
 A box mesh around everything, instances included.
 
+![Bounding Box](../images/nodes/BoundingBox.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `geometry` | geometry | input |  |  |
@@ -1067,6 +1127,8 @@ A box mesh around everything, instances included.
 ### Bounding Shape
 
 A fitted shape containing every point: axis box, minimum oriented box, sphere, cylinder, capsule or convex hull.
+
+![Bounding Shape](../images/nodes/BoundingShape.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1084,6 +1146,8 @@ A fitted shape containing every point: axis box, minimum oriented box, sphere, c
 
 The smallest convex mesh round every point of the geometry.
 
+![Convex Hull](../images/nodes/ConvexHull.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `geometry` | geometry | input |  |  |
@@ -1093,6 +1157,8 @@ The smallest convex mesh round every point of the geometry.
 ### Delete Geometry
 
 Removes the selected elements. Deleting points or edges also removes the faces using them.
+
+![Delete Geometry](../images/nodes/DeleteGeometry.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1138,6 +1204,8 @@ Closest point on the target's faces, edges or points.
 ### Join Geometry
 
 Merges every connected geometry into one, component by component.
+
+![Join Geometry](../images/nodes/JoinGeometry.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1214,6 +1282,8 @@ Index of the element of another geometry closest to each position. Pair with Sam
 
 Splits geometry into the selected part and the rest.
 
+![Separate Geometry](../images/nodes/SeparateGeometry.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `geometry` | geometry | input |  |  |
@@ -1228,6 +1298,8 @@ Splits geometry into the selected part and the rest.
 ### Set Position
 
 Moves points (and instances) to a position plus an offset.
+
+![Set Position](../images/nodes/SetPosition.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1251,6 +1323,8 @@ Sets the "radius" attribute of points and curve points (curve radius scales the 
 ### Transform Geometry
 
 Moves, rotates and scales all of the geometry.
+
+![Transform Geometry](../images/nodes/TransformGeometry.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1498,6 +1572,8 @@ Type `InstanceOnCurve`.
 
 Places copies of the instance geometry along the first curve, by count or by spacing (0 spacing is the instance's own length along the forward axis), each turned onto the curve's frame.
 
+![Instance on Curve](../images/nodes/InstanceOnCurve.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `curve` | geometry | input |  |  |
@@ -1521,6 +1597,8 @@ Places copies of the instance geometry along the first curve, by count or by spa
 Type `InstanceOnPoints`.
 
 Places a copy of the instance geometry on every selected point. Point attributes carry over to the instances.
+
+![Instance on Points](../images/nodes/InstanceOnPoints.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1563,6 +1641,8 @@ Type `InstancesToPoints`.
 
 A point for each selected instance, at its position by default, carrying the instance attributes.
 
+![Instances to Points](../images/nodes/InstancesToPoints.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `instances` | geometry | input |  |  |
@@ -1584,6 +1664,8 @@ Turns instances into real geometry.
 
 Turns instances about a pivot. Local turns about each instance's own axes with the pivot in its own space; otherwise about the world axes with the pivot in world space.
 
+![Rotate Instances](../images/nodes/RotateInstances.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `instances` | geometry | input |  |  |
@@ -1597,6 +1679,8 @@ Turns instances about a pivot. Local turns about each instance's own axes with t
 
 Scales instances about a centre. Local scales along each instance's own axes with the centre in its own space.
 
+![Scale Instances](../images/nodes/ScaleInstances.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `instances` | geometry | input |  |  |
@@ -1609,6 +1693,8 @@ Scales instances about a centre. Local scales along each instance's own axes wit
 ### Set Instance Transform
 
 Sets instances' translation, rotation and scale. Rotation and scale change only when linked.
+
+![Set Instance Transform](../images/nodes/SetInstanceTransform.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1626,6 +1712,8 @@ Sets instances' translation, rotation and scale. Rotation and scale change only 
 ### Translate Instances
 
 Moves instances. Local moves along each instance's own axes (its rotation and scale apply).
+
+![Translate Instances](../images/nodes/TranslateInstances.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1680,6 +1768,8 @@ Names the value wired into it, so Receive nodes anywhere in the group can read i
 
 Bevels the selected manifold edges.
 
+![Bevel](../images/nodes/Bevel.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1708,6 +1798,8 @@ Joins pairs of open border loops among the selected edges with quads.
 
 Melts spheres at points and tubes along curves into one surface with smooth joins: blobby creatures, vines, roots, horns. Either input can cut instead, carving into the other.
 
+![Clay](../images/nodes/Clay.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `points` | geometry | input |  |  |
@@ -1724,6 +1816,8 @@ Melts spheres at points and tubes along curves into one surface with smooth join
 ### Decimate
 
 Quadric edge-collapse reduction that keeps uvs, borders and hard edges.
+
+![Decimate](../images/nodes/Decimate.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1743,6 +1837,8 @@ Quadric edge-collapse reduction that keeps uvs, borders and hard edges.
 
 Swaps faces and points: a point at each face centre, a face round each interior point. Open borders are dropped.
 
+![Dual Mesh](../images/nodes/DualMesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1751,6 +1847,8 @@ Swaps faces and points: a point at each face centre, a face round each interior 
 ### Extrude Mesh
 
 Extrudes faces by an offset (a field, the face normal by default) times the scale.
+
+![Extrude Mesh](../images/nodes/ExtrudeMesh.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1797,6 +1895,8 @@ Fills holes, or replaces disc patches of faces such as a pole's fan, with a quad
 
 Insets the selected faces, leaving a ring of faces round each region.
 
+![Inset Faces](../images/nodes/InsetFaces.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1812,6 +1912,8 @@ Insets the selected faces, leaving a ring of faces round each region.
 ### Mesh Boolean
 
 Union, difference or intersection of closed meshes (Manifold), with the seam cleaned up. Difference subtracts every mesh B from mesh A.
+
+![Mesh Boolean](../images/nodes/MeshBoolean.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1831,6 +1933,8 @@ Union, difference or intersection of closed meshes (Manifold), with the seam cle
 
 Adds a mirrored copy across an axis plane, welded on the plane.
 
+![Mirror Mesh](../images/nodes/MirrorMesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1849,6 +1953,8 @@ Adds a mirrored copy across an axis plane, welded on the plane.
 
 Field-aligned quad remesh following curvature and sharp edges.
 
+![Quad Remesh](../images/nodes/QuadRemesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1866,6 +1972,8 @@ Field-aligned quad remesh following curvature and sharp edges.
 ### Scale Elements
 
 Scales each connected group of selected faces or edges about its centre.
+
+![Scale Elements](../images/nodes/ScaleElements.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1900,6 +2008,8 @@ Custom normals (free: any direction per point, face or corner), or smoothing fro
 
 Smooth or flat shading through hard edges: flat faces harden their edges.
 
+![Set Shade Smooth](../images/nodes/SetShadeSmooth.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1914,6 +2024,8 @@ Smooth or flat shading through hard edges: flat faces harden their edges.
 ### Shrinkwrap
 
 Moves the selected points onto the target's surface.
+
+![Shrinkwrap](../images/nodes/Shrinkwrap.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1933,6 +2045,8 @@ Moves the selected points onto the target's surface.
 
 Smooths the selected points.
 
+![Smooth Mesh](../images/nodes/SmoothMesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1949,6 +2063,8 @@ Smooths the selected points.
 ### Solidify
 
 Gives the surface thickness: an inner shell along the point normals, joined at open borders.
+
+![Solidify](../images/nodes/Solidify.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1972,6 +2088,8 @@ Disconnects the faces on either side of the selected edges.
 
 Splits every face into quads without smoothing. Uvs and colours are interpolated.
 
+![Subdivide Mesh](../images/nodes/SubdivideMesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1982,6 +2100,8 @@ Splits every face into quads without smoothing. Uvs and colours are interpolated
 
 Catmull-Clark subdivision. Edge "crease" attributes keep edges sharp.
 
+![Subdivision Surface](../images/nodes/SubdivisionSurface.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -1991,6 +2111,8 @@ Catmull-Clark subdivision. Edge "crease" attributes keep edges sharp.
 ### Triangulate
 
 Splits the selected faces into triangles.
+
+![Triangulate](../images/nodes/Triangulate.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2006,6 +2128,8 @@ Splits the selected faces into triangles.
 
 Rebuilds the mesh as one closed quad surface, closing holes and merging overlaps.
 
+![Voxel Remesh](../images/nodes/VoxelRemesh.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -2019,6 +2143,8 @@ Rebuilds the mesh as one closed quad surface, closing holes and merging overlaps
 
 How open each element is to its surroundings: 1 when nothing of the mesh lies within the distance above it, 0 when it is fully enclosed. Rays are spread over the hemisphere around the normal.
 
+![Ambient Occlusion](../images/nodes/AmbientOcclusion.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `samples` | int | input | `16` | Range 1 to 1024. |
@@ -2030,6 +2156,8 @@ How open each element is to its surroundings: 1 when nothing of the mesh lies wi
 
 How far each point sits below (cavity) or above (convexity) the average of the surface around it, 0 to 1. Larger radii pick up broader shapes. Good for dirt and edge-wear masks.
 
+![Cavity](../images/nodes/Cavity.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `radius` | float | input | `10` | Distance around each point that counts as its surroundings. At least 0. |
@@ -2040,6 +2168,8 @@ How far each point sits below (cavity) or above (convexity) the average of the s
 ### Curvature
 
 Surface curvature per point, in 1 / scene units: mean (positive on convex bumps, negative in hollows), Gaussian (positive on domes, negative on saddles) and the principal curvatures.
+
+![Curvature](../images/nodes/Curvature.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2076,6 +2206,8 @@ Grows a point selection along edges, a ring per step, without crossing to a poin
 
 Distance over the surface from each point to the nearest source point, and which source that is. Points no source reaches read 0 and -1.
 
+![Geodesic Distance](../images/nodes/GeodesicDistance.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `source` | bool | input, field | `false` | Points the distance is measured from. |
@@ -2085,6 +2217,8 @@ Distance over the surface from each point to the nearest source point, and which
 ### Thickness
 
 Distance through the mesh from each element straight back against its normal to the far side. Open areas with nothing behind them read the max distance.
+
+![Thickness](../images/nodes/Thickness.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2098,6 +2232,8 @@ Distance through the mesh from each element straight back against its normal to 
 Type `MeshCone`.
 
 Upright cone centred on the origin.
+
+![Cone](../images/nodes/MeshCone.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2116,6 +2252,8 @@ Type `MeshCube`.
 
 A box centred on the origin, with uvs.
 
+![Cube](../images/nodes/MeshCube.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `size` | vector | input | `[100, 100, 100]` |  |
@@ -2129,6 +2267,8 @@ A box centred on the origin, with uvs.
 Type `MeshCylinder`.
 
 Upright cylinder centred on the origin.
+
+![Cylinder](../images/nodes/MeshCylinder.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2151,6 +2291,8 @@ Type `MeshGrid`.
 
 A flat grid in the ground plane, facing up. sizeY runs along depth.
 
+![Grid](../images/nodes/MeshGrid.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `sizeX` | float | input | `100` | At least 0. |
@@ -2165,6 +2307,8 @@ Type `MeshIcoSphere`.
 
 Evenly triangulated sphere.
 
+![Ico Sphere](../images/nodes/MeshIcoSphere.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `radius` | float | input | `50` | At least 0. |
@@ -2175,6 +2319,8 @@ Evenly triangulated sphere.
 ### Mesh Circle
 
 A ring of points in the ground plane, as edges or filled.
+
+![Mesh Circle](../images/nodes/MeshCircle.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2189,6 +2335,8 @@ A ring of points in the ground plane, as edges or filled.
 ### Mesh Line
 
 Points joined by edges in a straight line.
+
+![Mesh Line](../images/nodes/MeshLine.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2207,6 +2355,8 @@ Type `MeshQuadSphere`.
 
 All-quad sphere, no poles.
 
+![Quad Sphere](../images/nodes/MeshQuadSphere.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `radius` | float | input | `50` | At least 0. |
@@ -2219,6 +2369,8 @@ All-quad sphere, no poles.
 Type `MeshTorus`.
 
 Ring in the ground plane.
+
+![Torus](../images/nodes/MeshTorus.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2235,6 +2387,8 @@ Ring in the ground plane.
 Type `MeshUVSphere`.
 
 Latitude-longitude sphere.
+
+![UV Sphere](../images/nodes/MeshUVSphere.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2503,6 +2657,8 @@ Type `DistributePointsOnFaces`.
 
 Scatters points over the surface. Density is points per square metre (10000 cm2). Each point gets a stable "id", so Random Value stays put as the surface changes.
 
+![Distribute Points on Faces](../images/nodes/DistributePointsOnFaces.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -2523,6 +2679,8 @@ Type `MeshToPoints`.
 
 A point cloud from mesh vertices, edge or face centres, or corners. Vertices keep their point attributes.
 
+![Mesh to Points](../images/nodes/MeshToPoints.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -2538,6 +2696,8 @@ A point cloud from mesh vertices, edge or face centres, or corners. Vertices kee
 ### Points
 
 A point cloud of count points, placed by the position field (Index tells them apart).
+
+![Points](../images/nodes/Points.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2566,6 +2726,8 @@ Type `LSystem`.
 
 Rewrites the axiom by the rules, then draws it with a turtle starting up +Y: F and G draw a step, f moves, + - turn, & ^ pitch, \ / roll, | turns around, [ ] branch, ! thins. Each branch is a curve with a "radius" that shrinks by taper.
 
+![L-System](../images/nodes/LSystem.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `axiom` | string | input | `F` |  |
@@ -2583,6 +2745,8 @@ Rewrites the axiom by the rules, then draws it with a turtle starting up +Y: F a
 ### Poisson Disk Points
 
 Points spaced by their radius (two points keep the mean of their radii apart), on the mesh's faces or in a box (flat when its Y size is 0). With classes, larger radii place first and each point gets a "class". Points stay clear of avoid by its radius attribute or avoidRadius, or their own radius when larger. On a surface, the radius and density fields are read at the mesh's points and blended across faces.
+
+![Poisson Disk Points](../images/nodes/PoissonDiskPoints.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2605,6 +2769,8 @@ Points spaced by their radius (two points keep the mean of their radii apart), o
 
 Grows branches from the roots toward the attractor points, a step at a time, using up attractors as branches reach them. For trees, roots, vines and veins. Branch radius follows the pipe model from tipRadius at the tips.
 
+![Space Colonization](../images/nodes/SpaceColonization.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `attractors` | geometry | input |  | Points the branches grow toward. |
@@ -2621,6 +2787,8 @@ Grows branches from the roots toward the attractor points, a step at a time, usi
 
 Lays a strip of the given width along each curve, level across and following the curve's height, for roads, paths and rails. Where curves cross, or an end meets another curve, the strips stop at a junction patch; ends meeting end to end join into one strip. Faces carry a "junction" flag; junctions gives a point per meeting of three or more with its "degree".
 
+![Spline Network](../images/nodes/SplineNetwork.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `curves` | geometry | input |  |  |
@@ -2636,6 +2804,8 @@ Lays a strip of the given width along each curve, level across and following the
 Type `SplitBox`.
 
 Runs split rules on the mesh's faces (each as its bounding rectangle) or on the box around it. One rule per line or ';': extrude(h) R, split(x|y|z) { 120 : R | ~1 : R }, repeat(x|y|z, size) R, comp(f) { side : R | top : R | bottom : R | front/back/left/right/all : R }, or another rule's name. On faces y runs up the wall; NIL drops a piece. Names with no rule are terminals: the mesh has their pieces with a face "rule" index, and points at their centres carry "rule", "size" and "rotation" for instancing.
+
+![Split Grammar](../images/nodes/SplitBox.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2821,6 +2991,8 @@ A number as text with a fixed number of decimals.
 
 Blender's Brick Texture: rows of bricks tinted between color1 and color2, separated by mortar; fac is the mortar mask. Brick sizes are in scaled units, so the default scale of 0.05 gives 10 cm by 5 cm bricks.
 
+![Brick Texture](../images/nodes/BrickTexture.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `vector` | vector | input, field | Position | Where to sample; defaults to the position. |
@@ -2847,6 +3019,8 @@ Blender's Brick Texture: rows of bricks tinted between color1 and color2, separa
 
 Blender's Checker Texture: alternating 3D cells of two colours; fac is 1 on color1. Positions are in cm, so the default scale of 0.05 gives 20 cm squares.
 
+![Checker Texture](../images/nodes/CheckerTexture.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `vector` | vector | input, field | Position | Where to sample; defaults to the position. |
@@ -2859,6 +3033,8 @@ Blender's Checker Texture: alternating 3D cells of two colours; fac is 1 on colo
 ### Gabor Texture
 
 Gabor noise in the manner of Blender's Gabor Texture: directional, band-limited waves scattered over cells. Anisotropy 1 aligns every wave with the orientation; 0 points them anywhere. Positions are in cm; the default scale is 0.05.
+
+![Gabor Texture](../images/nodes/GaborTexture.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2878,6 +3054,8 @@ Gabor noise in the manner of Blender's Gabor Texture: directional, band-limited 
 ### Gradient Texture
 
 Blender's Gradient Texture: a ramp from the vector's X (linear, quadratic, easing), X and Y (diagonal, radial) or its length (spherical, quadratic sphere), clamped to 0..1. Positions are in cm, so scale the vector to spread the ramp.
+
+![Gradient Texture](../images/nodes/GradientTexture.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2910,6 +3088,8 @@ Reads an image file (png, exr, tif, psd, tga) at the vector's X and Y, 0 to 1 ac
 
 Blender's Magic Texture: psychedelic interference of nested sines, deeper with depth. fac is the colour's average. Positions are in cm; the default scale is 0.05.
 
+![Magic Texture](../images/nodes/MagicTexture.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `vector` | vector | input, field | Position | Where to sample; defaults to the position. |
@@ -2925,6 +3105,8 @@ Blender's Magic Texture: psychedelic interference of nested sines, deeper with d
 ### Noise Texture
 
 Gradient noise with fBm octaves in 1D to 4D (W is the extra coordinate). Positions are in cm, so the default scale of 0.05 gives about five bumps a metre.
+
+![Noise Texture](../images/nodes/NoiseTexture.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2944,6 +3126,8 @@ Gradient noise with fBm octaves in 1D to 4D (W is the extra coordinate). Positio
 ### Voronoi Texture
 
 Worley cell noise, matching Blender's Voronoi Texture: distance to the nearest (F1), second nearest (F2) or blended (smooth F1) cell point, distance to the cell edge, or n-sphere radius, in 1D to 4D.
+
+![Voronoi Texture](../images/nodes/VoronoiTexture.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2968,6 +3152,8 @@ Worley cell noise, matching Blender's Voronoi Texture: distance to the nearest (
 
 Blender's Wave Texture: bands or rings with a sine, saw or triangle profile, optionally distorted by noise. Positions are in cm, so the default scale of 0.05 gives one wave about every 6 cm.
 
+![Wave Texture](../images/nodes/WaveTexture.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `vector` | vector | input, field | Position | Where to sample; defaults to the position. |
@@ -2990,6 +3176,8 @@ Blender's Wave Texture: bands or rings with a sine, saw or triangle profile, opt
 ### White Noise Texture
 
 Blender's White Noise Texture: a random value and colour hashed from the coordinates, the same for equal inputs. Feed it snapped or per-element values (an index, a cell position) for stable per-element randomness.
+
+![White Noise Texture](../images/nodes/WhiteNoiseTexture.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3386,6 +3574,8 @@ Transforms a point by a projection matrix and divides by w, as a camera projects
 
 Random numbers that stay the same for an element as long as its ID and the seed do.
 
+![Random Value](../images/nodes/RandomValue.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `min` | float | input, field | `0` |  |
@@ -3580,6 +3770,8 @@ Type `DistributePointsInVolume`.
 
 Points inside a volume. Random scatters density points per 100-unit cube, scaled by a density volume's value; a signed distance counts as 1 inside. Grid places a point every spacing where the density is above threshold, or the distance below 0.
 
+![Distribute Points in Volume](../images/nodes/DistributePointsInVolume.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `volume` | geometry | input |  |  |
@@ -3599,6 +3791,8 @@ Type `MeshToSDF`.
 
 Signed distance to a closed mesh: negative inside, positive outside, kept accurate within the band. Open meshes give streaks where rows pass through their holes.
 
+![Mesh to SDF](../images/nodes/MeshToSDF.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
@@ -3609,6 +3803,8 @@ Signed distance to a closed mesh: negative inside, positive outside, kept accura
 ### Offset SDF
 
 Moves a signed distance surface outward by distance (inward when negative). Accurate while the distance stays within the band.
+
+![Offset SDF](../images/nodes/OffsetSDF.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3621,6 +3817,8 @@ Moves a signed distance surface outward by distance (inward when negative). Accu
 Type `PointsToSDF`.
 
 Signed distance to a sphere around each point (the points component, or the mesh's vertices when there are none).
+
+![Points to SDF](../images/nodes/PointsToSDF.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3648,6 +3846,8 @@ The volume's value at each position; outside the grid it reads the background.
 
 Combines signed distance volumes. Union grows the grid to cover every input at a's voxel size; intersect and difference keep a's grid. Smooth rounds the seam over that distance.
 
+![SDF Boolean](../images/nodes/SDFBoolean.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `a` | geometry | input |  |  |
@@ -3665,6 +3865,8 @@ Type `SDFSmooth`.
 
 Blurs a volume's values, rounding a signed distance surface or softening a density. Width is the filter's reach in voxels.
 
+![Smooth Volume](../images/nodes/SDFSmooth.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `volume` | geometry | input |  |  |
@@ -3679,6 +3881,8 @@ Blurs a volume's values, rounding a signed distance surface or softening a densi
 ### Volume Cube
 
 A density grid filling a box, with voxel centres at both corners. The density field reads Position as the voxel's centre and Index as its voxel.
+
+![Volume Cube](../images/nodes/VolumeCube.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3710,6 +3914,8 @@ A volume's grid: world bounds of its voxel centres, voxel size, voxel counts per
 Type `VolumeToMesh`.
 
 The volume's surface as quads, joined with any mesh the geometry already has. Density above threshold is solid; for a signed distance, distance below it, so 0 is the surface itself.
+
+![Volume to Mesh](../images/nodes/VolumeToMesh.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3846,6 +4052,8 @@ Available when the Masonry extension is loaded.
 
 Lays stones in courses along footprint lines (curves, or a mesh's loose edges) and builds the mortar core they sit in. Corners turn by alternating which wall runs through on each course; cut stones land mid wall. Stones are instances sharing a few meshes, with attributes stone, wall, course, role (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler), face (0 outer, 1 inner, 2 through), random, variant and size. Lengths are cm.
 
+![Masonry Wall](../images/nodes/MasonryWall.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `footprint` | geometry | input |  | Lines the wall stands on: curves, or a mesh's loose edges. Y is up. |
@@ -3904,6 +4112,8 @@ Available when the Settlement extension is loaded.
 #### Settlement
 
 Lays out a settlement inside an outline: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile's pattern, blocks between them, lots along the streets and a building envelope on each lot (the space a building may fill: footprint, floors, height, roof). Streets are ribbons with face attributes street and class (0 arterial, 1 collector, 2 local, 3 alley); lots are outlines with an edge attribute lot; envelopes are closed volumes with face attributes lot, use (0 residential, 1 commercial, 2 civic), floors and part (0 wall, 1 roof, 2 floor). Curves carry the centrelines, lot outlines and footprints. Lengths are cm, Y up.
+
+![Settlement](../images/nodes/Settlement.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3967,6 +4177,8 @@ Pushes a mesh's surface in where it was hit hard: a dinged corner, a dented tin.
 
 Items tumbled in layers above a footprint, nothing touching, ready for Settle Instances to drop them into a heap. Instances carry item (which one), pose (0 upright, 1 leaning, 2 lying) and random (0 to 1).
 
+![Pile Items](../images/nodes/PileItems.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `center` | vector | input | `[0, 0, 0]` | Centre of the footprint, at its floor. |
@@ -3982,6 +4194,8 @@ Items tumbled in layers above a footprint, nothing touching, ready for Settle In
 #### Row Along Line
 
 Packs items along lines side by side, as books on a shelf: their X along the line, their bottoms on it, some leaning, a few lying in small stacks. Instances carry item (which one), pose (0 upright, 1 leaning, 2 lying) and random (0 to 1).
+
+![Row Along Line](../images/nodes/RowAlongLine.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4021,6 +4235,8 @@ Bends a board (a shelf, a plank) down under what rests on it, as a beam held at 
 
 Scatters items over a surface, no two closer than their footprints, on slopes gentle enough, thinned by a mask. Instances carry item (which one), pose (0 upright, 1 leaning, 2 lying) and random (0 to 1).
 
+![Scatter Props](../images/nodes/ScatterProps.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `surface` | geometry | input |  | The mesh to scatter over. |
@@ -4042,6 +4258,8 @@ Scatters items over a surface, no two closer than their footprints, on slopes ge
 
 Lets instances fall and come to rest against the colliders with physics, deterministically: the same inputs settle the same way. Adds atRest, impact (hardest hit, kg cm/s) and mass to the instances. Contacts come out as points with a and b (instance indices; -1 ground, -2 a collider), impulse, slide (cm), resting, contactNormal and load (kg pressing there), for wear and sag.
 
+![Settle Instances](../images/nodes/SettleInstances.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `instances` | geometry | input |  | What falls. |
@@ -4058,6 +4276,8 @@ Lets instances fall and come to rest against the colliders with physics, determi
 #### Stack Items
 
 Stacks items one on another from a point: plates, crates, books lying flat. Instances carry item (which one), pose (0 upright, 1 leaning, 2 lying) and random (0 to 1).
+
+![Stack Items](../images/nodes/StackItems.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4113,6 +4333,8 @@ Combines B into A on A's grid: B is read bilinearly at each of A's samples and c
 
 Rivers cut valleys: stream-power erosion on the drainage network, with optional uplift building the land as it wears, and slopes over the talus angle shedding downhill. Every valley drains to the edge, which stays put. Writes masks flow (drainage), wear (removed), deposit (laid down) and lakes. Iterations is age: more is older and more carved. Lengths are cm.
 
+![Erode Terrain](../images/nodes/ErodeTerrain.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `heightfield` | geometry | input |  |  |
@@ -4162,6 +4384,8 @@ Where water would go, without changing the ground: writes masks flow (0 to 1, ho
 
 A flat heightfield: size along X and Z, centred on center, with resolution samples along the longer side and square cells. Lengths are cm.
 
+![Heightfield Grid](../images/nodes/HeightfieldGrid.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `sizeX` | float | input | `100000` | Width along X. At least 0. |
@@ -4190,6 +4414,8 @@ Size and height range of a heightfield: lowest and highest height, the area it c
 Type `HeightfieldToMesh`.
 
 Turns the heightfield into a grid of quads facing up, keeping every step-th sample (the edges always stay), with uvs over the whole grid and masks as point attributes. Other components pass through.
+
+![Heightfield to Mesh](../images/nodes/HeightfieldToMesh.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4226,6 +4452,8 @@ Turns a painted height image (png, psd, tif, exr, tga from Photoshop, Krita or G
 Type `MeshToHeightfield`.
 
 Bakes the highest surface of a mesh, seen from above, into a heightfield covering its footprint plus padding. Any mesh works: a blockout, a scan, a sculpt. Samples nothing covers take fill, or the mesh's lowest point when fillLowest is on.
+
+![Mesh to Heightfield](../images/nodes/MeshToHeightfield.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4273,6 +4501,8 @@ Loads a heightfield file. A .lilahf (what terrainBake writes) comes back exactly
 
 The same area at another resolution (samples along the longer side), masks included, read bilinearly.
 
+![Resample Heightfield](../images/nodes/ResampleHeightfield.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `heightfield` | geometry | input |  |  |
@@ -4297,6 +4527,8 @@ Reads a heightfield under each element: height, normal and slope at its X and Z,
 #### Set Height
 
 Sets every sample's height from a field, combined by blend. Fields see each sample as a point at its position, with height and every mask as attributes, so Noise Texture, Math and Named Attribute all work per sample.
+
+![Set Height](../images/nodes/SetHeight.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4329,6 +4561,8 @@ Writes a named mask (made when missing) from a field, combined by blend. Masks r
 
 Fractal noise over world X and Z, from 0 to amplitude, combined into the heightfield's heights. Ridged turns rolling hills into sharp crests with detail gathered on them; warp bends the shapes so they don't line up. Works in world space, so neighbouring heightfields with the same settings join without a seam. Lengths are cm.
 
+![Terrain Noise](../images/nodes/TerrainNoise.webp)
+
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `heightfield` | geometry | input |  |  |
@@ -4350,6 +4584,8 @@ Fractal noise over world X and Z, from 0 to amplitude, combined into the heightf
 #### Thermal Erosion
 
 Slopes steeper than the talus angle shed material downhill until they settle: scree below cliffs, softened crests.
+
+![Thermal Erosion](../images/nodes/ThermalErosion.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |

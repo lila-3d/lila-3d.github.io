@@ -76,7 +76,7 @@ A node graph reaches the scene as one mesh, so game nodes mark their results wit
 ## Vertex animation and imposters
 
 - **Vertex Animation Texture**: put it where the animated geometry should be captured and press **Encode** in its side panel. It samples what reaches it over the playback range and writes the rest mesh FBX, position and normal textures and a JSON of the material inputs into `vat/` next to the scene, the same files as **exportVertexAnimation**.
-- **Imposter**: press **Bake** to view what reaches it from every direction of a Frames x Frames grid and write a base colour atlas, a normal atlas (depth in alpha), a card mesh FBX and the material inputs into `imposters/`. Hemi-octahedral only views from above, for things seen from the ground. Base colour comes from the mesh's current colour set. Its **Card** output is the square the imposter draws on.
+- **Imposter**: press **Bake** to view what reaches it from every direction of a Frames x Frames grid and write a base colour atlas, a normal atlas (depth in alpha), a card mesh FBX and the material inputs into `imposters/`. **Send to Unreal** bakes and imports it into the connected project as `/Game/Lila/Imposters/SM_<name>` with a material instance of LilaLink's `M_LilaImposter`, which turns the card to the camera's nearest view. Hemi-octahedral only views from above, for things seen from the ground. Base colour comes from the mesh's current colour set. Its **Card** output is the square the imposter draws on.
 
 ## Volumes
 
@@ -99,3 +99,5 @@ Volumes go out to OpenVDB (`.vdb`, for Unreal's sparse volume textures, Houdini 
 **SDF nodes say they need a signed distance.** A density grid reached them (Volume Cube, Distribute in Volume input). Use Mesh to SDF or Points to SDF instead.
 
 **Wave Function Collapse outputs `solved` false.** The tiles' labels or profiles can't fill the grid. Add a tile that fits the failing sides, allow rotations, or raise restarts.
+
+**Send to Unreal says the LilaLink plugin predates imposters.** Copy Lila's `ue/LilaLink` into the engine or project plugins and rebuild the editor.
