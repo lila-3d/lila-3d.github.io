@@ -20,6 +20,16 @@ Post it in the **Bug Reports** forum of the [Steam discussions](https://steamcom
 
 **If Lila crashed**, the support bundle already holds the crash report. To paste one into your post instead, click **Copy Crash Report** in the crash dialog, or **Help > Copy Last Crash Report** if you closed it.
 
+## Report a slow viewport
+
+1. Open the scene where it's slow, then **Help > Record Performance Trace**.
+2. Click **Record** and do the slow thing (orbit, select, scrub) until it stops. 10 seconds is plenty.
+3. Attach the zip it saves to your bug report, with a line on what you were doing.
+
+For more detail, click **Restart as Administrator** in the same window first. Windows only lets Lila sample where its time goes, including inside the graphics driver, while it runs as administrator. It changes nothing else, and the recording works without it. Open Lila normally again afterwards.
+
+The trace holds timings, Lila's function names, your system and GPU and this session's log. It holds no scene data.
+
 ## Troubleshooting
 
 **Lila won't start, or the viewport is black.** Usually the GPU driver. See [System requirements](requirements.md).
@@ -38,6 +48,7 @@ Everything lives under `%APPDATA%\Lila`. **Help > Open Prefs Folder** and **Help
 | --- | --- |
 | `prefs` | Preferences, hotkeys, marking menus, shelves and layouts. |
 | `crashes` | One folder per crash: `report.txt` and `minidump.dmp`. |
+| `perf-traces` | Performance traces, one zip per recording. |
 | `autosave` | Autosaves. |
 | `recovered` | Work recovered after a crash. |
 | `extensions` | Extensions you've installed. |
