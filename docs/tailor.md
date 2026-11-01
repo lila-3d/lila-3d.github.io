@@ -19,7 +19,7 @@ ops.tailorBake(mesh, retopo=3000, lods=2)
 
 ## Pick a starting pattern
 
-Blocks cover the common garments: `tee`, `tunic`, `robe`, `shirt`, `dropShoulderTop`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, plus trousers, skirts, hoods, cloaks and more. Any top takes a `sleeveStyle`: 0 set-in, 1 cuffed, 2 bishop, 3 bell, 4 puff, 5 cap, 6 flutter, 7 leg-of-mutton, 8 poet, 9 drop-shoulder, 10 batwing.
+Blocks cover the common garments: `tee`, `tunic`, `robe`, `shirt`, `dropShoulderTop`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, plus trousers, skirts, hoods, cloaks and more. Any top takes a `sleeveStyle`: 0 set-in, 1 cuffed, 2 bishop, 3 bell, 4 puff, 5 cap, 6 flutter, 7 leg-of-mutton, 8 poet, 9 drop-shoulder, 10 batwing, 11 raglan, 12 marie, 13 flounce, 14 slit, 15 tiered, 16 petal, 17 cape.
 
 ```python
 ops.tailorCreateBlock(block='tee', collider=body, params={'sleeveStyle': 9, 'dropShoulder': 0.1})
