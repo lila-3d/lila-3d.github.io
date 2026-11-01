@@ -32,4 +32,5 @@ lila::ui::viewportToast::showActive("Exported 12 meshes");
 | --- | --- | --- |
 | `duration=4` | `durationMs` (`4000`) | How long it shows, fade included. Default 2 seconds. |
 | `all=True` | `show(text)` | Every viewport instead of only the active one. |
+| `error=True` | `Kind::Error` | A red accent, for something that failed. |
 |  | `show(text, view)` | One viewport, by its widget. |

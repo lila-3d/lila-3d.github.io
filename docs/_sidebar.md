@@ -65,3 +65,4 @@
   - [Settlement](settlement.md)
   - [Stagehand](stagehand.md)
   - [Trim Sheets](trim-sheets.md)
+  - [ZBrush](zbrush.md)
