@@ -5,8 +5,8 @@
 Every command is a Python function. In the script editor and the command palette (**Ctrl+\`**) commands are available by bare name; in a module, `import lila` and call `lila.ops.<command>`.
 
 ```python
-polyCube(name="crate", width=2)
-lila.ops.parent("arm_l", "spine_03")
+polyCube(name="crate", width=2)               # script editor, command palette, MCP
+lila.ops.polyCube(name="crate", width=2)      # in a module, after import lila
 ```
 
 Commands that take objects use the selection when none are passed.
