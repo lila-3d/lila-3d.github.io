@@ -17,6 +17,20 @@ mesh, garment = ops.tailorCreateBlock(block='cloakTunicBelt', collider=body, wai
 ops.tailorBake(mesh, retopo=3000, lods=2)
 ```
 
+## Pick a starting pattern
+
+Blocks cover the common garments: `tee`, `tunic`, `robe`, `shirt`, `dropShoulderTop`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, plus trousers, skirts, hoods, cloaks and more. Any top takes a `sleeveStyle`: 0 set-in, 1 cuffed, 2 bishop, 3 bell, 4 puff, 5 cap, 6 flutter, 7 leg-of-mutton, 8 poet, 9 drop-shoulder, 10 batwing.
+
+```python
+ops.tailorCreateBlock(block='tee', collider=body, params={'sleeveStyle': 9, 'dropShoulder': 0.1})
+```
+
+Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's plus the style's ease, so a set-in sleeve eases in smoothly and a puff gathers.
+
+## Check the pattern
+
+**Tailor > Pattern Editor** lists what a pattern maker would flag, each with what to change: a sleeve cap shorter than its armhole or with too much ease, a flat dropped-shoulder cap on a shoulder that isn't dropped, seam sides that don't match, too little ease round the chest for the body, crossed outlines, panels too small for the cloth, grain off true. Click a finding to see the panel or seam. `tailorCheck` returns the same list, and the `tailor` validator puts it on the garment mesh as diagnostics.
+
 ## Edit the pattern
 
 - **Tailor > Pattern Editor** shows the selected garment's panels flat. Drag points to reshape, double-click an edge to add a point, Delete removes the hovered point. Seams show in matching colours; a red label means the two sides differ in length.
@@ -33,6 +47,8 @@ ops.tailorBake(mesh, retopo=3000, lods=2)
 **Cloth pokes through the body.** Lower **particleDistance** for a finer cloth mesh, or raise **frames** and drape again with **Tailor > Drape**.
 
 **Bake didn't skin the mesh.** The body has no skinCluster. Skin it, then bake again.
+
+**A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again.
 
 **Retopo warns about folds.** Tight folds under the arms are hard to quad. Raise `retopo` or drape with a larger `particleDistance`.
 
@@ -52,5 +68,7 @@ Set these on the garment node in the Attribute Editor.
 A seam's `foldAngle` holds it pressed at that angle (a hem, a collar); `shrink` below 1 gathers it like elastic. Set both with `tailorSew`.
 
 The output mesh has two UV sets: `uv0` packs the panels into 0 to 1 with the grain upright, and `uv1` is the flat pattern at 1 unit per metre, so a fabric texture tiles at its real size. Baked meshes also carry the point attribute `clothMaxDistance`, each point's distance from the body in cm, for a runtime cloth mask such as Chaos Cloth's Max Distance.
+
+To dress the cloth in a thicker or separately modelled mesh (a sculpted coat, a retopologised game mesh), latch it to the cloth: `tailorBindRenderMesh('Cloak', mesh='SM_Cloak')`. Every point of the mesh follows its nearest cloth triangle with its offset kept, like APEX's latch to nearest, live drapes included. Freeze both meshes' transforms first.
 
 Patterns from GarmentCode or ChatGarment (pygarment JSON) import with **Tailor > Import GarmentCode Pattern...**.
