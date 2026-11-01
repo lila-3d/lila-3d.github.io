@@ -40,6 +40,7 @@
   - [Curves](curves.md)
   - [Sculpting](sculpting.md)
     - [Brushes, presets and alphas](sculpt-brushes.md)
+  - [Reference images](reference-images.md)
   - [Topology](topology.md)
 - <span class="nav-label">Nodes</span>
   - [Node editor](node-editor.md)
