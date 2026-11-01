@@ -854,7 +854,7 @@ Simple collision for Unreal, per island or for the whole mesh: a convex hull, an
 
 ### Imposter
 
-Bakes what reaches it into an octahedral imposter for Unreal: Bake in the side panel views it from Frames x Frames directions and writes a base colour atlas (alpha is coverage), a normal atlas (alpha is depth), a card mesh FBX and a JSON of the material inputs into imposters/ next to the scene; Send to Unreal bakes and imports it through LilaLink with a material that turns the card to the nearest view. Base colour comes from the mesh's current colour set, else light grey. Geometry passes through; Card is the square the imposter draws on.
+Bakes what reaches it into an octahedral imposter for Unreal: Bake in the side panel views it from Frames x Frames directions and writes a base colour atlas (alpha is coverage), a normal atlas (alpha is depth), a card mesh FBX and a JSON of the material inputs into imposters/ next to the scene; Send to Unreal bakes and imports it through LilaLink with a material that blends the three nearest views. Base colour comes from the mesh's current colour set, else light grey. Geometry passes through; Card is the square the imposter draws on.
 
 ![Imposter](../images/nodes/Imposter.webp)
 

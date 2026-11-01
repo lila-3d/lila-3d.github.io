@@ -6,6 +6,7 @@ Lights illuminate and cast shadows in the viewport and renders, on top of the en
 
 1. **Create > Light**, then pick a type.
 2. Set colour, intensity and its units, cone, size and **cast shadows** in the attribute editor.
+3. Or tweak it in the viewport: select the light and drag the yellow dots for range, cone, size and source radius. Click the swatch beside it for a colour wheel (with colour temperature), and drag the intensity number left or right, one stop per notch. Shift drags finer, Esc cancels. A hollow dot is a setting that is off (no range cutoff, no source radius); a range dragged from it starts where the light has already faded out. With several lights selected, colour and intensity change them all.
 
 ```python
 light(type="spot", intensity=8, outerConeAngle=30, position=[0, 300, 0])
@@ -17,11 +18,15 @@ Lights keep their original units and any settings Lila has no field for, so they
 
 ## Troubleshooting
 
+**A dome light changes nothing.** It replaces the environment: the HDRI picked for its **texture** in the Attribute Editor (Lila's, yours from the picker's add button, or any file through Browse) becomes the environment, otherwise the viewport's HDRI stays and the dome sets its brightness and rotation. Only the first visible dome counts, and only in Environment lighting.
+
 **A light makes no shadow.** Check **cast shadows** is on. On GPUs with ray tracing the first four shadowed lights of any kind trace their shadows (**Render > Ray-Traced Shadows**), soft by the light's size (a directional light's **source radius** is its angle in degrees). Without ray tracing only directional and spot lights cast shadows, from the first four.
 
 **Shadows look blocky while the view moves.** They settle once the view holds still. Turn on **Antialiasing > Temporal** in Preferences > Viewport if it's off.
 
 **The scene is far too bright or dark with lights from another app.** Lila keeps the file's intensity and its units: candela or lux from glTF, nits from USD, unitless from Maya and FBX (FBX stores 100 for 1). Physical units are scaled down by 100 to sit with the environment; set the light's units to unitless and the intensity to taste.
+
+**The light's dots and swatch don't show.** They appear in object mode with no tool active (Select, Move, Rotate or Scale). Directional and dome lights have only the swatch and intensity.
 
 **Lights don't light anything in Flat lighting.** Flat shows base colours only. Switch to Environment or Studio lighting.
 

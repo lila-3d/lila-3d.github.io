@@ -58,6 +58,7 @@ Hold **W**, **E** or **R** and left-click for that tool's marking menu: world or
 | **4** | Wireframe |
 | **5** | Shaded |
 | **6** | Textured |
+| **7** | Scene lights on/off (environment stays) |
 | **1**, **2**, **3** | Smooth preview off, cage, on |
 | **Ctrl+1** | Only the selection (isolate) |
 | **H** | Hide or show the selection |

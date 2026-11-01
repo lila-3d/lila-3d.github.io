@@ -3942,7 +3942,7 @@ Not undoable.
 
 ### gnSendImposter
 
-Bake an Imposter node (as gnBakeImposter) and import it into the connected Unreal project: the card mesh, both atlases and a material instance of LilaLink's imposter material, which turns the card to the camera's nearest view. Returns {files, contentPath}, plus Unreal's {assets, warnings, errors} with wait=True.
+Bake an Imposter node (as gnBakeImposter) and import it into the connected Unreal project: the card mesh, both atlases and a material instance of LilaLink's imposter material, which blends the three views nearest the camera. Returns {files, contentPath}, plus Unreal's {assets, warnings, errors} with wait=True.
 
 **Objects:** group node
 
@@ -7669,6 +7669,15 @@ Not undoable.
 
 Leave sculpt mode without changing the mesh, discarding the proxy (a kept proxy stays as it was).
 
+### sculptColor
+
+Fill the sculpt's polypaint with a color (masked points keep theirs) or clear it back to white.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `op` |  | str | `'fill'` | fill or clear. |
+| `color` |  | list | `[1.0, 1.0, 1.0]` | Fill color, linear [r, g, b]. |
+
 ### sculptCorrective
 
 Start a corrective: pose the rig, then this copies the mesh as it looks now into <mesh>_corrective, in place, and hides the mesh. Sculpt the fix on the copy, then run addCorrective. Returns the sculpt mesh.
@@ -7690,7 +7699,7 @@ Enter sculpt mode on a mesh: builds a temporary high-resolution proxy of its cag
 
 ### sculptExit
 
-Leave sculpt mode, moving the low-poly cage onto the sculpt. method='fit' solves for the cage whose subdivision best matches the sculpt (least squares through the subdivision stencils); 'closest' and 'normal' project each cage point onto the sculpted surface instead. Only positions change: UVs and other attributes stay. keepProxy stores the proxy as a hidden child mesh to resume from. Returns {mesh, maxMove}.
+Leave sculpt mode, moving the low-poly cage onto the sculpt. method='fit' solves for the cage whose subdivision best matches the sculpt (least squares through the subdivision stencils); 'closest' and 'normal' project each cage point onto the sculpted surface instead. Only positions change: UVs and other attributes stay, except that polypaint lands on the cage's polypaint color set, sampled from the sculpt. keepProxy stores the proxy, polypaint included, as a hidden child mesh to resume from and to bake from. Returns {mesh, maxMove}.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -7710,7 +7719,7 @@ Change the sculpt mask (masked points resist every brush) or the freeze layer (f
 
 ### sculptState
 
-The open sculpt session: {active, mesh, mode, levels, points, faces, symmetry, masked, frozen}.
+The open sculpt session: {active, mesh, mode, levels, points, faces, symmetry, masked, frozen, painted}.
 
 Not undoable.
 
@@ -7720,7 +7729,9 @@ One brush stroke on the sculpt proxy: dabs is a list of {center, normal, radius,
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `brush` |  | str | `'draw'` | Brush. One of `draw`, `clayStrips`, `inflate`, `grab`, `smooth`, `flatten`, `pinch`, `crease`, `scrape`, `mask`, `relax`, `freeze`. |
+| `brush` |  | str | `'draw'` | draw, clayStrips, inflate, grab, smooth, flatten, pinch, crease, scrape, damStandard, trimDynamic, polish, fold, mask, relax, freeze, paint, or a brush an extension registered. |
+| `paint` |  | bool | `False` | Shape brushes also paint color where they move points. |
+| `color` |  | list | `[1.0, 1.0, 1.0]` | Paint color, linear [r, g, b]. |
 | `falloff` |  | str | `'smooth'` | Falloff: smooth, sphere, root, sharp, linear, constant, bell, or a soft select preset name. |
 | `strength` |  | float | `0.5` | 0 to 1. |
 | `invert` |  | bool | `False` | Dig, unmask, unfreeze or magnify instead. |
@@ -8840,6 +8851,51 @@ Show a splitRings modifier's input mesh (it and later modifiers pass through) wi
 Stop playback.
 
 Not undoable.
+
+### strap
+
+Strap meshes: the slash from start to end, seen along view, cuts them in its plane, and a band or rope goes round the loops it crosses (several are bundled into one), sitting on the surface. The path curve and the strap stay live while history is on. Returns [mesh, curve, curveStrap, curveStrapPath].
+
+**Objects:** meshes (default: the selected meshes or components, else every visible mesh)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` |  | str |  | A flat band, or rope of twisted strands. |
+| `width` |  | float |  | Width across, cm (rope: its diameter). |
+| `thickness` |  | float |  | Band thickness off the surface, cm. |
+| `bevel` |  | float |  | Band corners cut back this far, cm. |
+| `strands` |  | int |  | Rope strands. |
+| `strandSides` |  | int |  | Sides around each strand. |
+| `lay` |  | float |  | Rope length per turn of the strands, cm; loops round it to whole turns. |
+| `buckle` |  | bool |  | A buckle on a band, a whipping on rope. |
+| `buckleAt` |  | float |  | Where the buckle sits, as a fraction of the length. |
+| `buckleLength` |  | float |  | Buckle length along the strap, cm. |
+| `buckleScale` |  | float |  | Buckle width over the strap's. |
+| `flip` |  | bool |  | Put the strap on the other side of the path. |
+| `texelDensity` |  | float |  | V per cm along the strap; 0 fits it to 0..1. |
+| `gap` |  | float |  | cm between the surface and the strap. |
+| `bridge` |  | float |  | Span hollows narrower than twice this many cm, as a stiff strap would; 0 follows every dip. |
+| `taut` |  | bool |  | Pulled tight: span every hollow (the convex hull of what the strap goes around). |
+| `tolerance` |  | float |  | Simplify the path within this many cm; 0 keeps every crossing. |
+| `preset` |  | str |  | Starting settings: strap, rope, tape, metalBand or zipTie (flags given as well win). |
+| `faces` |  | list |  | Per mesh given, the face ids that count, or null for all of it. |
+| `start` |  | tuple[float, float, float] |  | World point where the slash starts. |
+| `end` |  | tuple[float, float, float] |  | World point where the slash ends. |
+| `view` |  | tuple[float, float, float] |  | Direction the slash is seen along (both rays), default -Y. |
+| `startDir` |  | tuple[float, float, float] |  | Direction of the ray through start (a perspective slash), instead of view. |
+| `endDir` |  | tuple[float, float, float] |  | Direction of the ray through end, instead of view. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the strap nodes so the strap follows the meshes and settings. |
+| `name` | `n` | str |  | Mesh name; made unique. |
+
+### strapPreset
+
+Apply a strap preset (strap, rope, tape, metalBand or zipTie) to strap nodes, or the straps feeding the given or selected meshes.
+
+**Objects:** straps
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` |  | str | `'strap'` | strap, rope, tape, metalBand or zipTie. |
 
 ### suggestSplitPlanes
 
@@ -13377,6 +13433,30 @@ tailorBake('Cloak', name='SM_Cloak', skin=False)
 tailorBake('Tunic', retopo=3000, lods=2)
 ```
 
+### tailorBindRenderMesh
+
+Latch a render mesh to a garment's cloth, like APEX's latch to nearest: every render point follows the nearest cloth triangle with its offset kept, so a thick, sculpted or retopologised mesh moves with the drape, live drapes included. Both meshes are taken as they are now; keep their transforms the same (freeze them). Returns the tailorBinding node.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The render mesh to latch. |
+
+```python
+tailorBindRenderMesh('Cloak', mesh='SM_Cloak_Thick')
+```
+
+### tailorCheck
+
+Check a garment's pattern the way a pattern maker would: sleeve cap ease, dropped-shoulder sleeves on an undropped shoulder, seams that don't match, ease round the chest against the collider, panels too small for the cloth, crossed outlines, grain. Each finding comes with a tip, shows in the Pattern Editor and as a diagnostic on the garment mesh. Returns the findings.
+
+**Objects:** garment
+
+```python
+tailorCheck('Tunic')
+```
+
 ### tailorCreateBlock
 
 Start a garment from a parametric block (tee, tunic, cloak, ...) and drape it onto a collider mesh.
@@ -13385,7 +13465,7 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`. |
+| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, `dropShoulderTop`, `shirt`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
 | `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
@@ -13394,6 +13474,7 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
 | `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
 | `fit` | `ft` | bool | `True` | Size the block to the collider's measurements and stand it where the collider stands. |
+| `params` | `pr` | Any |  | Block parameters by name, metres and 0/1 for switches, e.g. {'sleeveStyle': 9, 'sleeveLength': 0.6}. Sleeve styles: 0 set-in, 1 cuffed, 2 bishop, 3 bell, 4 puff, 5 cap, 6 flutter, 7 leg-of-mutton, 8 poet, 9 drop-shoulder, 10 batwing, 11 raglan, 12 marie, 13 flounce, 14 slit, 15 tiered, 16 petal, 17 cape. |
 
 ```python
 tailorCreateBlock(block='tunic', collider='Body')
@@ -13473,6 +13554,27 @@ Points are pattern space, cm, counter-clockwise. Seams keep their vertex indices
 
 ```python
 tailorEditPanel('Garment', panel='Front', grainAngle=90)
+```
+
+### tailorExportAnimation
+
+Export an animated garment's simulation for a game or a cutscene: simulates the frames first, then writes an Alembic file (an Unreal Geometry Cache) or vertex animation textures. Returns what the exporter returns.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `format` | `fmt` | str | `'alembic'` | alembic or vat. |
+| `start` | `st` | int |  | First frame; the garment's startFrame when left out. |
+| `end` | `e` | int |  | Last frame, inclusive. |
+| `path` | `p` | str |  | Alembic: the .abc file. VAT: the output folder. |
+
+```python
+tailorExportAnimation('Cloak', end=120, path='anim/cloak.abc')
+```
+
+```python
+tailorExportAnimation('Cloak', format='vat')
 ```
 
 ### tailorFreeze
@@ -13571,6 +13673,21 @@ tailorMannequin()
 
 ```python
 tailorCreateBlock(block='cloakTunicBelt', collider=tailorMannequin())
+```
+
+### tailorRefit
+
+Move a garment onto another body: grades the pattern by the bodies' measurements (widths by chest, lengths by height), stands it where the new body stands and drapes it there. Returns the scale factors used.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `collider` | `c` | str |  | The new body mesh. |
+| `grade` | `gr` | bool | `True` | Scale the pattern to the new body; off only moves it. |
+
+```python
+tailorRefit('Tunic', collider='Hero')
 ```
 
 ### tailorSetFabric
