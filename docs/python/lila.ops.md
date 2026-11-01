@@ -1401,6 +1401,67 @@ Wrap the selection's points in a fitted shape, ready to go to Unreal as collisio
 | `maxHullPoints` | `mh` | int | `32` | Most points a hull keeps. |
 | `generator` | `g` | bool | `False` | Keep the primitive's generator so its size stays editable. |
 
+### brushPresetDelete
+
+Delete one of your or the project's brush presets.
+
+**Objects:** id
+
+Not undoable.
+
+### brushPresetExport
+
+Write a preset to a .lilabrush file to share, its alpha image inside.
+
+**Objects:** id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` |  | str |  | The file to write. |
+
+Not undoable.
+
+### brushPresetInstall
+
+Copy .lilabrush files into your brushes folder, or the project's, numbering a name that is taken. Returns their ids.
+
+**Objects:** files
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scope` |  | str | `'user'` | user or project. |
+
+Not undoable.
+
+### brushPresets
+
+The brush presets in Lila's, the extensions', the studio's, your and the project's brushes folders: [{id, label, tool, brush, icon, doc, source, category, file, alpha}].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tool` |  | str |  | Only presets for this tool (sculpt). |
+
+Not undoable.
+
+### brushPresetSave
+
+Save a brush with its stroke settings as a preset: a .lilabrush file in your brushes folder, or the project's. The alpha image is stored inside the file. Returns the preset's summary.
+
+**Objects:** label
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `brush` |  | str | `'draw'` | The brush it drives: a built-in's name or a registered brush's. |
+| `tool` |  | str | `'sculpt'` | The tool it is for. |
+| `settings` |  | Any |  | Stroke settings (radius, strength, falloff, spacing, ...); missing keys take the defaults. |
+| `alpha` |  | str |  | Alpha image: a file or a library alpha (alpha://...). |
+| `icon` |  | str |  | An icon name; empty uses the brush's. |
+| `doc` |  | str |  | Tooltip text. |
+| `scope` |  | str | `'user'` | user or project. |
+| `replace` |  | bool | `False` | Overwrite a preset of the same name instead of numbering the new one. |
+
+Not undoable.
+
 ### cable
 
 Hang cables between anchor points: true catenaries by slack (extra length) or sag depth under gravity, bundles of several with seeded spread and sag variation, optionally draped over meshes, optionally piped. Live: moving the anchor curve's points or editing the settings updates them. Returns [cable curve, curveCable, anchor curve, pipe mesh or None] per anchor curve.
@@ -7799,13 +7860,13 @@ Grow the face selection across edges where neighbouring faces bend less than an 
 
 ### selectByMaterial
 
-Select the objects a material is assigned to, or with faces=true the faces it is assigned to. Returns the objects.
+Select what a material is assigned to: whole objects when it covers every face of each, otherwise just the faces it is assigned to. faces=true always selects faces, faces=false always whole objects. Returns the objects.
 
 **Objects:** material
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `faces` | `f` | bool | `False` | Select the assigned faces instead of whole objects. |
+| `faces` | `f` | bool |  | Force faces (true) or whole objects (false); unset picks by coverage. |
 
 ### selectComponents
 
