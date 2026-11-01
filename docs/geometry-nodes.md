@@ -76,7 +76,7 @@ A graph reaches the scene as one mesh, so game nodes mark their results with att
 ## Vertex animation and imposters
 
 - **Vertex Animation Texture**: press **Encode** in its side panel. It samples what reaches it over the playback range and writes the files **exportVertexAnimation** writes into `vat/` next to the scene.
-- **Imposter**: **Bake** views what reaches it from a Frames x Frames grid of directions and writes base colour and normal atlases (depth in alpha), a card FBX and the material inputs into `imposters/`. **Send to Unreal** bakes and imports it as `/Game/Lila/Imposters/SM_<name>` with an instance of LilaLink's `M_LilaImposter`, which turns the card to the camera's nearest view. Hemi-octahedral views only from above, for things seen from the ground. Base colour comes from the mesh's current colour set.
+- **Imposter**: **Bake** views what reaches it from a Frames x Frames grid of directions and writes base colour and normal atlases (depth in alpha), a card FBX and the material inputs into `imposters/`. **Send to Unreal** bakes and imports it as `/Game/Lila/Imposters/SM_<name>` with an instance of LilaLink's `M_LilaImposter`, which turns the card to the camera and blends the three nearest views. *Parallax* on the instance scales the depth correction. Hemi-octahedral views only from above, for things seen from the ground. Base colour comes from the mesh's current colour set.
 
 ## Volumes
 
