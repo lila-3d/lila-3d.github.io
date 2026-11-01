@@ -191,6 +191,29 @@ Pick **Radial** in the viewport toolbar's symmetry menu, or **Mesh > Symmetry Ra
 
 **Points marked red after turning radial on.** They have no match in every wedge: the count doesn't fit the mesh. The warning names the count that fits best; use it, or run Symmetrize Radial.
 
+## Polypaint
+
+Paint color onto a sculpt and bake it into the low poly's base color texture.
+
+1. In **Sculpt > Sculpt Panel**, pick the **Paint** brush, or tick **Paint while sculpting** to color as you shape. The mask shields points from paint.
+2. Turn on **Keep sculpt proxy**, then exit sculpt. The low poly gets a `polypaint` color set, and the hidden `<mesh>_sculptProxy` child keeps the full-detail paint.
+3. In **Bake > Baker**, use the proxy as the high and set the Base Colour map's **Source** to `vertexColor`.
+
+**The baked base color is flat gray.** The high has no color set: check that **Keep sculpt proxy** was on when you exited, and that the proxy is the group's high.
+
+## Brush alphas
+
+Every brush's **Stroke > Alpha** picker lists the alphas in these folders (type to filter), and a subfolder becomes a category. White is where the brush acts and black where it doesn't, so pores, cracks and panel lines raise; hold Ctrl to cut them in.
+
+| Folder | Holds |
+| --- | --- |
+| `resources/alphas` beside Lila | Lila's own |
+| `resources/alphas` in an extension | The extension's |
+| `%APPDATA%/Lila/prefs/alphas` | Yours, on every project |
+| `<project>/.lila/alphas` | The project's, shared through source control |
+
+The library button beside the field copies images into yours or the project's, and opens either folder. Dropping an image file on the field uses it directly. PNG, EXR, TGA, TIFF and PSD load; JPG doesn't.
+
 ## Filter the outliner
 
 The box at the top of the outliner filters what it shows.
