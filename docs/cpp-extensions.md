@@ -116,14 +116,6 @@ Lila looks for packages in these folders, in order: `LILA_EXTENSION_PATH` (separ
 
 `lilaExtensionUninit(ext::Context&)` is optional: export it to free the extension's own state when it unloads.
 
-Sculpt brushes (`<lila/Sculpt.h>`): `sculpt::registerBrush(ctx, name, def)` adds a button to the Sculpt panel and a brush name `sculptStroke` takes. `def.displace` returns each point's move for one dab; Lila applies the mask, freeze, symmetry, polypaint and undo around it. It runs on many threads at once, so it may only read.
-
-```cpp
-sculpt::BrushDef lift{.label = "Lift", .icon = "arrow-up"};
-lift.displace = [](const sculpt::BrushArea& area, const sculpt::BrushSample& p) {
-    return glm::dvec3(0.0, 1.0, 0.0) * (p.weight * area.radius * 0.03 * area.sign);
-};
-sculpt::registerBrush(ctx, "lift", std::move(lift));
-```
+Sculpt brushes (`<lila/Sculpt.h>`): see [Extension brushes](sculpt-brushes.md#extension-brushes).
 
 GPU compute (`<lila/GpuCompute.h>`, UI extensions): a `lila::gpu::Session` owns buffers and kernels, and `Session::run` records work on the render thread and waits for it. Buffers are reached from Slang through device addresses, so pass them in push constants or another buffer. Compile shaders with `lila_add_shaders(<target> FILES a.slang OUTPUT_DIR <package>/shaders)` (needs `slangc`), and load them with `Recorder::kernel` by absolute path from `ext::Context::root()`. It needs the viewport running: `lila::gpu::available()` is false in batch runs, so keep a CPU path.

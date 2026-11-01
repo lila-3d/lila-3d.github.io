@@ -45,6 +45,8 @@ Unlocked, each artist can rearrange it as their own.
 
 Hotkeys (`hotkeys.json`), naming rules (`naming.json`) and Lila's marking menus (`markingMenus/<name>.json`) work the same way. Layouts don't.
 
+Sculpt [brush presets](sculpt-brushes.md#presets) in `brushes/` in the studio folder appear in everyone's Sculpt panel. Artists can't delete them from Lila.
+
 ## Updating
 
 Edit the files in the studio folder. Every running Lila picks up the change within about 5 seconds, including new or removed shelves.
