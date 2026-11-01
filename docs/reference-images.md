@@ -7,8 +7,8 @@ Your reference photos in tabbed windows beside the viewport, and one laid over t
 ## Get it working
 
 1. Open **Create > Reference Images > Add Reference Images...** and pick your photos. They open as tabs of the Reference Images window (**Windows > Editors > Reference Images**); dropping files on it does the same.
-2. Drag a tab onto the viewport. It shows over the model as an overlay.
-3. Hold **O** and drag in the viewport to move the overlay; turn the wheel while holding **O** to fade it.
+2. Drag a tab onto the viewport. It shows over the model as an overlay, with handles and a toolbar to place it.
+3. Drag the image to move it, a corner to scale it, an edge to crop it. Press **Esc** or click outside it when it's placed.
 4. Tap **O** to hide it, and again to bring it back.
 
 Hold **Shift** while dropping an image on the window to replace the tab you're looking at instead of adding one. **Alt**+drop an image file straight on the viewport to make an overlay without a tab.
@@ -27,9 +27,17 @@ For likeness work, match the camera to each photo once and come back to it later
 3. Repeat for each photo. A bound overlay fades out as you turn away from its view, so a front and a profile photo each show only from their own side.
 4. Click **Go to View** to put the camera back where that overlay was bound.
 
+## Use one part of a model sheet
+
+1. Drag an edge of the overlay inward until only the front view shows.
+2. Click **Duplicate** in the overlay toolbar and crop the copy to the side view. Do the same for the back.
+3. Bind each one to its view, as above, so each shows only from its own side.
+
 ## Troubleshooting
 
 **O does nothing.** O works on the active view's overlays. Click in the view first; a message says so when it has none.
+
+**Can't find an overlay to change it.** Every overlay is listed under **Reference Overlays** at the bottom of the Outliner. Click one to get its handles back.
 
 **The overlay vanished after orbiting.** It's bound to a view. Click **Go to View**, or **Bind** again to unbind it.
 
@@ -46,7 +54,7 @@ For likeness work, match the camera to each photo once and come back to it later
 | **O** hold | Overlays at full strength while held, to compare with the model |
 | **O** + left / right / middle drag | Move / scale / rotate (Shift snaps rotation to 15°) |
 | **O** + wheel | Opacity |
-| **Shift+O** | Handles and toolbar on the overlay; **Esc** leaves |
+| **Shift+O** | Handles and toolbar on the overlay; **Esc** leaves, **Delete** removes it |
 | **Alt+O** | Next overlay on its own (front, side, three-quarter) |
 
 | Overlay toolbar | Does |
@@ -55,6 +63,7 @@ For likeness work, match the camera to each photo once and come back to it later
 | **Image** / **Gray** / **Outline** | Outline shows only the photo's edges, so the whole model stays visible |
 | **Ghost** | The model see-through while the overlay shows |
 | **Park** | Overlays opaque down the right edge, beside the model |
+| **Full Image** | Undoes the crop |
 
 The Sculpt panel's **Reference Overlay** section has the same settings for the active view.
 
