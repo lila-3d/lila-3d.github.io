@@ -186,6 +186,24 @@ Tune the parameters.
 
 > A span running straight along gravity can't sag.
 
+## Straps
+
+Select the meshes (or faces, to strap only those), start the **Strap Tool** and drag a slash across what to strap. With nothing selected it straps any visible mesh; hidden meshes and faces never count. The strap wraps around everything the slash crosses, in the plane of the slash seen edge on. Several objects crossed become one bundle.
+
+<!-- TODO image: a crate with a buckled strap and a rope round a stack of logs (images/curves/straps.png) -->
+
+| Key | In the Strap Tool |
+| --- | --- |
+| Drag | Slash across what to strap |
+| **P** | Cycle presets: strap, rope, tape, metal band, zip tie |
+| **Ctrl+scroll** | Width (rope: diameter) |
+| **Shift+scroll** | Bridge: hollows narrower than twice this are spanned straight |
+| **T** | Pulled taut: span every hollow |
+
+> The strap rides over anything under its full width, not only its centre. Set the width on the path node; the strap's width follows it.
+
+> The strap follows the mesh when it moves or changes. The path is a curve (**StrapPath**) you can edit after deleting its history.
+
 ## Sketch constraints
 
 <!-- TODO image: a constrained sketch showing constraint glyphs and dimension labels (images/curves/sketch.png) -->
@@ -228,6 +246,8 @@ Tune the parameters.
 ## Troubleshooting
 
 **The pipe shows a bend warning.** A corner is tighter than the pipe can bend. Raise the bend radius or smooth the path.
+
+**A strap goes round the wrong thing or isn't made.** The slash crosses nothing between its ends, or crosses an open mesh, where the strap follows the cut without bridging. The reason is in the path node's **Warning** attribute.
 
 **A curve point won't select.** Switch to vertex mode with the curve selected.
 
