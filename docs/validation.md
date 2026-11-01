@@ -48,13 +48,13 @@ ops.validate()   # or File > Validate Scene, or Validate in the panel
 
 ## Troubleshoot
 
-**An issue shows in the panel, greyed, but on no row.** Its object doesn't exist yet. It attaches on its own when a node by that path appears (a USD stage loading, for example).
+**An issue shows in the panel, greyed, but on no row.** Its object doesn't exist yet. It attaches when a node by that path appears (a USD stage loading, for example).
 
 **A command fails with "is blocked by".** An issue lists that command in `blocks`. Fix it, or clear it with `ops.clearIssues(id=...)`.
 
 **Issues are gone after reopening the scene.** They're never saved. Run your validators again.
 
-**Info has no badge in the outliner.** That's the default: turn on **Preferences > Interface > Issues > Badge info**.
+**Info has no badge in the outliner.** It's off by default: turn on **Preferences > Interface > Issues > Badge info in the outliner**.
 
 ## Tune it
 

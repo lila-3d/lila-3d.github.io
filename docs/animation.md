@@ -32,7 +32,7 @@ Clicking a piece selects its joint. Pieces never export (FBX, glTF, USD, Send to
 
 ### Your own proxies
 
-Model any mesh, select a proxy set and the mesh, and run **Add Selected to Proxy Set**. It moves under the set and follows its nearest bone (`addToProxySet(joint=...)` picks another). From then on it behaves exactly like a generated piece. **Create Empty Proxy Set** starts a set with no pieces, for a character you proxy entirely by hand.
+Model any mesh, select a proxy set and the mesh, and run **Add Selected to Proxy Set**. It moves under the set, follows its nearest bone (`addToProxySet(joint=...)` picks another) and behaves like a generated piece. **Create Empty Proxy Set** starts a set with no pieces, for a character you proxy entirely by hand.
 
 ### The real head for facial animation
 
@@ -48,7 +48,7 @@ Make one set per level and give each a `lodLevel`. The viewport shows the set fo
 
 **A piece follows the wrong joint.** It went to the joint that dominates most of its faces. Fix it with `addToProxySet("<set>", "<piece>", joint="<joint>")`, or move the plane.
 
-**A true piece looks bent before you pose.** It was made while the skeleton was off its bind pose and deformers after the skin changed the mesh's points; make it from the bind pose.
+**A true piece looks bent before you pose.** It was made while the skeleton was off its bind pose, or while deformers after the skin had changed the mesh's points; make it from the bind pose.
 
 ### Options
 
@@ -58,7 +58,7 @@ Make one set per level and give each a `lodLevel`. The viewport shows the set fo
 | `resolution` | `32` | Voxel remesh: voxels along a piece's longest side. |
 | `targetFaces` | `300` | Quad remesh: faces per piece. |
 | `ratio` | `0.25` | Decimate: share of triangles kept. |
-| `pieceSettings` | none | Per piece index, e.g. `{"0": {"remesh": "none"}}`. |
+| `pieceSettings` | none | Per piece index, for example `{"0": {"remesh": "none"}}`. |
 | `trueJoints` | none | Joints whose pieces also get a true piece. |
 | `lodLevel` | `-1` | The LOD level the set stands in at. |
 

@@ -6,11 +6,11 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 
 ## Getting started
 
-1. **Mesh > Clay > Create Clay**. You get a clay object with one sphere.
+1. **Mesh > Clay > Create Clay** makes a clay object with one sphere.
 2. **Add Clay Shape** adds a sphere, ellipsoid, box, capsule, cylinder, cone or torus. Pick the shape in the option box.
-3. Move, rotate and scale shapes like any object. The surface follows.
+3. Move, rotate and scale shapes like any object.
 4. **Add Clay Cut** carves into everything before it.
-5. When the form is done, **Convert Clay to Mesh**. The clay stays, hidden, so you can change it and convert again. Tick **Remesh** in its option box for clean quads.
+5. **Convert Clay to Mesh**. The clay stays, hidden, so you can change it and convert again. Tick **Remesh** in its option box for clean quads.
 
 > Shapes join in Outliner order: a cut only reaches the shapes above it.
 

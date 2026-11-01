@@ -6,7 +6,7 @@ One tiling texture of bevelled strips and panels, shared by every mesh that maps
 
 1. In the Level Toolkit's **Trim Sheets** section, pick a preset and press **New**. The sheet is generated and baked (normal, AO, curvature, height, cavity); the first time takes a few seconds.
 2. Press **Texture** to put the preset's smart material on it. Wear, dirt and chips follow the baked bevels.
-3. Press **Test** to see it on a blockout (wall, beam, steps, pillar, slab) at real sizes before mapping your own meshes.
+3. Press **Test** to see it on a blockout (wall, beam, steps, pillar, slab) at real sizes.
 4. Select faces or meshes and press **Auto**. Each island goes to the trim that fits its shape and world size, running up the trim where its faces stand up. Faces taller than every strip are cut into courses at the tallest strip's height, so a wall becomes rows of boards or panels at true scale (`trimAuto(sliceOversized=False)` keeps them whole). Press **Cycle** for the next-best fit, or click a trim in the palette to put the selection on that one.
 5. Press **Unreal** to send it (connected with `unrealConnect()`).
 
@@ -23,7 +23,7 @@ Sheets are `.lilatrim` files in `<workspace>/TrimSheets`, textures beside them i
 
 ### Lay out your own
 
-**Level > Trim Sheets > Trim Sheet Editor** shows the current sheet over its bake. Drag a border to resize a strip or a row (it snaps to the mip grid; hold Shift for single pixels), right-click a trim to split or delete it, and set its kind, bevel style, bevel width and tags below. Press **Bake** when done: profile changes rebake only the trims you changed. Double-click a trim to map the selection onto it.
+**Level > Trim Sheets > Trim Sheet Editor** shows the current sheet over its bake. Drag a border to resize a strip or a row (it snaps to the mip grid; hold Shift for single pixels), right-click a trim to split or delete it. Press **Bake** when done: profile changes rebake only the trims you changed. Double-click a trim to map the selection onto it.
 
 Start from **Power-of-Two Ladder** for a plain layout to divide up, or import one: `trimSheetImport("layout.rect", width=2048, height=2048)` reads a Valve `.rect`, an SVG of rectangles, an ID map image, or a mesh's UV islands.
 
@@ -36,7 +36,7 @@ trimSheetTexture(material="Rusty Iron", trims=["edge"])   # only the thin edge s
 trimSheetTexture(replace=True)                            # start over from the sheet's own material
 ```
 
-The smart materials whose names start with **Trim** are made for sheets: they vary tone strip by strip and keep wear to the bevels. Others work too, but treat the sheet as one surface. The texture set is `TS_<name>` in the Texture Set panel, with a **Sheet Bake** layer at the bottom carrying the baked normal and AO. Edit it like any other set. Three texture nodes read the sheet: **Trim Mask** (white on trims first to last), **Trim Gradient** (where a texel sits inside its trim, plus a random value per trim) and **Trim Sheet Normal**.
+The smart materials whose names start with **Trim** are made for sheets: they vary tone strip by strip and keep wear to the bevels. Others work too, but treat the sheet as one surface. The texture set is `TS_<name>` in the Texture Set panel, with a **Sheet Bake** layer at the bottom carrying the baked normal and AO. Three texture nodes read the sheet: **Trim Mask** (white on trims first to last), **Trim Gradient** (where a texel sits inside its trim, plus a random value per trim) and **Trim Sheet Normal**.
 
 **Paint** puts a flat `<name>_Sheet` plane in the scene and starts texture painting on it. Strokes land on the sheet itself, so every mesh using it shows them. The UV editor paints the sheet too.
 
@@ -85,7 +85,7 @@ Change any of them with `trimSheetEdit(values={...})` and rebake. In Unreal, `M_
 
 ![What you'll make: a sandstone wall with a rosette frieze and a dentil course, all from one trim sheet](images/trim-sheets/tutorial-hero.png)
 
-The presets are a starting point. To make a sheet look the way you want, there are four ways to change it, quickest first: the strips' layout and profiles, the smart material, painting, and your own modelled detail. This tutorial uses them to build the sheet behind the wall above, then the wall itself.
+A sheet changes four ways, quickest first: the strips' layout and profiles, the smart material, painting, and your own modelled detail. This tutorial builds the sheet behind the wall above, then the wall.
 
 ## 1. Start a new sheet
 
@@ -119,9 +119,9 @@ Give every strip, the two thin edge strips at the bottom included, the same **Be
 
 ## 3. Model the carved detail
 
-Profiles are cross sections only. For anything that repeats along a strip, such as rosettes, studs, dentils or carving, you model it.
+Profiles are cross sections only. Model anything that repeats along a strip: rosettes, studs, dentils, carving.
 
-Choose **Level > Trim Sheets > Show Trim Sheet High/Low**. The sheet's high poly appears lying flat at the origin: its width along X, its strips running down Z from the top one at Z 0, 200 cm square. Hide `T_TrimLadder_Low` and model on top of the high with any tools. Whatever you put on it gets baked into the texture.
+Choose **Level > Trim Sheets > Show Trim Sheet High/Low**. The sheet's high poly appears lying flat at the origin: its width along X, its strips running down Z from the top one at Z 0, 200 cm square. Hide `T_TrimLadder_Low` and model on top of the high with any tools.
 
 **A rosette on the frieze.** The Frieze strip covers Z 0 to 50 cm.
 
@@ -180,7 +180,7 @@ A wall built for a trim sheet is a stack of bands, each as tall as the strip it 
 
 ![With a band selected, click its strip in the palette](images/trim-sheets/tutorial-8-palette.png)
 
-Clicking a strip lines each face up with the strip's motifs: a short end shows one motif in its middle, a long face ends between motifs, so corners stay tidy. The mouldings at the base and the bands stepping out towards the top throw the shadow lines that make it read as stone. Hide the high poly and the motifs, and you have the wall at the top of this tutorial.
+Clicking a strip lines each face up with the strip's motifs: a short end shows one motif in its middle, a long face ends between motifs, so corners stay tidy. Hide the high poly and the motifs to see the finished wall.
 
 For walls you trim with **Auto** instead, click the Frieze in the editor and tick **Reserved**: Auto never picks a reserved strip, so it goes only where you click it.
 

@@ -8,7 +8,7 @@ Press **Enter** or **Space** right after Lila opens to load the scene you last h
 
 ## Find any menu command
 
-Press **Ctrl+T** and type. Every menu command is searchable, so you don't need to remember which menu it lives in.
+Press **Ctrl+T** and type. Every menu command is searchable.
 
 ![Command search showing results for "model"](images/essentials/command-search.png)
 
@@ -52,7 +52,7 @@ Each camera has its own slots, including persp and each ortho view, and they sav
 
 ## Hide the selection highlight
 
-The **Highlight Selection** button at the left of the viewport's bottom bar turns off the selection highlight. This gets them out of the way when you adjust a modifier or attribute and want to see the mesh change.
+The **Highlight Selection** button at the left of the viewport's bottom bar turns off the selection highlight, so you can see the mesh change while you adjust a modifier or attribute.
 
 ## Floating shelf
 
@@ -86,9 +86,9 @@ Press **Shift+T** and type part of a menu or section name. Press **Enter** and t
 
 ![The Light palette following the cursor](images/essentials/tear-off-placing.png)
 
-You can also click the dashed line at the top of any menu to tear it off where it is (a section title tears off just that section).
+You can also click the dashed line at the top of any menu to tear it off where it is (a section title tears off only that section).
 
-> You can drag items from any create-based menu, treating them like an artist's palette.
+> Drag items from any create-based menu, like paint from a palette.
 
 ![Dragging Point Light from the Light palette onto a character](images/essentials/menu-tear-off.png)
 
@@ -179,13 +179,13 @@ Clone once with Y, then keep pressing Shift+D to repeat the step. See [Duplicate
 
 Symmetry in Lila stays exact across modeling, UVs, weights and joints. **Shift+X** toggles it on the selected meshes.
 
-> **Coming from Maya?** Maya's world and object symmetry pair vertices by position within a tolerance, so a vertex that drifts slightly off the axis stops matching and symmetry quietly breaks. Lila was built around symmetry from the start, so it doesn't drift.
+> **Coming from Maya?** Maya's world and object symmetry pair vertices by position within a tolerance, so a vertex that drifts slightly off the axis stops matching and symmetry quietly breaks. Lila's doesn't drift.
 
 ### Radial symmetry
 
 Pick **Radial** in the viewport toolbar's symmetry menu, or **Mesh > Symmetry Radial**. Edits, selections, sculpt and paint then repeat round the axis, **Radial Count** times. **Radial Mirror** also mirrors each wedge (rims, hubcaps, flowers).
 
-- To start from scratch, model one wedge, then **Mesh > Symmetrize Radial**. It rebuilds the mesh exactly N-fold, welds the seams and turns radial symmetry on.
+- Or model one wedge, then **Mesh > Symmetrize Radial**. It rebuilds the mesh exactly N-fold, welds the seams and turns radial symmetry on.
 - UV edits on a radial mesh stack every wedge on one set of UVs. Turn symmetry off first to lay the wedges out separately.
 - Weight paint, joints and the bake cage stay mirror-only.
 
@@ -203,12 +203,10 @@ The box at the top of the outliner filters what it shows. It has a regex toggle 
 | `type:mesh` | Show only that type. |
 | `root\|spine` | Match against the full path. Any term containing `\|` does this. |
 
-- Parents of matching items stay visible, dimmed, so you can see where each match sits.
+- Parents of matching items stay visible, dimmed.
 - Clearing the filter restores whatever you had expanded before.
-- Clicking the box selects its text, so you can type straight over it. **Esc** clears it.
+- Clicking the box selects its text. **Esc** clears it.
 - With the regex toggle on, a pattern that isn't valid shows everything rather than nothing.
-
-> **Note:** There is no type dropdown. Typing `type:` is the only way to filter by type.
 
 ## Search the scene
 
@@ -222,8 +220,6 @@ Press **Ctrl+F** to search the scene for anything you'd find in the outliner. It
 - **Ctrl+T** switches to searching menus.
 
 ## Advanced Modeling Tools
-
-Lila brings many advanced modeling tools to the table.
 
 <!-- todo images - model toolkit too? -->
 
@@ -294,22 +290,20 @@ Fits the selected edge loops, vertices, or the border of a face region to a circ
 
 ## Auto UV
 
-Lila has a high-end UV toolkit and the Auto UV feature can produce worthwhile results in some cases.
-
 ![Auto UV seams on a canopy frame and the packed layout](images/essentials/auto-uv.png)
 
 To keep seams out of sight, such as away from a first person camera or a character's face, use **UV > Add Seam View**. It drops a locator where the camera is; move it and run Auto UV again. Its **Seam View** attribute sets how hard seams avoid it, and a negative value draws them towards it instead. Add as many as you need.
 
 ## Transfer UVs to a similar piece
 
-Already UV'd one piece and have another like it? Select the UV'd piece, then the other, and run **Transfer Attributes** (Shift+RMB) with **Sample Space** set to **Guided**. The second piece gets the same seams and islands, laid out where the first one's are, so you UV once and reuse it.
+Select the UV'd piece, then the other, and run **Transfer Attributes** (Shift+RMB) with **Sample Space** set to **Guided**. The second piece gets the same seams and islands, laid out where the first one's are.
 
 The pieces don't need to match. They can sit anywhere, be rotated or mirrored (left and right parts), be longer or shorter, or have different topology.
 
 - **Keep Island Shape** keeps each island exactly as copied. Turn it off to relax the islands to the new piece's shape.
 - **Separate Unmatched Faces** puts faces the source doesn't have, such as a cap where the source is open, into their own island beside the layout. Turn it off to merge them into the island next to them.
 
-> Maya requires identical topology, world position, or object position. Lila uses the source as a reference guide and generally produces a usable result.
+> Maya requires identical topology, world position, or object position.
 
 <!-- todo image -->
 
@@ -332,7 +326,7 @@ Press **Ctrl+\`** to open the command palette. Type part of any menu item or com
 
 ## Script editor
 
-The script editor has completion, signature help, auto-format, inline docs and relative line numbers, so you shouldn't need an external IDE.
+The script editor has completion, signature help, auto-format, inline docs and relative line numbers.
 
 ![Script editor with the API reference open at polyCube](images/essentials/script-editor.png)
 
@@ -365,13 +359,13 @@ The arrow on **Open** lists the scene, project and global scripts. Before a scen
 
 ## Naming conventions
 
-Set naming rules in **Preferences > Naming**, and Lila either warns when a name breaks them or fixes it for you. This keeps scenes tidy across a studio or a large team.
+Set naming rules in **Preferences > Naming**, and Lila either warns when a name breaks them or fixes it for you.
 
 ![Naming preferences](images/essentials/naming-convention.png)
 
 ## Notes and todo lists
 
-**Windows > General Editors > Notes** keeps notes and todo lists in the scene file, so they travel with it. Make as many as you like with the buttons at the top, and edit the name in the dropdown to rename one.
+**Windows > Editors > Scene > Notes** keeps notes and todo lists in the scene file, so they travel with it. Edit the name in the dropdown to rename one.
 
 - Paste a list from anywhere into a todo list with **Ctrl+V**: each line becomes an item, bullets are dropped, and `[x]` lines come in ticked.
 - **Ctrl+C** copies the selected items back out as lines.
@@ -401,4 +395,4 @@ The presenter draws in its own windows over Lila, so capture the display in OBS 
 
 ## AI agents
 
-Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command palette - almost everything - an agent can too.
+Lila supports AI agents through MCP and skills. Agents drive the same commands you do, so anything you can do from the command palette, an agent can too.

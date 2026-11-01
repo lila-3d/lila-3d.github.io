@@ -4,14 +4,14 @@
 
 **Modify > Scene Origin > Relocate Scene to Selection**
 
-Select what should end up at 0,0,0 (the ground under a character, a building) and run it. The whole scene moves so the bottom centre of the selection lands on the world origin. Skin, deformers, constraints, IK, spaces and keys in every take move with it, so nothing changes shape or animates differently. It is one undo step.
+Select what should end up at 0,0,0 (the ground under a character, a building) and run it. The whole scene moves so the bottom centre of the selection lands on the world origin. Skin, deformers, constraints, IK, spaces and keys in every take move with it, so nothing changes shape or animation. One undo step.
 
-Before anything changes, Lila checks that every node can follow. After the move it compares every transform and every deformed point, at several frames and in every take, with where it was. If anything is off by more than 0.00001 mm, the scene is put back as it was and the message names the node.
+Lila first checks that every node can follow. After the move it compares every transform and every deformed point, at several frames and in every take, with where it was. If anything is off by more than 0.00001 mm, the scene is put back as it was and the message names the node.
 
 If it refuses:
 
 - **May hold world-space data**: the scene has a node Lila can't move safely: Edge to Curve history, an extension node its extension doesn't describe, or a skeleton edit in progress. Finish the skeleton edit or delete the history, then run it again.
-- **Object Info node ... reads ...'s world transform**: a geometry nodes group reads another object where it stands in the world, so moving both would change the result. Set that Object Info node's **Relative To** to **owner**, which reads the object against the mesh the group runs on.
+- **Object Info node ... reads ...'s world transform**: a geometry nodes group reads another object's world position, so moving both would change the result. Set that Object Info node's **Relative To** to **owner**, which reads the object against the mesh the group runs on.
 - **Keyed on separate X, Y and Z curves**: with **Rotation** set, a root keyed on Euler curves can only turn about the outermost axis of its rotate order. Set **Rotation** to None, or convert its keys to a rotation curve (`convertRotationCurves`) first.
 - **Links ... which moves, and ... which doesn't**: with **Only the selected hierarchies**, a skin, deformer or constraint ties something inside to something outside. Select both.
 - **The parent is animated**: a hierarchy can only take a fixed move under a parent that stays still. Pick the top of the hierarchy.

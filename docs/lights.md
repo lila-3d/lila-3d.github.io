@@ -2,8 +2,6 @@
 
 Lights illuminate and cast shadows in the viewport and renders, on top of the environment.
 
-> A custom C++ extension can add its own lights and render them: see [Make your own lights](#make-your-own-lights).
-
 ## Get it working
 
 1. **Create > Light**, then pick a type.
@@ -21,7 +19,7 @@ Lights keep their original units and any settings Lila has no field for, so they
 
 **A light makes no shadow.** Check **cast shadows** is on. On GPUs with ray tracing the first four shadowed lights of any kind trace their shadows (**Render > Ray-Traced Shadows**), soft by the light's size (a directional light's **source radius** is its angle in degrees). Without ray tracing only directional and spot lights cast shadows, from the first four.
 
-**Shadows look blocky while the view moves.** They soften and settle as soon as the view holds still. Turn on **Antialiasing > Temporal** in Preferences > Viewport if it's off.
+**Shadows look blocky while the view moves.** They settle once the view holds still. Turn on **Antialiasing > Temporal** in Preferences > Viewport if it's off.
 
 **The scene is far too bright or dark with lights from another app.** Lila keeps the file's intensity and its units: candela or lux from glTF, nits from USD, unitless from Maya and FBX (FBX stores 100 for 1). Physical units are scaled down by 100 to sit with the environment; set the light's units to unitless and the intensity to taste.
 
@@ -35,7 +33,7 @@ Lights keep their original units and any settings Lila has no field for, so they
 
 ## Make your own lights
 
-A C++ extension registers a light provider. Lights it handles are its own: Lila no longer lights them, and the extension renders them.
+A C++ extension registers a light provider. Lila stops lighting the lights it handles, and the extension renders them.
 
 ```cpp
 #include <lila/Extension.h>

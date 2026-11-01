@@ -27,13 +27,13 @@ With the editor connected (`unrealConnect()`):
 masonryShip(wall["mesh"], wait=True)["unreal"]   # {"imported": ..., "placed": ..., "errors": []}
 ```
 
-Each stone mesh is imported once into `/Game/Lila/Masonry/<mesh>` with three LODs (worn, clean, box), and the stones are placed as one HISM per stone mesh per 4 m ground chunk, under the **Lila** folder in the outliner. The core is its own static mesh. Send again after an edit and the wall's chunks are replaced in place; chunks it no longer has are removed.
+Each stone mesh is imported once into `/Game/Lila/Masonry/<mesh>` with three LODs (worn, clean, box), and the stones are placed as one HISM per stone mesh per 4 m ground chunk, under the **Lila** folder in the outliner. The core is its own static mesh. Sending again replaces the wall's chunks in place and removes chunks it no longer has.
 
 The core carries the wall's collision as convex UCX pieces; stones have none.
 
 The stones also get a baked atlas: each stone's worn shape is baked onto its plain box as normal, AO and curvature, all stones in one texture set in `<folder>/<mesh>/Textures`. All three LODs read it through uv0; the tiling projection for a stone surface texture is in uv1.
 
-Materials are instances of one master, `M_LilaMasonry` in `/Game/LilaLink/Masters`, made the first time and then yours to edit; Lila never overwrites it unless you send with `regenerateMaster=True`. Each wall gets its instances in `<folder>/<mesh>/Materials`:
+Materials are instances of one master, `M_LilaMasonry` in `/Game/LilaLink/Masters`, made the first time and then yours to edit; only `regenerateMaster=True` overwrites it. Each wall gets its instances in `<folder>/<mesh>/Materials`:
 
 | Instance | Slot | On |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Topology
 
-Retopologize by hand. Available from the **Topology** menu or the **Topology Toolkit** (Windows > Topology Toolkit).
+Retopologize by hand, from the **Topology** menu or the **Topology Toolkit** (**Windows > Topology Toolkit**).
 
 <!-- TODO image: a character half retopologised with patches, strips and cylinders (images/topology/overview.png) -->
 

@@ -25,7 +25,7 @@ Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches an
 
 ## EZ Curve
 
-Click two points. When both land on a mesh, the curve follows its surface between them; it is also kept out of any mesh the straight line between them passes through. Until you start the next curve, reshape it in place:
+Click two points. When both land on a mesh, the curve follows its surface between them and stays out of any mesh the straight line between them passes through. Until you start the next curve, reshape it in place:
 
 | Input | Does |
 | --- | --- |
@@ -79,23 +79,23 @@ To bring a pipe out of a mesh, select a face (circularize it first for a round s
 
 ![Selected faces for pipe](images/curves/pipe-01-select-faces.png)
 
-Then you can place the points for the pipe curve.
+Place the pipe's points.
 
 ![Drawing a pipe](images/curves/pipe-02-draw-pipe.png)
 
-Consider using vertex, edge, and surface snapping to accurately place your curve points.
+Snap to vertices, edges and surfaces to place them accurately.
 
 ![Surface snapping the pipe](images/curves/pipe-03-snap.png)
 
-Apply a preset to your pipe to customize the look.
+Pick a preset for the look.
 
 ![Pipe presets](images/curves/pipe-04-preset.png)
 
-Adjust the look further with the parameters.
+Tune it with the parameters.
 
 ![Pipe params](images/curves/pipe-05-params.png)
 
-> To turn existing curves into pipes, with the pipe tool active, select them and press **Enter** without drawing.
+> To pipe existing curves, select them with the Pipe Tool active and press **Enter** without drawing.
 
 | Key | In the Pipe Tool |
 | --- | --- |
@@ -118,7 +118,7 @@ Adjust the look further with the parameters.
 | Command | Select |
 | --- | --- |
 | **Deform Along Curve**, **Array Along Curve** | The meshes, then the curve. A second curve is the aim curve when Up Mode is Aim Curve. |
-| **Flow Along Surface** | The meshes, then the surface. Select faces on the surface (one full rectangle of quads, no poles) to flow onto just those. |
+| **Flow Along Surface** | The meshes, then the surface. Select faces on the surface (one full rectangle of quads, no poles) to flow onto those only. |
 
 - The mesh starts at the curve's start from its lowest point along the forward axis; its pivot sets how far it sits off the curve. Use **Roll** to turn it about the curve.
 - Flow maps X to U and Z against V, with height measured from Y = 0 (**Height Base**).
@@ -141,7 +141,7 @@ Adjust the look further with the parameters.
 
 ### Text
 
-- **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it later in the **Text** section of the Attribute Editor, with the text curve or anything built from it (a Bevel Plus) selected: Enter starts a new line, and the text updates when you pause typing. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
+- **Text** lies in the XY plane, first baseline at the origin (**Anchor** moves the top, middle or bottom there instead). Edit it in the **Text** section of the Attribute Editor with the text curve or anything built from it (a Bevel Plus) selected: Enter starts a new line, and the text updates when you pause typing. Bold and italic use the family's own styles; when it has none they fall back to **Weight** and **Slant**. An unknown font falls back to Inter with a warning.
 - **Fonts**: the family dropdown lists the fonts this scene uses, your favourites and your recent picks first. Star a font (the star beside the style, or on its row in the dropdown) to favourite it; with a workspace open the favourites are saved with the workspace, in `.lila/fonts.json`.
 - **Text Mesh** (Curves menu) makes the text and its Bevel Plus in one step; the font, depth and bevels stay editable on the mesh.
 - **Stretched or pulled vertices**: lower **Front Width** (and **Back Width**) first. A bevel wider than the thinnest strokes meets itself in a ridge and drags the faces across the letter.

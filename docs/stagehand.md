@@ -17,7 +17,7 @@ Push, drop and settle props into place with physics, fill shelves and scatter de
 
 Leaving the tool keeps the result.
 
-**Settle, push and drop in one call.** These are what the tool does, for scripts and agents:
+**Settle, push and drop from a script.**
 
 ```python
 settle(["mug", "plate"])                              # fall and rest on what is below
@@ -40,7 +40,7 @@ replaceWith(["box1", "box2"], asset="Props/Crate", fit=True)   # blockout cubes 
 fillShelf(["Shelf_1", "Shelf_2"], items=["Books/Hardback", "Books/Paperback"], sag=True)
 ```
 
-This gives you a live arrangement whose seed, gap and lean inputs re-arrange it. `realize=True` places real objects instead, which you can push, edit and check one by one. `scatterProps`, `pileProps` and `stackProps` work the same way.
+This makes a live arrangement; its seed, gap and lean inputs re-arrange it. `realize=True` places real objects instead, which you can push, edit and check one by one. `scatterProps`, `pileProps` and `stackProps` work the same way.
 
 <!-- TODO image: a bookshelf filled with fillShelf, some books leaning, a stack lying flat, the boards sagging (images/stagehand/shelf.png) -->
 

@@ -10,7 +10,7 @@ Copies that share their mesh, repeat a transform, or stay live as an array. All 
 | **Shift+D** | Duplicate with Transform: one more copy, stepped as far again as the last copy is from its source |
 | Hold **Y** + drag a gizmo handle | Clone while moving, rotating or scaling. Shift+D then carries on the same step |
 
-Shift+D measures the step from where the last copy actually is, so move, rotate or scale it any way first. It keeps working after you select other things, as long as that copy still exists.
+Shift+D measures the step from where the last copy is, so move, rotate or scale it first. It keeps working after you select other things, as long as that copy exists.
 
 ## Instance or reference
 
@@ -22,7 +22,7 @@ Shift+D measures the step from where the last copy actually is, so move, rotate 
 - Editing components on any member edits every member. Adding a modifier to an instance adds it to the shared stack.
 - **Make Unique** gives a member its own data again.
 - **Convert to Instances** replaces meshes identical to the last selected one with instances of it. Use it on imported kits.
-- Deleting the source hands its data to the next member; nothing else changes.
+- Deleting the source hands its data to the next member.
 - Freeze Transformations makes the mesh unique first.
 
 FBX export writes one shared mesh per instance source, and FBX and Maya imports bring shared meshes in as instances (Import FBX's `instances` option turns this off).
@@ -46,7 +46,7 @@ FBX export writes one shared mesh per instance source, and FBX and Maya imports 
 
 ## Send to Unreal
 
-`unrealPlaceInstances` sends one static mesh asset per instance source and places it in the open level: an actor per member, or a HISM component once a group has more than 50 members (pref `/instanceThreshold`, or `mode=`). Array copies count as members. Sending again moves, adds and removes actors to match, also after renaming or reopening the scene; save the scene after the first send so it remembers which actors are whose.
+`unrealPlaceInstances` sends one static mesh asset per instance source and places it in the open level: an actor per member, or a HISM component once a group has more than 50 members (pref `/instanceThreshold`, or `mode=`). Array copies count as members. Sending again moves, adds and removes actors to match, even after renaming or reopening the scene. Save the scene after the first send so it remembers which actors are whose.
 
 ## Troubleshooting
 

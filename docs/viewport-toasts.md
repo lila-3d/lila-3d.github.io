@@ -1,6 +1,6 @@
 # Viewport toasts
 
-Pop a short message up in the bottom-right corner of the viewport, such as "Exported 12 meshes", from a script or extension. It fades out on its own.
+Pop a short message in the bottom-right corner of the viewport, such as "Exported 12 meshes", from a script or extension. It fades out by itself.
 
 > Available for Python (`lila.ops.viewportToast`) and C++ (`#include <lila/Viewport.h>`, `lila::ui::viewportToast`).
 

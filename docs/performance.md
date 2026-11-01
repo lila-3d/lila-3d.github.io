@@ -24,7 +24,7 @@ The same 13.5 million triangles in each app, as drawn during these tests, both w
 | GPU | NVIDIA GeForce RTX 5080, 16 GB, driver 610.88 |
 | OS | Windows 11 Pro |
 
-Numbers change between versions. Each one is only a claim about the versions above.
+Each number is only a claim about the versions above.
 
 ## Test files
 
@@ -35,7 +35,7 @@ Numbers change between versions. Each one is only a claim about the versions abo
 
 Results are coloured by how far they are from the best on their row: <span style="color:#22a447">green</span> is the fastest (brighter for a bigger lead), <span style="color:#c9a400">yellow</span> is close to it and <span style="color:#e0453a">red</span> is 10x slower or worse; results within 5% count as even.
 
-> Lower means faster - numbers are times: how long each task took, or how long one frame took to draw.
+> Lower is faster: each number is how long a task took, or how long one frame took to draw.
 
 ### Files
 
@@ -75,7 +75,7 @@ Results are coloured by how far they are from the best on their row: <span style
 
 The 0.01 cm weld is extreme: the ship is about 1 cm long, so almost every edge is shorter than that and the whole mesh collapses. Lila does what was asked; Maya never returns.
 
-If Lila crashes, hangs or is slow on your files, report it. Unlike with Autodesk, you reach the person who wrote it, and crashes, bugs and slow spots get fixed.
+If Lila crashes, hangs or is slow on your files, report it.
 
 ### Viewport
 
@@ -165,7 +165,7 @@ points = lila.Node("Default").points_array()
 points = np.array(om.MFnMesh(path).getPoints(om.MSpace.kObject))[:, :3]
 ```
 
-Maya also has a faster route through API 1 and ctypes, `MFnMesh.getRawPoints`, which took 0.022 s. Lila's gather time is the median of five runs. The full scripts are `python/examples/mesh_compute_benchmark.py` (Lila) and `tools/benchmarks/maya_mesh_compute.py` (Maya). Threading in Lila is covered in [Threads and big meshes](python-threads.md).
+Lila's gather time is the median of five runs. The full scripts are `python/examples/mesh_compute_benchmark.py` (Lila) and `tools/benchmarks/maya_mesh_compute.py` (Maya). Threading in Lila is covered in [Threads and big meshes](python-threads.md).
 
 <details>
 <summary>mesh_compute.py</summary>

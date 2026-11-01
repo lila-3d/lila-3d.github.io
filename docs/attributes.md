@@ -5,56 +5,59 @@ Attributes can be added to any node, and an attribute can be an array: any numbe
 ## Add attributes from Python
 
 ```python
-addAttr("Crate", longName="mass", defaultValue=20, keyable=True)        # Crate.mass
-addAttr("Crate", longName="tags", dataType="stringArray")
-addAttr("Crate", longName="samples", dataType="doubleArray")
-addAttr("Crate", longName="mode", attributeType="enum", enumName="off:soft:hard")
+from lila import ops
+ops.addAttr("Crate", longName="mass", defaultValue=20, keyable=True)        # Crate.mass
+ops.addAttr("Crate", longName="tags", dataType="stringArray")
+ops.addAttr("Crate", longName="samples", dataType="doubleArray")
+ops.addAttr("Crate", longName="mode", attributeType="enum", enumName="off:soft:hard")
 
-setAttr("Crate.tags", ["metal", "heavy"])    # the whole array: elements 0..n-1
-setAttr("Crate.samples[4]", 1.5)              # one element
-getAttr("Crate.samples")                      # [1.5]: values in index order
-getAttr("Crate.samples", multiIndices=True)   # [4]
-removeMultiInstance("Crate.samples[4]")
-deleteAttr("Crate.mode")
+ops.setAttr("Crate.tags", ["metal", "heavy"])    # the whole array: elements 0..n-1
+ops.setAttr("Crate.samples[4]", 1.5)              # one element
+ops.getAttr("Crate.samples")                      # [1.5]: values in index order
+ops.getAttr("Crate.samples", multiIndices=True)   # [4]
+ops.removeMultiInstance("Crate.samples[4]")
+ops.deleteAttr("Crate.mode")
 ```
 
 `lila.nodes` does the same: `Node("Crate").add_attr("mass", "float", default_value=20)`, `delete_attr`, `user_attrs()`, `is_array_attr(name)`.
 
 - `attributeType`: `bool`, `long`, `float`, `double`, `double3`, `enum`, `matrix`, `compound`; `multi=True` makes it an array.
 - `dataType`: `string`, `stringArray`, `doubleArray`, `Int32Array`, `vectorArray`.
-- Added attributes show under **Extra Attributes** in the attribute editor, keyable ones in the channel box. They save with the scene and come along on duplicate.
+- Added attributes show under **Extra Attributes** in the attribute editor, keyable ones in the channel box. They save with the scene and duplicate with the node.
 
 ## Compounds
 
 ```python
-addAttr("Rig", longName="targets", attributeType="compound", multi=True)
-addAttr("Rig", longName="weight", defaultValue=1, parent="targets")
-addAttr("Rig", longName="label", dataType="string", parent="targets")
-setAttr("Rig.targets[2].weight", 0.25)
+from lila import ops
+ops.addAttr("Rig", longName="targets", attributeType="compound", multi=True)
+ops.addAttr("Rig", longName="weight", defaultValue=1, parent="targets")
+ops.addAttr("Rig", longName="label", dataType="string", parent="targets")
+ops.setAttr("Rig.targets[2].weight", 0.25)
 
-addAttr("Rig", longName="settings", attributeType="compound")       # not multi: Rig.settings.speed
-addAttr("Rig", longName="speed", defaultValue=3, parent="settings")
-deleteAttr("Rig.settings")                                           # and its children
+ops.addAttr("Rig", longName="settings", attributeType="compound")       # not multi: Rig.settings.speed
+ops.addAttr("Rig", longName="speed", defaultValue=3, parent="settings")
+ops.deleteAttr("Rig.settings")                                           # and its children
 ```
 
-- A compound exists once its first child is added. More children can be added later.
+- A compound exists once its first child is added.
 - Compounds nest one level: a compound can't be a child.
 - A multi compound's children hold one value per element, so `doubleArray` and other arrays can't be its children. A plain compound can hold them.
 
 ## Arrays
 
 ```python
-mesh, op = loft(*rings)
-connectAttr(circle(radius=8, name="Ring") + ".worldSpace", op + ".sections")  # appends: returns 'CurveLoft.sections[20]'
-connectAttr("Ring.worldSpace", op + ".sections[3]", force=True)              # element 3
-disconnectAttr(op + ".sections")                                             # every element
+from lila import ops
+mesh, op = ops.loft(*rings)
+ops.connectAttr(ops.circle(radius=8, name="Ring") + ".worldSpace", op + ".sections")  # appends: returns 'CurveLoft.sections[20]'
+ops.connectAttr("Ring.worldSpace", op + ".sections[3]", force=True)              # element 3
+ops.disconnectAttr(op + ".sections")                                             # every element
 ```
 
 - Connecting to the whole array adds an element after the last one.
 - Arrays that hold values (`samples` above, constraint weights) keep an element when its connection goes. Input-only arrays (loft `sections`, wrap `drivers`) drop it, so deleting a section curve removes that section.
 - Elements keep their indices: removing `[5]` leaves `[6]` as `[6]`.
 
-Grouped arrays in Lila: constraint `targets` (`matrix`, `weight`, `offset`), space switch `spaces` (`target`, `offset`), wrap `drivers` (`mesh`, `matrix`), collision `colliders` and `capsules`. `removeMultiInstance("pointConstraint1.targets[2]")` removes every child at index 2.
+Grouped arrays in Lila: constraint `targets` (`matrix`, `weight`, `offset`), space switch `spaces` (`target`, `offset`), wrap `drivers` (`mesh`, `matrix`), collision `colliders` and `capsules`. `ops.removeMultiInstance("pointConstraint1.targets[2]")` removes every child at index 2.
 
 ## C++
 

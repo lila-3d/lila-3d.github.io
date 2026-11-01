@@ -2,7 +2,7 @@
 
 How to get help with Lila and report bugs.
 
-> Lila is free and made by one person. Every bug report is helpful for improving Lila, but there's no help desk and no guarantee of a reply.
+> Lila is free and made by one person. There's no help desk and no guarantee of a reply.
 
 ## Get help
 
@@ -32,7 +32,7 @@ Post it in the **Bug Reports** forum of the [Steam discussions](https://steamcom
 
 ## Where Lila keeps its files
 
-Everything lives under `%APPDATA%\Lila`. **Help > Open Prefs Folder** and **Help > Open Crash Reports Folder** open the relevant folders.
+Everything lives under `%APPDATA%\Lila`. **Help > Open Prefs Folder** and **Help > Open Crash Reports Folder** open them.
 
 | Folder | What's in it |
 | --- | --- |

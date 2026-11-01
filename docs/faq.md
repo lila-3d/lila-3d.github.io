@@ -7,7 +7,7 @@
 64-bit Windows 10 and 11. See [System requirements](requirements.md).
 
 - **Linux** is planned. It needs only a small port, and Linux GPU drivers support everything Lila uses, including hardware ray tracing.
-- **macOS** is harder. It has no native Vulkan, so Lila would run on Metal through MoltenVK. MoltenVK has no hardware ray tracing, so bakes would still run on the GPU, through Lila's software tracer, just slower than on a ray-tracing card.
+- **macOS** is harder. It has no native Vulkan, so Lila would run on Metal through MoltenVK. MoltenVK has no hardware ray tracing, so bakes would still run on the GPU, through Lila's software tracer, slower than on a ray-tracing card.
 
 The source opens at release, so macOS and Linux users can build it themselves.
 
@@ -37,7 +37,7 @@ Yes. It opens `.mb` and `.ma` files and converts them to Lila scenes, without Ma
 
 ### When are preferences saved?
 
-Right away. Every change to preferences, hotkeys, marking menus, shelves and layouts is written to disk within a fraction of a second, so nothing waits for Lila to close and a crash loses nothing. Maya saves them when it quits, and loses them when it crashes.
+Right away. Every change to preferences, hotkeys, marking menus, shelves and layouts is written to disk within a fraction of a second, so a crash loses nothing. Maya saves them when it quits, and loses them when it crashes.
 
 The files are plain JSON in `%APPDATA%/Lila/prefs`. Edit one in a text editor while Lila runs and the change applies live: hotkeys rebind and menus rebuild. A workspace can override any of them in its own `.lila` folder, so a project can share hotkeys or settings through source control. A studio can serve and lock them for everyone from a network folder; see [Studio setup](studio-setup.md).
 
@@ -61,10 +61,9 @@ Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no
 
 ### Why does Lila save `.lila` instead of USD?
 
-Because a `.lila` file saves how a scene is built, and USD stores the result. A Lila scene is a live graph: modifier stacks, generators, rigs, deformers, constraints and node graphs. Saving it as USD would bake all of that down, or wrap it in custom schemas that only Lila can evaluate. Houdini and Maya would see unknown prims, so the file would still really be Lila's own format.
+Because a `.lila` file saves how a scene is built, and USD stores the result. A Lila scene is a live graph: modifier stacks, generators, rigs, deformers, constraints and node graphs. Saving it as USD would bake all of that down, or wrap it in custom schemas that only Lila can evaluate. Houdini and Maya would see unknown prims, so the file would still be Lila's own format.
 
 Maya (`.ma`/`.mb`) and Houdini (`.hip`) take the same route: a native scene format that hosts USD stages. Lila opens a USD file as a live stage, never flattened. Your edits go to a layer as overs, and Houdini or Maya pick that layer up. See [USD stages](formats.md#usd-stages).
-
 
 ### Which renderer does Lila use?
 
@@ -81,7 +80,7 @@ Yes, as a viewport renderer. Any Hydra render delegate, Storm or your own engine
 
 ### How does undo work?
 
-Every command, tool drag and selection change is one undo step. Selection steps don't mark the scene as unsaved. **Window > Undo History** lists the steps; click one to jump there.
+Every command, tool drag and selection change is one undo step. Selection steps don't mark the scene as unsaved. **Windows > Editors > Scene > Undo History** lists the steps; click one to jump there.
 
 Undo is unlimited by default, within a 2 GB memory budget: past that, the oldest steps drop. A mesh shared by several steps counts once. Change the budget, or set a step limit instead, in **Preferences > General > Undo**. Opening or creating a scene clears the history.
 
@@ -101,8 +100,6 @@ Jolt 5.6.
 - Cross-platform determinism is on, so a simulation gives the same result on every machine. Jolt puts the cost at a few percent.
 - It uses every CPU core but one.
 - The simulation cache saves Jolt's state every frame, which adds cost in large scenes.
-
-Benchmarks are coming.
 
 ### Can I write extensions in C++, and do they keep working after updates?
 

@@ -2,7 +2,7 @@
 
 Renders are the viewport's own picture, supersampled: post process, depth of field and motion blur included, with no grid, wires or selection.
 
-Lila does not ship with an offline path-traced software renderer. It renders with the same real-time renderer you work in, taking seconds instead of hours, and matches the viewport.
+Lila has no offline path tracer: it renders with the same real-time renderer you work in, in seconds.
 
 > You can add any renderer using a [C++ extension](cpp-extensions.md). For path tracing, a [viewport renderer](viewport-renderers.md) draws the view with a Hydra delegate such as Cycles or Arnold.
 
@@ -45,15 +45,15 @@ On a camera, turn on **depth of field** and set **f-stop** and **focus distance*
 
 ## Troubleshooting
 
-**Rendering needs a viewport.** Renders use the Lila window's view; they don't run in lilabatch yet.
+**Rendering needs a viewport.** Renders use the Lila window's view; they don't run in lilabatch.
 
 **The render is noisy or the blur grainy.** Raise **samples**. Depth of field and motion blur need 64 or more.
 
 **HEVC fails.** Windows needs the HEVC Video Extensions; use H.264 otherwise.
 
-**The video won't play on Linux or macOS builds.** Video is Windows only for now; render an image sequence.
+**The video won't play on Linux or macOS builds.** Video is Windows only; render an image sequence.
 
-**The view shimmers while it moves, then settles.** That's temporal antialiasing catching up; it settles within a few frames of holding still. Preferences > Viewport > **Still frames averaged** sets how far it goes.
+**The view shimmers while it moves, then settles.** That's temporal antialiasing catching up. Preferences > Viewport > **Still frames averaged** sets how far it goes.
 
 ## Options
 

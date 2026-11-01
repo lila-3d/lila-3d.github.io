@@ -24,7 +24,7 @@ Usage statistics, once per session:
 | --- | --- |
 | Lila starts | Lila version, OS, GPU model and memory, RAM (rounded to a range), display count, language, whether Lila came from Steam, the installer or a source build, how long ago it was installed (as a range), how many extensions are loaded |
 | Lila closes | Session length, minutes you were actively using it, whether it crashed, how many times each built-in command ran and whether from the UI, Python or an AI agent, how many extension or script commands ran (counted, never named), how often the Unreal link was used and the Unreal version |
-| You answer the optional questions | Your role, team size and the DCC you used before Lila |
+| You answer the optional questions | Your role, team size and the 3D app you used before Lila |
 
 Crash reports, when Lila crashes and you click **Send Crash Report** in the crash dialog (or every time, if you tick **Always send crash reports without asking**, also in **Preferences > General > Telemetry**):
 

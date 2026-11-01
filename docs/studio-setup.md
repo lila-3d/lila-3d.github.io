@@ -5,10 +5,10 @@ Give every artist the same preferences, shelves, hotkeys and marking menus from 
 ## Get it working
 
 1. Make a folder everyone can read, for example `\\server\lila\prefs`. Only the people who manage it need write access.
-2. Point Lila at it on every workstation, either way:
+2. Point Lila at it on every workstation:
    - Set the environment variable `LILA_STUDIO_PREFS=\\server\lila\prefs`, from your launcher or system settings.
    - Or put a `studio.json` next to `lila.exe` in your deployed install: `{"prefs": ["\\\\server\\lila\\prefs"]}`. A relative path is read from the install folder.
-3. Put prefs files in the folder. They have the same names and layout as an artist's own prefs in `%APPDATA%/Lila/prefs` (`~/.config/Lila/prefs` on Linux, `~/Library/Application Support/Lila/prefs` on macOS). The easiest start: set things up in your own Lila, then copy the files you want, such as `general.json`, `hotkeys.json` or `shelves/Rigging.json`.
+3. Put prefs files in the folder. They have the same names and layout as an artist's own prefs in `%APPDATA%/Lila/prefs` (`~/.config/Lila/prefs` on Linux, `~/Library/Application Support/Lila/prefs` on macOS). Set things up in your own Lila, then copy the files you want, such as `general.json`, `hotkeys.json` or `shelves/Rigging.json`.
 4. Start Lila. The log shows `prefs: studio folder \\server\lila\prefs`, and the values from the folder are in effect.
 
 Any value in the studio folder is a default: an artist who changes it keeps their own value. To stop that, lock it (below).
@@ -43,11 +43,11 @@ A file in `shelves/` in the studio folder appears as a shelf for everyone. Lock 
 
 Unlocked, it's a starting shelf each artist can rearrange as their own.
 
-Hotkeys (`hotkeys.json`), naming rules (`naming.json`) and Lila's marking menus (`markingMenus/<name>.json`) work the same way, since they are prefs files too. Layouts are not.
+Hotkeys (`hotkeys.json`), naming rules (`naming.json`) and Lila's marking menus (`markingMenus/<name>.json`) work the same way. Layouts don't.
 
 ## Updating
 
-Edit the files in the studio folder. Every running Lila picks up the change within about 5 seconds, including new or removed shelves; no restart needed.
+Edit the files in the studio folder. Every running Lila picks up the change within about 5 seconds, including new or removed shelves.
 
 ## Troubleshooting
 

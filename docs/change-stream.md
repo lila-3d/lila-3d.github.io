@@ -96,9 +96,9 @@ Narrow what a client hears with `{"op": "subscribe", ...}`. Lists match any entr
 
 | Field | What it does |
 | --- | --- |
-| `types` | Node types, subtypes included, e.g. `["mesh"]`. |
-| `attrs` | Attribute long names, e.g. `["translate", "rotate"]`. Applies to `evaluated` too, e.g. `["outMesh"]`. |
-| `under` | Full paths: the node and everything below it, e.g. `["\|Rig"]`. |
+| `types` | Node types, subtypes included, for example `["mesh"]`. |
+| `attrs` | Attribute long names, for example `["translate", "rotate"]`. Applies to `evaluated` too, for example `["outMesh"]`. |
+| `under` | Full paths: the node and everything below it, for example `["\|Rig"]`. |
 | `full` | `true` sends whole meshes and large data. |
 | `live` | `true` adds `live` messages during drags. |
 | `world` | `true` adds `world` changes, `frame` messages, and `world` to snapshot nodes. |

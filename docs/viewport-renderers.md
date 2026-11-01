@@ -1,6 +1,6 @@
 # Viewport renderers and Hydra
 
-Draw Lila's viewport with another renderer, such as your engine's, through Hydra or a C++ extension. Lila keeps its wires, selection, gizmos, tools and HUD on top, so you model, lay out and animate while seeing the scene as your engine draws it.
+Draw Lila's viewport with another renderer, such as your engine's, through Hydra or a C++ extension. Lila keeps its wires, selection, gizmos, tools and HUD on top.
 
 > Each viewport picks its own renderer, so one view can show your engine while another stays on Lila's.
 
@@ -10,16 +10,16 @@ Draw Lila's viewport with another renderer, such as your engine's, through Hydra
 
    ![The Renderer menu in a viewport's toolbar](images/viewport-renderers/renderer-menu.png)
 
-2. The view redraws through Pixar's Storm. Move an object or change a material and the view follows.
+2. The view redraws through Pixar's Storm and follows your edits.
 
 Every Hydra render delegate Lila finds is listed in that menu as **Hydra: \<name\>**. Lila ships Storm and Embree.
 
 ## Get it working: your engine's render delegate
 
-Your engine draws in Lila once it has a Hydra render delegate (an `HdRenderDelegate` and its `HdRendererPlugin`), the same plugin usdview, Houdini or Maya would load.
+Your engine needs a Hydra render delegate (an `HdRenderDelegate` and its `HdRendererPlugin`), the same plugin usdview, Houdini or Maya would load.
 
-1. Build the delegate against OpenUSD **26.08** with Python 3.14 support, release (`/MD`) with MSVC 2022, and USD's default `usd_` library prefix. That is the build Lila ships, and a delegate built against another version won't load.
-2. Lay it out as USD expects, with a `plugInfo.json` naming it a renderer plugin:
+1. Build the delegate against OpenUSD **26.08** with Python 3.14 support, release (`/MD`) with MSVC 2022, and USD's default `usd_` library prefix, matching Lila's build. A delegate built against another version won't load.
+2. Lay it out with a `plugInfo.json` naming it a renderer plugin:
 
 ```
 hdMyEngine.dll
@@ -69,7 +69,7 @@ MyEngine.lilaext/usd/hdMyEngine/resources/plugInfo.json
 
    The delegate joins the Renderer menu when the extension loads and leaves it when it unloads. An extension with a DLL can also add a folder from code, with `usdPlugins::add(ctx, folder)` from `<lila/UsdPlugins.h>`.
 
-   Without an extension, point `PXR_PLUGINPATH_NAME` at the folder holding `hdMyEngine/`, or at `hdMyEngine/resources` as other USD apps expect (several folders are separated by `;`), and start Lila. Lila reads it at startup.
+   Without an extension, point `PXR_PLUGINPATH_NAME` at the folder holding `hdMyEngine/`, or at `hdMyEngine/resources` (separate several folders with `;`), before starting Lila.
 4. Pick **Hydra: My Engine** from a viewport's **Renderer** menu, or in a script:
 
 ```python
@@ -85,8 +85,8 @@ The id is `hydra` followed by the letters and digits of `displayName`.
 - **Meshes** with face-varying `normals`, UVs (`st`, `st1`, ...), `displayColor` and `displayOpacity`. A mesh with smooth preview on comes refined, so you never need subdivision.
 - **Materials** under `/LilaMaterials` as `UsdPreviewSurface` networks: a `UsdUVTexture` per map, read through `UsdPrimvarReader_float2` from `st`. Each mesh binds its material for every purpose (`allPurpose`, `preview` and `full`).
 - **Live USD stages** through UsdImaging, under a prim per stage, so everything UsdImaging produces reaches you too, including your own schemas if your delegate handles them, and MaterialX networks as authored for prims Lila doesn't draw itself.
-- **Edits as they happen**: a moved object dirties only its transform, a deformed mesh only its points, so a drag never rebuilds the scene.
-- **Render settings**: `CreateDelegate` gets `lila:metersPerUnit` (`0.01`) and `lila:upAxis` (`"Y"` or `"Z"`), plus every value saved for your delegate. The settings in your `GetRenderSettingDescriptors` (bools, numbers and strings) appear under **Renderer Settings...** in the Renderer menu. A changed value is set with `SetRenderSetting` on every viewport using your delegate and saved for next time. In a script:
+- **Edits as they happen**: a moved object dirties only its transform, a deformed mesh only its points.
+- **Render settings**: `CreateDelegate` gets `lila:metersPerUnit` (`0.01`) and `lila:upAxis` (`"Y"` or `"Z"`), plus every value saved for your delegate. The settings in your `GetRenderSettingDescriptors` (bools, numbers and strings) appear under **Renderer Settings...** in the Renderer menu. A changed value is set with `SetRenderSetting` on every viewport using your delegate and saved. In a script:
 
 ```python
 lila.ops.viewportRendererSetting()                                # [{key, name, value}, ...]
@@ -105,7 +105,7 @@ The camera is set with `SetFreeCameraMatrices` (OpenGL clip space) at the viewpo
 
 **My delegate isn't in the Renderer menu.** Lila lists delegates from `plugInfo.json` files without loading them: check the extension is loaded (Extension Manager), or that `PXR_PLUGINPATH_NAME` was set before Lila started; that the folder holds `hdMyEngine/` (or the `plugInfo.json` itself); and that the type lists `HdRendererPlugin` in `bases`.
 
-**Picking it logs "Hydra: My Engine: no render delegate ... on the plugin path".** USD couldn't load the DLL. Usually it was built against another OpenUSD version or build settings, or one of its dependencies isn't found: put your engine's DLLs beside `hdMyEngine.dll` in the `usdPlugins` folder, or on `PATH`.
+**Picking it logs "Hydra: My Engine: no render delegate ... on the plugin path".** USD couldn't load the DLL: it was built against another OpenUSD version or build settings, or a dependency isn't found: put your engine's DLLs beside `hdMyEngine.dll` in the `usdPlugins` folder, or on `PATH`.
 
 **"Hydra: My Engine: it can't run here".** Your plugin's `IsSupported` returned false. Lila passes `gpuEnabled` true and its Vulkan `Hgi` as the render driver.
 
@@ -121,4 +121,4 @@ The camera is set with `SetFreeCameraMatrices` (OpenGL clip space) at the viewpo
 
 For a renderer with no Hydra delegate, register it straight from a [C++ extension](cpp-extensions.md) with `viewportRenderers::add(ctx, {id, name, doc, open})` from `<lila/ViewportRenderers.h>`. `open(panel)` returns a `Session`; Lila calls its `render(request)` whenever the camera, size, time or scene changes. Deliver a `Frame` (colour as `rgba8`, `rgba32f` or an image on Lila's device, plus optional depth in centimetres along the view axis) through `request.deliver`, from any thread and as often as you refine. Read the scene from `request.graph` on the main thread, or follow it from another process with the [change stream](change-stream.md).
 
-The SDK's `examples/viewport_renderer` is a complete one: a CPU rasteriser on a worker thread that delivers a quarter-size frame, then the full one.
+The SDK's `examples/viewport_renderer` is a CPU rasteriser on a worker thread that delivers a quarter-size frame, then the full one.

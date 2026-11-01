@@ -2,7 +2,7 @@
 
 What Lila needs to run.
 
-> These are estimates, not benchmarks. Benchmarks will come later.
+> These are estimates, not benchmarks.
 
 ## Get it working
 
@@ -21,7 +21,7 @@ Lila runs on **64-bit Windows 10 or 11** for now. Linux and macOS are planned.
 
 **Lila starts, but the viewport is black or missing.** The log says `vulkan: no GPU with Vulkan 1.3` or `no Vulkan loader found`. Install the latest driver from NVIDIA, AMD or Intel, not the one Windows Update provides.
 
-**Bakes are much slower than expected.** Your GPU has no hardware ray tracing, so Lila uses its software tracer. It still runs on the GPU and gives the same results, only slower.
+**Bakes are much slower than expected.** Your GPU has no hardware ray tracing, so Lila uses its software tracer. It runs on the GPU and gives the same results, slower.
 
 **Large texture sets are slow, or run out of GPU memory.** Virtual texturing streams only the parts of a texture you can see, but it needs descriptor indexing, 64-bit shader integers and fragment stores. Older and integrated GPUs may lack one of them, and then Lila loads every texture whole. Work at a lower resolution, or bake fewer tiles at a time.
 

@@ -18,13 +18,13 @@ dd.draw_debug_sphere((100, 50, 0), 40)
 dd.draw_debug_string((0, 120, 0), "spawn")
 ```
 
-2. They show in every view and go after 5 seconds on their own.
+2. They show in every view and expire after 5 s.
 
 ![A circle and its 8 points drawn from the script editor](images/debug-drawing/circle-points.png)
 
-Every draw has a `duration` in seconds. Leave it out for the default (5 s), or pass `0` for the next redraw only, which suits code that redraws on every change. A forgotten call can never leave anything behind.
+Every draw has a `duration` in seconds. Leave it out for the default, or pass `0` for the next redraw only, for code that redraws on every change.
 
-Draws that stay need `persistent=True` and a channel. Clearing them is your job:
+Draws that stay need `persistent=True` and a channel, and you clear them:
 
 ```python
 ch = dd.channel("my_tool")
@@ -46,7 +46,7 @@ dd::sphere(center, 50.0, 16, {.duration = 0});  // the next redraw only
 
 Lila clears every channel on **File > New** and **Open**, and **Show > Clear Debug Drawing** in the hotbox clears everything. **Show > Debug Drawing** hides it all without clearing.
 
-Calls are safe from any thread, worker threads and Python threads included. In `lilabatch` they are kept and expire the same way, with nothing shown.
+Calls are safe from any thread, Python threads included. In `lilabatch` they are kept and expire the same way, with nothing shown.
 
 ## Troubleshooting
 

@@ -2,13 +2,9 @@
 
 Add any file format to File > Open and Import, in Python or C++.
 
-These examples reads Blender 5.0's default scene: a cube, a camera and a point light in a collection.
+These examples read Blender 5.0's default scene: a cube, a camera and a point light in a collection.
 
-Lila doesn't ship a Blender importer because `.blend` can change with every Blender release.
-
-> Recommend exporting glTF from Blender for real work ([File formats](formats.md)).
-
-> This guide is not specific to Blender, only used as an example.
+Lila opens `.blend` files with its own translator ([File formats](formats.md)); these examples show the API, not a replacement.
 
 ## Get it working
 
@@ -78,4 +74,4 @@ What the example reads:
 
 **Mesh comes in with no faces.** Older Blender versions keep geometry in `vdata`/`ldata` (`CustomData`) rather than `attribute_storage`.
 
-**Two translators claim `.blend`.** Both examples are loaded. Unload one, or give one a higher `priority`.
+**Two translators claim `.blend`.** Lila's own Blender translator claims it too, and so does the other example when both are loaded. Give yours a higher `priority`, or unload one example.
