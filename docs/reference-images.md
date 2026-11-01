@@ -54,7 +54,7 @@ For likeness work, match the camera to each photo once and come back to it later
 | **O** hold | Overlays at full strength while held, to compare with the model |
 | **O** + left / right / middle drag | Move / scale / rotate (Shift snaps rotation to 15°) |
 | **O** + wheel | Opacity |
-| **Shift+O** | Handles and toolbar on the overlay; **Esc** leaves, **Delete** removes it |
+| **Shift+O** | Handles and toolbar on the overlay; **Esc** leaves, **H** hides or shows it, **Ctrl+D** duplicates it, **Delete** removes it |
 | **Alt+O** | Next overlay on its own (front, side, three-quarter) |
 
 | Overlay toolbar | Does |
