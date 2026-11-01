@@ -11,10 +11,9 @@ Make clothing from sewing patterns, drape it on a body and bake it to a skinned 
 3. **Tailor > Bake to Game Mesh** makes a plain mesh from the drape. If the body is skinned, the baked mesh is bound to the same joints with weights copied from the body.
 
 ```python
-from lila import ops
-body = ops.tailorMannequin(height=175, chest=100)
-mesh, garment = ops.tailorCreateBlock(block='cloakTunicBelt', collider=body, wait=True)
-ops.tailorBake(mesh, retopo=3000, lods=2)
+body = tailorMannequin(height=175, chest=100)
+mesh, garment = tailorCreateBlock(block='cloakTunicBelt', collider=body, wait=True)
+tailorBake(mesh, retopo=3000, lods=2)
 ```
 
 ## Pick a starting pattern
@@ -22,7 +21,7 @@ ops.tailorBake(mesh, retopo=3000, lods=2)
 Blocks cover the common garments: `tee`, `tunic`, `robe`, `shirt`, `dropShoulderTop`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, plus trousers, skirts, hoods, cloaks and more. Any top takes a `sleeveStyle`: 0 set-in, 1 cuffed, 2 bishop, 3 bell, 4 puff, 5 cap, 6 flutter, 7 leg-of-mutton, 8 poet, 9 drop-shoulder, 10 batwing, 11 raglan, 12 marie, 13 flounce, 14 slit, 15 tiered, 16 petal, 17 cape.
 
 ```python
-ops.tailorCreateBlock(block='tee', collider=body, params={'sleeveStyle': 9, 'dropShoulder': 0.1})
+tailorCreateBlock(block='tee', collider=body, params={'sleeveStyle': 9, 'dropShoulder': 0.1})
 ```
 
 Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's plus the style's ease, so a set-in sleeve eases in smoothly and a puff gathers.
@@ -43,8 +42,8 @@ Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's 
 Turn on **animate** on the garment node to simulate it over the timeline against the body as it moves (skinned or keyed). It starts draped at **startFrame**, caches each frame like other simulations, and scrubs back from the cache. Export the result for a game or a cutscene:
 
 ```python
-ops.tailorExportAnimation('Cloak', end=120, path='anim/cloak.abc')  # Unreal Geometry Cache
-ops.tailorExportAnimation('Cloak', end=120, format='vat')            # vertex animation textures
+tailorExportAnimation('Cloak', end=120, path='anim/cloak.abc')  # Unreal Geometry Cache
+tailorExportAnimation('Cloak', end=120, format='vat')            # vertex animation textures
 ```
 
 `tailorRefit(garment, collider='Hero')` moves a garment onto another body, grading the pattern by the two bodies' measurements.
@@ -61,7 +60,7 @@ ops.tailorExportAnimation('Cloak', end=120, format='vat')            # vertex an
 
 **A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again.
 
-**An animated garment lags or stays put.** Frames simulate when Lila is idle; `ops.simulate('TailorGarment', frame=120)` runs them now.
+**An animated garment lags or stays put.** Frames simulate when Lila is idle; `simulate('TailorGarment', frame=120)` runs them now.
 
 **Retopo warns about folds.** Tight folds under the arms are hard to quad. Raise `retopo` or drape with a larger `particleDistance`.
 

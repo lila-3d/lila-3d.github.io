@@ -49,8 +49,8 @@ The **Clay** node melts spheres at points and tubes along curves into one mesh, 
 `clayJoints` makes a root joint for the body and a joint chain down each stroke. Give it the converted mesh and it binds it, starting each vertex's weights from the clay shapes it lies nearest:
 
 ```python
-mesh = ops.convertClayToMesh("Worm")
-ops.clayJoints("Worm", mesh=mesh)
+mesh = convertClayToMesh("Worm")
+clayJoints("Worm", mesh=mesh)
 ```
 
 ## Troubleshooting

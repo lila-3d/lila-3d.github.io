@@ -141,13 +141,13 @@ Each script ran in the open Lila through its MCP server. The timer wraps the com
 
 | Task | Command |
 | --- | --- |
-| Import | `ops.importFile(path)`, median of three |
+| Import | `importFile(path)`, median of three |
 | Other formats | `ops.importPly`, `ops.importStl` and `ops.importDxf` into a new scene, median of two; `ops.exportPly`, `ops.exportStl` and `ops.exportDxf` with the ships selected |
-| Save and open | `ops.saveScene("ships.lila")` or `"ships.lilaa"`, then `ops.newScene()` and `ops.openScene(path, force=True)` |
-| FBX | `ops.exportFbx(path, selectionOnly=False)` with the default settings (Unreal axes, tangents, triangulated), then `ops.importFile(path)` into a new scene |
-| Weld | object selected, `ops.polyMerge(distance=0.0001)` |
-| Subdivide | `ops.polySubdivide(mesh, levels=1)` |
-| Object to vertices | object selected and the viewport idle for 3 s, `ops.convertSelection("vertex")`, median of three |
+| Save and open | `saveScene("ships.lila")` or `"ships.lilaa"`, then `newScene()` and `openScene(path, force=True)` |
+| FBX | `exportFbx(path, selectionOnly=False)` with the default settings (Unreal axes, tangents, triangulated), then `importFile(path)` into a new scene |
+| Weld | object selected, `polyMerge(distance=0.0001)` |
+| Subdivide | `polySubdivide(mesh, levels=1)` |
+| Object to vertices | object selected and the viewport idle for 3 s, `convertSelection("vertex")`, median of three |
 
 Viewport: shaded, 8x antialiasing, framed with Frame All. The camera orbits while `viewportStats()` reads the GPU time of each finished frame from Vulkan timestamp queries; the time is the median of 12 samples.
 

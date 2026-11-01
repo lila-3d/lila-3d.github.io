@@ -73,8 +73,8 @@ MyEngine.lilaext/usd/hdMyEngine/resources/plugInfo.json
 4. Pick **Hydra: My Engine** from a viewport's **Renderer** menu, or in a script:
 
 ```python
-lila.ops.viewportRenderers()          # [{id, name, doc}, ...]
-lila.ops.viewportRenderer("hydraMyEngine")
+viewportRenderers()          # [{id, name, doc}, ...]
+viewportRenderer("hydraMyEngine")
 ```
 
 The id is `hydra` followed by the letters and digits of `displayName`.
@@ -89,8 +89,8 @@ The id is `hydra` followed by the letters and digits of `displayName`.
 - **Render settings**: `CreateDelegate` gets `lila:metersPerUnit` (`0.01`) and `lila:upAxis` (`"Y"` or `"Z"`), plus every value saved for your delegate. The settings in your `GetRenderSettingDescriptors` (bools, numbers and strings) appear under **Renderer Settings...** in the Renderer menu. A change is set with `SetRenderSetting` on every viewport using your delegate, and saved. In a script:
 
 ```python
-lila.ops.viewportRendererSetting()                                # [{key, name, value}, ...]
-lila.ops.viewportRendererSetting("myEngine:metersPerUnit", 0.01)
+viewportRendererSetting()                                # [{key, name, value}, ...]
+viewportRendererSetting("myEngine:metersPerUnit", 0.01)
 ```
 
 ### What Lila needs back

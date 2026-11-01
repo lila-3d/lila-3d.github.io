@@ -7,8 +7,7 @@ Pop a short message in the bottom-right corner of the viewport, such as "Exporte
 Run in the script editor:
 
 ```python
-import lila
-lila.ops.viewportToast("Exported 12 meshes")
+viewportToast("Exported 12 meshes")
 ```
 
 From a C++ extension built with `UI`:

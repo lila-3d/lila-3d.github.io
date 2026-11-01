@@ -8,7 +8,7 @@ Turn on the database button at the right of the time slider. Every frame plays s
 
 - Right-click the button for **Fill Cache** (evaluates the whole playback range now, with a progress bar) and **Clear Cache**.
 - Any change to the scene drops the cache. Selecting doesn't.
-- Python: `ops.cachedPlayback(fill=True)`.
+- Python: `cachedPlayback(fill=True)`.
 
 ### Troubleshooting
 

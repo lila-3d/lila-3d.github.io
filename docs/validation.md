@@ -2,19 +2,17 @@
 
 Show your pipeline's info, warnings and errors on the objects, components and attributes they're about. The outliner badges the rows, the Attribute Editor marks the exact field, and **File > Validation** lists everything.
 
-> Available for Python (`lila.ops.reportIssue` and friends), MCP and C++ (`#include <lila/Diagnostics.h>`, `lila::scene::diagnostics`).
+> Available for Python (`reportIssue` and friends), MCP and C++ (`#include <lila/Diagnostics.h>`, `lila::scene::diagnostics`).
 
 ## Get it working
 
 1. Select an object and run in the script editor:
 
 ```python
-from lila import ops
-
-ops.reportIssue("crate", m="No collision mesh", severity="error", blocks=["exportFbx"])
-ops.reportIssue("crate.translate", m="Off the grid")
-ops.reportIssue("/World/crate.health:max", m="Max health must be above 0", severity="error",
-                fix="lila.ops.setAttr('crate.health:max', 100)")
+reportIssue("crate", m="No collision mesh", severity="error", blocks=["exportFbx"])
+reportIssue("crate.translate", m="Off the grid")
+reportIssue("/World/crate.health:max", m="Max health must be above 0", severity="error",
+            fix="setAttr('crate.health:max', 100)")
 ```
 
 2. The row gets a badge; hover it for every issue on the object. Select it, and the Attribute Editor lists them at the top and badges the attributes.
@@ -22,16 +20,16 @@ ops.reportIssue("/World/crate.health:max", m="Max health must be above 0", sever
 3. Make it a validator so it runs again on demand and replaces its old results:
 
 ```python
-from lila import extension, ops
+from lila import extension
 
 def check_crates():
-    for name in ops.ls(type="transform"):
-        if name.startswith("crate") and ops.getAttr(name + ".scaleX") != 1:
-            ops.reportIssue(name + ".scale", m="Crates stay at scale 1")
+    for name in ls(type="transform"):
+        if name.startswith("crate") and getAttr(name + ".scaleX") != 1:
+            reportIssue(name + ".scale", m="Crates stay at scale 1")
 
 extension.register_command("checkCrates", check_crates, "Crate rules.", undoable=False)
-ops.addValidator("crates", command="checkCrates", doc="Crate rules")
-ops.validate()   # or File > Validate Scene, or Validate in the panel
+addValidator("crates", command="checkCrates", doc="Crate rules")
+validate()   # or File > Validate Scene, or Validate in the panel
 ```
 
 ### Targets
@@ -50,7 +48,7 @@ ops.validate()   # or File > Validate Scene, or Validate in the panel
 
 **An issue shows in the panel, greyed, but on no row.** Its object doesn't exist yet. It attaches when a node by that path appears (a USD stage loading, for example).
 
-**A command fails with "is blocked by".** An issue lists that command in `blocks`. Fix it, or clear it with `ops.clearIssues(id=...)`.
+**A command fails with "is blocked by".** An issue lists that command in `blocks`. Fix it, or clear it with `clearIssues(id=...)`.
 
 **Issues are gone after reopening the scene.** They're never saved. Run your validators again.
 

@@ -12,12 +12,11 @@ Send meshes to ZBrush and back with GoZ.
 Each mesh becomes a subtool named after it with a closing `-` (`Head-`), and keeps that subtool if you rename the mesh. A subtool comes back into the mesh it came from; one that started in ZBrush comes in as a new mesh and goes back to the same subtool next time. Same topology: Lila moves the points and keeps the mesh's UVs, materials and hard edges. Changed topology (ZRemesher, DynaMesh, Divide): Lila replaces the mesh, keeping only what ZBrush sends. Each receive is one undo step.
 
 ```python
-from lila import ops
-ops.gozSend()                          # the selection
-ops.gozSend(["Head", "Body"])
-ops.gozReceive()                       # the last GoZ send, if it didn't come in by itself
-ops.gozSend(scale=1.0)                 # 1 ZBrush unit per cm instead of per metre
-ops.gozSend(newSubtools=True)          # new subtools beside the ones from earlier sends
+gozSend()                          # the selection
+gozSend(["Head", "Body"])
+gozReceive()                       # the last GoZ send, if it didn't come in by itself
+gozSend(scale=1.0)                 # 1 ZBrush unit per cm instead of per metre
+gozSend(newSubtools=True)          # new subtools beside the ones from earlier sends
 ```
 
 What comes back:

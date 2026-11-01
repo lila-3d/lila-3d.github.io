@@ -23,7 +23,7 @@ Game artists and technical artists, most coming from Maya, some from Blender. Th
 - Planned features are described as done. Never mark a page as ahead of the build.
 - Experimental features open with the experimental warning: subject to change, may lose data, feedback wanted.
 - Menu paths in bold with ` > `: **Mesh > Clay > Create Clay**. Preferences the same way: **Preferences > General > Telemetry**.
-- Python examples use `from lila import ops` and `ops.command(...)`, matching `lila.ops` in the API reference.
+- Python examples call commands bare, as typed in the script editor: `addAttr(...)`, not `ops.addAttr(...)` and no `from lila import ops`. Only code that runs as a module (an extension's Python, a standalone script file) imports `from lila import ops` and writes `ops.addAttr(...)`, and says so.
 - Maya comparisons are welcome where they save a Maya user from guessing ("like Maya's Duplicate Special").
 
 ## Terms

@@ -21,9 +21,8 @@ A preset is a brush with its settings and alpha under a name of its own, in one 
 Changes you make with a preset picked stay with that preset. To update the preset file itself, save again under the same name; a new name makes a new preset. A preset always brings its own strength and stroke settings, whatever **Shared** says; only **Radius** carries over from the brush before.
 
 ```python
-from lila import ops
-ops.brushPresetSave("Deep Wrinkle", brush="damStandard", settings={"strength": 0.8, "falloff": "sharp"})
-ops.sculptBrush(preset="user/Deep Wrinkle")
+brushPresetSave("Deep Wrinkle", brush="damStandard", settings={"strength": 0.8, "falloff": "sharp"})
+sculptBrush(preset="user/Deep Wrinkle")
 ```
 
 ## Alphas
@@ -120,7 +119,7 @@ A `.lilabrush` file is JSON. Texture paint presets use the same format and folde
 | Key | What it does |
 | --- | --- |
 | `sculptBrush` | The brush it drives: a built-in's name (`draw`, `clayStrips`, `damStandard` ...) or an extension brush's. |
-| `brush` | Stroke settings. Keys left out take the defaults. `ops.brushPresets()` and an exported preset show every key. |
+| `brush` | Stroke settings. Keys left out take the defaults. `brushPresets()` and an exported preset show every key. |
 | `icon` | An icon name from Lila's icon set. Empty shows the alpha, else the brush's own icon. |
 | `alphaRef` | A library alpha. Used while it exists. |
 | `alphaImage` | The alpha's bytes, used when `alphaRef` is gone. Optional when writing a preset by hand. |
