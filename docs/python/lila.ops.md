@@ -239,6 +239,24 @@ Add members (the selection by default) to a set. Returns the set's members.
 
 **Objects:** set, members
 
+### addValidator
+
+Registers a command as a validator: validate runs it, and what it reports belongs to the validator.
+
+**Objects:** name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `command` | `c` | str |  | The command to run; it reports with reportIssue. |
+| `doc` | `d` | str |  | What it checks. |
+
+Not undoable.
+
+```python
+lila.extension.register_command("checkNaming", check_naming)
+addValidator("naming", command="checkNaming", doc="Prefixes and suffixes")
+```
+
 ### addWrapDriver
 
 Add driver meshes to a wrap deformer and rebind it.
@@ -1374,6 +1392,7 @@ Render several views offscreen and tile them into one PNG contact sheet (row by 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `view` | `v` | str | `'active'` | active, persp, three-quarter, front, back, left, right, side, top, bottom. |
+| `lookThrough` | `lt` | str |  | A scene camera to look through, framed as it is, instead of view. |
 | `yaw` |  | float |  | Perspective angle around the up axis, degrees (0 front, 90 right). |
 | `pitch` |  | float |  | Perspective elevation, degrees (negative looks down). |
 | `width` | `w` | int |  | Pixels (512 for one view, 320 per tile). |
@@ -1399,6 +1418,7 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `view` | `v` | str | `'active'` | active, persp, three-quarter, front, back, left, right, side, top, bottom. |
+| `lookThrough` | `lt` | str |  | A scene camera to look through, framed as it is, instead of view. |
 | `yaw` |  | float |  | Perspective angle around the up axis, degrees (0 front, 90 right). |
 | `pitch` |  | float |  | Perspective elevation, degrees (negative looks down). |
 | `width` | `w` | int |  | Pixels (512 for one view, 320 per tile). |
@@ -1530,6 +1550,20 @@ Not undoable.
 ```python
 clayShapeAt("Dog", point=[3, 20, 8])
 ```
+
+### clearIssues
+
+Removes issues: those of the given objects, source or severity, or every one when nothing narrows it.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `src` | str |  | Only this reporter's. |
+| `severity` | `sv` | str |  | Only this severity. One of `info`, `warning`, `error`. |
+| `id` | `i` | int |  | Only the issue with this id. |
+
+Not undoable.
 
 ### clearLoopKey
 
@@ -3312,6 +3346,14 @@ Rename joints that share a name with another joint in the same skeleton (the giv
 
 **Objects:** roots
 
+### fixIssue
+
+Runs an issue's fix, then runs its validator again (or drops the issue when no validator reported it).
+
+**Objects:** ids
+
+Not undoable.
+
 ### floodDeformerWeights
 
 Apply a weight to every point of a deformer's weight map (or a field's painted layer), or to points= / the selected components, as the paint tool's flood does.
@@ -4565,6 +4607,21 @@ Extensions on the search paths: [{name, path, kind, loaded, autoload, version, v
 
 Not undoable.
 
+### listIssues
+
+The current issues, as dicts {id, source, severity, target, object, component, attribute, message, resolved, blocks, fix}.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `src` | str |  | Only this reporter's. |
+| `severity` | `sv` | str |  | Only this severity and worse. One of `info`, `warning`, `error`. |
+| `blocking` | `bl` | str |  | Only issues that block this command. |
+| `hierarchy` | `hi` | bool | `False` | With objects: their descendants' issues too. |
+
+Not undoable.
+
 ### listLayouts
 
 UI layouts: [{name, origin, current, shadowsBuiltIn}]. origin is builtin | user | workspace.
@@ -4974,6 +5031,7 @@ Draw the scene offscreen several times like captureView and return the median GP
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `view` | `v` | str | `'active'` | active, persp, three-quarter, front, back, left, right, side, top, bottom. |
+| `lookThrough` | `lt` | str |  | A scene camera to look through, framed as it is, instead of view. |
 | `yaw` |  | float |  | Perspective angle around the up axis, degrees (0 front, 90 right). |
 | `pitch` |  | float |  | Perspective elevation, degrees (negative looks down). |
 | `width` | `w` | int |  | Pixels (512 for one view, 320 per tile). |
@@ -5040,7 +5098,7 @@ Not undoable.
 
 ### meshRepair
 
-Find or fix broken geometry. mode='select' selects what each enabled check finds and reports the counts; mode='repair' fixes it: welds coincident points, collapses zero-length edges, drops lamina copies, merges zero-area slivers into a neighbour, splits non-manifold edges and vertices apart, fills holes, cuts n-gons and concave faces into quads and triangles, conforms winding, removes loose points and edges.
+Find or fix broken geometry. mode='select' selects what each enabled check finds and reports the counts; mode='repair' fixes it: welds coincident points, collapses zero-length edges, drops lamina copies, merges zero-area slivers into a neighbour, splits non-manifold edges and vertices apart, fills holes, joins triangles into quads, cuts n-gons and concave faces into quads and triangles, conforms winding, removes loose points and edges.
 
 **Objects:** objects
 
@@ -5054,6 +5112,7 @@ Find or fix broken geometry. mode='select' selects what each enabled check finds
 | `nonManifoldEdges` |  | bool | `True` | Edges shared by three or more faces (repair splits the extra faces off). |
 | `nonManifoldVertices` |  | bool | `True` | Vertices where separate fans of faces meet, like a bowtie (repair gives each fan its own vertex). |
 | `holes` |  | bool | `False` | Edges on an open border (repair fills each hole with a face). Off by default: open meshes are often meant to be. |
+| `triangles` |  | bool | `False` | Triangles (repair joins neighbouring pairs into quads where they make good ones). |
 | `ngons` |  | bool | `False` | Faces with more than four sides (repair triangulates them and joins the triangles back into convex quads where they fit). |
 | `concave` |  | bool | `False` | Faces with a corner bending inward (repair cuts them into convex quads and triangles). |
 | `zeroAreaUvs` |  | bool | `False` | Faces with no area in the first uv set. Repair only reports them: they need a new unwrap. |
@@ -5420,6 +5479,18 @@ Not undoable.
 Open a recovered scene (a path from recoveredScenes) as a new untitled scene with unsaved changes; its references resolve against the scene it came from. Saving asks for a file, so the original is never overwritten by accident. Not undoable.
 
 **Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `force` | `f` | bool | `False` | Discard unsaved changes in the current scene. |
+
+Not undoable.
+
+### openSample
+
+Open a downloaded sample scene by id or name (from samples) as an untitled scene. Not undoable.
+
+**Objects:** name
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -6695,6 +6766,14 @@ Remove one of a node's spaces. Frames spent in it switch to the parent keeping t
 | --- | --- | --- | --- | --- |
 | `space` | `sp` | Any |  | Space name or index (not 0, the parent). |
 
+### removeValidator
+
+Unregisters validators and clears what they reported.
+
+**Objects:** names
+
+Not undoable.
+
 ### rename
 
 rename(old, new) or rename(new) for the single selected object. Returns the renamed node's path.
@@ -6862,6 +6941,32 @@ Move a display layer to a row of the Display Layers panel (0 is the top).
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int | `0` | Row it moves to. |
+
+### reportIssue
+
+Attaches info, a warning or an error to an object, one of its components or an attribute.
+
+The target is "<object>[.<component>[:<attribute>]]": a Lila path or a USD prim path, then an attribute ("crate.translateX") or a component (a node type, attribute category, Attribute Editor section or attribute namespace) with an optional attribute in it. No target attaches it to the scene. The outliner badges the object, the Attribute Editor marks the component and attribute. Issues are not saved with the scene; validators report them again when they run.
+
+**Objects:** target
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `message` | `m` | str |  | What is wrong and, ideally, how to fix it. |
+| `severity` | `sv` | str | `'warning'` | How bad it is. One of `info`, `warning`, `error`. |
+| `source` | `src` | str |  | Who reports it, so it can clear its own. Defaults to the validator running, else "user". |
+| `blocks` | `b` | list |  | Commands it refuses to let run until it is cleared. Example: `reportIssue("crate", m="No collision", severity="error", blocks=["exportFbx"])` |
+| `fix` | `fx` | str |  | Python that fixes it, run by fixIssue and the Fix button. |
+
+Not undoable.
+
+```python
+reportIssue("/World/crate.health:max", m="Max health must be above 0", severity="error")
+```
+
+```python
+reportIssue("crate", m="Over the triangle budget", fix="lila.ops.polyReduce('crate', percentage=50)")
+```
 
 ### rerootSkeleton
 
@@ -7145,6 +7250,12 @@ Rotate the selected components about a world pivot (default: their centre; with 
 A field's value (0 to 1) at every point of a mesh, by point id.
 
 **Objects:** field, mesh
+
+Not undoable.
+
+### samples
+
+Sample scenes: shipped with Lila, or third-party ones it downloads on request: {id, name, installed, path, size, license, credit, source}. Download them from the Welcome screen's Sample Scenes.
 
 Not undoable.
 
@@ -9964,7 +10075,7 @@ Project uvs onto the selected faces: planar, box, cylindrical, spherical or came
 | `offsetV` |  | float | `0.0` | V offset, applied after the scale. |
 | `viewDir` |  | tuple[float, float, float] |  | World direction the camera looks along, for the seam; the UI passes the active view's. |
 | `normalize` |  | bool | `True` | Fit into 0-1 keeping proportions. |
-| `keepSeams` |  | bool | `True` | Keep the seams already cut inside the faces; off joins the faces into the projection's islands. |
+| `keepSeams` |  | bool | `False` | Keep the seams already cut inside the faces; off joins the faces into the projection's islands. |
 | `matrix` |  | list |  | Camera projection, column major, for type=camera. |
 | `pack` |  | bool | `False` | Pack the resulting islands afterwards. |
 
@@ -10136,6 +10247,18 @@ Symmetry-aware unwrap of the selected faces using the mesh's symmetry pairs: isl
 | `mirrorSeams` |  | bool | `True` | Copy seams across the plane first. |
 | `pack` |  | bool | `False` | Pack into 0-1 afterwards. |
 
+### validate
+
+Runs validators, each clearing the issues it reported last time first. Every one when none are named. Returns the issue counts by severity.
+
+**Objects:** validators
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `list` | `l` | bool | `False` | Return the validators {name: doc} instead of running any. |
+
+Not undoable.
+
 ### vertexColorAdjust
 
 Adjust vertex colors: invert, or levels (input black and white points, gamma, output range), per channel.
@@ -10284,6 +10407,7 @@ Pop up a short message in the bottom-right corner of the active viewport; it fad
 | --- | --- | --- | --- | --- |
 | `all` | `a` | bool |  | Show it in every viewport, not only the active one. |
 | `duration` | `d` | float | `2.0` | Seconds before it is gone, including the fade. |
+| `error` | `e` | bool |  | Mark it as a failure, with a red accent. |
 
 Not undoable.
 
@@ -10851,6 +10975,73 @@ Make native texture sets for a tree instead of handing the palette to Painter: <
 | `bake` |  | bool | `True` | Make the bake project when the tree is exported. |
 | `replace` |  | bool | `False` | Replace texture sets of those names. |
 
+## GoZ extension
+
+Available when the GoZ extension is loaded.
+
+### exportGoZ
+
+Export meshes to a .GoZ file, in world space; several meshes go out as one. Returns the path.
+
+**Objects:** path, meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` |  | float | `0.01` | ZBrush units per cm. |
+
+Not undoable.
+
+### gozInstall
+
+Make Lila one of ZBrush's GoZ applications, so gozSend can send to ZBrush and ZBrush's GoZ button can send back. Restart ZBrush afterwards. Returns the folder written.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `exe` |  | str |  | The Lila to start when ZBrush sends and Lila isn't running. Default: this one. |
+
+Not undoable.
+
+### gozReceive
+
+Bring in what ZBrush last sent with GoZ. A mesh named like a subtool takes its shape (and its polypaint, mask and polygroups): the same topology moves the points and keeps UVs, materials and hard edges; new topology replaces the base mesh. Other subtools come in as new meshes. Runs on its own when ZBrush sends to Lila. Returns {updated, created}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` |  | float | `0.01` | ZBrush units per cm, as sent. |
+| `force` |  | bool | `False` | Read the files even when ZBrush hasn't sent anything since Lila last sent. |
+
+### gozSend
+
+Send meshes to ZBrush through GoZ: each opens as a subtool, or replaces the subtool it came from (the name it went under is kept on the mesh as gozName). Sends the base mesh under any modifiers, in world space. Needs gozInstall first. Returns the .GoZ files written.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `launch` |  | bool | `True` | Start or switch to ZBrush. False only writes the files. |
+| `scale` |  | float | `0.01` | ZBrush units per cm. Receive with the same scale. |
+| `newSubtools` |  | bool | `False` | Arrive as new subtools beside any from earlier sends, instead of replacing them. |
+
+Not undoable.
+
+```python
+gozSend()
+```
+
+```python
+gozSend(['Head', 'Body'])
+```
+
+### importGoZ
+
+Import .GoZ files as new meshes, with their UVs, polypaint, mask and polygroups. Returns the new meshes.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` |  | float | `0.01` | ZBrush units per cm. |
+
 ## GroundTiles extension
 
 Available when the GroundTiles extension is loaded.
@@ -11389,9 +11580,25 @@ usdStageOpen("C:/assets/kitchen.usd")
 usdStageOpen("shot.usda", editLayer="shot_lila.usda")
 ```
 
+### usdStageOpinions
+
+Every opinion on a stage object's prim, strongest first, to see why a value isn't the one you set: {prim, specs: [{layer, path, arc, role, specifier, type, active, kind, instanceable, variantSelections}], properties: [{name, opinions: [{layer, path, arc, role, value, timeSamples, targets, wins}], fallback, losesTo}]}. arc is how the layer reaches the prim (local, reference, payload, variant, inherit, specialize, relocate); role marks Lila's edit layer (edits), added layers (added) and the session layer. wins marks the opinion an attribute's value comes from; fallback, that none has one and the schema's default shows; losesTo, the layer that beats the edit layer's opinion. Give a property for that one only.
+
+**Objects:** object [property]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `full` |  | bool | `False` | Every value in full, however long. |
+
+Not undoable.
+
+```python
+usdStageOpinions("Chair", "xformOp:translate")
+```
+
 ### usdStagePrim
 
-Every composed property of a stage object's prim, custom schemas included: {prim, type, schemas, instanceProxy, properties: [{name, type, value, custom, timeSamples, authored}]}. Values are usda text at the current time; long arrays are summarized unless full=True; relationships list their targets. An object inside an LOD level adds level, the level's variant.
+Every composed property of a stage object's prim, custom schemas included: {prim, type, schemas, instanceProxy, properties: [{name, type, value, custom, timeSamples, authored, losesTo}]}. losesTo names the layer whose stronger opinion hides the edit layer's. Values are usda text at the current time; long arrays are summarized unless full=True; relationships list their targets. An object inside an LOD level adds level, the level's variant.
 
 **Objects:** object
 
