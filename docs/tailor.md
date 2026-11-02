@@ -34,8 +34,33 @@ Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's 
 
 - **Tailor > Pattern Editor** shows the selected garment's panels flat. Drag points to reshape, double-click an edge to add a point, Delete removes the hovered point. Seams show in matching colours; a red label means the two sides differ in length.
 - In **Sew** mode, click two edges to sew them; Shift on the second click sews them the same way round. Right-click an edge to unsew it.
-- **Tailor > Draw Panel on Body** draws a new panel straight onto the body: click around it, press Enter. M mirrors it across the body.
+- **Pen** draws a new panel: click points, drag to curve through one, then click the first point or press Enter. **Notch** marks a point on an edge; seams with the same number of notches on both sides sew notch to notch.
+- Right-click an edge for **Add Dart Here**; right-click a panel for **Mirror Panel (Linked)**, a mirrored copy whose outline follows every edit to either one.
+- **Auto-Sew** sews the unsewn edges that face each other where the panels are placed and match in length.
+- Clicking a panel selects its faces on the garment mesh; selecting faces there picks their panel here. The **Tailor** layout docks the editor beside the viewport with the Tailor shelf.
+- **Tailor > Draw Panel on Body** draws a new panel straight onto the body: click around it, press Enter. M mirrors it across the body. The panel is flattened as the body curves under it, so its lengths are true on the body, and it is sewn to the panels it meets.
 - **Tailor > Live Drape** keeps the garment simulating, so edits show as you make them. **Tailor > Grab Cloth** pulls it around in the viewport.
+
+## Shape the drape
+
+With a garment selected, paint on it in the viewport. **[** and **]** size the brush; Shift reverses it.
+
+- **Pin Cloth** holds the cloth where it hangs, through every later drape.
+- **Fold Cloth** presses a fold line along the stroke.
+- **Shrink Cloth** gathers the cloth's rest shape (Shift stretches it).
+- **Steam Cloth** smooths a live garment as you drag.
+
+**Tailor > Clear Brushes** removes what they painted.
+
+## Add details
+
+```python
+tailorAddTrim('Coat', mesh='Button', points=[[0, 130, 16], [0, 118, 17]])  # rigid pieces riding the cloth
+tailorDamage('Cloak', points=[[5, 90, -20]], radius=4)                       # kind='tear' for a slit
+tailorStrap('Tunic', curve='BeltPath', closed=True, width=5)                 # a belt or sash along a path
+```
+
+Model a trim at the origin with +Z facing out of the cloth. Each copy rides the cloth at its middle without bending.
 
 ## Animate it
 
@@ -46,7 +71,17 @@ tailorExportAnimation('Cloak', end=120, path='anim/cloak.abc')  # Unreal Geometr
 tailorExportAnimation('Cloak', end=120, format='vat')            # vertex animation textures
 ```
 
-`tailorRefit(garment, collider='Hero')` moves a garment onto another body, grading the pattern by the two bodies' measurements.
+`tailorRefit(garment, collider='Hero')` moves a garment onto another body, grading the pattern by the two bodies' measurements. Set-in sleeve caps keep their ease to the armhole.
+
+## Send it to Unreal
+
+With LilaLink connected and a skinned body, one command bakes the garment, imports it as a skeletal mesh and sets up Chaos Cloth on it, with Max Distance painted from how far the cloth hangs off the body and the fabric's mass, stiffness, damping and friction:
+
+```python
+tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/SK_Hero_Cloak', skeleton='/Game/Characters/Hero/SK_Hero_Skeleton')
+```
+
+To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBake`: `tailorBake('Cloak', retopo=3000, maps=['normal', 'ao', 'id'])`. The `id` map colours each panel.
 
 ## Troubleshooting
 
@@ -58,7 +93,13 @@ tailorExportAnimation('Cloak', end=120, format='vat')            # vertex animat
 
 **Bake didn't skin the mesh.** The body has no skinCluster. Skin it, then bake again.
 
-**A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again.
+**A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again. Trims bind again on their own.
+
+**Auto-Sew sews nothing.** It only sews edges whose outward sides face each other within `maxGap` (8 cm) as the panels are placed. Move the panels closer, or sew the pair in **Sew** mode.
+
+**A brush stroke does nothing.** The stroke missed the cloth, or the garment isn't selected. Pin, Fold and Shrink need the drape under the cursor; Steam needs the garment live.
+
+**tailorSendToUnreal fails.** It needs LilaLink connected (`unrealConnect`) and a skinned body: the garment goes over as a skeletal mesh bound to the body's joints.
 
 **An animated garment lags or stays put.** Frames simulate when Lila is idle; `simulate('TailorGarment', frame=120)` runs them now.
 
@@ -78,6 +119,7 @@ Set these on the garment node in the Attribute Editor.
 | `thickness` | `0` cm | Grows a closed shell towards the body, with rims on open edges. |
 | `fitMap` | off | Colours the drape red where the cloth stretches past its pattern and blue where it bunches; show it with vertex colours. |
 | `animate`, `startFrame` | off, `0` | Simulates over the timeline from that frame. |
+| `live` | off | Keeps the garment simulating in real time. |
 
 A seam's `foldAngle` holds it pressed at that angle (a hem, a collar); `shrink` below 1 gathers it like elastic. Set both with `tailorSew`.
 
