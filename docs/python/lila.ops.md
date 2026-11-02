@@ -11598,7 +11598,7 @@ Place a camera node: eye is its world position, lookAt the point it aims at, up 
 
 ### viewportStats
 
-The active viewport's last finished frame as the GPU measured it: {frames, gpuMs, aoMs, cpuMs, meshDrawCalls}. frames counts frames drawn so far, so two calls apart give the frame rate. Unlike measureView it times what the view really draws, components and highlights included.
+The active viewport's last finished frame as the GPU measured it: {frames, gpuMs, aoMs, cpuMs, meshDrawCalls, renderer}. frames counts frames drawn so far, so two calls apart give the frame rate. Unlike measureView it times what the view really draws, components and highlights included. When an external renderer such as a Hydra delegate draws the view, rendererStats holds what it reports.
 
 Not undoable.
 
