@@ -22,6 +22,7 @@
 - [System requirements](requirements.md)
 - [FAQ](faq.md)
 - [Support](support.md)
+- [Credits](credits.md)
 - [Performance](performance.md)
 - [Progress](progress.md)
 - [File formats](formats.md)
@@ -35,6 +36,9 @@
   - [Duplicate and instance](duplicate.md)
   - [Scene origin](scene-origin.md)
   - [Attributes and arrays](attributes.md)
+  - [Channel Box](channel-box.md)
+  - [Drive and connect](driving.md)
+  - [Component Spreadsheet](component-spreadsheet.md)
 - <span class="nav-label">Modeling</span>
   - [Clay](clay.md)
   - [Bridge](bridge.md)
@@ -56,6 +60,7 @@
   - [Destruction](destruction.md)
 - <span class="nav-label">Lighting and rendering</span>
   - [Lights](lights.md)
+  - [Lighting Channels](lighting-channels.md)
   - [Rendering](rendering.md)
   - [Viewport renderers and Hydra](viewport-renderers.md)
 - <span class="nav-label">Pipeline and scripting</span>

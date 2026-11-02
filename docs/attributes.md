@@ -1,6 +1,53 @@
 # Attributes and arrays
 
-Attributes can be added to any node, and an attribute can be an array: any number of elements, `node.attr[0]`, `node.attr[1]` and so on. A grouped array gives each element several children, `node.targets[2].weight`.
+Add, edit and organise attributes and components on any node. Attributes can be added to any node, and an attribute can be an array: any number of elements, `node.attr[0]`, `node.attr[1]` and so on. A grouped array gives each element several children, `node.targets[2].weight`.
+
+## In the Attribute Editor
+
+1. Select an object and click **+** next to the search field.
+2. Type a name (`health:max`) and press Enter: pick the type, default, range and heading, then Enter again. Or pick a component, or an object under **Copy from** to copy its added attributes.
+3. The attribute appears under its heading in **Extra Attributes**.
+
+- **Edit**: double-click the label, or hover the row and click the pencil. Renaming keeps connections, keys and drivers; changing the type converts the value and drops its connections.
+- **Move**: drag a row's grip onto another row to put it before that one, or onto a heading to move it there. Drag a heading onto another to reorder components.
+- **Search**: the field at the top matches nice, long and short names and docs; sections with no match hide.
+- **Right-click a heading** to save it as a component (yours, or the studio library), choose how it goes to Unreal, or remove it.
+
+```python
+renameAttr("Crate.mass", "weight")
+editAttr("Crate.weight", minValue=0, maxValue=False, niceName="Weight (kg)", category="Physics")
+reorderAttr("Crate.weight", before="tags")
+copyAttr("Crate", "Barrel", category="Physics", connections=True)
+saveComponent("Crate", category="Physics")      # appears under + > Components
+addComponent("Barrel", name="Physics")
+```
+
+`maxValue=False` removes a limit. `editAttr(plug, query=True)` returns every setting.
+
+## Components
+
+A component is the added attributes under one heading. Saved ones are `.lilacomponent` files in your prefs folder (`components/`) or the studio's. USD API schemas Lila knows are offered too: adding one lists it in `usdApiSchemas`, so USD export applies the schema.
+
+How a component reaches Unreal through LilaLink is per object and component:
+
+| Mode | In Unreal |
+| --- | --- |
+| Asset User Data (default) | A `LilaComponentUserData` on the mesh or actor, values by name |
+| Actor Tags | Tags `Component.attr=value` |
+| Actor Component | A component of the class you name, properties set by matching names |
+| Data Asset | A data asset of the class you name, referenced from the user data |
+| Custom Exporter | Your C++ `ILilaComponentExporter` or a Python function registered under that name |
+| Don't Export | Nothing |
+
+```python
+componentExport("Crate", component="Physics", mode="component", unrealClass="/Script/MyGame.PhysicsTuning")
+```
+
+LilaLink ships examples of each: `ULilaExampleHealthComponent`, `ULilaExampleComponentData`, a C++ exporter and `lila_example_exporter.py` (import it from your project's `init_unreal.py`).
+
+## Edit several objects
+
+With several objects selected, an edit in the Attribute Editor or Channel Box changes only the lead object (the one last selected, or the one you click in the header chips). Hold **Alt** while editing to change every selected object that has the attribute. While Alt is held the header shows **Editing 3 objects**, fields that differ show `--`, and each changed field gets a count. Turn off the reminder strip with its **Turn off this hint** link.
 
 ## Add attributes from Python
 
@@ -84,6 +131,10 @@ g.addAttr(node, def);  g.deleteAttr({node, attr});
 
 **"has no compound".** Add the compound with `attributeType="compound"` before its children.
 
-**"belongs to the node's type".** Only attributes added with `addAttr` can be deleted.
+**"belongs to the node's type".** Only attributes added with `addAttr` can be edited, renamed, moved or deleted.
+
+**An edit changed only one object.** Several objects are selected: hold Alt to edit all of them.
+
+**Unreal reports names that don't match.** For Actor Component and Data Asset, attribute names must match the class's property names (case blind; `health:max` also matches `max`).
 
 **A node type that replaced numbered attributes.** Set `fileAlias` on the array, `#` standing for the number: `"target#Weight"` loads `target0Weight`, `target1Weight` ... as elements 0, 1 ..., in scene files and in scripts. List attributes that no longer mean anything in `retiredAttrs` so loading skips them quietly.
