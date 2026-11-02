@@ -50,6 +50,7 @@
     - [Texture node reference](nodes/texture-nodes.md)
 - <span class="nav-label">Animation and effects</span>
   - [Animation](animation.md)
+  - [Retargeting](retargeting.md)
   - [Destruction](destruction.md)
 - <span class="nav-label">Lighting and rendering</span>
   - [Lights](lights.md)
