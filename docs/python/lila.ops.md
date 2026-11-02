@@ -41,6 +41,8 @@ Add an attribute to objects (Maya's addAttr): attributeType for a single value o
 | `keyable` | `k` | bool | `False` | Show it in the channel box, where it can be keyed. |
 | `hidden` | `h` | bool | `False` | Hide it from editors. |
 | `usedAsColor` | `uac` | bool | `False` | A double3 holding a colour: editors show a swatch. |
+| `usedAsFilename` | `uaf` | bool | `False` | A string holding a file path: editors offer a file browser. |
+| `category` |  | str |  | A heading the Attribute Editor groups it under. |
 | `doc` |  | str |  | What it is for: editors show it as a tooltip. |
 
 ### addClayPrimitive
@@ -204,6 +206,16 @@ Add targets to a morph (or the morph on a mesh, made if missing): the first argu
 | --- | --- | --- | --- | --- |
 | `live` |  | bool | `False` | Keep the targets connected so editing them updates the morphs. |
 | `name` | `n` | str |  | Export name for a single or empty target. Default: the target mesh's name. |
+
+### addPlantChannel
+
+Add a keyable plant<Chain> attribute (0 to 1) to a skeleton's top joint. Keyed at 1, retargeting holds that chain's hand or foot planted there instead of guessing from its speed: key the intent, and every body it goes to keeps it.
+
+**Objects:** a joint of the source skeleton
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `chain` | `c` | str |  | The chain: LeftLeg, RightArm, LeftLeg2 ... |
 
 ### addSpace
 
@@ -939,6 +951,19 @@ Makes a new mesh at the first frame's shape, skinned one piece per joint under a
 bakePiecesToJoints('Wall', start=1, end=72)
 ```
 
+### bakePin
+
+Turn pins into joints for Unreal. A pinned joint gets its pinned channels keyed every frame and lets go of the pins. A pin driving nothing, or a pinned prop, gets a joint under the joint carrying the source (the heaviest skin influence there, or the joint above the curve or mesh): a socket when it holds still relative to that joint over the range, else a bone keyed every frame. A prop's joint sits where the prop is, so it attaches with no offset. Returns the joints.
+
+**Objects:** pins, pin locators or pinned objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `st` | float |  | Seconds; default the playback start. |
+| `end` | `et` | float |  | Seconds; default the playback end. |
+| `fps` |  | float |  | Frames per second; default the scene's. |
+| `name` | `n` | str |  | Name for the joint (one pin). Default: <locator or prop>_socket or _bone. |
+
 ### bakePivot
 
 Turn the objects onto their pivots' axes, counter-rotating their points, so the pivot orientation becomes the object's own and scale works along it. Nothing moves in the world. Instances are made unique.
@@ -979,7 +1004,7 @@ Not undoable.
 
 ### bakeSurfacePin
 
-Bake surface pins to joints for Unreal: each becomes a joint at the pin's current frame, parented to the joint with the most skin weight under the pin, so it exports as a bone that sockets and attachments use. Give the pins or their locators. Returns the joints.
+Bake surface pins to joints for Unreal: each becomes a joint at the pin's current frame, parented to the joint with the most skin weight under the pin, so it exports as a bone that sockets and attachments use. Give the pins or their locators. Pins made by pin or surfacePin go through bakePin. Returns the joints.
 
 **Objects:** pins or pin locators
 
@@ -1022,6 +1047,7 @@ Make a clean copy of the deform joints (names plus suffix, hierarchy closed over
 | `end` | `et` | float |  | Seconds; default the playback end. |
 | `fps` |  | float |  | Frames per second; default the scene's. |
 | `suffix` | `sfx` | str | `'_bake'` | Added to each copied joint's name. |
+| `scaleSafe` | `ss` | bool | `True` | Where a joint with deform children scales non-uniformly, write it as an unscaled driver (name_drv) its children follow plus a leaf carrying the scale, so Unreal matches. |
 
 ### bakeUpToDate
 
@@ -2031,18 +2057,23 @@ Create a bake project: output folder, file naming, resolution and the maps to ba
 
 ### createClay
 
-Create a clay object: a transform holding clay shapes, and a mesh under it that shows them blended by a claySurface. Starts with one sphere unless empty. Returns [object, mesh, surface, firstShape or None].
+Create a clay object: a transform holding clay shapes, and a mesh under it that shows them blended by a claySurface. Starts with one shape unless empty. Returns [object, mesh, surface, firstShape or None].
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `name` | `n` | str | `'Clay'` | Object name; made unique. |
+| `shape` | `sh` | str | `'sphere'` | The first shape. One of `sphere`, `ellipsoid`, `box`, `capsule`, `cylinder`, `cone`, `torus`. |
+| `symmetry` | `sy` | str | `'x'` | Mirror across the object's YZ plane. One of `off`, `x`. |
 | `position` | `p` | tuple[float, float, float] |  | World position. |
 | `voxelSize` | `vs` | float |  | Lattice spacing while editing, cm. |
-| `symmetry` | `sy` | str |  | Mirror across the object's YZ plane. One of `off`, `x`. |
 | `empty` | `e` | bool | `False` | Start with no shapes. |
 
 ```python
-createClay(name="Dog", symmetry="x")
+createClay(name="Dog")
+```
+
+```python
+createClay(shape="capsule", symmetry="off")
 ```
 
 ### createDisplayLayer
@@ -2335,6 +2366,29 @@ Centre lines (the medial axis of the straight skeleton) of the region closed pla
 | `tolerance` |  | float | `0.01` | Tessellation of curved input, cm. |
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Name of the result curve; made unique. |
+
+### curveControls
+
+Build controls that drive a curve's points: a locator per control point (in an offset group, under a <curve>_controls group beside the curve), optionally tangent handle controls under each Bezier point. The curve follows them live. Returns the controls.
+
+**Objects:** curves (default: the selected curves)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` | `c` | int | `0` | Controls per spline: 0 for one per existing point, else the curve is respaced to this many points first. |
+| `handles` | `hd` | bool | `False` | Bezier curves: a control for each tangent handle, under its point's control. |
+| `mirror` | `m` | bool | `False` | Name mirrored pairs of controls _l and _r so pose mirroring swaps them. |
+| `mirrorAxis` | `ma` | str | `'x'` | The axis the mirror plane faces. One of `x`, `y`, `z`. |
+| `size` | `s` | float | `0.0` | Control draw size, cm; 0 sizes them to the curve. |
+| `name` | `n` | str |  | Name prefix for the controls; default the curve's name. |
+
+```python
+curveControls("Spine", handles=True)
+```
+
+```python
+curveControls("Lip", count=7, mirror=True)
+```
 
 ### curveData
 
@@ -2986,6 +3040,32 @@ Edit a bound skeleton without deforming its mesh. on=True puts the skeleton (of 
 | --- | --- | --- | --- | --- |
 | `on` |  | bool |  | Turn editing on or off; toggles when omitted. |
 | `preserve` | `pr` | str | `'worldPose'` | What leaving keeps: worldPose or channels. |
+
+### editSplineChain
+
+Change spline chains: give the chains, joints in them or their splineJoints. Returns the chains.
+
+**Objects:** spline chains (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `weight` | `w` | float |  | 0 leaves the joints on their rotate, 1 lays them on the curve. |
+| `lengthMode` | `lm` | str |  | keepLength \| stretch \| squash. |
+| `minStretch` | `mns` | float |  | The shortest the chain gets, as a multiple of its length. |
+| `maxStretch` | `mxs` | float |  | The longest the chain gets. |
+| `volume` | `v` | float |  | Squash: 1 keeps the volume, 0 the thickness. |
+| `slide` | `sl` | float |  | Moves the chain along the curve, cm. |
+| `twistStart` | `ts` | float |  | Twist at the first joint, degrees. |
+| `twistEnd` | `te` | float |  | Twist at the last joint, degrees. |
+| `twistRamp` | `tr` | str |  | linear \| easeIn \| easeOut \| smooth. |
+| `roll` | `r` | float |  | Turn of the whole chain about the curve, degrees. |
+| `upMode` | `um` | str |  | curveFrames \| upVector \| upObjects. |
+| `upVector` | `upv` | tuple[float, float, float] |  | Up in the start joint's parent's space. |
+| `twistSpread` | `tsp` | float |  | upObjects: share of the end object's twist spread along the chain. |
+
+```python
+editSplineChain("spine_01_spline", lengthMode="squash", twistEnd=45)
+```
 
 ### editTake
 
@@ -4311,6 +4391,40 @@ Hide objects (visibility off). Defaults to the selection.
 
 **Objects:** objects
 
+### hoseFingers
+
+Make rubber hose fingers: each base joint's finger, down to its tip, curls along an arc. Each finger's hoseLimb has a curl and spread; one hoseHand adds curl, spread and fist to all of them. Returns the hoseHand, then the fingers.
+
+**Objects:** finger base joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curlAxis` | `ca` | str | `'z'` | The base joint's axis the finger curls about: x, y, z, -x, -y or -z. |
+| `curlMax` | `cm` | float | `270.0` | Degrees the whole finger curls at curl 1. |
+| `spreadMax` | `sm` | float | `20.0` | Degrees a finger turns sideways at spread 1. |
+| `name` | `n` | str |  | Name for the hoseHand; default <hand>_hoseHand. |
+
+```python
+hoseFingers("index_01_l", "middle_01_l", "ring_01_l", "pinky_01_l")
+```
+
+### hoseLimb
+
+Make a rubber hose limb from the shoulder or hip to the wrist or ankle. A limb with an elbow or knee between keeps its joints as drivers (no longer deforming) and gets a chain of hose joints that follow it, from jointed (hose 0) to a smooth hose that bows into an arc as the end nears the root (hose 1). Without joints between, the hose spans the two joints. A bend control on the elbow pushes the middle of the hose. Returns the hoseLimb.
+
+**Objects:** start joint, end joint (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `joints` | `j` | int | `12` | Hose joints along the limb. |
+| `hose` | `h` | float | `1.0` | 0 bends at the elbow or knee, 1 is a smooth hose. |
+| `autoArc` | `aa` | float | `1.0` | 1 bows into an arc keeping the limb's length as the end nears the root. |
+| `name` | `n` | str |  | Name for the hoseLimb; default <start>_hose. |
+
+```python
+hoseLimb("upperarm_l", "hand_l", joints=12)
+```
+
 ### ikChain
 
 Make an IK chain from a start joint to an end effector, solved by a base ikHandle. The joints keep their keyed rotate: grabbing the controller solves the chain and writes (keys) the rotations, and a locked key holds the controller until the chain's next key. Returns the chain.
@@ -4341,6 +4455,22 @@ Create an IK handle that solves the chain from startJoint down to endEffector (o
 | `poleVector` | `pv` | tuple[float, float, float] |  | Bend direction from the start joint; defaults to the chain's current bend. |
 | `poleAngle` | `pa` | float |  | Roll of the bend plane, degrees. |
 | `refresh` | `rf` | bool | `False` | Re-read the rest layout of the given handles' chains. |
+
+### ikLimit
+
+Set how far IK may turn joints (default the selection): a hinge about one axis within min..max degrees, or a cone the bone swings within; plus stiffness and the preferred angle. Only the flags given change. The IK handles solving the joints pick the limits up at once. Returns the joints.
+
+**Objects:** joints
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str |  | none, hinge or cone. |
+| `axis` | `ax` | str |  | The hinge's axis in rotate space: x, y or z. |
+| `min` | `mn` | float |  | Smallest hinge rotate, degrees. |
+| `max` | `mx` | float |  | Largest hinge rotate, degrees. |
+| `cone` | `cn` | float |  | How far the bone may swing from rotate zero, degrees. |
+| `stiffness` | `st` | float |  | 0 turns freely, toward 1 the joint resists turning. |
+| `preferredAngle` | `pa` | tuple[float, float, float] |  | Rotate IK starts from, degrees; picks the bend of a straight chain. |
 
 ### ikLock
 
@@ -5190,6 +5320,27 @@ A library material's parameter presets: {name: {"Node.param": value}}. save= sto
 
 Not undoable.
 
+### mathNodes
+
+The rig math node library: each function with its family, doc and overloads, every overload's node type and its typed inputs and outputs. Filter by function name, node type or family.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | A function name ("lerp") or node type ("addVector"). |
+| `family` | `f` | str |  | Only this family: arithmetic, comparison, range, interpolation, easing, trig, exponential, vector, rotator, quat, matrix, color, select, bitwise or noise. |
+| `namesOnly` | `no` | bool | `False` | Return just the node type names. |
+
+Not undoable.
+
+```python
+mathNodes(family='vector', namesOnly=True)
+```
+
+```python
+n = createNode('mapRangeClamped')
+setAttr(n + '.value', 0.25)
+```
+
 ### mayaConvert
 
 Convert Maya files to Lila scenes: a file to a .lila / .lilaa, or every .ma / .mb in a folder. Each file is opened as its own scene and saved; the scene is left empty afterwards. Returns one entry per file with its destination (or error), skipped features and warnings.
@@ -5909,6 +6060,45 @@ Walk the selection through the hierarchy like the arrow keys: up to the parent, 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `direction` |  | str | `'down'` | up, down, left or right. |
+
+### pin
+
+Pin objects or joints to a curve, a vertex, an edge, a face or a mesh's surface: each gets a pin locator riding the source and is constrained to it. Pinning one object several times blends the pins by weight, like a parent constraint with several targets. Give the objects first and the curve or mesh last; with no objects one pin is made. Returns the pin locators.
+
+**Objects:** objects..., curve or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `src` | str | `'auto'` | auto \| curve \| vertex \| edge \| face \| surface. auto: curve for a curve; for a mesh the selected component kind, else surface. |
+| `follow` | `fo` | str | `'translateRotate'` | translate \| translateRotate \| full. full also scales with the source. |
+| `maintainOffset` | `mo` | bool | `True` | Keep each object where it is relative to its pin; off snaps it onto the pin. |
+| `weight` | `w` | float | `1.0` | The pin's share when the object has several. |
+| `shape` | `sh` | str | `'final'` | final \| rest: ride the deformed mesh or its shape before deformers. |
+| `rebindByUv` | `ruv` | bool | `True` | Find the pin again by uv when the mesh's topology changes. |
+| `curveMode` | `cm` | str | `'fraction'` | parameter \| length \| fraction: how along reads. |
+| `along` | `al` | float |  | Where on the curve, in curveMode's units. Default: nearest each object. |
+| `upMode` | `um` | str | `'curveFrames'` | curveFrames \| upVector \| upObject \| aimCurve: how the frame turns about the curve. |
+| `upVector` | `upv` | tuple[float, float, float] |  | Up direction for upMode upVector. Default [0, 1, 0]. |
+| `upObject` | `uo` | str |  | The object up points at (upMode upObject). |
+| `aimCurve` | `ac` | str |  | The curve up aims at (upMode aimCurve). |
+| `roll` | `r` | float | `0.0` | Turn of the frame, degrees: about the curve, or about a mesh's normal. |
+| `index` | `i` | int |  | The vertex, edge or face id. Default: the selected one, else the nearest each object. |
+| `neighbor` | `nb` | int |  | Vertex: the point the frame's x aims at. Default: along the first edge. |
+| `fraction` | `fr` | float |  | Edge: how far along it. Default: nearest each object. |
+| `faceMode` | `fm` | str | `'centre'` | centre \| barycentric: the face's centre or the point on it nearest each object. |
+| `surfaceMode` | `sm` | str | `'auto'` | auto \| uv \| nearest. auto: uv when the mesh has the uv set. |
+| `uv` |  | list |  | Surface uv mode: [u, v] of the pin. Default: the uv nearest each object. |
+| `uvSet` |  | str | `'uv0'` | The uv set read. |
+| `position` |  | tuple[float, float, float] |  | With no objects: where the pin goes, world space (the nearest point of the source). |
+| `name` | `n` | str |  | Name for the pin locator. |
+
+```python
+pin("Button", "Jacket", source="face", index=12)
+```
+
+```python
+pin("Bead", "Wire", curveMode="fraction", along=0.25)
+```
 
 ### pipe
 
@@ -6943,6 +7133,12 @@ Delete constraints (give the constraints or the constrained objects). The object
 
 **Objects:** constraints or objects
 
+### removeCurveControls
+
+Delete a curve's controls, keeping the shape they gave it. Returns the curves.
+
+**Objects:** curves (default: the selected curves)
+
 ### removeDrivenChannel
 
 Delete driven channels; each driven plug keeps the value it has now.
@@ -7290,6 +7486,8 @@ Retarget animation onto a skeleton and key it into a take. The source is a skele
 | `keepSources` | `ks` | bool | `False` | Keep imported file skeletons in the scene. |
 | `mode` | `m` | str | `'auto'` | fk: chain to chain, for the same kind of body. semantic: body-independent, for a body with other limbs (a biped clip on a dog or a spider). auto: semantic when the leg counts differ. |
 | `gait` | `g` | str | `'auto'` | Semantic mode: the gait the target's legs keep. One of `auto`, `walk`, `trot`, `pace`, `canter`, `gallop`, `tripod`, `tetrapod`, `wave`. |
+| `secondary` | `sd` | float | `0.6` | Semantic mode: how far tails, antennae and wings the source has no motion for trail the body (0 rigid). |
+| `armsAsForelegs` | `af` | bool | `False` | Semantic mode: front legs take the source's arms when the target has more legs. |
 
 ```python
 retarget(source='Hips', target='pelvis')
@@ -9014,6 +9212,33 @@ Create a locator. Returns its path.
 | `position` | `p` | tuple[float, float, float] |  | World position. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new locator. |
 
+### splineChain
+
+Lay a run of joints along a curve: the joints from the first given to the last ride the curve by arc length, keeping their length, stretching, or stretching with a volume-keeping squash. Without a curve one is made through the joints with controls on it. Returns the splineChain.
+
+**Objects:** start joint, end joint, and optionally the curve (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | `c` | str |  | The curve the joints ride; default a new one through them. |
+| `controls` | `ct` | int | `4` | With no curve: points on the new curve, each with a control; 0 makes a curve of 2 points and no controls. |
+| `lengthMode` | `lm` | str | `'stretch'` | keepLength \| stretch \| squash. |
+| `minStretch` | `mns` | float | `0.25` | The shortest the chain gets, as a multiple of its length. |
+| `maxStretch` | `mxs` | float | `4.0` | The longest the chain gets, as a multiple of its length. |
+| `upMode` | `um` | str | `'curveFrames'` | curveFrames \| upVector \| upObjects. |
+| `upVector` | `upv` | tuple[float, float, float] |  | Up in the start joint's parent's space; default the start joint's axis most across the curve. |
+| `upStart` | `ups` | str |  | upObjects: the object whose turn the start follows. |
+| `upEnd` | `upe` | str |  | upObjects: the object whose turn the end follows. |
+| `name` | `n` | str |  | Name for the chain; default <start>_spline. |
+
+```python
+splineChain("spine_01", "neck_01", lengthMode="squash")
+```
+
+```python
+splineChain("tail_01", "tail_12", "TailCurve")
+```
+
 ### splitCurves
 
 Split curves at all their mutual intersections (and with cutters), in 3D or as seen along direction. Returns every piece.
@@ -9157,7 +9382,7 @@ Make meshes follow a driver of any topology: each point binds to the driver's ne
 
 ### surfacePin
 
-Pin objects or joints to a mesh's final surface (after its whole stack): each gets a pin locator riding the surface at a uv (uvPin) or its nearest point (proximityPin) and is parent-constrained to it, keeping its offset. Give the objects first and the mesh last; with no objects one pin is made. Returns the pin locators.
+Pin objects or joints to a mesh's final surface (after its whole stack): each gets a pin locator riding the surface at a uv (uvPin) or its nearest point (proximityPin) and is parent-constrained to it, keeping its offset. Give the objects first and the mesh last; with no objects one pin is made. Returns the pin locators. Short for pin with source surface, whose other options it leaves at their defaults.
 
 **Objects:** objects..., mesh
 
@@ -10143,6 +10368,21 @@ Take a reference's nodes out of the scene but remember it and its edits. Clears 
 **Objects:** namespace
 
 Not undoable.
+
+### unrealCheck
+
+Evaluate skeletons (default all) as they export, under Unreal's transform rules (scale handed down per axis, no shear), and compare their skins with Lila's deformed meshes every frame of the range. Each joint past the tolerance becomes an error that blocks exporting until the check passes. Returns the worst drift and the mismatched joints.
+
+**Objects:** a joint of each skeleton
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `st` | float |  | Seconds; default the playback start. |
+| `end` | `et` | float |  | Seconds; default the playback end. |
+| `fps` |  | float |  | Frames per second; default the scene's. |
+| `tolerance` | `tol` | float | `0.01` | cm a skinned point may drift. |
+| `suffix` | `sfx` | str | `'_bake'` | A baked copy's name suffix, to find the skin of its original joints. |
+| `report` | `rp` | bool | `True` | Replace the check's issues with this run's. |
 
 ### unrealConnect
 
@@ -13750,9 +13990,42 @@ wiggle(['book_01', 'book_02', 'book_03'], strength=60)
 
 Available when the Tailor extension is loaded.
 
+### tailorAddDart
+
+Cut a dart into a panel edge: two legs `width` apart meeting at a point `depth` inside, sewn together. A seam along the edge keeps sewing it either side of the dart. A linked twin gets the mirrored dart. Returns the dart's seam index.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `edge` | `e` | int |  | The outline edge from this point to the next. |
+| `at` | `t` | float | `0.5` | Where along the edge, 0 to 1. |
+| `width` | `w` | float | `3.0` | Dart intake at the edge, cm. |
+| `depth` | `d` | float | `10.0` | Leg length into the panel, cm. |
+
+```python
+tailorAddDart('Skirt', panel='Front', edge=2, width=2.5, depth=12)
+```
+
+### tailorAddNotch
+
+Mark a notch on a panel's outline at the point nearest a position (adding a point there if needed). Seams with the same number of notches on both sides sew notch to notch. Returns the notch's point index.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `position` | `pos` | list |  | [x, y], cm. |
+
+```python
+tailorAddNotch('Shirt', panel='Sleeve', position=[20, 45])
+```
+
 ### tailorAddPanel
 
-Add a rectangular panel, placed flat in front of the garment's other panels, ready to reshape and sew.
+Add a rectangular panel, or one with a drawn outline, placed flat in front of the garment's other panels, ready to reshape and sew.
 
 Returns the new panel's name.
 
@@ -13764,9 +14037,46 @@ Returns the new panel's name.
 | `width` | `w` | float | `40.0` | cm. |
 | `height` | `ht` | float | `60.0` | cm. |
 | `layer` | `l` | int | `0` | Layer: higher layers sit outside lower ones. |
+| `outline` | `o` | list |  | Outline points [[x, y], ...], cm, instead of a rectangle; either winding. |
 
 ```python
 tailorAddPanel('Garment', name='Pocket', width=15, height=18)
+```
+
+### tailorAddTrim
+
+Put copies of a trim mesh (a button, a rivet, a buckle, a plate) on a garment's drape at points, each standing on the cloth with its +Z out of it and riding the cloth rigidly from then on. The copies make one new mesh. Returns [mesh, binding].
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The trim, modelled at the origin with +Z facing out of the cloth. |
+| `points` | `pts` | list |  | Where, [[x, y, z], ...] world cm, on or near the cloth. |
+| `name` | `n` | str | `'Trims'` | Name of the new mesh. |
+| `spin` | `sp` | float | `0.0` | Turn each copy about its +Z, degrees. |
+
+```python
+tailorAddTrim('Coat', mesh='Button', points=[[0, 130, 16], [0, 118, 17], [0, 106, 17]])
+```
+
+### tailorAutoSew
+
+Sew the unsewn edges that meet: outline edges (corner to corner) whose lengths match within 15% and that face each other within maxGap as placed, closest first; with a collider, also edges that both open upwards over the body (shoulders, a hood's crown). Hems, necklines and armholes stay open. Returns the seams as {a, b, reversed} in tailorSew's panel:from:to form, each with its index when applied.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `maxGap` | `mg` | float | `8.0` | Furthest apart two edges may be placed, on average, cm. |
+| `apply` | `ap` | bool | `True` | Sew them; off only lists them. |
+
+```python
+tailorAutoSew('Garment')
+```
+
+```python
+tailorAutoSew('Garment', maxGap=12, apply=False)
 ```
 
 ### tailorBake
@@ -13784,6 +14094,9 @@ When the collider is skinned, the new mesh is bound to the same joints and takes
 | `maxInfluences` | `mi` | int | `4` | Influences per point. |
 | `retopo` | `rt` | int | `0` | Quad remesh to about this many faces, seams kept as edge loops; 0 keeps the cloth triangles. |
 | `lods` | `lod` | int | `0` | Extra levels of detail to generate in a LOD group. |
+| `maps` | `mp` | list |  | Texture maps to bake from the drape onto the game mesh (ids from bakeMaps: normal, ao, curvature, id, ...). id colours each panel. The drape is kept, hidden, as the bake's high. |
+| `mapSize` | `ms` | int | `2048` | Map width and height, texels. |
+| `mapFolder` | `mf` | str | `'textures'` | Where the maps go; relative paths are under the workspace. |
 
 ```python
 tailorBake('Outfit')
@@ -13821,6 +14134,20 @@ Check a garment's pattern the way a pattern maker would: sleeve cap ease, droppe
 tailorCheck('Tunic')
 ```
 
+### tailorClearBrush
+
+Remove what the cloth brushes painted on a garment: pins, folds, shrink or all. Returns how many were removed.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'all'` | What to clear. One of `pins`, `folds`, `shrink`, `all`. |
+
+```python
+tailorClearBrush('Cloak', kind='pins')
+```
+
 ### tailorCreateBlock
 
 Start a garment from a parametric block (tee, tunic, cloak, ...) and drape it onto a collider mesh.
@@ -13842,6 +14169,27 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 
 ```python
 tailorCreateBlock(block='tunic', collider='Body')
+```
+
+### tailorDamage
+
+Wear a garment: ragged holes or tears in the cloth at points on its drape, cut into the pattern so the cloth drapes around them. Returns how many were cut.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | Where, [[x, y, z], ...] world cm, on or near the cloth. |
+| `radius` | `r` | float | `3.0` | Hole radius or half the tear's length, cm. |
+| `kind` | `k` | str | `'hole'` | hole or tear. |
+| `seed` | `sd` | int | `1` | Varies the ragged edge. |
+
+```python
+tailorDamage('Cloak', points=[[5, 90, -20]], radius=4)
+```
+
+```python
+tailorDamage('Cloak', points=[[-10, 60, -22]], kind='tear', radius=8)
 ```
 
 ### tailorDeletePanel
@@ -13894,6 +14242,8 @@ Adds to the named or selected garment; with none, starts a garment on the select
 | `simulate` | `sim` | bool | `True` | Drape a new garment. |
 | `frames` | `fr` | int | `90` | Solver frames for a new garment. |
 | `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
+| `flatten` | `fl` | bool | `True` | Flatten the panel as the body curves under it (lengths true on the body); off unrolls it round the body's axis. |
+| `sew` | `sw` | bool | `True` | Sew the new panels to edges of the garment's panels that meet them. |
 
 ```python
 tailorDrawPanel(points=[[-15, 140, 12], [15, 140, 12], [15, 100, 14], [-15, 100, 14]], name='Bib', collider='Mannequin')
@@ -13939,6 +14289,22 @@ tailorExportAnimation('Cloak', end=120, path='anim/cloak.abc')
 
 ```python
 tailorExportAnimation('Cloak', format='vat')
+```
+
+### tailorFold
+
+Press a fold along a stroke on a garment's drape: the stroke becomes a fold line on each panel it crosses, held at the angle. Returns the number of fold lines added.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | The stroke [[x, y, z], ...], world cm, on or near the cloth. |
+| `angle` | `a` | float | `90.0` | Fold angle, degrees; negative folds the other way. |
+| `reach` | `rc` | float | `5.0` | How far a stroke point may lie off the cloth, cm. |
+
+```python
+tailorFold('Tunic', points=[[-10, 120, 14], [10, 120, 14]], angle=120)
 ```
 
 ### tailorFreeze
@@ -14039,9 +14405,45 @@ tailorMannequin()
 tailorCreateBlock(block='cloakTunicBelt', collider=tailorMannequin())
 ```
 
+### tailorMirrorPanel
+
+Add a mirror image of a panel, placed mirrored across the middle of the garment. Linked, editing either panel's outline changes both. Returns the new panel's name.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `link` | `lk` | bool | `True` | Keep the two outlines mirrored as either is edited. |
+| `planeX` | `px` | float |  | The mirror plane's x, cm; the middle of the garment's other panels when left out. |
+
+```python
+tailorMirrorPanel('Jacket', panel='FrontLeft')
+```
+
+### tailorPin
+
+Pin the cloth near points on a garment's drape where it hangs now, or unpin it (remove=True). Pins hold in every drape, live or not, follow pattern edits and ride the body as it moves. Returns the garment's pin count.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | Brush points [[x, y, z], ...], world cm. |
+| `radius` | `r` | float | `3.0` | Brush radius, cm. |
+| `remove` | `rm` | bool | `False` | Unpin instead. |
+
+```python
+tailorPin('Cloak', points=[[0, 150, -12]], radius=4)
+```
+
+```python
+tailorPin('Cloak', points=[[0, 150, -12]], remove=True)
+```
+
 ### tailorRefit
 
-Move a garment onto another body: grades the pattern by the bodies' measurements (widths by chest, lengths by height), stands it where the new body stands and drapes it there. Returns the scale factors used.
+Move a garment onto another body: grades the pattern by the bodies' measurements (widths by chest, lengths by height), keeps each set-in sleeve cap's ease to its armhole, stands it where the new body stands and drapes it there. Returns the scale factors used.
 
 **Objects:** garment
 
@@ -14052,6 +14454,56 @@ Move a garment onto another body: grades the pattern by the bodies' measurements
 
 ```python
 tailorRefit('Tunic', collider='Hero')
+```
+
+### tailorRelax
+
+Steam a live garment around points: the cloth there smooths out and comes to rest, then settles again. Returns whether the garment is live.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | Brush points [[x, y, z], ...], world cm. |
+| `radius` | `r` | float | `6.0` | Brush radius, cm. |
+
+Not undoable.
+
+```python
+tailorRelax('Cloak', points=[[0, 120, -15]])
+```
+
+### tailorRemoveNotch
+
+Remove a panel's notch at an outline point. Returns whether there was one.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+| `index` | `i` | int |  | The notch's point index. |
+
+```python
+tailorRemoveNotch('Shirt', panel='Sleeve', index=7)
+```
+
+### tailorSendToUnreal
+
+Ship a garment to Unreal as a skeletal mesh with Chaos Cloth on it: bakes it (skinned like its collider, which must be skinned), imports it over the link to contentPath, then builds its clothing data with max distance painted from how far the cloth hangs off the body, and the fabric's mass, stiffness, damping and friction. Returns {mesh, asset, clothing}.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `contentPath` | `cp` | str |  | The skeletal mesh asset, like /Game/Characters/Hero/SK_Hero_Cloak. |
+| `skeleton` | `sk` | str |  | Skeleton asset to reuse, like /Game/Characters/Hero/SK_Hero_Skeleton. |
+| `retopo` | `rt` | int | `0` | Quad remesh the game mesh to about this many faces first; 0 keeps the cloth triangles. |
+| `maxInfluences` | `mi` | int | `4` | Skin influences per point. |
+| `save` | `sv` | bool | `True` | Save the Unreal assets afterwards. |
+
+```python
+tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/SK_Hero_Cloak', skeleton='/Game/Characters/Hero/SK_Hero_Skeleton')
 ```
 
 ### tailorSetFabric
@@ -14091,6 +14543,22 @@ Each side is panel:from:to (outline vertex indices, walking forward), several jo
 tailorSew('Garment', sideA='Front:1:2', sideB='Back:3:4', reversed=True)
 ```
 
+### tailorShrink
+
+Shrink (scale below 1) or stretch (above 1) the cloth's rest shape around points on a garment's drape, fading out to the radius: gathers, puckers and eased fullness. Returns the garment's shrink spot count.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | Brush points [[x, y, z], ...], world cm. |
+| `radius` | `r` | float | `5.0` | Brush radius, cm. |
+| `scale` | `s` | float | `0.9` | Rest scale at the middle of each dab. |
+
+```python
+tailorShrink('Tunic', points=[[0, 100, 15]], radius=6, scale=0.85)
+```
+
 ### tailorSimulate
 
 Drape a garment: run the solver for a number of frames from its placed panels and keep the result.
@@ -14107,6 +14575,43 @@ Returns the draped mesh's vertex and triangle counts and any warning.
 
 ```python
 tailorSimulate('Garment', frames=200, wait=True)
+```
+
+### tailorStrap
+
+Add a strap to a garment along a path (a belt, a sash, a bandolier): a strip of cloth the path's length, its middle pinned along the path so it drapes over the body there. Give points or a curve. Returns the strap panel's name.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pts` | list |  | The path, [[x, y, z], ...] world cm. |
+| `curve` | `cv` | str |  | A curve to follow instead of points (its points, world space). |
+| `width` | `w` | float | `4.0` | Strap width, cm. |
+| `name` | `n` | str | `'Strap'` | Panel name; made unique. |
+| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `closed` | `cl` | bool | `False` | The path closes on itself (a belt round the waist). |
+
+```python
+tailorStrap('Tunic', curve='BeltPath', closed=True, width=5)
+```
+
+```python
+tailorStrap('Tunic', points=[[-15, 140, 14], [15, 95, 15]], width=6, name='Sash')
+```
+
+### tailorUnlinkPanel
+
+Stop a panel and its mirrored twin following each other's edits. Returns whether it had a twin.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | Panel by name or index. |
+
+```python
+tailorUnlinkPanel('Jacket', panel='FrontLeft')
 ```
 
 ### tailorUnsew
