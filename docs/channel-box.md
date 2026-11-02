@@ -5,7 +5,7 @@ The Channel Box works like Maya's, plus a filter, an object strip and a stripe o
 ## Get it working
 
 1. Select objects. With more than one, the strip at the top lists them in selection order: click one to make it the lead, drag to reorder.
-2. Type in **Filter channels**, or click the chips: once for only those channels, twice for all but those, again for off.
+2. Type in **Filter channels**, or click the filter icons under it: once for only those channels, twice for all but those (the icon shows crossed out), again for off.
 3. Click a value and type. It goes to the lead object; hold **Alt** to set it on every selected object.
 
 The stripe left of each name:
@@ -33,14 +33,14 @@ The right-click menu shows only what applies: key, breakdown and mute; copy and 
 
 ## Options
 
-The gear button: scrub speed, hyperbolic scrubbing (faster drags go further), when a viewport middle drag scrubs, decimal places and namespaces (both shared with the Attribute Editor), and the lead-only hint. The **Nice/Long/Short** button switches names in both editors.
+The gear button: scrub speed (the feather, walker and runner set 0.25, 1 and 4), hyperbolic scrubbing (faster drags go further), when a viewport middle drag scrubs, decimal places and namespaces (both shared with the Attribute Editor), and the lead-only hint. The **Nice/Long/Short** button switches names in both editors.
 
-| Chip | Shows |
+| Filter icon | Shows |
 | --- | --- |
-| Keyed | Channels with keys |
-| Driven | Driven keys, expressions, constraints |
-| Connected | Anything with an input |
-| User | Added attributes |
-| Locked | Locked channels |
-| TRS | Translate, rotate, scale |
-| Type | Attributes the object's own type declares, not inherited ones |
+| Key | Channels with keys |
+| Steering wheel | Driven keys, expressions, constraints |
+| Plug | Anything with an input |
+| Person | Added attributes |
+| Padlock | Locked channels |
+| Arrows | Translate, rotate, scale |
+| Cube | Attributes the object's own type declares, not inherited ones |
