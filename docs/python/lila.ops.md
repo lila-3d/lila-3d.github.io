@@ -953,7 +953,7 @@ bakePiecesToJoints('Wall', start=1, end=72)
 
 ### bakePin
 
-Turn pins into joints for Unreal. A pinned joint gets its pinned channels keyed every frame and lets go of the pins. A pin driving nothing, or a pinned prop, gets a joint under the joint carrying the source (the heaviest skin influence there, or the joint above the curve or mesh): a socket when it holds still relative to that joint over the range, else a bone keyed every frame. A prop's joint sits where the prop is, so it attaches with no offset. Returns the joints.
+Turn pins into joints for Unreal. A pinned joint gets its pinned channels keyed every frame and lets go of the pins. A pin driving nothing, or a pinned prop, gets a joint under the joint carrying the source (the heaviest skin influence there, or the joint above the curve or mesh): a socket when it holds still relative to that joint over the range, else a bone keyed every frame. A prop's joint sits where the prop is, so it attaches with no offset; the prop records it in unrealSocket, which FBX exports write and the Unreal link turns into a socket on the character's skeletal mesh. Returns the joints.
 
 **Objects:** pins, pin locators or pinned objects
 
@@ -1571,7 +1571,7 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 
 ### cameraSettings
 
-Query or set a camera's gate display and film fit. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
+Query or set a camera's gate display, film fit and near clip. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
 
 **Objects:** camera
 
@@ -1583,6 +1583,7 @@ Query or set a camera's gate display and film fit. The camera is a view name ('p
 | `filmGate` | `fg` | bool |  | Display the film gate. |
 | `gateMask` | `gm` | bool |  | Darken outside the gate. |
 | `maskOpacity` | `mo` | float |  | Gate mask opacity, 0 to 1. |
+| `nearClip` | `nc` | float |  | Near clip plane in cm; 0 is auto, following the distance to the center of interest. A camera node sets its nearClipPlane and has no auto. |
 | `query` | `q` | bool | `False` |  |
 
 Not undoable.
@@ -2588,13 +2589,14 @@ Delete animation layers with their curves; their members lose what the layers ad
 
 ### deleteAttr
 
-Delete attributes added with addAttr: deleteAttr('node.attr'), or deleteAttr(objects, attribute=name).
+Delete attributes added with addAttr: deleteAttr('node.attr'), deleteAttr(objects, attribute=name), or a whole component with deleteAttr(objects, category=name), which also takes the name out of the object's usdApiSchemas.
 
 **Objects:** plugs or objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `attribute` | `at` | str |  | The attribute to delete from each object. |
+| `category` |  | str |  | Delete every added attribute under this Attribute Editor heading. |
 
 ### deleteBakeTarget
 
@@ -3187,6 +3189,7 @@ Export the evaluated meshes and transforms to a binary FBX 7.4 file. Objects def
 | `textures` |  | bool | `False` | Write the materials' colors and base color, normal and emissive maps as file textures with their wrap modes (repeat or clamp). Off writes plain named materials. |
 | `units` | `u` | str | `'cm'` | File units: cm, m, mm, in or ft. Lengths are scaled to them. |
 | `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
+| `unrealCheck` | `uc` | bool | `True` | Skeletal and animation kinds: refuse when a skeleton fails unrealCheck over the range (sampled). False exports anyway. |
 
 Not undoable.
 
@@ -3246,6 +3249,7 @@ draco=True compresses every primitive with KHR_draco_mesh_compression (then requ
 | `children` |  | bool | `True` | Include the descendants of the given objects. |
 | `units` | `u` | str | `'m'` | File units: m (glTF's), cm, mm, in or ft. Lengths are scaled to them. |
 | `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
+| `unrealCheck` | `uc` | bool | `True` | Skeletal and animation kinds: refuse when a skeleton fails unrealCheck over the range (sampled). False exports anyway. |
 
 Not undoable.
 
@@ -3768,7 +3772,7 @@ Bake translate/rotate/scale into mesh or curve points, leaving identity values. 
 
 ### fullBodyIk
 
-Pose a whole skeleton so each pinned joint reaches its target. The motion spreads over the joints between the pins and the hips by stiffness; everything else keeps its pose. Writes the joints' rotate (and the hips' translate) as FK. Returns {'error': the largest pin miss in cm}.
+Pose a whole skeleton so each pinned joint reaches its target. The motion spreads over the joints between the pins and the hips by stiffness; everything else keeps its pose. Writes the joints' rotate (and the hips' translate, and stretched joints' translate) as FK. Returns {'error': the largest pin miss in cm}.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -3777,6 +3781,8 @@ Pose a whole skeleton so each pinned joint reaches its target. The motion spread
 | `root` | `r` | str |  | Top joint of the skeleton to solve; default the first pin's top joint. |
 | `stiffness` | `st` | Any |  | {joint: 0..1}: how much each joint resists turning, so its neighbours take the motion. |
 | `moveRoot` | `mr` | bool | `True` | Let the hips move when turning joints is not enough. |
+| `stretch` | `str` | bool | `False` | Let bones lengthen when turning can't reach a pin: the joints of IK handles with stretch on, up to their maxStretch, and those in maxStretch. Stretched joints get their translate keyed with key. |
+| `maxStretch` | `mxs` | Any |  | {joint: multiple >= 1}: how far each joint's bone may lengthen with stretch. |
 | `key` | `k` | bool | `False` | Key the posed joints. |
 | `autoPose` | `ap` | bool | `False` | Let the auto-poser place the unpinned body, as a person would stand to reach the pins (UE5 Manny joint names). |
 
@@ -4410,7 +4416,7 @@ hoseFingers("index_01_l", "middle_01_l", "ring_01_l", "pinky_01_l")
 
 ### hoseLimb
 
-Make a rubber hose limb from the shoulder or hip to the wrist or ankle. A limb with an elbow or knee between keeps its joints as drivers (no longer deforming) and gets a chain of hose joints that follow it, from jointed (hose 0) to a smooth hose that bows into an arc as the end nears the root (hose 1). Without joints between, the hose spans the two joints. A bend control on the elbow pushes the middle of the hose. Returns the hoseLimb.
+Make a rubber hose limb from the shoulder or hip to the wrist or ankle. A limb with an elbow or knee between keeps its joints as drivers (no longer deforming) and gets a chain of hose joints that follow it, from jointed (hose 0) to a smooth hose that bows into an arc as the end nears the root (hose 1). Without joints between, the hose spans the two joints. A bend control on the elbow pushes the middle of the hose. The limb joints' skin weights move onto the hose joints (reskin). Returns the hoseLimb.
 
 **Objects:** start joint, end joint (default the selection)
 
@@ -4419,10 +4425,21 @@ Make a rubber hose limb from the shoulder or hip to the wrist or ankle. A limb w
 | `joints` | `j` | int | `12` | Hose joints along the limb. |
 | `hose` | `h` | float | `1.0` | 0 bends at the elbow or knee, 1 is a smooth hose. |
 | `autoArc` | `aa` | float | `1.0` | 1 bows into an arc keeping the limb's length as the end nears the root. |
+| `reskin` | `rs` | bool | `True` | Move the limb joints' skin weights onto the hose joints, as hoseReskin does. |
 | `name` | `n` | str |  | Name for the hoseLimb; default <start>_hose. |
 
 ```python
 hoseLimb("upperarm_l", "hand_l", joints=12)
+```
+
+### hoseReskin
+
+Move the skin weights of hose limbs' limb joints onto their hose joints: each point's weight goes to the two hose joints either side of where it sits along the hose, so the skin follows the hose. Run it with the limb in its bind pose, where the skin then deforms exactly as before. Returns how many skinClusters changed.
+
+**Objects:** hoseLimb nodes (default the selection)
+
+```python
+hoseReskin("upperarm_l_hose")
 ```
 
 ### ikChain
@@ -9239,6 +9256,37 @@ splineChain("spine_01", "neck_01", lengthMode="squash")
 splineChain("tail_01", "tail_12", "TailCurve")
 ```
 
+### splineDynamics
+
+Dynamics on spline chains (tails, tentacles, antennae, hose limbs): overlap is stylised, cheap and loops; jolt is a rigid body per segment that collides with the scene. Additive follows the animation with follow-through; full simulates with only the root animated. Record it with recordSimulation: the motion keys the splineJoints' offsets on an additive layer, which bakeToDeformSkeleton carries to plain keys. Returns the simulation nodes.
+
+**Objects:** spline chains, joints in them, their splineJoints or hoseLimbs (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str | `'overlap'` | overlap \| jolt. |
+| `drive` | `dr` | str | `'additive'` | additive: follow-through on the animation. full: simulated from the root. |
+| `stiffness` | `st` | float |  | Pull back to the animation: overlap rotation stiffness, jolt pose match Hz. |
+| `damping` | `d` | float |  | overlap: damping. jolt: damping ratio, 1 settles without bouncing. |
+| `gravity` | `g` | float |  | Share of gravity the chain feels; default 0 additive, 1 full. |
+| `radius` | `r` | float |  | Collision radius of each segment, cm; default from the bone length. |
+| `colliders` | `co` | list |  | jolt: meshes the chain collides with. overlap: overlap colliders (createOverlapCollider). |
+| `carrier` | `ca` | str |  | Carried motion: the transform (saddle, seat) the chain simulates relative to. |
+| `carrierInertia` | `ci` | float | `1.0` | Share of the carrier's acceleration the chain feels: 1 like the world, 0 carried rigidly. |
+| `name` | `n` | str |  | Name of the simulation node. |
+
+```python
+splineDynamics("tail_01_spline")
+```
+
+```python
+splineDynamics("tail_01", mode="jolt", colliders=["Ground"])
+```
+
+```python
+splineDynamics("tail_01_spline", carrier="horse_saddle", carrierInertia=0.5)
+```
+
 ### splitCurves
 
 Split curves at all their mutual intersections (and with cutters), in 3D or as seen along direction. Returns every piece.
@@ -10371,7 +10419,7 @@ Not undoable.
 
 ### unrealCheck
 
-Evaluate skeletons (default all) as they export, under Unreal's transform rules (scale handed down per axis, no shear), and compare their skins with Lila's deformed meshes every frame of the range. Each joint past the tolerance becomes an error that blocks exporting until the check passes. Returns the worst drift and the mismatched joints.
+Evaluate skeletons (default all) as they export, under Unreal's transform rules (scale handed down per axis, no shear), and compare their skins with Lila's deformed meshes every frame of the range. Each joint past the tolerance becomes an error on that joint; exportFbx, exportGltf and unrealSync run the same check and refuse while a joint fails. Returns the worst drift and the mismatched joints.
 
 **Objects:** a joint of each skeleton
 
@@ -10574,9 +10622,13 @@ Not undoable.
 
 ### unrealSync
 
-Export and reimport every mapped node now, as saving does, or only the given nodes. Returns how many were queued.
+Export and reimport every mapped node now, as saving does, or only the given nodes. Skeletal and animation mappings whose skeleton fails unrealCheck are refused (logged) unless unrealCheck=False. Returns how many were queued.
 
 **Objects:** nodes (default every mapping)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unrealCheck` | `uc` | bool | `True` | Refuse skeletons that fail unrealCheck (sampled over the range). False sends anyway. |
 
 Not undoable.
 
@@ -13116,7 +13168,7 @@ Bind a template instance to meshes: its markers centre in them. Replaces any ear
 
 ### buildRigSkeleton
 
-Build joints from a template instance's markers (or a template's defaults): template names, hierarchy and orientations from the template's rules, plus (rig) the template's IK chains, reverse feet, lookers, twist drivers and deform flags, so the skeleton is a working rig in one step. bindSkin binds the instance's meshes (or the given ones). Returns the root joint, the joints, any skinClusters and the rig elements.
+Build joints from a template instance's markers (or a template's defaults): template names, hierarchy and orientations from the template's rules, plus (rig) the template's IK limits, IK chains, reverse feet, lookers, twist drivers, deform flags and any rubber hose limbs (hose), so the skeleton is a working rig in one step. bindSkin binds the instance's meshes (or the given ones). Returns the root joint, the joints, any skinClusters and the rig elements.
 
 **Objects:** instance or template id
 
@@ -13127,7 +13179,8 @@ Build joints from a template instance's markers (or a template's defaults): temp
 | `includeIk` | `ik` | bool | `True` | Build the template's ik helper joints too. |
 | `prefix` | `p` | str |  | Prefix for the joint names. |
 | `spaces` | `sp` | bool | `True` | Give the joints the template's default spaces (hands in world, chest, head ...). |
-| `rig` | `rg` | bool | `True` | Build the template's rig elements too: IK chains, reverse feet, lookers, twist drivers and deform flags. |
+| `rig` | `rg` | bool | `True` | Build the template's rig elements too: IK limits, IK chains, reverse feet, lookers, twist drivers, hose limbs and deform flags. |
+| `hose` | `hs` | str | `'template'` | Limbs built as rubber hoses (with rig): template (each limb's own setting), all, none (all jointed), or IK chain names separated by commas (arm_l, leg_r). |
 
 ### centerRigMarkers
 
@@ -13990,6 +14043,44 @@ wiggle(['book_01', 'book_02', 'book_03'], strength=60)
 
 Available when the Tailor extension is loaded.
 
+### tailorAddBeltLoops
+
+Add belt loops across a panel at a height, each tacked at both ends and standing off the cloth for a belt to pass under. Returns the loop panels' names.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | str |  | The panel, by name or index. |
+| `height` | `ht` | float |  | Where the loops' lower ends sit, cm up the panel's pattern. |
+| `count` | `c` | int | `3` | How many. |
+| `width` | `w` | float | `1.2` | Loop width, cm. |
+| `length` | `l` | float | `5.0` | Span between the tacked ends, cm. |
+
+```python
+tailorAddBeltLoops('Trousers', panel='Front L', height=68, count=2)
+```
+
+### tailorAddCollar
+
+Add a collar sewn to the neckline: the garment's open edges round its top, opening upwards and joined at the shoulders, unless given. A band stands up; a shirt collar folds its fall down over the stand. Returns the collar panel's name.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `height` | `ht` | float | `7.0` | cm. |
+| `style` | `st` | str | `'shirt'` | band or shirt. |
+| `neckline` | `nl` | str |  | The neckline as tailorSew sides, e.g. "Front:24:52,Back:46:24". |
+
+```python
+tailorAddCollar('Shirt')
+```
+
+```python
+tailorAddCollar('Tunic', style='band', height=4)
+```
+
 ### tailorAddDart
 
 Cut a dart into a panel edge: two legs `width` apart meeting at a point `depth` inside, sewn together. A seam along the edge keeps sewing it either side of the dart. A linked twin gets the mirrored dart. Returns the dart's seam index.
@@ -14006,6 +14097,44 @@ Cut a dart into a panel edge: two legs `width` apart meeting at a point `depth` 
 
 ```python
 tailorAddDart('Skirt', panel='Front', edge=2, width=2.5, depth=12)
+```
+
+### tailorAddDrawstring
+
+Thread a drawstring along edges (a hood's face, a waist): a cord held along them that draws them in by gather, tails hanging past both ends, optional toggles on the tails. Returns the cord panel's name, and the toggles' [mesh, binding] when added.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `along` | `al` | str |  | The channel as tailorSew sides, e.g. "Hood L:5:9,Hood R:2:6". |
+| `gather` | `ga` | float | `0.8` | How much of the channel's length the cord leaves it, 0.2 to 1. |
+| `tail` | `tl` | float | `15.0` | Tail length past each end, cm. |
+| `width` | `w` | float | `0.6` | Cord width, cm. |
+| `toggles` | `tg` | bool | `True` | Toggles on the tails' ends. |
+
+```python
+tailorAddDrawstring('Cloak', along='Hood L:5:9,Hood R:2:6', gather=0.7)
+```
+
+### tailorAddLacing
+
+Lace two edges together (a corset back, a laced neckline): eyelets inset along both, a lace zigzagging through them with tails at the top, optional grommets at the eyelets. Returns the lace panel's name, and the grommets' [mesh, binding] when added.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sideA` | `a` | str |  | One edge as tailorSew sides. |
+| `sideB` | `b` | str |  | The other edge. |
+| `pairs` | `pr` | int | `5` | Eyelets on each edge. |
+| `inset` | `in` | float | `1.5` | Eyelets in from the edge, cm. |
+| `tail` | `tl` | float | `12.0` | Tail length, cm. |
+| `width` | `w` | float | `0.5` | Lace width, cm. |
+| `grommets` | `gr` | bool | `True` | Grommets at the eyelets. |
+
+```python
+tailorAddLacing('Bodice', sideA='Back L:1:2', sideB='Back R:3:0', pairs=8)
 ```
 
 ### tailorAddNotch
@@ -14043,21 +14172,60 @@ Returns the new panel's name.
 tailorAddPanel('Garment', name='Pocket', width=15, height=18)
 ```
 
-### tailorAddTrim
+### tailorAddPocket
 
-Put copies of a trim mesh (a button, a rivet, a buckle, a plate) on a garment's drape at points, each standing on the cloth with its +Z out of it and riding the cloth rigidly from then on. The copies make one new mesh. Returns [mesh, binding].
+Add a patch pocket on a panel, tacked round all but its mouth, with an optional flap over the mouth. Returns the pocket panel's name.
 
 **Objects:** garment
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `mesh` | `m` | str |  | The trim, modelled at the origin with +Z facing out of the cloth. |
+| `panel` | `p` | str |  | The panel it sits on, by name or index. |
+| `position` | `pos` | list |  | Its lower left corner, [x, y] cm in the panel's pattern. |
+| `width` | `w` | float | `14.0` | cm. |
+| `height` | `ht` | float | `16.0` | cm. |
+| `flap` | `fl` | bool | `False` | A flap over the mouth. |
+
+```python
+tailorAddPocket('Shirt', panel='Front', position=[5, 30], flap=True)
+```
+
+### tailorAddTrim
+
+Put copies of a trim on a garment's drape at points, each standing on the cloth with its +Z out of it and riding the cloth rigidly from then on: your mesh, or a built-in shape (button, grommet, rivet, toggle, buckle, zipTooth, slider). The copies make one new mesh. Returns [mesh, binding].
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | Your trim, modelled at the origin with +Z facing out of the cloth, cm. |
+| `shape` | `sh` | str | `'button'` | A built-in trim, when mesh is left out. One of `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth`, `slider`. |
 | `points` | `pts` | list |  | Where, [[x, y, z], ...] world cm, on or near the cloth. |
 | `name` | `n` | str | `'Trims'` | Name of the new mesh. |
 | `spin` | `sp` | float | `0.0` | Turn each copy about its +Z, degrees. |
 
 ```python
-tailorAddTrim('Coat', mesh='Button', points=[[0, 130, 16], [0, 118, 17], [0, 106, 17]])
+tailorAddTrim('Coat', shape='button', points=[[0, 130, 16], [0, 118, 17], [0, 106, 17]])
+```
+
+```python
+tailorAddTrim('Coat', mesh='SM_Buckle', points=[[0, 100, 16]])
+```
+
+### tailorAddZip
+
+Put a zip in a seam: teeth along both sides and a slider where it stands, the seam unsewn past the slider. open runs from 0 (closed) to 1 (fully open), from side A's end back towards its start. Returns the teeth and slider as [mesh, binding] each.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seam` | `s` | int |  | The seam, as tailorSew returned it. |
+| `open` | `op` | float | `0.0` | How far open, 0 to 1. |
+| `spacing` | `sp` | float | `0.6` | Between teeth along each side, cm. |
+
+```python
+tailorAddZip('Jacket', seam=4, open=0.3)
 ```
 
 ### tailorAutoSew
@@ -14108,6 +14276,33 @@ tailorBake('Cloak', name='SM_Cloak', skin=False)
 
 ```python
 tailorBake('Tunic', retopo=3000, lods=2)
+```
+
+### tailorBakeWrinkleMaps
+
+Bake a fabric's wrinkle normal maps: a square of it squeezed along U, then along V, simulated until it folds. They tile, and pair with the 'wrinkle' colour set Tailor's drapes and Lila's tension deformer write (compression along U in red, V in green). With send, they go to Unreal with MF_LilaTensionWrinkles, a material function for your own materials (and M_LilaTensionWrinkles, a material built on it, with material=True). Returns {files, unreal}.
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `size` | `s` | int | `512` | Map width and height, texels. |
+| `tile` | `tl` | float | `20.0` | The square of cloth one map covers, cm. |
+| `compress` | `c` | float | `0.25` | How far the square is squeezed, 0 to 0.6. |
+| `folder` | `fo` | str | `'textures'` | Where the maps go; relative paths are beside the scene file. |
+| `send` | `sd` | bool | `False` | Send them to Unreal and build MF_LilaTensionWrinkles there. |
+| `unrealFolder` | `uf` | str | `'/Game/Lila/Wrinkles'` | Unreal folder for the maps and the function. |
+| `material` | `mat` | bool | `False` | Also build M_LilaTensionWrinkles on the function. |
+
+Not undoable.
+
+```python
+tailorBakeWrinkleMaps(fabric='Wool', size=1024)
+```
+
+```python
+tailorBakeWrinkleMaps('Coat', send=True)
 ```
 
 ### tailorBindRenderMesh
@@ -14490,7 +14685,7 @@ tailorRemoveNotch('Shirt', panel='Sleeve', index=7)
 
 ### tailorSendToUnreal
 
-Ship a garment to Unreal as a skeletal mesh with Chaos Cloth on it: bakes it (skinned like its collider, which must be skinned), imports it over the link to contentPath, then builds its clothing data with max distance painted from how far the cloth hangs off the body, and the fabric's mass, stiffness, damping and friction. Returns {mesh, asset, clothing}.
+Ship a garment to Unreal with Chaos Cloth. as=clothAsset builds a Chaos Cloth Asset from the sewing pattern itself (panels as sim patterns, seams welded, the drape as its rest shape), ready for the Cloth Editor and a Chaos Cloth Component on your character. as=skeletalMesh bakes it (skinned like its collider, which must be skinned), imports it and adds clothing data to the mesh. Both paint max distance from how far the cloth hangs off the body and carry the fabric's mass, stiffness, damping and friction. Returns what was made.
 
 **Objects:** garment
 
@@ -14501,6 +14696,9 @@ Ship a garment to Unreal as a skeletal mesh with Chaos Cloth on it: bakes it (sk
 | `retopo` | `rt` | int | `0` | Quad remesh the game mesh to about this many faces first; 0 keeps the cloth triangles. |
 | `maxInfluences` | `mi` | int | `4` | Skin influences per point. |
 | `save` | `sv` | bool | `True` | Save the Unreal assets afterwards. |
+| `as` |  | str | `'clothAsset'` | clothAsset or skeletalMesh. |
+| `skeletalMesh` | `skm` | str |  | Cloth asset: the character's skeletal mesh in Unreal it is made for. |
+| `material` | `mat` | str |  | Cloth asset: the render material, like /Game/Cloth/M_Wool; a debug material when left out. |
 
 ```python
 tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/SK_Hero_Cloak', skeleton='/Game/Characters/Hero/SK_Hero_Skeleton')
