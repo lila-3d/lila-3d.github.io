@@ -77,7 +77,7 @@ setAttr("Crate.usdApiSchemas", ["HealthAPI"])
 addAttr("Crate", longName="health:max", attributeType="double", defaultValue=100, category="HealthAPI")
 ```
 
-- **Remove one:** take its name out of `usdApiSchemas` and `deleteAttr` its attributes. In a live stage that deletes the schema from the prim and blocks the attributes.
+- **Remove one:** click the **x** on its heading in **Extra Attributes**, or run `deleteAttr("Crate", category="HealthAPI")`. Both delete its attributes and take it out of `usdApiSchemas` in one undo step. In a live stage that deletes the schema from the prim and blocks the attributes. For a single attribute, right-click its label and choose **Delete Attribute**, or use **Delete Attributes** in the Channel Box's right-click menu.
 - Values go out as they are, with no axis or unit conversion. Schema attributes left at the schema's default aren't written.
 - To build an **Add Component** button into the Attribute Editor, see [Attribute Editor sections](cpp-extensions.md#attribute-editor-sections).
 
