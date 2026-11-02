@@ -36,7 +36,7 @@ Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's 
 - In **Sew** mode, click two edges to sew them; Shift on the second click sews them the same way round. Right-click an edge to unsew it.
 - **Pen** draws a new panel: click points, drag to curve through one, then click the first point or press Enter. **Notch** marks a point on an edge; seams with the same number of notches on both sides sew notch to notch.
 - Right-click an edge for **Add Dart Here**; right-click a panel for **Mirror Panel (Linked)**, a mirrored copy whose outline follows every edit to either one.
-- **Auto-Sew** sews the unsewn edges that face each other where the panels are placed and match in length.
+- **Auto-Sew** sews the unsewn edges that match in length and face each other where the panels are placed, plus edges that both open upwards over the body, like shoulders. Hems, necklines and armholes stay open.
 - Clicking a panel selects its faces on the garment mesh; selecting faces there picks their panel here. The **Tailor** layout docks the editor beside the viewport with the Tailor shelf.
 - **Tailor > Draw Panel on Body** draws a new panel straight onto the body: click around it, press Enter. M mirrors it across the body. The panel is flattened as the body curves under it, so its lengths are true on the body, and it is sewn to the panels it meets.
 - **Tailor > Live Drape** keeps the garment simulating, so edits show as you make them. **Tailor > Grab Cloth** pulls it around in the viewport.
@@ -45,7 +45,7 @@ Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's 
 
 With a garment selected, paint on it in the viewport. **[** and **]** size the brush; Shift reverses it.
 
-- **Pin Cloth** holds the cloth where it hangs, through every later drape.
+- **Pin Cloth** holds the cloth where it hangs, through every later drape. Pins ride the body, so on an animated garment they move with it.
 - **Fold Cloth** presses a fold line along the stroke.
 - **Shrink Cloth** gathers the cloth's rest shape (Shift stretches it).
 - **Steam Cloth** smooths a live garment as you drag.
@@ -95,7 +95,7 @@ To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBa
 
 **A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again. Trims bind again on their own.
 
-**Auto-Sew sews nothing.** It only sews edges whose outward sides face each other within `maxGap` (8 cm) as the panels are placed. Move the panels closer, or sew the pair in **Sew** mode.
+**Auto-Sew misses a seam.** It sews edges that face each other within `maxGap` (8 cm) as placed, or that both open upwards with the body under them. Move the panels closer, or sew the pair in **Sew** mode. Edges that hang open facing each other, like a poncho's sides, get sewn: unsew them.
 
 **A brush stroke does nothing.** The stroke missed the cloth, or the garment isn't selected. Pin, Fold and Shrink need the drape under the cursor; Steam needs the garment live.
 
