@@ -106,6 +106,16 @@ Add colliders to a collision deformer: meshes, or transforms as capsules along t
 | `capsuleRadius` |  | float | `5.0` | Radius for transform colliders. |
 | `capsuleLength` |  | float | `10.0` | Length for transform colliders, along their Y. |
 
+### addComponent
+
+Add a component from the library (listComponents) to objects: its attributes under its heading, and its USD schema when it names one. Returns the plugs added.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | The component. |
+
 ### addCorrective
 
 Turn a sculpt of the posed mesh into a corrective morph target. The fix is taken back through the skin into rest space (pose-space inversion) so it applies before skinning and matches the sculpt at this pose, and a pose driver reading each driver joint against its rest drives the weight: 1 at this pose, 0 at rest. Several drivers multiply (a combination corrective). Give the sculpt then the base (the base can be left out for a sculpt made by sculptCorrective). Returns {target, drivers, residual}.
@@ -580,6 +590,19 @@ Assign a material to whole objects, to faces= of one object, or (with no objects
 | --- | --- | --- | --- | --- |
 | `faces` | `f` | list |  | Face ids of the one object given. |
 
+### assignTexture
+
+Wire a texture file into the material on a mesh's face (or its only material): the channel comes from map= or the file's name (T_Rock_N.png, M_Outfit_ao.png, ..._BaseColor.png). A slot with no material gets one. Returns {assigned, created, skipped}.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The mesh. |
+| `face` | `f` | int | `-1` | A face of the mesh (outMesh id) whose material takes it; -1 for the mesh's first. |
+| `map` | `mp` | str |  | A bake map id (normal, ao, orm, ...) or material channel, instead of the name's. |
+| `normalFormat` | `nf` | str | `'directx'` | For a normal map: directx or opengl. |
+
 ### attachCurve
 
 Join the second curve onto the first at their nearest ends (merged when they meet, else by a straight or blended span). The first curve takes the result; the second is deleted unless keepOriginal. Returns the first.
@@ -773,7 +796,7 @@ Estimate a bake group's cage in one step: paints bakeOffset on its lows so every
 | --- | --- | --- | --- | --- |
 | `resolution` | `res` | int | `512` | Texels per side of the coverage check. |
 | `iterations` | `it` | int | `4` | Coverage passes that may grow the cage. |
-| `margin` | `mg` | float | `0.004` | Gap kept between cage and high, as a fraction of the lows' bounds diagonal. |
+| `margin` | `mg` | float | `0.004` | Gap kept between cage and high, as a fraction of each low's bounds diagonal. |
 | `apply` | `ap` | bool | `True` | Write the result; False only reports it. |
 
 ### bakeForTarget
@@ -816,6 +839,7 @@ Create or edit a bake group: the lows that receive maps and the highs projected 
 | `ignoreBackfaces` | `ib` | bool |  | Rays only hit high faces facing them. |
 | `aoScope` | `as` | str |  | AO occluders: self, group or all. |
 | `skew` | `sk` | float |  | 0 to 1: tilts rays from the smooth normals toward each low face's normal. |
+| `unlinks` | `ul` | Any |  | Replace the unlinks: [{"lows": [...] (empty: every low), "meshes": [...], "occlusion": True, "projection": False}]. The lows' AO and other occlusion rays pass through those meshes (any high or occluder, a self high by its low's name); projection=True also bakes nothing from them onto the lows. |
 | `addHighFile` | `ahf` | list |  | Add highs streamed from files at bake time (.fbx, .obj, .abc), never loaded into the scene. |
 | `removeHighFile` | `rhf` | list |  | Remove file highs. |
 | `fileObject` | `fob` | str |  | With addHighFile: only the file's meshes whose name contains this. |
@@ -927,6 +951,7 @@ Paint a low's bake cage attributes: offset (bakeOffset, scales the auto cage pus
 | `center` | `ce` | tuple[float, float, float] |  | World-space brush centre; points within radius get a smooth falloff. |
 | `radius` | `r` | float |  | World-space brush radius, cm. |
 | `flood` | `fl` | bool | `False` | Apply to every point (or the selected components). |
+| `reset` | `rs` | bool | `False` | Set every point back to unpainted (offset 1, skew 0), whatever is selected. |
 | `symmetry` | `sy` | str | `'none'` | Mirror across x, y or z (object space). One of `none`, `x`, `y`, `z`. |
 
 ### bakePiecesToJoints
@@ -1454,6 +1479,19 @@ Wrap the selection's points in a fitted shape, ready to go to Unreal as collisio
 | `maxHullPoints` | `mh` | int | `32` | Most points a hull keeps. |
 | `generator` | `g` | bool | `False` | Keep the primitive's generator so its size stays editable. |
 
+### breakdown
+
+Turn keys into breakdowns (or back, with value=False) on channels, at a time or in a range; all keys by default. query=True lists the breakdown times of the first channel. Returns how many keys changed.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `attribute` | `at` | Any |  | Attribute name or list of names (translate keys all three). |
+| `time` | `t` | Any |  | Seconds, or (start, end) with None for an open end. Default: all keys. |
+| `value` | `v` | bool | `True` | True makes breakdowns, False plain keys. |
+| `query` | `q` | bool | `False` | Return the first channel's breakdown key times. |
+
 ### brushPresetDelete
 
 Delete one of your or the project's brush presets.
@@ -1833,6 +1871,19 @@ Add a collision deformer: the meshes are pushed out of the colliders (meshes, or
 | `capsuleLength` |  | float | `10.0` | Length for transform colliders, along their Y. |
 | `name` |  | str |  | Name for the deformer. |
 
+### componentExport
+
+How a component on objects reaches Unreal: actorTags, assetUserData (the default), component (an actor component of unrealClass with matching properties), dataAsset (of unrealClass), custom (a registered exporter named by unrealClass) or none. With query=True, returns the setting.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `component` | `c` | str |  | The component (heading). |
+| `mode` | `m` | str |  | none, actorTags, assetUserData, component, dataAsset or custom. |
+| `unrealClass` | `uc` | str |  | The UE class (component, dataAsset) or exporter (custom). |
+| `query` | `q` | bool | `False` | Return {mode, class}. |
+
 ### componentInfo
 
 Positions, normals and adjacency of a mesh's components in bulk. Faces: center, normal, area, points, edges, neighbors (faces across each edge). Edges: points, center, length, faces, border. Vertices: position, normal, edges, neighbors (points), faces. World space unless space='object'. ids= picks some (default: the selected ones of that kind, or all).
@@ -1858,6 +1909,29 @@ Selected components: {mesh: {"vertices": [...], "edges": [...], "faces": [...]}}
 
 Not undoable.
 
+### componentValues
+
+Per-vertex values of the selected (or given) components, one column per value: skin weights per influence, position, colour. Returns {rows: [[mesh, id], ...], columns: [{id, label, kind, ...}], values: [[...per column] per row]}; a value is None where the row's mesh has no such column.
+
+Weight columns carry joint, held (the influence's lockWeights), total (summed over the rows) and links (the skinInfluence nodes, one per mesh). With the weights filter only influences with weight on the rows appear, heaviest first.
+
+**Objects:** [meshes]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `vertices` | `v` | list |  | Point ids for every mesh, or [mesh, id] pairs; defaults to the selected components' points. |
+| `columns` | `c` | list | `['weights', 'position']` | Which columns: weights (influences touching the rows), allWeights, position, color, or single ones: a joint, position.x, color.r. |
+
+Not undoable.
+
+```python
+componentValues(columns=['weights'])
+```
+
+```python
+componentValues('Body', vertices=[0, 1, 2], columns=['spine_01', 'position.y'])
+```
+
 ### conformCurve
 
 Keep curves on a mesh surface: their points are placed on it, lifted by offset, whenever the curve or the mesh changes, so moving points slides them along it (Maya's Make Live for curves). release=True lets them go again, back to where they were last moved. Returns the curves.
@@ -1879,6 +1953,17 @@ connectAttr('src.attr', 'dst.attr'). A whole array input ('loft1.sections') gets
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `force` | `f` | bool | `False` | Replace an existing input connection. |
+
+### connectByName
+
+Connect every attribute of the source object to the same-named input of each target, where the types fit (Maya's Connection Editor 'connect by name'). Returns the target plugs connected.
+
+**Objects:** source targets
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `attribute` | `at` | list |  | Only these attribute names. |
+| `force` | `f` | bool | `False` | Replace inputs that are already connected; otherwise they are skipped. |
 
 ### connectField
 
@@ -1975,6 +2060,19 @@ convertToInstance("Bolt")  # every copy of Bolt in the scene
 ```python
 convertToInstance("Bolt2", "Bolt3", "Bolt")
 ```
+
+### copyAttr
+
+Copy added attributes from the first object to the others: their definitions, values and, with connections=True, their incoming connections. Ones a target already has only take the value. Returns the plugs added.
+
+**Objects:** source targets
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `attribute` | `at` | list |  | Only these attributes; all added ones by default. |
+| `category` |  | str |  | Only the attributes under this heading (a component). |
+| `values` | `v` | bool | `True` | Copy the values too. |
+| `connections` | `ic` | bool | `False` | Connect each copy to whatever drives the original. |
 
 ### copyDeformerWeights
 
@@ -2610,6 +2708,17 @@ Delete a saved bake preset (a user or workspace target profile file). Built-in t
 
 Not undoable.
 
+### deleteComponent
+
+Delete a saved component from your library or the studio's. Objects carrying it keep their attributes.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | The component. |
+| `studio` | `st` | bool | `False` | From the studio library. |
+
+Not undoable.
+
 ### deleteComponents
 
 Delete the selected vertices, edges or faces (with whatever depends on them).
@@ -2895,6 +3004,32 @@ Set a layer's weight, mute, solo, lock, mode or rotation accumulation. Returns i
 | `lock` | `lk` | bool |  | No keys or membership changes. |
 | `mode` | `m` | str |  | additive \| override |
 | `accumulation` | `acc` | str |  | quaternion \| euler |
+
+### editAttr
+
+Change an added attribute: name, label, type (values convert), default, ranges, enum names, keyable, Channel Box, hidden, doc, heading. Changing the type drops its connections. With query=True, returns its settings instead.
+
+**Objects:** plugs
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `longName` | `ln` | str |  | A new name; connections, keys and drivers stay on it. |
+| `shortName` | `sn` | str |  | A short name. |
+| `niceName` | `nn` | str |  | The label editors show; empty makes one from the name. |
+| `type` | `typ` | str |  | bool, int, float, enum, string, vector, color, matrix, file or text. |
+| `array` | `a` | bool |  | Any number of values, attr[0], attr[1] ... |
+| `defaultValue` | `dv` | Any |  | The value it resets to. |
+| `minValue` | `min` | Any |  | Lowest value it takes; False removes it. |
+| `maxValue` | `max` | Any |  | Highest value it takes; False removes it. |
+| `softMinValue` | `smn` | Any |  | Slider minimum; False removes it. |
+| `softMaxValue` | `smx` | Any |  | Slider maximum; False removes it. |
+| `enumName` | `en` | str |  | Enum labels in order, 'low:medium:high'. |
+| `keyable` | `k` | bool |  | Shown in the Channel Box and keyable. |
+| `channelBox` | `cb` | bool |  | Shown in the Channel Box although not keyable. |
+| `hidden` | `h` | bool |  | Hidden from editors. |
+| `doc` |  | str |  | What it is for: editors show it as a tooltip. |
+| `category` |  | str |  | The heading it shows under (its component); empty for none. |
+| `query` | `q` | bool | `False` | Return the settings of the first plug. |
 
 ### editCorrection
 
@@ -3440,6 +3575,19 @@ Not undoable.
 ```python
 lila.ops.exportWebViewer("C:/Portfolio/Ship", title="Ship", author="Jared Taylor")
 ```
+
+### expression
+
+Drive a plug with an expression in Python syntax: expression('box.ty', string='ctrl.ry * 0.5 + clamp(foot.roll, 0, 90)'). Numbers, other plugs by name, + - * / % **, comparisons, and/or/not, `a if c else b` and abs, min, max, clamp, lerp, sin, cos, tan, asin, acos, atan, atan2, sqrt, exp, pow, log, sign, fmod, hypot, degrees, radians, wrap and mapRange compile to rig math nodes: as fast as nodes, shown in the node editor. Anything else runs as Python (slower, Lila only). Returns {native, nodes, reason}.
+
+**Objects:** plug
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `string` | `s` | str |  | The expression; a leading = is optional. |
+| `python` | `py` | bool | `False` | Run it as Python even when it compiles to nodes. |
+| `query` | `q` | bool | `False` | Return {text, native, nodes} for the plug's expression, or None. |
+| `delete` | `d` | bool | `False` | Remove the plug's expression and its nodes. |
 
 ### extendCurve
 
@@ -4974,6 +5122,30 @@ Create a light. Returns its path. Flags left out keep the light's defaults.
 | `provider` | `prv` | str |  | Light provider asked first for this light. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new light. |
 
+### lightingChannel
+
+Create, rename or delete a lighting channel; with no flag, list the channels.
+
+**Objects:** [name]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `create` | `c` | bool | `False` | Add the channel. |
+| `rename` | `rn` | str |  | A new name: every light and object in it follows. |
+| `delete` | `d` | bool | `False` | Remove it; lights and objects left in no channel go back to default. |
+
+### lightingChannels
+
+The lighting channels of lights and objects: a light lights the objects that share a channel with it (Unreal's Lighting Channels, named and as many as you need). add, remove or set them; with none of those, returns {object: [channels]}. Unknown names are created.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `add` | `a` | list |  | Channels to put the objects in. |
+| `remove` | `rm` | list |  | Channels to take them out of. |
+| `set` | `s` | list |  | Exactly these channels. |
+
 ### lightRig
 
 Light the selection (or everything shown) with a studio rig of area lights under one group, aimed and scaled to fit it. threePoint: key, fill and rim; rim: two back lights for silhouettes; product: soft top and side boxes. Returns the group.
@@ -5001,6 +5173,32 @@ Attribute names of a node.
 | `keyable` | `k` | bool | `False` | Only keyable attributes. |
 | `locked` | `l` | bool | `False` | Only locked plugs; a Vec3 lists each locked component (translateX). |
 | `userDefined` | `ud` | bool | `False` | Only attributes added with addAttr. |
+
+Not undoable.
+
+### listComponents
+
+Components Add offers: USD API schemas, extensions' components and saved ones. Each as {name, source, doc, attrs, usdSchema, unreal}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `src` | str |  | Only this source: usd, user, studio or an extension. |
+
+Not undoable.
+
+### listConnections
+
+What objects or plugs are connected to: sources feeding them and destinations they feed. plugs=True names the other plugs; connections=True pairs each with the plug of yours it connects to.
+
+**Objects:** objects or plugs
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `s` | bool | `True` | Include what feeds them. |
+| `destination` | `d` | bool | `True` | Include what they feed. |
+| `plugs` | `p` | bool | `False` | Name plugs rather than nodes. |
+| `connections` | `c` | bool | `False` | Pairs: your plug, then the other end. |
+| `type` | `t` | str |  | Only other ends of this node type. |
 
 Not undoable.
 
@@ -5381,6 +5579,7 @@ Convert Maya files to Lila scenes: a file to a .lila / .lilaa, or every .ma / .m
 | `references` |  | Any | `'reference'` | reference: referenced Maya / FBX / OBJ files become Lila references (Maya and FBX ones converted to a .lila beside them) with the scene's reference edits as overrides; import: their nodes as ordinary scene nodes; none: skip them. |
 | `history` |  | bool | `True` | Keep a lone primitive creator (polyCube ...) as a live generator node. |
 | `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the file. |
+| `lightingChannels` | `lc` | bool | `True` | Bake light linking (lights linked to or broken from objects) into lighting channels, one per distinct set of objects. |
 
 Not undoable.
 
@@ -5403,6 +5602,7 @@ Import a Maya .ma or .mb file into the scene, without Maya: transforms, groups, 
 | `references` |  | Any | `'reference'` | reference: referenced Maya / FBX / OBJ files become Lila references (Maya and FBX ones converted to a .lila beside them) with the scene's reference edits as overrides; import: their nodes as ordinary scene nodes; none: skip them. |
 | `history` |  | bool | `True` | Keep a lone primitive creator (polyCube ...) as a live generator node. |
 | `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the file. |
+| `lightingChannels` | `lc` | bool | `True` | Bake light linking (lights linked to or broken from objects) into lighting channels, one per distinct set of objects. |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the imported roots. |
 
@@ -5437,6 +5637,7 @@ Open a Maya .ma or .mb file as a new, untitled scene (save it to keep it as .lil
 | `references` |  | Any | `'reference'` | reference: referenced Maya / FBX / OBJ files become Lila references (Maya and FBX ones converted to a .lila beside them) with the scene's reference edits as overrides; import: their nodes as ordinary scene nodes; none: skip them. |
 | `history` |  | bool | `True` | Keep a lone primitive creator (polyCube ...) as a live generator node. |
 | `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the file. |
+| `lightingChannels` | `lc` | bool | `True` | Bake light linking (lights linked to or broken from objects) into lighting channels, one per distinct set of objects. |
 
 Not undoable.
 
@@ -5765,6 +5966,18 @@ Split each mesh at or under the selection into chunks that largely conform to bo
 | `prefix` | `p` | str | `'UCX_'` | Put before the name. |
 | `parent` | `pa` | bool | `True` | Parent under the mesh it wraps, keeping it in place. |
 | `generator` | `g` | bool | `False` | Keep each box's polyCube generator so its size stays editable. |
+
+### mute
+
+Mute animated channels: each holds its value at the current time until unmuted (disable=True), keys kept. query=True returns whether the first is muted.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `attribute` | `at` | Any |  | Attribute name or list of names (translate keys all three). |
+| `disable` | `d` | bool | `False` | Unmute. |
+| `query` | `q` | bool | `False` | Return whether the first channel is muted. |
 
 ### namingConvention
 
@@ -7291,6 +7504,12 @@ rename(old, new) or rename(new) for the single selected object. Returns the rena
 
 **Objects:** [object] newName
 
+### renameAttr
+
+Rename an added attribute. Connections, keys and drivers stay on it. Returns the renamed plug.
+
+**Objects:** plug newName
+
 ### renameLayout
 
 Rename a saved layout, keeping where it is saved.
@@ -7443,6 +7662,18 @@ Move a layer in the stack: index (0 is just above the base animation) or by (+1 
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int |  | New position. |
 | `by` | `b` | int |  | Steps up (positive) or down. |
+
+### reorderAttr
+
+Move an added attribute among the object's added attributes: before or after another, or to an index (0 first).
+
+**Objects:** plug
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `before` | `b` | str |  | The attribute it moves in front of. |
+| `after` | `af` | str |  | The attribute it moves behind. |
+| `index` | `i` | int |  | Its place among the added attributes, 0 first; -1 last. |
 
 ### reorderDisplayLayer
 
@@ -7836,6 +8067,21 @@ Save a project's bake settings as a reusable preset (a target profile): output s
 
 Not undoable.
 
+### saveComponent
+
+Save the attributes under one heading of an object as a reusable component (names, types, defaults, ranges, docs), in your library or the studio's. It then appears in Add. Returns the file.
+
+**Objects:** object
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `category` |  | str |  | The heading to save. |
+| `name` | `n` | str |  | The component's name; the heading by default. |
+| `studio` | `st` | bool | `False` | Save to the studio library (the first studio folder). |
+| `doc` |  | str |  | What it is for. |
+
+Not undoable.
+
 ### saveLayout
 
 Save the current panel arrangement as a named layout. workspace=True saves it in the open folder's .lila/layouts.
@@ -8017,6 +8263,97 @@ Store, query or remove a JSON value saved in the scene file, for tools and scrip
 | --- | --- | --- | --- | --- |
 | `value` | `v` | Any |  | The value to store: any JSON (number, string, list, object). |
 | `remove` | `rm` | bool | `False` | Delete the key. |
+
+### sceneGraphAddNode
+
+Create a scene node from the node editor and add it to the selection, so the view shows it. Returns its path.
+
+**Objects:** view type
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | list |  | [x, y] on the canvas. |
+| `name` |  | str |  | Wanted name; made unique. |
+
+### sceneGraphConnect
+
+Connect plugs from the node editor: sceneGraphConnect(view, 'Ctrl.translateX', 'Box.rotateY') replaces the input's connection. In the Hierarchy view, 'A.@children' to 'B.@parent' parents B under A.
+
+**Objects:** view from to
+
+### sceneGraphDeleteNode
+
+Delete scene nodes from the node editor, with their connections (and, for objects, their children).
+
+**Objects:** view nodes...
+
+### sceneGraphDisconnect
+
+Break the connection into an input from the node editor; on an array input, every element's, or only the ones `source` drives. In the Hierarchy view, 'B.@parent' unparents B. Returns how many connections went.
+
+**Objects:** view to
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` |  | str |  | node.socket of the one link to remove. |
+
+### sceneGraphInfo
+
+A view of the scene's nodes for the node editor: the nodes with their plugs as sockets and values, the connections between them as links, and each node's canvas position.
+
+Views: Selection (the selection and what is wired straight into and out of it), Hierarchy (the selection's parents and children), Upstream and Downstream (depth steps from the selection). Views look through anim curves and unit conversions unless all is on.
+
+**Objects:** view
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `depth` |  | int | `2` | Steps Upstream and Downstream follow from the selection. |
+| `all` |  | bool | `False` | Also show anim curves and unit conversions. |
+
+Not undoable.
+
+```python
+sceneGraphInfo("Upstream", depth=3)
+```
+
+### sceneGraphMoveNodes
+
+Move nodes on the node editor's canvas: sceneGraphMoveNodes(view, positions={'Box': [0, 100]}). Kept per view with the scene.
+
+**Objects:** view
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `positions` |  | Any |  | {node: [x, y]} |
+
+### sceneGraphNodeTypes
+
+Node types the node editor's Scene backend adds: the rig math nodes first, then the other utility (non-DAG) types. With linkType, only types that can take a link from (or, with linkInput, give one to) a socket of that type, each with the socket it would use.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `linkType` |  | str |  | Socket type of a dragged wire's loose end. |
+| `linkInput` |  | bool | `False` | The drag started at an input, so the node needs a matching output. |
+
+Not undoable.
+
+### sceneGraphSetNodeFlags
+
+Show nodes collapsed, or with every plug (hideUnused=False) rather than only the connected ones. Kept with the scene.
+
+**Objects:** view nodes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `collapsed` |  | bool |  | Only the header. |
+| `hideUnused` |  | bool |  | Only the connected plugs; on for every node until turned off. |
+| `muted` |  | bool |  | Accepted for the editor's mute key; scene nodes don't mute. |
+
+### sceneGraphSetValue
+
+Set an unconnected plug from the node editor: sceneGraphSetValue(view, 'Box.translateX', 2).
+
+**Objects:** view node.attr value
 
 ### sceneInfo
 
@@ -8517,6 +8854,8 @@ Set where and how a bake project writes: folder, file name template (tokens {pro
 | `height` | `h` | int |  | Height in texels. |
 | `supersampling` | `ss` | int |  | Samples per texel: 1, 4, 16 or 64. |
 | `padding` | `pad` | int |  | Texels of dilation past island borders; -1 fills the texture. |
+| `material` | `mat` | str |  | Set resolution, width, height, supersampling, padding, bits and format for this texture set ({material}) only; the name needs {material}. |
+| `clear` | `clr` | bool | `False` | With material: drop that texture set's own settings (all of them, or only the flags given). |
 
 ### setBakeProject
 
@@ -8527,6 +8866,29 @@ Set a bake project's pipeline options: rebakeOnSave (saving the scene rebakes it
 | `project` | `pj` | str |  | The bake project; defaults to the scene's only one. |
 | `rebakeOnSave` | `rs` | bool |  | Rebake on save when the inputs' hash changed. |
 | `autoAssign` | `aa` | bool |  | Run bakeAssign after every bake. |
+
+### setComponentValues
+
+Set columns of the selected (or given) vertices, as the Component Spreadsheet does: a joint's weight, position.x, color.r. Setting weights rescales the point's other unheld influences so it still sums to 1, unless normalize=False; held (lockWeights) influences can't be set. Returns how many values changed.
+
+**Objects:** [meshes]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `column` | `col` | str |  | One column: a joint, position.x/y/z or color.r/g/b/a. |
+| `columns` | `cols` | list |  | Several columns; then each vertex's entry in values is a list, one per column. |
+| `values` | `val` | Any |  | One number for all, one per vertex, or per vertex a list per column. |
+| `vertices` | `v` | list |  | Point ids for every mesh, or [mesh, id] pairs; defaults to the selected components' points. |
+| `normalize` | `nrm` | bool | `True` | Rescale the other unheld influences so each point sums to 1. |
+| `relative` | `r` | bool | `False` | Add the values to what is there. |
+
+```python
+setComponentValues(column='spine_01', values=0.5)
+```
+
+```python
+setComponentValues('Body', vertices=[4, 5], columns=['position.x', 'position.y'], values=[[0, 1], [0, 2]])
+```
 
 ### setCorrection
 
@@ -8650,6 +9012,7 @@ Key channels at a time. With no objects, keys every keyable channel of the selec
 | `value` | `v` | float |  | Value. Default: the channel's current value. |
 | `inTangentType` | `itt` | str |  | auto \| spline \| linear \| flat \| step \| clamped |
 | `outTangentType` | `ott` | str |  | auto \| spline \| linear \| flat \| step \| clamped |
+| `breakdown` | `bd` | bool | `False` | Set breakdown keys. |
 
 ### setLoopKey
 
@@ -10546,7 +10909,7 @@ Not undoable.
 
 ### unrealPlaceInstances
 
-Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Returns the plan, with each group's import and placement results when wait=True.
+Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Lights among them go as light actors (point, spot, directional, rect; discs as square rect lights, domes skipped). Lighting channels map onto Unreal's three: default is channel 0, the next two channels the sent nodes use (in scene order) 1 and 2; any more are dropped, with a warning naming them, and what is left in none goes on 0. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Returns the plan, with each group's import and placement results when wait=True.
 
 **Objects:** objects
 
@@ -10555,6 +10918,7 @@ Send meshes to Unreal as one static mesh asset per instance source, placed in th
 | `folder` | `f` | str | `'/Game/Lila/Instances'` | Content folder the assets go in; each is SM_<source name>. |
 | `mode` | `m` | str | `'auto'` | How members are placed: actors, ism, hism, or auto (actors up to threshold members, then hism). |
 | `threshold` | `t` | int |  | auto switches to hism above this many members (default the unreal pref /instanceThreshold, 50). |
+| `lightingChannels` | `lc` | bool | `True` | Set the actors' and lights' Lighting Channels from Lila's channels. The plan's lightingChannels lists the channels, lights and objects, the Unreal slot of each channel and any dropped. |
 | `dryRun` |  | bool | `False` | Return the plan without exporting or contacting Unreal. |
 | `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
 
@@ -12244,7 +12608,7 @@ Defaults suit Unreal's USD importer: Z up, metersPerUnit 0.01 (centimetres), Usd
 
 Joints become a Skeleton (bind and rest transforms) under a SkelRoot shared with the meshes skinned to it; skins write jointIndices and jointWeights (pruned to maxInfluences) and the mesh's geomBindTransform, in the bind pose. Morph targets become BlendShapes with their in-betweens; a mesh with morphs and no skin gets a one-joint skeleton of its own so Unreal imports them. Nodes parented to joints are written beside the skeleton, their joint's motion baked into them. Cameras write their lens, film back and clipping. Curves write as BasisCurves (linear or cubic bezier) or, for NURBS, NurbsCurves. LOD groups whose levels are plain meshes become Unreal's LOD variant set.
 
-Animation is sampled every frame over the range and written as time samples, at the take's fps (timeCodesPerSecond and framesPerSecond) with the stage's start and end time codes. One take goes straight into the file. Several (takes='all' or a list of names) become a variant set named 'take' on the root prim, one variant per take with its own samples and its range kept in the prim's customData; the first take is selected, which is what Unreal and other tools play, and importUsd(take=...) picks another. splitLayers=True writes the geometry, materials and animation into sublayers (<file>.geometry, .materials and .anim) that the file composes. Returns the path, or with report=True the files written and the warnings.
+Animation is sampled every frame over the range and written as time samples, at the take's fps (timeCodesPerSecond and framesPerSecond) with the stage's start and end time codes. One take goes straight into the file. Several (takes='all' or a list of names) become a variant set named 'take' on the root prim, one variant per take with its own samples and its range kept in the prim's customData; the first take is selected, which is what Unreal and other tools play, and importUsd(take=...) picks another. splitLayers=True writes the geometry, materials and animation into sublayers (<file>.geometry, .materials and .anim) that the file composes. Lighting channels become UsdLux light links (lightingChannels). Returns the path, or with report=True the files written, the warnings and lightingChannels: {channels, lights, objects, written}.
 
 **Objects:** path objects...
 
@@ -12270,8 +12634,9 @@ Animation is sampled every frame over the range and written as time samples, at 
 | `worldSpace` | `ws` | bool | `False` | Bake world transforms into the meshes and flatten the hierarchy (current pose, no skins or animation). |
 | `lods` |  | bool | `True` | Write LOD groups as Unreal's LOD variant set; False writes every level as a plain child. |
 | `splitLayers` |  | bool | `False` | Geometry, materials and animation in their own sublayers, composed by the file. |
+| `lightingChannels` | `lc` | bool | `True` | Write the lighting channels as UsdLux light links: each light's lightLink collection holds the meshes sharing a channel with it. The report and log list the channels, lights and objects either way. |
 | `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
-| `report` |  | bool | `False` | Return {files, warnings} instead of the path. |
+| `report` |  | bool | `False` | Return {files, warnings, lightingChannels} instead of the path. |
 
 Not undoable.
 
@@ -12311,7 +12676,7 @@ UsdPreviewSurface materials become Lila materials (Unreal's default lit) with th
 
 UsdSkel skeletons become joints, SkelBindingAPI skins skinClusters with their weights and bind pose, BlendShapes morph targets with their in-betweens, and SkelAnimation keys on the joints and target weights. Time samples become keys (linear, or stepped on a held stage), and the stage's timeCodesPerSecond, framesPerSecond and time range set the scene's fps and playback range. Instanceable prims and PointInstancers are realized: each instance its own transform, sharing the prototype's mesh data.
 
-Axes and units convert as FBX import does: a Z-up stage is read in Unreal's axes, a Y-up one as Maya's, and metersPerUnit scales everything to cm. Lights, point clouds and anything else Lila has no node for are listed in the report's skipped entries (lights and point clouds keep their place as transforms). Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, curves, materials, take, takes, fps, start, end, keyedCurves, instances, upAxis, metersPerUnit, skipped and warnings.
+Axes and units convert as FBX import does: a Z-up stage is read in Unreal's axes, a Y-up one as Maya's, and metersPerUnit scales everything to cm. Lights, point clouds and anything else Lila has no node for are listed in the report's skipped entries (lights and point clouds keep their place as transforms). Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, cameras, curves, materials, take, takes, fps, start, end, keyedCurves, instances, upAxis, metersPerUnit, lightingChannels, skipped and warnings.
 
 **Objects:** path
 
@@ -12327,6 +12692,7 @@ Axes and units convert as FBX import does: a Z-up stage is read in Unreal's axes
 | `variants` |  | Any |  | Variant selections before importing: {'set': 'variant'} for every prim with that set, or {'/prim/path': {'set': 'variant'}} for one prim. Example: `importUsd("chair.usd", variants={"modelingVariant": "Rocking"})` |
 | `take` |  | str |  | For files Lila exported with several takes: the take to import (a variant of the root's 'take' set). |
 | `purposes` |  | Any |  | Prim purposes to import: a list of default, render, proxy and guide, or 'all'. Default and render by default. |
+| `lightingChannels` | `lc` | bool | `True` | Bake UsdLux light-link collections into lighting channels (Lila's own channel names when it wrote the file). |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the imported roots. |
 

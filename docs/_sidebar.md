@@ -47,6 +47,7 @@
     - [Brushes, presets and alphas](sculpt-brushes.md)
   - [Reference images](reference-images.md)
   - [Topology](topology.md)
+  - [Baking](baking.md)
   - [Turntable](turntable.md)
 - <span class="nav-label">Nodes</span>
   - [Node editor](node-editor.md)

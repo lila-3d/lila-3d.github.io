@@ -88,6 +88,22 @@ register_scene_ui_section(key, save, load, owner=None)
 
 Keep your own data in the scene file under "ui"/key. save() returns a JSON-able value (None leaves it out); load(value) gets it back after a scene opens, None when the file has none.
 
+## register_unreal_component_exporter
+
+```python
+register_unreal_component_exporter(name, doc='', owner=None)
+```
+
+List a component exporter by name, so a component's Unreal export can pick custom with it. The exporter itself runs in the Unreal editor: a C++ ILilaComponentExporter or a lila_link_components.register Python function there.
+
+## unreal_component_exporters
+
+```python
+unreal_component_exporters()
+```
+
+The listed component exporters, {name: description}, including those the connected Unreal editor has.
+
 ## unregister_command
 
 ```python
@@ -121,3 +137,11 @@ unregister_mcp_tool(name)
 ```python
 unregister_scene_ui_section(key)
 ```
+
+## unregister_unreal_component_exporter
+
+```python
+unregister_unreal_component_exporter(name)
+```
+
+Returns whether it existed.
