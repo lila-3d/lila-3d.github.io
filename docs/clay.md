@@ -6,7 +6,7 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 
 ## Getting started
 
-1. **Mesh > Clay > Create Clay** makes a clay object with one sphere.
+1. **Mesh > Clay > Create Clay** makes a clay object with one shape, mirrored across X. Pick the shape or turn mirroring off in its option box or the adjust popup.
 2. **Add Clay Shape** adds a sphere, ellipsoid, box, capsule, cylinder, cone or torus. Pick the shape in the option box.
 3. Move, rotate and scale shapes like any object.
 4. **Add Clay Cut** carves into everything before it.
@@ -18,17 +18,9 @@ Block out characters and organic forms from shapes that melt into each other. Ev
 
 **Mesh > Clay > Clay Tool** works on the selected clay object, or makes one at your first click.
 
-| Input | Does |
-| --- | --- |
-| Click, drag | Place a shape where you click; drag to size it |
-| **Ctrl** | Place a cut instead |
-| **Shift**-click | Select the shape under the cursor |
-| **1**-**7** | Sphere, ellipsoid, box, capsule, cylinder, cone, torus |
-| **S** | Strokes: drag over the clay to lay a tube. Start on a stroke's tip to extend or branch it |
-| **T** | Taper strokes |
-| **B**-drag | Radius |
-| **,** **.** | Blend |
-| **Esc** | Exit |
+The **Clay** palette opens while the tool is on: shape or stroke, add or cut, radius, blend and **Mirror X**. Float or dock it anywhere; it closes with the tool. The tool's keys are listed in the corner of the view.
+
+In stroke mode, a lit tip under the cursor means a stroke started there extends or branches it.
 
 With a clay object selected, its shapes show as outlines; cuts are red.
 
