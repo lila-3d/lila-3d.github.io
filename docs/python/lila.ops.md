@@ -6276,7 +6276,7 @@ Inset each flat, connected region of the selected faces as one, along the straig
 
 ### polyKnife
 
-Knife / multi-cut: cut a mesh along a path of points, splitting the faces between them and the edges the path crosses. Between two points the cut follows the surface under the straight screen line joining them (seen from eye= or along direction=; without either, along the points' average normal). With loopEdge= it inserts an edge loop across that edge's quad ring instead, and with deleteEdge= it dissolves that edge. Follows the mesh's symmetry. Returns the new edges.
+Knife / multi-cut: cut a mesh along a path of points, splitting the faces between them and the edges the path crosses. Between two points the cut follows the surface under the straight screen line joining them (seen from eye= or along direction=; without either, along the points' average normal). With loopEdge= it inserts an edge loop across that edge's quad ring instead, and with deleteEdge= it dissolves that edge. Follows the mesh's symmetry. A single point on an edge inserts a vertex there. Returns the new edges.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -6630,6 +6630,12 @@ Drop weights below a threshold and beyond the skin's maxInfluences, then renorma
 | --- | --- | --- | --- | --- |
 | `threshold` | `t` | float | `0.01` | Smallest weight kept. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
+
+### putOnTurntable
+
+Put objects (the selection by default) on a turntable: the selected turntable, or the one other selected objects are on, else a new one under them. Returns the turntable's name.
+
+**Objects:** objects
 
 ### quadRemesh
 
@@ -7080,7 +7086,8 @@ Render a loop turning around the selection (or everything shown), framed to fit,
 | `quality` | `q` | float |  | Video quality, 0 to 1 (0.6 by default). |
 | `frames` | `fr` | int | `120` | Frames for the whole turn. |
 | `turns` |  | float | `1.0` | Turns over the frames. |
-| `spin` |  | str | `'object'` | object (the model turns in fixed light), camera (the camera circles, the light stays), or lights. |
+| `spin` |  | str | `'object'` | object (the model turns in fixed light), camera (the camera circles, the light stays), lights, or turntable (a turntable node turns its members through the view's own camera). |
+| `turntable` | `tt` | str |  | With spin=turntable: the turntable; the selected one or the first by default. |
 | `pitch` |  | float | `-15.0` | Camera elevation, degrees (negative looks down). |
 | `yaw` |  | float | `35.0` | Starting angle around the up axis, degrees. |
 
@@ -7344,6 +7351,7 @@ Revolve profile curves around an axis into a quad mesh with live history. Return
 | `sections` |  | int |  | Segments around the axis. |
 | `caps` |  | bool |  | Close the ends of a partial sweep of a closed profile. |
 | `flip` |  | bool |  | Flip the faces. |
+| `material` |  | float |  | The material every face uses, by name; empty is the default. |
 | `tessellation` |  | str |  | How curves become points: fixed segments per span, adaptive to the error and angle, or game (straight spans one segment, curved ones by angle, corners exact). |
 | `segments` |  | int |  | Segments per curved span (fixed). |
 | `chordError` |  | float |  | Largest gap from the true curve, cm (adaptive). |
@@ -9068,6 +9076,12 @@ Rebuild meshes symmetric: the kept side is mirrored across the plane through the
 | `topological` |  | bool | `False` | With pairsOnly: match by topology from the selected edge. |
 | `tolerance` |  | float | `0.0` | Weld or match distance, cm (0: scaled to the mesh). |
 
+### takeOffTurntable
+
+Take objects (the selection by default) off their turntables; they go back to where they stand unturned. A turntable left empty is deleted. Returns the objects taken off.
+
+**Objects:** objects
+
 ### tension
 
 Add a tension deformer: measures stretch and compression against the current shape, as a 'tension' point attribute and a colour set, for wrinkle maps. Returns the deformers.
@@ -9769,6 +9783,134 @@ Delete the stretch of a curve between the intersections around a point (or param
 | `cutters` |  | list |  | Curves to trim against; default every other visible curve. |
 | `tolerance` | `tol` | float | `0.01` | Curves closer than this meet, cm. |
 | `direction` | `dir` | tuple[float, float, float] |  | Intersect as seen along this direction (the view), for curves that only cross on screen. |
+
+### turntable
+
+Make a turntable for objects (the selection by default), or change or query one. Members turn about the pivot while the camera stays still; the turn is view-only, so exports never see it. Returns the turntable's name, or with query its state.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `secondsPerTurn` | `spt` | float |  | How long one full turn takes. |
+| `direction` | `dir` | str |  | Spin direction seen from above. One of `counterClockwise`, `clockwise`. |
+| `ease` |  | float |  | Seconds to reach speed or rest. |
+| `restAngle` | `ra` | float |  | The angle Front returns to, degrees. |
+| `stepAngle` | `sa` | float |  | Degrees between stops. |
+| `lightsFollow` | `lf` | bool |  | Turn the scene's lights and environment with it. |
+| `holdWhileEditing` | `hwe` | bool |  | Stop while a member is edited. |
+| `resumeAfter` | `rsa` | float |  | Seconds of quiet before a held spin resumes; 0 never. |
+| `includeInRenders` | `iir` | bool |  | Renders show the turn. |
+| `pivot` | `pv` | tuple[float, float, float] |  | World pivot; by default the centre of the members' footprint on the ground. |
+| `name` | `n` | str |  | Name of a new turntable; made unique. |
+| `edit` | `e` | str |  | Change this turntable instead of making one. |
+| `query` | `q` | str |  | Return this turntable's members, live state and settings. |
+| `add` | `a` | list |  | With edit: objects to put on it. |
+| `remove` | `rm` | list |  | With edit: objects to take off it. |
+
+```python
+turntable("statue", secondsPerTurn=30)
+```
+
+```python
+turntable(edit="turntable1", add=["plinth"], lightsFollow=True)
+```
+
+```python
+turntable(query="turntable1")
+```
+
+### turntableBake
+
+Bake a turntable into real animation for export: a new transform at the pivot keyed through turns= full turns from start= to end= (frames, the playback range by default), with the members parented under it. The members leave the turntable. Returns the new transform.
+
+**Objects:** turntable
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | float |  | First frame; the playback range's start by default. |
+| `end` | `en` | float |  | Last frame; the playback range's end by default. |
+| `turns` | `tu` | float | `1.0` | Full turns over the range. |
+| `name` | `n` | str | `'turntableSpin'` | Name of the new transform; made unique. |
+
+### turntableBase
+
+Build a turntable base under objects (the selection, or a selected turntable's members) from a revolved profile curve, live: edit the hidden profile curve or the revolve to reshape it. Puts the objects on a turntable if they aren't on one, and the base on it with them. Run on a base, or on a turntable that has one, it rebuilds that base. Returns [group, mesh, curve, revolve].
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` | `st` | str | `'stepped'` | plinth (bevelled disc), stepped (two tiers), record (thin plate, lip, grooves), pedestal (column on a foot), lazySusan (a turning top on a fixed foot). |
+| `margin` | `m` | float | `0.15` | Radius beyond the objects' footprint, as a fraction of it. |
+| `height` | `h` | float | `0.06` | Thickness, as a fraction of the objects' height. |
+| `bevel` | `bv` | float | `0.3` | Edge rounding, as a fraction of the thickness. |
+| `segments` | `sg` | int | `64` | Divisions around. |
+| `fixedBase` | `fb` | bool | `True` | lazySusan: the foot stays still while the top turns. |
+| `material` | `mat` | str | `'default'` | The default material, or a preset. One of `default`, `matteBlack`, `satin`, `rubber`, `brushedMetal`, `wood`, `marble`. |
+
+```python
+turntableBase("statue", style="stepped", material="marble")
+```
+
+```python
+turntableBase("turntable1", style="lazySusan")
+```
+
+### turntablePlay
+
+Spin a turntable (the selected one, the one the selection is on, else the last used), easing in; pause=True eases it to rest, toggle=True flips it. Not undoable, like a camera move. Returns whether it spins.
+
+**Objects:** turntable
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pause` | `p` | bool | `False` | Ease to rest instead. |
+| `toggle` | `tg` | bool | `False` | Spin when resting, rest when spinning. |
+| `speed` | `sp` | float |  | Multiply the speed by this while it spins (1 is secondsPerTurn). |
+
+Not undoable.
+
+```python
+turntablePlay()
+```
+
+```python
+turntablePlay(toggle=True)
+```
+
+```python
+turntablePlay("turntable1", pause=True)
+```
+
+### turntableTurn
+
+Turn a turntable (the selected one, the one the selection is on, else the last used): by= degrees, to= an angle, step= stops (stepAngle apart, negative goes back), or front=True back to restAngle. Eases unless ease=False. Not undoable. Returns the angle it is heading for.
+
+**Objects:** turntable
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `by` | `b` | float |  | Degrees to turn by. |
+| `to` | `t` | float |  | Angle to turn to, degrees. |
+| `step` | `st` | int |  | Stops to step, negative backwards. |
+| `front` | `f` | bool | `False` | Back to restAngle with no tilt, and pause. |
+| `pitch` | `pi` | float |  | Tilt toward the camera (negative away), degrees, about the active view's horizontal axis through the middle of what it turns. |
+| `ease` |  | bool | `True` | Ease there; False jumps. |
+
+Not undoable.
+
+```python
+turntableTurn(step=1)
+```
+
+```python
+turntableTurn(to=180)
+```
+
+```python
+turntableTurn(front=True)
+```
 
 ### twistDriver
 
