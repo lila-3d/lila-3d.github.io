@@ -22,9 +22,17 @@ When the source and target have different numbers of legs, Lila retargets the mo
 
 Set **Bodies** to **Different body** to force it, and **Gait** to choose: `walk`, `trot`, `pace`, `canter`, `gallop`, `tripod`, `tetrapod` or `wave`. Spines, necks, heads and tails bend as the source's do; tails and parts the source doesn't have keep their pose.
 
+Tails, antennae and wings with no counterpart trail the body as it turns (`secondary`, 0 keeps them rigid). With `armsAsForelegs=True`, a dog's front legs take the person's arms instead.
+
+To keep a clip for any body, save it once and play it on each: `saveRetargetClip("walk.lilaclip", source="Hips")`, then `applyRetargetClip("walk.lilaclip", target="spider_root")`.
+
 ```python
 retarget(source="Hips", target="dog_pelvis", gait="trot")
 ```
+
+## Planting by hand
+
+Feet plant where the source's slow down near the floor. To decide it yourself, run `addPlantChannel("Hips", chain="LeftLeg")` and key `plantLeftLeg` to 1 where the foot is down. Retargeting then holds it there on every body the clip goes to.
 
 ## Troubleshooting
 
@@ -36,7 +44,7 @@ retarget(source="Hips", target="dog_pelvis", gait="trot")
 
 **The target's arms are off by a constant angle.** The two skeletons were in different poses when compared. Press the align button in the Retargeter panel, or pose both the same and press the capture button.
 
-**Feet slide.** Feet plant where the source's slow down near the floor. Raise **Speed threshold** or **Height tolerance** on the leg's **Plant** settings.
+**Feet slide.** Raise **Speed threshold** or **Height tolerance** on the leg's **Plant** settings, or key the plant yourself (above).
 
 **A BVH comes in the wrong size.** BVH files have no units. Pass `scale` (`importBvh(path, scale=2.54)` for inches).
 
