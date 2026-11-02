@@ -282,6 +282,19 @@ Turn the object so aimVector points at its targets and upVector leans toward the
 | `offset` | `o` | tuple[float, float, float] |  | Rotation offset, degrees xyz. |
 | `skip` | `sk` | list |  | Axes left alone. |
 
+### alignRetargetPose
+
+Set a retargeter's retarget poses: align the target's chains to point where the source's do, or capture either skeleton's current pose.
+
+**Objects:** the retargeter
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `align` | `a` | bool | `True` | Align the target to the source. |
+| `captureSource` | `cs` | bool | `False` | The source's current pose becomes its retarget pose for this pair. |
+| `captureTarget` | `ct` | bool | `False` | The target's current pose becomes its retarget pose for this pair. |
+| `reset` | `rs` | bool | `False` | Drop this pair's poses, back to each rig's own. |
+
 ### angleMeasure
 
 Live angle at a vertex. points is [arm1, vertex, arm2], each an object name or [x, y, z]; with none given, uses three selected objects (the second is the vertex) or vertices (the one joined to both others by edges, else the corner opposite the longest side). Returns the measure node.
@@ -405,6 +418,20 @@ Apply a library pose to the selected character by node name: namespaces are igno
 | `aliases` | `al` | Any |  | Extra names per pose node: {poseName: [name, ...]}. |
 | `namespace` | `ns` | str |  | Preferred namespace; defaults to the character's. |
 | `onlySelected` | `os` | bool | `False` | Only the selected nodes, not the whole character. |
+
+### applyRetargetClip
+
+Play a body-independent clip (saveRetargetClip) on a skeleton: its legs keep the gait, scaled to their length. Keys a take named after the file.
+
+**Objects:** the .lilaclip file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `target` | `t` | str |  | A joint of the target skeleton. |
+| `gait` | `g` | str | `'auto'` | The gait the target's legs keep. One of `auto`, `walk`, `trot`, `pace`, `canter`, `gallop`, `tripod`, `tetrapod`, `wave`. |
+| `take` | `tk` | str |  | Take to key into; default the file's name. |
+| `start` | `st` | float |  | Time of the first frame, seconds; default 0. |
+| `lockChains` | `lc` | bool | `True` | Key the lock channel of the target's IK chains where feet are planted. |
 
 ### arap
 
@@ -1657,6 +1684,20 @@ changeStream(enable=True, requireToken=True)["token"]
 changeStream(enable=False)
 ```
 
+### characterize
+
+Find what each part of a skeleton is for retargeting, as it is posed now: the pelvis, and chains (spine, neck, head, arms, legs, toes, fingers, tails, wings) with their side and number. Works from joint names (UE, Mixamo, Maya, BVH and others) and from shape, on any number of legs. Makes or replaces the skeleton's retargetRig node; the current pose becomes its retarget pose. Returns the chains and anything doubtful under 'notes'.
+
+**Objects:** a joint of the skeleton
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name of a new retargetRig node. |
+
+```python
+characterize('pelvis')
+```
+
 ### circle
 
 Create an exact circle (a rational NURBS). Returns its name.
@@ -2886,6 +2927,54 @@ Edit a scene picker. Operations run in this order: rename/character/namespace, p
 | `align` | `al` | str |  | left, right, top, bottom, hcenter or vcenter. |
 | `distribute` | `di` | str |  | horizontal or vertical. |
 | `snapGrid` | `sg` | float |  | Snap the items' positions and sizes to this grid. |
+
+### editRetargeter
+
+Edit or query a retargeter's settings, which mirror Unreal's IK Retargeter. Objects are merged into what is there (set a key to null to reset it). Returns the settings.
+
+**Objects:** the retargeter
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `query` | `q` | bool | `False` | Return the settings. |
+| `settings` | `s` | Any |  | Replace every setting with this JSON. |
+| `autoMap` | `am` | bool | `False` | Map the chains again from the rigs. |
+| `chain` | `c` | Any |  | One chain: {'target': name, 'source': name or '', 'fk': {'enabled', 'rotation' (interpolated, oneToOne, oneToOneReversed, matchChain, none), 'rotationAlpha', 'translation' (none, globallyScaled, absolute, stretchUniform, stretchNonUniform), 'translationAlpha', 'poleMatching', 'poleMaintainOffset', 'poleOffset'}, 'ik': {'enabled', 'blendToSource', 'blendToSourceWeights', 'staticOffset', 'staticLocalOffset', 'staticRotationOffset', 'scaleVertical', 'extension', 'affectedByWarping'}, 'plant': {'enabled', 'speedThreshold', 'heightTolerance', 'blendFrames', 'minFrames'}}. |
+| `root` | `r` | Any |  | {'enabled', 'rotationAlpha', 'translationAlpha', 'blendToSource', 'blendToSourceWeights', 'scaleHorizontal', 'scaleVertical', 'translationOffset', 'rotationOffset', 'affectIkHorizontal', 'affectIkVertical'}. |
+| `warp` | `w` | Any |  | Stride warping: {'enabled', 'useVelocity', 'warpForwards', 'sidewaysOffset'}. |
+| `pins` | `pn` | list |  | Bones copying another's transform: [{'bone', 'to', 'translate', 'rotate', 'maintainOffset'}]. |
+| `contacts` | `ct` | list |  | Hands held on the body: [{'effector': chain with IK, 'body': chain, 'bodyParam': 0..1 along it, 'distance': cm}]. |
+| `curves` | `cv` | list |  | Animated attributes copied renamed: [{'source', 'target'}]. |
+| `scale` | `sc` | float |  | Target size over source size; 0 measures it from the legs. |
+| `enableRoot` | `er` | bool |  | Run the root (pelvis) pass. |
+| `enableFk` | `ef` | bool |  | Run the FK pass. |
+| `enableIk` | `ei` | bool |  | Run the IK pass. |
+| `copyCurves` | `cc` | bool |  | Copy the top joint's other animated attributes by name. |
+| `fullBody` | `fb` | bool |  | Where a limb can't reach, solve the whole body with every goal pinned, the pelvis free. |
+
+```python
+editRetargeter('Hips_to_root', chain={'target': 'LeftLeg', 'ik': {'extension': 0.98}})
+```
+
+### editRetargetRig
+
+Edit or query a skeleton's retarget rig: its chains, pelvis, ground height and retarget pose.
+
+**Objects:** the retargetRig node, or a joint of its skeleton
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `query` | `q` | bool | `False` | Return the whole rig, retarget pose included. |
+| `definition` | `d` | Any |  | Replace the rig with this JSON (as query returns it). |
+| `chain` | `c` | Any |  | Add a chain or change one by name: {'name', 'role' (spine, neck, head, jaw, clavicle, arm, leg, toe, finger, tail, wing, antenna, root, other), 'side' (center, left, right), 'index', 'start', 'end', 'goal'}. |
+| `removeChain` | `rc` | str |  | Chain to remove. |
+| `pelvis` | `p` | str |  | The retarget root joint. |
+| `ground` | `g` | float |  | Height of the floor along up, cm. |
+| `capturePose` | `cp` | bool | `False` | The skeleton's current pose becomes the retarget pose. |
+
+```python
+editRetargetRig('pelvis', chain={'name': 'Tail', 'role': 'tail', 'start': 'tail_01', 'end': 'tail_08'})
+```
 
 ### editSkeleton
 
@@ -4339,6 +4428,19 @@ Import an Alembic (.abc) file's PolyMeshes as meshes, each placed through its tr
 | `setPlayback` |  | bool | `True` | Set the playback range to the caches' samples. |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the new meshes. |
+
+### importBvh
+
+Import a BVH motion capture file as joints keyed every frame.
+
+**Objects:** the .bvh file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scale` | `sc` | float | `1.0` | Multiplies offsets and positions (BVH has no units). |
+| `parent` | `p` | str |  | Parent the skeleton under this node. |
+| `setPlayback` | `sp` | bool | `True` | Set the scene fps and range from the file. |
+| `endSites` | `es` | bool | `True` | Make end sites as non-deform joints. |
 
 ### importDeformerWeights
 
@@ -7168,6 +7270,50 @@ Put translate, rotate and scale back to their defaults (the object moves).
 
 **Objects:** objects
 
+### retarget
+
+Retarget animation onto a skeleton and key it into a take. The source is a skeleton in the scene, or .bvh/.fbx files (each imported, retargeted into a take named after the file, then removed). Without a retargeter, one is made with everything automatic: rigs, chain mapping, pose alignment, planted feet. Returns a report per run.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `s` | str |  | A joint of the source skeleton. |
+| `target` | `t` | str |  | A joint of the target skeleton. |
+| `retargeter` | `r` | str |  | Use this retargeter's settings (for files: as the template every file gets). |
+| `files` | `f` | list |  | Animation files (.bvh, .fbx) to retarget, one take each. |
+| `folder` | `fo` | str |  | Retarget every .bvh and .fbx in the folder. |
+| `scale` | `sc` | float | `1.0` | Scale for imported files (BVH has no units). |
+| `start` | `st` | float |  | Start, seconds; default the source's first key. |
+| `end` | `e` | float |  | End, seconds; default the source's last key. |
+| `fps` |  | float |  | Frames per second keyed; default the scene's (a file's own for files). |
+| `take` | `tk` | str |  | Take to key into, replaced if it exists; default the source's active take, else <source>_retarget. '' keys the target's current animation. |
+| `lockChains` | `lc` | bool | `True` | Key the lock channel of the target's IK chains where feet are planted. |
+| `keepSources` | `ks` | bool | `False` | Keep imported file skeletons in the scene. |
+| `mode` | `m` | str | `'auto'` | fk: chain to chain, for the same kind of body. semantic: body-independent, for a body with other limbs (a biped clip on a dog or a spider). auto: semantic when the leg counts differ. |
+| `gait` | `g` | str | `'auto'` | Semantic mode: the gait the target's legs keep. One of `auto`, `walk`, `trot`, `pace`, `canter`, `gallop`, `tripod`, `tetrapod`, `wave`. |
+
+```python
+retarget(source='Hips', target='pelvis')
+```
+
+```python
+retarget(target='pelvis', folder='D:/mocap/walks')
+```
+
+### retargeter
+
+Make a retargeter from one skeleton to another: characterises either when it has no rig yet, maps chains by name, else role, side and number, and aligns the target's retarget pose to the source's.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `s` | str |  | A joint of the source skeleton. |
+| `target` | `t` | str |  | A joint of the target skeleton. |
+| `name` | `n` | str |  | Name of the retargeter node. |
+| `align` | `a` | bool | `True` | Align the target's retarget pose to the source's. |
+
+```python
+retargeter(source='Hips', target='pelvis')
+```
+
 ### retopoConstruct
 
 Topology: make a live construct (patch, strip, stroke, bridge, sweep, cylinder or auto region) on the retopo mesh, or change one by id: its faces are regenerated from the new spec and settled on the reference. A construct whose faces were edited by hand since is frozen instead (left as plain geometry). Returns {mesh, id, faces, variants, sideCounts, frozen}.
@@ -7505,6 +7651,21 @@ Store the current pose of the selected nodes (and everything under them) in the 
 | `channels` | `c` | list |  | Only these channels: translate, rotate, scale or attr names. |
 | `tags` | `tg` | list |  | Search tags. |
 | `thumbnail` | `th` | bool | `True` | Capture a thumbnail from the viewport (GUI only). |
+
+### saveRetargetClip
+
+Save a skeleton's animation as a body-independent clip (.lilaclip): body motion in leg lengths, limb goals, spine and tail bends and foot contacts. applyRetargetClip plays it on any body, whatever its limbs.
+
+**Objects:** the file to write
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `s` | str |  | A joint of the source skeleton. |
+| `start` | `st` | float |  | Start, seconds; default the first key. |
+| `end` | `e` | float |  | End, seconds; default the last key. |
+| `fps` |  | float |  | Samples per second; default the scene's. |
+
+Not undoable.
 
 ### saveScene
 
