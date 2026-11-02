@@ -2,7 +2,7 @@
 
 Turn the model in front of a still camera, for streams and reviews: the background, grid and lights stay put and only the model moves.
 
-<!-- TODO image: a statue on a stepped Turntable Base mid-spin, the turntable controls at the bottom of the view (images/turntable/spin.png) -->
+![A model on a Turntable Base with the turntable controls and key list in the view](images/turntable/spin.png)
 
 ## Get it working
 
