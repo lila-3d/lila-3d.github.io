@@ -119,3 +119,65 @@ Lila looks for packages in these folders, in order: `LILA_EXTENSION_PATH` (separ
 Sculpt brushes (`<lila/Sculpt.h>`): see [Extension brushes](sculpt-brushes.md#extension-brushes).
 
 GPU compute (`<lila/GpuCompute.h>`, UI extensions): a `lila::gpu::Session` owns buffers and kernels, and `Session::run` records work on the render thread and waits for it. Buffers are reached from Slang through device addresses, so pass them in push constants or another buffer. Compile shaders with `lila_add_shaders(<target> FILES a.slang OUTPUT_DIR <package>/shaders)` (needs `slangc`), and load them with `Recorder::kernel` by absolute path from `ext::Context::root()`. It needs the viewport running: `lila::gpu::available()` is false in batch runs, so keep a CPU path.
+
+### Attribute Editor sections
+
+`ui::attributeEditor::addSection(ctx, type, title, factory)` (`<lila/UI.h>`, needs `UI` in `lila_add_extension`) adds a section to the Attribute Editor of every node whose type is or derives from `type`; `"transform"` covers every object. The factory gets the node and returns any `QWidget`, or `nullptr` to skip that node. The section goes away when the extension unloads.
+
+This one adds an **Add Component...** button that picks from a list and adds the component's attributes, grouped under its name in **Extra Attributes**, as one undo step:
+
+```cpp
+#include <lila/Command.h>
+#include <lila/Extension.h>
+#include <lila/Graph.h>
+#include <lila/UI.h>
+#include <lila/Undo.h>
+
+#include <QInputDialog>
+#include <QPushButton>
+
+#include <map>
+
+using namespace lila;
+
+namespace
+{
+/** Each component's attributes, as addAttr flags. */
+const std::map<std::string, std::vector<json>> kComponents = {
+    {"HealthAPI", {{{"longName", "health:max"}, {"attributeType", "double"}, {"defaultValue", 100.0}}}},
+    {"LootAPI", {{{"longName", "loot:table"}, {"dataType", "string"}}}},
+};
+
+void addComponent(scene::NodeId id, const std::string& name)
+{
+    const std::string object = scene::Graph::current().path(id);
+    UndoChunk chunk("Add " + name);
+    for (json call : kComponents.at(name))
+    {
+        call["args"] = {object};
+        call["category"] = name;
+        ops::execute("addAttr", call);
+    }
+}
+} // namespace
+
+LILA_EXTENSION_EXPORT int lilaExtensionInit(ext::Context& ctx)
+{
+    ui::attributeEditor::addSection(ctx, "transform", "Components", [](scene::NodeId id) -> QWidget* {
+        auto* add = new QPushButton("Add Component...");
+        QObject::connect(add, &QPushButton::clicked, add, [add, id] {
+            QStringList names;
+            for (const auto& [name, attrs] : kComponents)
+                names << QString::fromStdString(name);
+            bool ok = false;
+            const QString pick = QInputDialog::getItem(add, "Add Component", "Component:", names, 0, true, &ok);
+            if (ok && kComponents.count(pick.toStdString()))
+                addComponent(id, pick.toStdString());
+        });
+        return add;
+    });
+    return 0;
+}
+```
+
+To make a component a USD API schema, give its attributes the schema's names and add the schema's name to the object's `usdApiSchemas` string array; USD export and live stages then apply it. See [USD components](formats.md#usd-components).

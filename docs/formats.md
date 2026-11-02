@@ -59,12 +59,33 @@ Lila saves its own `.lila` scenes and hosts USD as live stages, the way Maya and
 - **More layers:** **Add Layer...** in the stage's Attribute Editor section adds a layer under your edits and over the source. Pick a new `.usda` to create one, or an existing layer. Other tools can write into it while Lila is open, and **Write Shot...** keeps it. Scripts use `usdStageAddLayer` and `usdStageRemoveLayer`.
 - **To hand edits to Houdini or Maya**, run `usdStageWriteShot` with a path. It writes a small `.usda` that layers your edits over the source. Payloads you unloaded are recorded in it, and Lila opens the shot with them unloaded.
 - **Reload** (`usdStageReload`) reads the source files again and keeps your edits. A scene also reloads its stages on open when their source files have changed.
-- **Any prim's properties**, custom schemas included, show in the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`, or Pixar's own API: `lila.usd.stage("kitchen")` returns the `pxr.Usd.Stage`, whose edit target is the edit layer.
+- **Any prim's other properties** show in the **USD Prim** section of the Attribute Editor when you select its object. Editing one writes an over. Scripts use `usdStagePrim` and `usdStageSetProperty`, or Pixar's own API: `lila.usd.stage("kitchen")` returns the `pxr.Usd.Stage`, whose edit target is the edit layer.
 - **Changes made by other tools or scripts** to the stage's layers show up as they happen, on the prims they touch, without a reload.
 - **To flatten instead**, run `importUsd`, which converts the stage into plain Lila objects.
 - **MaterialX materials** (OpenPBR, Standard Surface, glTF PBR, also from referenced `.mtlx` files) come in as Lila materials, preferred over a `UsdPreviewSurface` beside them. Materials you add or edit get an OpenPBR network next to their `UsdPreviewSurface` when the stage already uses MaterialX; set the stage's **MaterialX** attribute to change that.
 
+### USD components
+
+API schemas Lila has no feature of its own for (your studio's `HealthAPI`, `PhysicsRigidBodyAPI`) and custom attributes come in as the object's own attributes, under **Extra Attributes** with a heading per schema. The object's `usdApiSchemas` attribute lists the schemas. Export and live stages write both back, so they survive a round trip.
+
+- **Your own schemas:** put their plugin folder (with `plugInfo.json` and `generatedSchema.usda`) under `usdPlugins` in an extension's `extension.json`, or on `PXR_PLUGINPATH_NAME`, and load it at startup. Without it, the attributes still come in, with no heading.
+- **Add a component in Lila:** add its attributes with the schema's names and its name to `usdApiSchemas`:
+
+```python
+addAttr("Crate", longName="usdApiSchemas", dataType="stringArray")
+setAttr("Crate.usdApiSchemas", ["HealthAPI"])
+addAttr("Crate", longName="health:max", attributeType="double", defaultValue=100, category="HealthAPI")
+```
+
+- **Remove one:** take its name out of `usdApiSchemas` and `deleteAttr` its attributes. In a live stage that deletes the schema from the prim and blocks the attributes.
+- Values go out as they are, with no axis or unit conversion. Schema attributes left at the schema's default aren't written.
+- To build an **Add Component** button into the Attribute Editor, see [Attribute Editor sections](cpp-extensions.md#attribute-editor-sections).
+
 ## Troubleshooting
+
+**A schema's attributes import with no heading.** Lila didn't find the schema's plugin. Check that the extension listing it under `usdPlugins` loads at startup, or that `PXR_PLUGINPATH_NAME` was set before Lila started.
+
+**The import report lists "attributes Lila has no attribute type for".** Lila holds bool, int, float, 3-vector, colour, matrix, string, token and asset attributes, and arrays of numbers, 3-vectors and strings. Others, such as `float2` or `quatf`, stay in the file and are left out of Lila.
 
 **A USD stage edit isn't written.** The stage lists these as warnings when it saves: objects added where no prim can hold them (inside an LOD level, under a joint or a point instance's copy), deleting parts of what a prim built, and meshes skinned to a skeleton with no prim in the stage. Renaming an object keeps it linked to its prim.
 
