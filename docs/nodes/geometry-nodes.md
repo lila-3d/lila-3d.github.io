@@ -1784,15 +1784,34 @@ Bevels the selected manifold edges.
 
 ### Bridge Edge Loops
 
-Joins pairs of open border loops among the selected edges with quads.
+Joins pairs of open border loops among the selected edges with faces; loops of different lengths make up the difference with quads.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
 | `selection` | bool | input, field | `true` | Elements to affect. |
-| `divisions` | int | input | `0` | Extra rows of faces between the loops. Range 0 to 1000. |
+| `divisions` | int | input | `0` | Extra rows of faces between the loops; -1 picks them from the gap and the open ends. Range -1 to 1000. |
+| `smoothness` | float | input | `1` | 0 straightens the curve, 1 is the full curve. Range 0 to 1. |
+| `tensionSource` | float | input | `1` |  |
+| `tensionTarget` | float | input | `1` |  |
+| `offset` | int | input | `0` | Steps the pairing round closed loops. |
+| `twist` | float | input | `0` | Degrees from source to target. |
+| `taper` | float | input | `1` | Scale of the middle rows. |
+| `bias` | float | input | `0.5` | Where the taper peaks. Range 0 to 1. |
+| `profileFactor` | float | input | `0` | Bulge (positive) or pinch of the middle rows. |
+| `weldEnds` | bool | input | `true` | Open bridges land their end rows on the border between the sides' ends. |
+| `relax` | int | input | `0` | Smoothing passes over the new points. Range 0 to 100. |
+| `merge` | bool | input | `false` | Merge the loops instead of bridging. |
+| `mergeFactor` | float | input | `0.5` | Range 0 to 1. |
 | `mesh` | geometry | output |  |  |
 | `bridge` | bool | output, field |  | The new faces. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `curve` | `linear`, `blend`, `auto` | `linear` | Linear rows, a blend square to each border, or a fit to the faces around them. |
+| `profileShape` | `smooth`, `sphere`, `root`, `sharp`, `linear`, `inverseSquare`, `constant` | `smooth` |  |
+| `transition` | `quads`, `triangles` | `quads` | How borders of different lengths make up the difference. |
+| `connect` | `pairs`, `chain`, `chainClosed` | `pairs` | Pairs, or one run through every loop in order. |
 
 ### Clay
 

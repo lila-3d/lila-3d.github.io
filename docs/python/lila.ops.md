@@ -6274,11 +6274,36 @@ Union, difference or intersection of meshes (Manifold: robust, watertight output
 
 ### polyBridge
 
-Join selected boundary loops with faces. Several pairs bridge at once; a single border round a slot bridges its two long sides.
+Join selected border loops or chains with faces. Several pairs bridge at once; a single border round a slot or sliver bridges its two long sides; borders of different lengths pair by arc length. Selected faces are deleted and the holes bridged.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `divisions` |  | int | `0` | Extra rows between the loops. |
+| `divisions` |  | int | `-1` | Rows between the borders; -1 picks them from the gap, the faces around it and the open ends. |
+| `curveType` |  | str | `'auto'` | How the rows run between the borders. One of `linear`, `blend`, `path`, `auto`. |
+| `smoothness` |  | float | `1.0` | 0 straightens the curve, 1 is the full curve. |
+| `tensionSource` |  | float | `1.0` | Handle length leaving the source border (Blend and Auto). |
+| `tensionTarget` |  | float | `1.0` | Handle length entering the target border (Blend and Auto). |
+| `bridgeOffset` |  | int | `0` | Steps the pairing round closed loops. |
+| `directionSource` |  | bool | `False` | Read the source border the other way round. |
+| `directionTarget` |  | bool | `False` | Read the target border the other way round. |
+| `twist` |  | float | `0.0` | Turns the middle rows about the bridge's axis, degrees at the target. |
+| `taper` |  | float | `1.0` | Scale of the middle rows about their centre. |
+| `bias` |  | float | `0.5` | Where the taper peaks, 0 at the source, 1 at the target. |
+| `taperCurve` |  | list |  | Taper strength along the bridge, values evenly spaced from source to target. |
+| `profileFactor` |  | float | `0.0` | Bulge (positive) or pinch (negative) of the middle rows, as a fraction of the gap. |
+| `profileShape` |  | str | `'smooth'` | Falloff of the profile across the bridge. One of `smooth`, `sphere`, `root`, `sharp`, `linear`, `inverseSquare`, `constant`. |
+| `curve` |  | str |  | The curve Path follows. |
+| `transition` |  | str | `'quads'` | How borders of different lengths make up the difference. One of `quads`, `triangles`. |
+| `weldEnds` |  | bool | `True` | Open bridges land their end rows on the border between the two sides' ends. |
+| `weldTolerance` |  | float | `0.35` | How far a row may be from an end border point and still weld, as a fraction of a row. |
+| `relax` |  | int | `0` | Smoothing passes over the new points. |
+| `smoothingAngle` |  | float | `30.0` | New edges sharper than this are hard. |
+| `merge` |  | bool | `False` | Merge the borders into one instead of bridging. |
+| `mergeFactor` |  | float | `0.5` | Where merged points go: 0 the source, 1 the target. |
+| `connect` |  | str | `'pairs'` | Pair loops up, or run one bridge through them all in order. One of `pairs`, `chain`, `chainClosed`. |
+| `startSource` |  | int | `-1` | Source point that pairs with startTarget. |
+| `startTarget` |  | int | `-1` | Target point that pairs with startSource. |
+| `pairs` |  | list |  | More point pairs to hold: [[source, target], ...]. |
 
 ### polyCapsule
 

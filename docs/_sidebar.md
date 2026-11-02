@@ -37,6 +37,7 @@
   - [Attributes and arrays](attributes.md)
 - <span class="nav-label">Modeling</span>
   - [Clay](clay.md)
+  - [Bridge](bridge.md)
   - [Curves](curves.md)
   - [Sculpting](sculpting.md)
     - [Brushes, presets and alphas](sculpt-brushes.md)
