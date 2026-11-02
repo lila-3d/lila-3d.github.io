@@ -55,12 +55,18 @@ With a garment selected, paint on it in the viewport. **[** and **]** size the b
 ## Add details
 
 ```python
-tailorAddTrim('Coat', mesh='Button', points=[[0, 130, 16], [0, 118, 17]])  # rigid pieces riding the cloth
+tailorAddTrim('Coat', shape='button', points=[[0, 130, 16], [0, 118, 17]])  # rigid pieces riding the cloth
+tailorAddPocket('Shirt', panel='Front', position=[5, 30], flap=True)
+tailorAddCollar('Shirt')                                                     # style='band' for a stand collar
+tailorAddBeltLoops('Trousers', panel='Front L', height=68, count=2)
+tailorAddDrawstring('Cloak', along='Hood L:5:9,Hood R:2:6', gather=0.7)     # with toggles on the tails
+tailorAddLacing('Bodice', sideA='Back L:1:2', sideB='Back R:3:0', pairs=8)   # with grommets
+tailorAddZip('Jacket', seam=4, open=0.3)                                     # teeth and slider, open past the slider
 tailorDamage('Cloak', points=[[5, 90, -20]], radius=4)                       # kind='tear' for a slit
 tailorStrap('Tunic', curve='BeltPath', closed=True, width=5)                 # a belt or sash along a path
 ```
 
-Model a trim at the origin with +Z facing out of the cloth. Each copy rides the cloth at its middle without bending.
+Built-in trims are `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth` and `slider`. Your own trim: model it at the origin, cm, with +Z facing out of the cloth, and pass `mesh=`. Each copy rides the cloth at its middle without bending. Pockets, belt loops and the collar are also on the Pattern Editor's right-click menu. Sides like `'Hood L:5:9'` are panel, first and last outline point, as **Sew** mode and `tailorSew` use.
 
 ## Animate it
 
@@ -75,11 +81,23 @@ tailorExportAnimation('Cloak', end=120, format='vat')            # vertex animat
 
 ## Send it to Unreal
 
-With LilaLink connected and a skinned body, one command bakes the garment, imports it as a skeletal mesh and sets up Chaos Cloth on it, with Max Distance painted from how far the cloth hangs off the body and the fabric's mass, stiffness, damping and friction:
+With LilaLink connected, one command makes a Chaos Cloth Asset from the sewing pattern itself: the panels become its sim patterns, the seams are sewn, and the drape is its rest shape, with Max Distance painted from how far the cloth hangs off the body and the fabric's mass, stiffness, damping and friction. Open it in the Cloth Editor, or put it on your character with a Chaos Cloth Component:
 
 ```python
-tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/SK_Hero_Cloak', skeleton='/Game/Characters/Hero/SK_Hero_Skeleton')
+tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/CA_Cloak', skeletalMesh='/Game/Characters/Hero/SK_Hero')
 ```
+
+`as='skeletalMesh'` instead bakes the garment, imports it as a skeletal mesh skinned like the body and adds clothing data to it; that needs a skinned body.
+
+### Wrinkles that follow the motion
+
+Drapes carry a `wrinkle` colour set: compression along the pattern's U in red and V in green. Lila's tension deformer writes the same set on any skinned mesh. `tailorBakeWrinkleMaps` simulates the fabric squeezed each way and writes two tiling wrinkle normal maps; with `send=True` it imports them and builds `MF_LilaTensionWrinkles` in Unreal:
+
+```python
+tailorBakeWrinkleMaps('Coat', send=True)                  # material=True also builds M_LilaTensionWrinkles
+```
+
+Drop the function into your own material: connect your normal to **Normal** and the vertex colour's red and green to **Mask**, then its **Normal** output to the material's Normal. **Folds** says how folded the cloth is there, for darkening or roughening it. Alembic exports of animated garments carry the colour set per frame.
 
 To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBake`: `tailorBake('Cloak', retopo=3000, maps=['normal', 'ao', 'id'])`. The `id` map colours each panel.
 
@@ -99,7 +117,7 @@ To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBa
 
 **A brush stroke does nothing.** The stroke missed the cloth, or the garment isn't selected. Pin, Fold and Shrink need the drape under the cursor; Steam needs the garment live.
 
-**tailorSendToUnreal fails.** It needs LilaLink connected (`unrealConnect`) and a skinned body: the garment goes over as a skeletal mesh bound to the body's joints.
+**tailorSendToUnreal fails.** It needs LilaLink connected (`unrealConnect`) with a LilaLink build that has the cloth methods (rebuild the plugin after updating Lila). `as='skeletalMesh'` also needs a skinned body.
 
 **An animated garment lags or stays put.** Frames simulate when Lila is idle; `simulate('TailorGarment', frame=120)` runs them now.
 
