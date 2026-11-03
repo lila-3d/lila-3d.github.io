@@ -1,8 +1,8 @@
 # Credits
 
-Who is credited in Lila, and how to get your name in **Help > Credits**.
+Who is credited in Lila, and how to get your name listed.
 
-<div id="credits-live"><h3>Contributors</h3><ul class="credits-list"><li><span class="credits-name">Jack Knobel</span><span class="credits-role"> Testing and feedback: OpenUSD, Hydra, Viewport renderer extensions</span></li></ul><p>The full list is in Lila: <strong>Help > Credits</strong>.</p></div>
+<div id="credits-live"><h3>Contributors</h3><ul class="credits-list"><li><span class="credits-name">Jack Knobel</span><span class="credits-role"> Testing and feedback: OpenUSD, Hydra, Viewport renderer extensions</span></li></ul></div>
 
 ## Get your name listed
 
