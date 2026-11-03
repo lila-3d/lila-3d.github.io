@@ -19,7 +19,9 @@ trimSheetSend(wait=True)
 
 <!-- TODO image: a blockout building trimmed in one click, next to the sheet (images/trim-sheets/auto.png) -->
 
-Sheets are `.lilatrim` files in `<workspace>/TrimSheets`, textures beside them in `<name>_Textures`. Every mesh mapped onto a sheet uses the material `M_<name>`.
+Sheets are `.lilatrim` files in `<workspace>/TrimSheets`, textures beside them in `<name>_Textures`. Every mesh mapped onto a sheet uses the material `M_<name>`. `trimSheetSend` maps and sends the sheet's meshes itself if Unreal doesn't have them yet, so the order doesn't matter; it returns which slots got which instance.
+
+Presets come in families: **Monumental Stone** (32 px per metre, bands metres tall: glyph bands, key borders, channels, mouldings, fluting, dentils, stepped transitions, chipped ashlar), **Industrial Frame** (rails, conduits, grating, hazard bands, housings) and **Starfighter Facility** (deck grating and tread, bulkheads, gantries, service vents, equipment surrounds), besides the metal, hull, wood, concrete and hotspot ones. Without a preset the sheet starts blank: `trimSheetCreate(name="T_Hall", width=2048, height=1024, pxPerM=128, strips=[512, 256, 128])`.
 
 ### Lay out your own
 
@@ -40,6 +42,29 @@ Smart materials whose names start with **Trim** vary tone strip by strip and kee
 
 **Paint** puts a flat `<name>_Sheet` plane in the scene and starts texture painting on it. Every mesh using the sheet shows the strokes. The UV editor paints the sheet too.
 
+### Palettes: one layout, several materials
+
+A palette is another material family on the same layout and bake: rusted and painted steel on one industrial sheet, sandstone and basalt on one stone sheet. Each has its own texture set and becomes its own instance `MI_<sheet>_<palette>` of the trim master in Unreal.
+
+```python
+trimPaletteAdd("Rust", material="Trim Rusty Iron", vectors={"Tint": [0.35, 0.2, 0.12]}, scalars={"EdgeWear": 2.0})
+trimSheetTexture(palette="Rust")      # its own set, TS_<sheet>_Rust
+trimAuto(palette="Rust")              # map the selection onto it
+trimPaletteAssign(palette="Default")  # move mapped faces back, uvs kept
+```
+
+`scalars`, `vectors` and `switches` are parameters of the Unreal instance. Faces keep their palette through **Shift** and re-maps unless `palette=` says otherwise.
+
+### Check the mapping
+
+`trimCheck()` checks every trimmed mesh (or the selection) island by island: texel density against the sheet (or `targetPxPerM=`), the trim and how far off it an island runs, orientation, mirroring, stretch, strips crossed, the mip its trim stays clean to, whether the trim's smallest feature is readable at `distance=` cm on a `screenHeight=` display, and neighbours repeating the same trim at the same offset. `showIssues=True` paints problem islands red.
+
+```python
+trimCheck(distance=3000, screenHeight=2160)["issues"]   # e.g. {"unreadable": 4, "repeats": 2}
+```
+
+`uvLayout` counts trim faces sharing texels as `trimOverlapFaces`, not as overlaps. `uvTexelDensity(density=...)` leaves trimmed islands on their trims; `trims="rescale"` takes them off.
+
 ### Edges, curves and decals
 
 | Tool | What it makes |
@@ -49,9 +74,21 @@ Smart materials whose names start with **Trim** vary tone strip by strip and kee
 | **Trim Cut** (`trimDecal(cut=True)`) | The same strip carved into the mesh as a groove `depth` cm deep. |
 | **Curve** (`trimAlongCurve`) | A strip along the selected curves, tiling without stretching, with caps from the sheet's `cap`-tagged trim at the ends. `orient="wall"` stands it up. |
 
-### Live in geometry nodes
+### Unique decals
 
-The **Hotspot UV** node re-maps its input onto a sheet whenever the input changes. **Trim Sheet Generator** outputs a sheet's high and low.
+For what trims can't carry (an inscription, a landmark, damage), make a decal at its true size and place it:
+
+```python
+trimDecalCreate("TempleWords", kind="inscription", width=1200, height=180, seed=3)   # or border, damage, relief with high=[meshes]
+trimDecalPlace("TempleWords", position=[0, 400, -2500], normal=[0, 0, 1])
+trimDecalSend()
+```
+
+The bake adds an opacity mask (where the relief stands off the flat surround) and a base colour. The decal is a `.lilatrim` in `<workspace>/TrimSheets/Decals`, so `trimSheetTexture(sheet=...)` and `trimSheetPaint(sheet=...)` texture or paint it. In Unreal each placed quad becomes a deferred decal actor projecting its `decalDepth` into the surface, with an instance of `M_LilaDecal`; use `MF_LilaDecal` in your own decal materials.
+
+### Live
+
+`trimLive()` adds a **trimHotspot** modifier to the selected meshes: they are re-mapped whenever the mesh under the modifier or the sheet's layout changes. In geometry nodes, the **Hotspot UV** node does the same; **Trim Sheet Generator** outputs a sheet's high and low.
 
 ## Troubleshooting
 
@@ -63,7 +100,11 @@ The **Hotspot UV** node re-maps its input onto a sheet whenever the input change
 
 **Unreal shows the plain procedural paint, not the textured sheet.** Send again after **Texture**: the instance's **UsePaintedMaps** switch turns on only when the sheet has a texture set.
 
-**"the LilaLink plugin in this editor is too old for trim sheets".** Rebuild LilaLink from Lila's `ue/LilaLink`.
+**"the LilaLink plugin in this editor is too old for trim sheets" (or "for decals").** Rebuild LilaLink from Lila's `ue/LilaLink`.
+
+**`trimSheetSend(meshes="mapped")` fails listing meshes.** Those meshes use the sheet but Unreal doesn't have them. Leave `meshes` at `send`, or send them first with `unrealMap` and `unrealSync`.
+
+**A decal shows as a dark box in Unreal.** Its opacity map is missing or empty: rebake it (`trimSheetBake(sheet=...)`) and send again. A decal facing the wrong way: place it with `normal=` pointing out of the surface.
 
 ## Options
 
