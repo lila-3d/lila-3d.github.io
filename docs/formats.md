@@ -16,6 +16,7 @@ Which formats Lila reads and writes, and what to pick for each job.
 | USD | `.usd`, `.usda`, `.usdc`, `.usdz` | Yes, as a live stage | Yes |
 | OBJ | `.obj` | Yes | Yes |
 | STL | `.stl` | Yes | Yes |
+| 3MF | `.3mf` | Yes, with vertex colours | Yes, with units and vertex colours |
 | PLY | `.ply` | Yes, including point clouds | Yes |
 | DXF | `.dxf` | Curves and meshes | Curves and meshes |
 | SVG | `.svg` | Curves | Curves |
@@ -37,7 +38,7 @@ Which to use:
 | Sculpting in ZBrush | **Send to ZBrush** ([ZBrush](zbrush.md)) |
 | Studio pipelines, Houdini, Omniverse, Apple | USD |
 | Web, Godot, Blender, Sketchfab | glTF (`.glb` for a single file) |
-| 3D printing | STL |
+| 3D printing | 3MF, or STL (see [3D printing](3d-printing.md)) |
 | CAD drawings, laser cutting, CNC | DXF |
 | Scans, photogrammetry, point clouds | PLY |
 | CAD meshes, large worlds, anything that must stay exact | OBJ, FBX or a Lila scene |

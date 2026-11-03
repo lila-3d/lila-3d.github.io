@@ -49,6 +49,7 @@
   - [Topology](topology.md)
   - [Baking](baking.md)
   - [Turntable](turntable.md)
+  - [3D printing](3d-printing.md)
 - <span class="nav-label">Nodes</span>
   - [Node editor](node-editor.md)
     - [Geometry nodes](geometry-nodes.md)
