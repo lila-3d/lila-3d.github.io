@@ -10783,6 +10783,35 @@ Undo or redo in one go until the given number of undo steps remain, as listed by
 
 Not undoable.
 
+### unfrozenTransforms
+
+List the objects whose translate, rotate or scale is not identity (0, 0, 0 and 1, 1, 1), with their values.
+
+Checks the objects given or selected, or with scene every mesh, curve and group (joints, cameras, lights and locators are placed by their transforms and are left out). With rotateStep, rotations that are whole multiples of the step count as frozen; invert lists only rotations on the step instead. Returns one {name, translate, rotate, scale, unfrozen} per object listed, unfrozen naming the channels that put it there.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scene` |  | bool | `False` | Check the whole scene instead of the objects. |
+| `hierarchy` |  | bool | `False` | Also check everything parented under the objects. |
+| `translate` |  | bool | `True` | List objects with translation. |
+| `rotate` |  | bool | `True` | List objects with rotation. |
+| `scale` |  | bool | `True` | List objects with scale. |
+| `rotateStep` |  | float | `0.0` | Degrees: rotations on whole multiples of it count as frozen. 0 is off. |
+| `invert` |  | bool | `False` | With rotateStep, list rotations on the step rather than off it. |
+| `tolerance` |  | float | `0.0001` | How far from identity, or from the step, still counts as on it. |
+
+Not undoable.
+
+```python
+unfrozenTransforms()
+```
+
+```python
+unfrozenTransforms(scene=True, translate=False, rotateStep=90)
+```
+
 ### ungroup
 
 Move each group's children up to the group's parent, keeping where they are, then delete the group. Defaults to the selection; returns the children.

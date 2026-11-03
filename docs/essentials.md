@@ -114,6 +114,21 @@ With **N**, objects turn to stand on the surface. Hold **Shift** as well to keep
 - **Component**: the selection's average normal; everything moves together.
 - **Normal** (move only): each component moves along its own normal.
 
+## Find unfrozen transforms
+
+**Modify > Find Unfrozen Transforms**
+
+Lists the selected objects, and everything under them, whose translate, rotate or scale isn't 0, 0, 0 and 1, 1, 1. With nothing selected, it checks every mesh, curve and group in the scene. Run it before export to catch anything left unfrozen.
+
+- Click a row to select that object. The list stays as it is, so step through it with the arrow keys and press **F** to frame each one.
+- **Rotate step** counts rotations on that increment as frozen; the steps match rotate snapping. At 90°, only objects turned by something other than quarter turns stay listed. **Invert** lists only the ones on the step.
+- Dimmed values are channels that didn't put the object on the list.
+- **Freeze** freezes the selected rows, and they drop off the list.
+
+Objects missing from the list: joints, cameras, lights and locators are left out of the scene check, since their transforms place them. Select them to check them. Values within 0.0001 of identity count as frozen.
+
+From Python: `unfrozenTransforms(scene=True, translate=False, rotateStep=90)`.
+
 ## Match pivots
 
 **Modify > Match Pivot**, **Match Pivot Position** or **Match Pivot Orientation**, or **Match Piv** on the Modeling shelf
