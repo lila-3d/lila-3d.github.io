@@ -186,6 +186,7 @@ Kinds:
 - autoBevel: Bevels the fold edges it finds live on its input by angle, side and length rules, plus edges picked by hand. Use it for game-art bevels that keep following the mesh as you edit it.
 - bevel: Bevels every edge sharper than an angle so hard corners catch the light. A quick live bevel; Auto Bevel has finer edge rules and hand-picked edges.
 - boolean: A boolean kept live: cuts, joins or intersects this mesh with a cutter mesh, so moving or editing the cutter updates the result. Stack one per cutter. Apply bakes it.
+- channel: A channel carved along curves, kept live: a U channel, V groove, half round or stepped profile swept along the path curves and cut into this mesh, open surfaces such as terrain included. Moving the curve or editing the profile recuts it.
 - curveArray: Repeats the mesh along a curve: by count or spacing, fitted to its length, optional start and end pieces, each copy placed on the curve's frame or bent along it, with random turn, scale and offset. Follows curve edits.
 - curveDeform: Bends the mesh along a curve, its forward axis running along it (Curve Warp, Path Deform): offset, stretch to fit, roll, twist and scale ramps, the curve's tilt and radius. Editing or moving the curve updates it.
 - decimate: Reduces the triangle count while keeping the shape, silhouette, UVs and normals. Use it for LODs or to lighten scans and sculpts.
@@ -1615,6 +1616,7 @@ Hang cables between anchor points: true catenaries by slack (extra length) or sa
 | `pipe` |  | bool | `False` | Also build pipe geometry along the cables (the cable pipe preset, live). |
 | `pipeRadius` | `pr` | float | `0.6` | Pipe radius, cm. |
 | `pipeSides` | `ps` | int | `6` | Pipe sides. |
+| `pipeOptions` |  | Any |  | {flag: value} for the pipe command, over the cable preset (uvLayout, texelDensity, vMin ...). |
 | `constructionHistory` | `ch` | bool | `True` | Keep the cable node so moving anchors or editing slack updates the cables. |
 | `name` | `n` | str |  | Cable curve name; made unique. |
 
@@ -1709,6 +1711,41 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `path` | `p` | str |  | PNG file to write. |
 
 Not undoable.
+
+### carveChannel
+
+Carve a channel into a mesh along path curves: a U channel, V groove, half round or stepped profile swept along the path and cut out of the mesh, terrain and other open surfaces included, at any scale. Live: a channelModifier on the mesh's stack recuts as the curve or settings change. The walls take the strip UVs (uvLayout along by default, tiling every 1 / texelDensity cm). Returns [mesh, channelModifier, path curve].
+
+**Objects:** path curves (default: the selected curves)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shape` |  | str |  | Cross-section: U channel, V groove, half round or stepped terraces. One of `uChannel`, `vGroove`, `halfRound`, `stepped`. |
+| `width` |  | float |  | Width at the surface, cm. |
+| `depth` |  | float |  | Depth below the path, cm. |
+| `cornerRound` |  | float |  | U channel: bottom corner radius, as a fraction of half the width. |
+| `steps` |  | int |  | Stepped: terraces from the rim to the floor. |
+| `floorWidth` |  | float |  | Stepped: floor width, as a fraction of the width. |
+| `segments` |  | int |  | Points on each rounded part of the profile. |
+| `lift` |  | float |  | How far the cutter rises above the path, cm; 0 is the larger of the depth and half the width. |
+| `bendRadius` |  | float |  | Rounds the path's sharp corners, cm; 0 mitres them. |
+| `followSurface` |  | bool |  | Drop the path onto this mesh along up, so a curve drawn in plan follows the ground. |
+| `up` |  | tuple[float, float, float] |  | Up at the path: the channel goes down from it, and only faces turned this way are cut. |
+| `material` |  | str |  | Material slot for the channel's walls and floor; empty takes the mesh's first. |
+| `hardAngle` |  | float |  | New edges sharper than this many degrees are marked hard. |
+| `uvLayout` |  | str |  | around: U around the profile, V along the path. along: U along the path, V around it (a trim strip). |
+| `texelDensity` |  | float |  | UV units per cm along the path; 0 fits each part to the rectangle. |
+| `uMin` |  | float |  | Low U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMin` |  | float |  | Low V edge of the UV rectangle the swept surface's UVs land in. |
+| `uMax` |  | float |  | High U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMax` |  | float |  | High V edge of the UV rectangle the swept surface's UVs land in. |
+| `capUMin` |  | float |  | Low U edge of the UV rectangle caps land in. |
+| `capVMin` |  | float |  | Low V edge of the UV rectangle caps land in. |
+| `capUMax` |  | float |  | High U edge of the UV rectangle caps land in. |
+| `capVMax` |  | float |  | High V edge of the UV rectangle caps land in. |
+| `surface` |  | str |  | Mesh to carve (default: the selected mesh). |
+| `points` | `p` | list |  | [[x, y, z], ...] world points of a new path curve, instead of path curves. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the channel live; off applies it. |
 
 ### cast
 
@@ -1908,7 +1945,7 @@ Add a collision deformer: the meshes are pushed out of the colliders (meshes, or
 
 ### componentExport
 
-How a component on objects reaches Unreal: actorTags, assetUserData (the default), component (an actor component of unrealClass with matching properties), dataAsset (of unrealClass), custom (a registered exporter named by unrealClass) or none. With query=True, returns the setting.
+How a component on objects reaches Unreal: actorTags, assetUserData (the default), component (an actor component of unrealClass with matching properties), dataAsset (of unrealClass), custom (a registered exporter named by unrealClass) or none. actorTags tags the actor "Component.attr=value", or with tags="value" the bare values (a string attr holding whale-architecture tags whale-architecture; each element of a list; a true bool its attr's name). With query=True, returns the setting.
 
 **Objects:** objects
 
@@ -1917,6 +1954,7 @@ How a component on objects reaches Unreal: actorTags, assetUserData (the default
 | `component` | `c` | str |  | The component (heading). |
 | `mode` | `m` | str |  | none, actorTags, assetUserData, component, dataAsset or custom. |
 | `unrealClass` | `uc` | str |  | The UE class (component, dataAsset) or exporter (custom). |
+| `tags` | `tg` | str |  | actorTags: keyValue (Component.attr=value, the default) or value (bare values). |
 | `query` | `q` | bool | `False` | Return {mode, class}. |
 
 ### componentInfo
@@ -3357,6 +3395,7 @@ Export the evaluated meshes and transforms to a binary FBX 7.4 file. Objects def
 | `smoothingGroups` | `sg` | bool | `True` | Write edge smoothing (hard and soft edges). |
 | `compress` |  | bool | `True` | Deflate the larger arrays as the FBX SDK does; False writes them raw. |
 | `textures` |  | bool | `False` | Write the materials' colors and base color, normal and emissive maps as file textures with their wrap modes (repeat or clamp). Off writes plain named materials. |
+| `collision` | `col` | bool | `False` | Static kind: write each mesh's simple collision (a Stagehand body's shape) as UCX_<mesh>_NN meshes for Unreal. |
 | `units` | `u` | str | `'cm'` | File units: cm, m, mm, in or ft. Lengths are scaled to them. |
 | `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
 | `unrealCheck` | `uc` | bool | `True` | Skeletal and animation kinds: refuse when a skeleton fails unrealCheck over the range (sampled). False exports anyway. |
@@ -3712,9 +3751,18 @@ Sweep a profile along path curves into a quad mesh with live history: a circle o
 | `frameMode` |  | str |  | How the profile turns along the path: rotation minimising (no twist), toward the up vector, or Frenet. One of `rmf`, `fixedUp`, `surfaceNormal`, `frenet`. |
 | `upVector` |  | tuple[float, float, float] |  | Up for fixedUp frames, and the start orientation of others. |
 | `miter` |  | bool |  | At corners, set the profile in the bisector plane so walls keep their width. |
-| `texelDensity` |  | float |  | V per cm along the path; 0 fits each part to 0..1. |
 | `splitEvery` |  | float |  | Split the body into parts (own UV island and part id) every this many cm; 0 is none. |
 | `flip` |  | bool |  | Flip the faces. |
+| `uvLayout` |  | str |  | around: U around the profile, V along the path. along: U along the path, V around it (a trim strip). |
+| `texelDensity` |  | float |  | UV units per cm along the path; 0 fits each part to the rectangle. |
+| `uMin` |  | float |  | Low U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMin` |  | float |  | Low V edge of the UV rectangle the swept surface's UVs land in. |
+| `uMax` |  | float |  | High U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMax` |  | float |  | High V edge of the UV rectangle the swept surface's UVs land in. |
+| `capUMin` |  | float |  | Low U edge of the UV rectangle caps land in. |
+| `capVMin` |  | float |  | Low V edge of the UV rectangle caps land in. |
+| `capUMax` |  | float |  | High U edge of the UV rectangle caps land in. |
+| `capVMax` |  | float |  | High V edge of the UV rectangle caps land in. |
 | `tessellation` |  | str |  | How curves become points: fixed segments per span, adaptive to the error and angle, or game (straight spans one segment, curved ones by angle, corners exact). |
 | `segments` |  | int |  | Segments per curved span (fixed). |
 | `chordError` |  | float |  | Largest gap from the true curve, cm (adaptive). |
@@ -6415,7 +6463,6 @@ Build a pipe or hose mesh along path curves with live history: radius (and a ram
 | `tessellation` |  | str |  | How the path becomes rings: fixed per span, adaptive, or game (straight spans one ring, bends by angle). |
 | `segments` |  | int |  | Rings per curved span (fixed). |
 | `maxAngle` |  | float |  | Largest turn between rings, degrees (adaptive and game). |
-| `texelDensity` |  | float |  | V per cm along the path; 0 fits each segment to 0..1. |
 | `flip` |  | bool |  | Flip the faces. |
 | `splitEvery` |  | float |  | Split into segments every this many cm (0: none); couplings go at the splits. |
 | `splitAtBends` |  | bool |  | Also split at each bend. |
@@ -6438,6 +6485,20 @@ Build a pipe or hose mesh along path curves with live history: radius (and a ram
 | `corrugationDepth` |  | float |  | Hose ribs: how far the radius dips, as a fraction of it; 0 is smooth. |
 | `corrugationPeriod` |  | float |  | Rib spacing, cm. |
 | `corrugationRings` |  | int |  | Rings per rib. |
+| `uvLayout` |  | str |  | around: U around the profile, V along the path. along: U along the path, V around it (a trim strip). |
+| `texelDensity` |  | float |  | UV units per cm along the path; 0 fits each part to the rectangle. |
+| `uMin` |  | float |  | Low U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMin` |  | float |  | Low V edge of the UV rectangle the swept surface's UVs land in. |
+| `uMax` |  | float |  | High U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMax` |  | float |  | High V edge of the UV rectangle the swept surface's UVs land in. |
+| `capUMin` |  | float |  | Low U edge of the UV rectangle caps land in. |
+| `capVMin` |  | float |  | Low V edge of the UV rectangle caps land in. |
+| `capUMax` |  | float |  | High U edge of the UV rectangle caps land in. |
+| `capVMax` |  | float |  | High V edge of the UV rectangle caps land in. |
+| `innerUMin` |  | float |  | Low U edge of the UV rectangle a tube's inner surface land in. |
+| `innerVMin` |  | float |  | Low V edge of the UV rectangle a tube's inner surface land in. |
+| `innerUMax` |  | float |  | High U edge of the UV rectangle a tube's inner surface land in. |
+| `innerVMax` |  | float |  | High V edge of the UV rectangle a tube's inner surface land in. |
 | `preset` |  | str |  | Starting settings: pipe, hose, cable or conduit (flags given as well win). |
 | `points` | `p` | list |  | [[x, y, z], ...] world points of a new poly path curve, instead of path curves. |
 | `splines` |  | list |  | Whole path splines (curveData format), instead of path curves. |
@@ -6461,6 +6522,53 @@ Apply a pipe preset (pipe, hose, cable or conduit) to pipe nodes, or the pipes f
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'pipe'` | pipe, hose, cable or conduit. |
+
+### pipeRoute
+
+Route a pipe from start to end around obstacle meshes: orthogonal runs on a grid with clearance, preferred axes (axisCost) and few bends (bendCost). Live: moving the obstacles or the ends reroutes, and a pipe on the route follows. Returns [route curve, curvePipeRoute, pipe mesh or None].
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | tuple[float, float, float] |  | Where the run starts, world cm. |
+| `end` |  | tuple[float, float, float] |  | Where the run ends, world cm. |
+| `startDir` |  | tuple[float, float, float] |  | The run leaves the start along this axis (zero: any). |
+| `endDir` |  | tuple[float, float, float] |  | The run arrives at the end moving along this axis (zero: any). |
+| `clearance` |  | float |  | Least distance from the centreline to any obstacle, cm: the pipe radius plus a gap. |
+| `cellSize` |  | float |  | Grid step, cm; 0 picks one from the clearance and the distance. |
+| `axisCost` |  | tuple[float, float, float] |  | Cost per cm along x, y and z: raise one to keep runs off that axis. |
+| `bendCost` |  | float |  | Cost of each bend, in cm of run. |
+| `margin` |  | float |  | How far the search reaches past the box around the ends, cm; 0 is a quarter of the distance. |
+| `obstacles` |  | list |  | Meshes to keep clear of (default: the selected meshes). |
+| `pipe` |  | bool | `False` | Also build a live pipe along the run. |
+| `pipeOptions` |  | Any |  | {flag: value} for the pipe command (radius, preset, uvLayout ...). |
+| `name` | `n` | str |  | Route curve name; made unique. |
+
+### pipeSupports
+
+Place supports along pipes: hangers, wall brackets, floor stands, clamps or your own mesh, every spacing cm, each reaching to the nearest wall, floor or ceiling by ray cast. Given a pipe mesh, the supports follow its path, radius and bends live. Returns [supports mesh, curvePipeSupports] per pipe or path curve.
+
+**Objects:** pipe meshes or path curves (default: the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` |  | str |  | auto picks a hanger, bracket or stand by the direction it reaches; or one style for all. One of `auto`, `hanger`, `bracket`, `stand`, `clamp`, `mesh`. |
+| `target` |  | str |  | Which surface to reach for: the nearest, or only floors, ceilings or walls. |
+| `spacing` |  | float |  | Distance between supports along the run, cm. |
+| `startOffset` |  | float |  | First support's distance from the start, cm; negative is half the spacing. |
+| `endClearance` |  | float |  | Keep supports this far from the ends and off bends, cm; 0 is twice the pipe radius. |
+| `pipeRadius` |  | float |  | Radius of the pipe held, cm. |
+| `bendRadius` |  | float |  | Bend radius the pipe rounds corners with, cm; 0 is twice the radius. |
+| `maxReach` |  | float |  | Farthest a support reaches, cm; stations farther from any surface get none. |
+| `ringThickness` |  | float |  | Clamp ring thickness, cm; 0 sizes it from the pipe. |
+| `ringWidth` |  | float |  | Clamp ring width along the pipe, cm; 0 sizes it from the pipe. |
+| `rodSize` |  | float |  | Rod, arm or post thickness, cm; 0 sizes it from the pipe. |
+| `sides` |  | int |  | Sides around the rings. |
+| `up` |  | tuple[float, float, float] |  | World up: floors are below, ceilings above. |
+| `meshScale` |  | float |  | Scale of the support mesh. |
+| `stretch` |  | bool |  | Stretch the support mesh along its +y to reach the surface. |
+| `surfaces` |  | list |  | Meshes supports reach to (default: the selected meshes that aren't the pipe). |
+| `supportMeshNode` |  | str |  | Mesh to place as each support (sets style = mesh). |
+| `name` | `n` | str |  | Supports mesh name; made unique. |
 
 ### pivot
 
@@ -9882,7 +9990,16 @@ Strap meshes: the slash from start to end, seen along view, cuts them in its pla
 | `buckleLength` |  | float |  | Buckle length along the strap, cm. |
 | `buckleScale` |  | float |  | Buckle width over the strap's. |
 | `flip` |  | bool |  | Put the strap on the other side of the path. |
-| `texelDensity` |  | float |  | V per cm along the strap; 0 fits it to 0..1. |
+| `uvLayout` |  | str |  | around: U around the profile, V along the path. along: U along the path, V around it (a trim strip). |
+| `texelDensity` |  | float |  | UV units per cm along the path; 0 fits each part to the rectangle. |
+| `uMin` |  | float |  | Low U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMin` |  | float |  | Low V edge of the UV rectangle the swept surface's UVs land in. |
+| `uMax` |  | float |  | High U edge of the UV rectangle the swept surface's UVs land in. |
+| `vMax` |  | float |  | High V edge of the UV rectangle the swept surface's UVs land in. |
+| `capUMin` |  | float |  | Low U edge of the UV rectangle caps land in. |
+| `capVMin` |  | float |  | Low V edge of the UV rectangle caps land in. |
+| `capUMax` |  | float |  | High U edge of the UV rectangle caps land in. |
+| `capVMax` |  | float |  | High V edge of the UV rectangle caps land in. |
 | `gap` |  | float |  | cm between the surface and the strap. |
 | `bridge` |  | float |  | Span hollows narrower than twice this many cm, as a stiff strap would; 0 follows every dip. |
 | `taut` |  | bool |  | Pulled tight: span every hollow (the convex hull of what the strap goes around). |
@@ -10973,6 +11090,31 @@ Take a reference's nodes out of the scene but remember it and its edits. Clears 
 
 Not undoable.
 
+### unrealAssetInfo
+
+An Unreal asset's class, material slots, LODs, vertex and triangle counts, Nanite and collision (simple shape count, complexAsSimple), as {ok, ...} or {ok: False, error}.
+
+**Objects:** asset path (/Game/Lila/Instances/SM_Wall)
+
+Not undoable.
+
+### unrealCall
+
+Call any LilaLink method in the connected Unreal editor and return its reply as {ok, result}, or {ok: False, error, code} when it fails or Unreal is not connected. runPython takes {code, mode: exec|evaluate} and returns {ok, result, log}.
+
+**Objects:** method
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `params` | `p` | Any |  | The method's params, a dict (default empty). |
+| `timeoutMs` | `to` | int | `60000` | Fail the call after this long. |
+
+Not undoable.
+
+```python
+unrealCall("runPython", params={"code": "unreal.EditorLevelLibrary.get_all_level_actors()", "mode": "evaluate"})
+```
+
 ### unrealCheck
 
 Evaluate skeletons (default all) as they export, under Unreal's transform rules (scale handed down per axis, no shear), and compare their skins with Lila's deformed meshes every frame of the range. Each joint past the tolerance becomes an error on that joint; exportFbx, exportGltf and unrealSync run the same check and refuse while a joint fails. Returns the worst drift and the mismatched joints.
@@ -11002,6 +11144,21 @@ Connect to an Unreal editor running LilaLink. Without flags, uses the first one 
 
 Not undoable.
 
+### unrealCustomData
+
+Name what unrealPlaceInstances sends as each placement's custom primitive data, in slot order, on the instance sources of the given meshes: random (a stable 0 to 1 per placement), or a number, bool or vector attribute on the members (a vector takes 3 slots), or for geometry nodes instances their instance attribute of that name. A material reads slot n with PerInstanceCustomData (ISM/HISM) or CustomPrimitiveData (actors). With query=True, returns the names. Default ["random"].
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `data` | `d` | Any |  | The names, a list: ["random", "wear", "tint"]. An empty list sends none. |
+| `query` | `q` | bool | `False` | Return the names of the first object's source. |
+
+```python
+unrealCustomData("Boulder", data=["random", "wear", "tint"])
+```
+
 ### unrealImport
 
 Import (or reimport) a file into the connected Unreal project. Connects first if needed. Returns {assets, warnings, errors} with wait=True; otherwise queues it and logs the result.
@@ -11020,6 +11177,7 @@ Import (or reimport) a file into the connected Unreal project. Connects first if
 | `importTextures` | `it` | bool |  | Import textures the materials use (default on). |
 | `combineMeshes` | `cm` | bool |  | Merge every mesh into one static mesh (default on). |
 | `autoCollision` | `ac` | bool |  | Generate simple collision when there is no UCX_ mesh (default off). |
+| `collision` | `col` | str |  | static: the asset's collision, replacing what the import made: none, box, convex (auto convex decomposition), complexAsSimple (the render mesh) or ucx (only the file's UCX_ meshes). Unset, autoCollision decides. |
 | `generateLightmapUVs` | `glu` | bool |  | Let Unreal build a lightmap UV channel (default off). |
 | `normals` | `nm` | str |  | import \| compute |
 | `lodGroup` | `lg` | str |  | Static mesh LOD group, like LargeProp. |
@@ -11029,6 +11187,14 @@ Import (or reimport) a file into the connected Unreal project. Connects first if
 | `save` | `sv` | bool |  | Save the imported packages in Unreal afterwards. |
 | `file` | `f` | str |  | File to import; or pass it positionally. |
 | `wait` | `w` | bool | `False` | Block until Unreal finishes and return its reply. |
+
+Not undoable.
+
+### unrealListPlacements
+
+What unrealPlaceInstances placed in Unreal's open level: [{actor, group, node or instances, mesh, location}], only the instance groups of the given meshes when any are given. Returns {ok, placements} or {ok: False, error}.
+
+**Objects:** objects (default every group)
 
 Not undoable.
 
@@ -11050,6 +11216,7 @@ Map a node to an Unreal asset so saving the scene re-exports and reimports it. S
 | `importTextures` | `it` | bool |  | Import textures the materials use (default on). |
 | `combineMeshes` | `cm` | bool |  | Merge every mesh into one static mesh (default on). |
 | `autoCollision` | `ac` | bool |  | Generate simple collision when there is no UCX_ mesh (default off). |
+| `collision` | `col` | str |  | static: the asset's collision, replacing what the import made: none, box, convex (auto convex decomposition), complexAsSimple (the render mesh) or ucx (only the file's UCX_ meshes). Unset, autoCollision decides. |
 | `generateLightmapUVs` | `glu` | bool |  | Let Unreal build a lightmap UV channel (default off). |
 | `normals` | `nm` | str |  | import \| compute |
 | `lodGroup` | `lg` | str |  | Static mesh LOD group, like LargeProp. |
@@ -11077,16 +11244,19 @@ Not undoable.
 
 ### unrealPlaceInstances
 
-Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Lights among them go as light actors (point, spot, directional, rect; discs as square rect lights, domes skipped). Lighting channels map onto Unreal's three: default is channel 0, the next two channels the sent nodes use (in scene order) 1 and 2; any more are dropped, with a warning naming them, and what is left in none goes on 0. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Returns the plan, with each group's import and placement results when wait=True.
+Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Lights among them go as light actors (point, spot, directional, rect; discs as square rect lights, domes skipped). Lighting channels map onto Unreal's three: default is channel 0, the next two channels the sent nodes use (in scene order) 1 and 2; any more are dropped, with a warning naming them, and what is left in none goes on 0. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Validators run first: a blocking issue stops the send, others come back in issues. Returns the plan, with each group's import and placement results when wait=True.
 
 **Objects:** objects
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `folder` | `f` | str | `'/Game/Lila/Instances'` | Content folder the assets go in; each is SM_<source name>. |
+| `folder` | `f` | str | `'/Game/Lila/Instances'` | Content folder the assets go in; each is SM_<source name>, with part of the source's link id appended when another mesh in the scene has the same name. The name is saved on the source, so it never changes. |
 | `mode` | `m` | str | `'auto'` | How members are placed: actors, ism, hism, or auto (actors up to threshold members, then hism). |
 | `threshold` | `t` | int |  | auto switches to hism above this many members (default the unreal pref /instanceThreshold, 50). |
 | `lightingChannels` | `lc` | bool | `True` | Set the actors' and lights' Lighting Channels from Lila's channels. The plan's lightingChannels lists the channels, lights and objects, the Unreal slot of each channel and any dropped. |
+| `collision` | `col` | str | `'auto'` | Collision the assets get: auto (ucx for a source with UCX_ children or a Stagehand body's hulls, else complexAsSimple), none (the placed actors and instances don't collide either), box, convex (Unreal's auto convex decomposition), complexAsSimple (the render mesh) or ucx (the hulls only; a source's UCX_ child meshes go with it, and its other children into the asset too). |
+| `nanite` | `na` | bool | `False` | Build Nanite data for the assets. |
+| `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealPlaceInstances, "unreal" or "*" on what is sent stops the send; other issues come back in the result's issues. |
 | `dryRun` |  | bool | `False` | Return the plan without exporting or contacting Unreal. |
 | `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
 
@@ -11108,6 +11278,19 @@ Remove from Unreal's open level what unrealPlaceInstances placed for the instanc
 
 Not undoable.
 
+### unrealSaveAssets
+
+Save assets in Unreal: the given paths, the open level, or every unsaved package. Returns {ok, saved, errors}, or {ok: False, error} when Unreal can't be reached.
+
+**Objects:** asset paths
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `level` | `lv` | bool | `False` | Save the open level (where placements live). |
+| `dirty` | `d` | bool | `False` | Save every unsaved level and asset. |
+
+Not undoable.
+
 ### unrealSendCurve
 
 Send curves to the connected Unreal editor as splines: an actor with a spline component per curve (Bezier tangents, closed loops, roll from tilt and scale from radius), or with mode=landscape control points and segments on the landscape's splines, optionally with spline meshes of a sent mesh along them. The curves stay mapped, so every save sends them again and updates the same actor. Returns the setSpline replies with wait=True.
@@ -11123,6 +11306,7 @@ Send curves to the connected Unreal editor as splines: an actor with a spline co
 | `width` | `w` | float |  | mode=landscape: half-width of the spline at radius 1, cm (default 200). |
 | `deformTerrain` | `dt` | bool |  | mode=landscape: the splines raise and lower the terrain (default on). |
 | `remove` | `rm` | bool | `False` | Unmap the curves and delete what they made in Unreal instead. |
+| `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealSendCurve, "unreal" or "*" on a curve stops the send; others are logged. |
 | `wait` | `wt` | bool | `False` | Block until Unreal answers and return its replies. |
 
 Not undoable.
@@ -11186,6 +11370,7 @@ Export and reimport every mapped node now, as saving does, or only the given nod
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `unrealCheck` | `uc` | bool | `True` | Refuse skeletons that fail unrealCheck (sampled over the range). False sends anyway. |
+| `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealSync, "unreal" or "*" on a mapped node stops the sync; others are logged. |
 
 Not undoable.
 
@@ -11309,7 +11494,7 @@ Delete the uvs of the selected faces, leaving the faces: their uvs collapse to 0
 
 ### uvLayout
 
-UV report for the selection: islands, overlapping and folded faces, distortion and texel density.
+UV report for the selection: islands, overlapping and folded faces, distortion and texel density. Faces mapped onto a trim sheet share texels on purpose: their overlaps count in trimOverlapFaces, not overlappingFaces (trimCheck checks them against their sheet).
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -11548,7 +11733,7 @@ Straighten the selected edge chains in uv (edge loops, borders, seam sides): eac
 
 ### uvTexelDensity
 
-Texel density of the selection in px/cm for a texture size. With density=, scales each island to it (world space).
+Texel density of the selection in px/cm for a texture size. With density=, scales each island to it (world space). Faces mapped onto a trim sheet take their density from the sheet: trims='skip' (the default) leaves their islands on their trims and reports how many were skipped, 'rescale' scales them too and clears their trim mapping.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -11556,6 +11741,7 @@ Texel density of the selection in px/cm for a texture size. With density=, scale
 | `resolution` |  | int | `1024` | Texture size, px. |
 | `density` |  | float |  | Set to this many px/cm. |
 | `worldSpace` |  | bool | `True` | Measure world size, with the mesh's scale. |
+| `trims` |  | str | `'skip'` | Trim-mapped faces: skip keeps them on their trims, rescale scales them off. |
 
 ### uvTransform
 
@@ -11893,6 +12079,29 @@ Line the pivots' axes up with the world (or with the object's own axes), leaving
 
 Available when the Destruction extension is loaded.
 
+### addDebris
+
+Throw off small chunks and dust where a destruction breaks: chunks (more for harder breaks) settle on the ground and the pieces and join the result as instances of a few shared rock shapes; dust points are on the Debris node's dust output for Niagara. A rigid vertex animation bake leaves the chunks out; freezeDestruction(debris='only') turns them into their own group of instanced meshes to send alongside. Running it again changes the settings. Returns the Debris node.
+
+**Objects:** destruction (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amount` | `a` | float | `4.0` | Chunks per break, on average. |
+| `size` | `s` | float | `8.0` | Typical chunk size, cm. |
+| `spread` |  | float | `300.0` | How fast chunks fly off, cm/s. |
+| `dust` |  | int | `20` | Dust points per break. |
+| `settle` |  | bool | `True` | Let the chunks come to rest (level dressing); False leaves them flying, with velocity. |
+| `seed` |  | int | `1` | Another seed gives another scatter. |
+
+```python
+addDebris('Wall', amount=6, size=5)
+```
+
+```python
+addDebris('Wall', settle=False)
+```
+
 ### addExplosion
 
 Set off an explosion in a destruction: on its frame, pieces within the radius are thrown outward, hardest at the centre. Add as many as you like, at different places and frames. A mesh not yet cracked finer near an explosion gets smaller pieces around the first one that reaches it. Invisible: add your own flash or smoke. Returns the explosion's node in the destruction's group.
@@ -11918,7 +12127,7 @@ addExplosion('Wall', position=[250, 80, 20], frame=40, blast=3000, radius=400)
 
 Break meshes apart like concrete, glass or wood, and (by default) simulate them falling.
 
-Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces, Rigid Body Solver) can be opened and edited in the Node Editor. The settings that matter (pieces, seed, impact, roughness, strength, blast, start frame) show on the modifier and can be keyed. The pieces touching the ground are anchored, so a wall stands until the impact. Several meshes break together in one simulation (their pieces hit each other) on a new Destruction mesh, with the originals hidden; add explosions with addExplosion. Colliders are meshes the pieces hit that never move or break. Returns the modifiers.
+Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces, Rigid Body Solver) can be opened and edited in the Node Editor. The settings that matter (pieces, seed, impact, roughness, strength, blast, start frame) show on the modifier and can be keyed. The pieces touching the ground are anchored, so a wall stands until the impact. Several meshes break together in one simulation (their pieces hit each other) on a new Destruction mesh, with the originals hidden; add explosions with addExplosion. Colliders are meshes the pieces hit that never move or break. damage makes a damaged prop with no simulation (cracked, missing, chipped or collapsed), for level dressing; freezeDestruction then turns any of these into static meshes with collision. Returns the modifiers.
 
 **Objects:** meshes (default the selection)
 
@@ -11931,6 +12140,9 @@ Adds a geometry-nodes modifier to each mesh whose group (Fracture, Anchor Pieces
 | `blast` | `b` | float |  | How hard the impact hits, cm/s. Default: the material's. |
 | `startFrame` |  | int |  | Frame it breaks on. Default: the start of the playback range. |
 | `simulate` |  | bool | `True` | Simulate the pieces; False only fractures. |
+| `damage` | `d` | str | `'none'` | Damage it without simulating: cracked (standing, cracks showing, some pieces slipped), missing (chunks gone around the impact), chipped (edges and corners knocked off) or collapsed (the part around the impact gives way and what it held falls and settles). One of `none`, `cracked`, `missing`, `chipped`, `collapsed`. |
+| `amount` |  | float | `0.3` | With damage: how much is damaged, 0 to 1. |
+| `gap` |  | float | `0.3` | With damage=cracked: width of the cracks, cm. |
 | `anchor` |  | bool | `True` | Tie the pieces touching the ground to it. |
 | `together` |  | bool | `True` | Several meshes: one simulation where they hit each other. False breaks each on its own. |
 | `colliders` |  | list |  | Meshes the pieces hit that never move or break (the ground around a pit, say). |
@@ -11945,6 +12157,14 @@ breakApart(material='glass', pieces=60, blast=1500)
 
 ```python
 breakApart(['WallA', 'WallB', 'Ground'])
+```
+
+```python
+breakApart('Pillar', damage='chipped', amount=0.4)
+```
+
+```python
+breakApart('Wall', damage='collapsed', impact=[0, 80, 10], amount=0.25)
 ```
 
 ### collapse
@@ -11986,6 +12206,60 @@ Not undoable.
 
 ```python
 exportBreaks('Wall', path='Export/Wall_breaks.csv')
+```
+
+### exportChaos
+
+Write a destruction as a Chaos Geometry Collection for Unreal: its pieces (with their inside faces marked), and every frame of their motion for a Chaos cache, so Unreal plays it back and a game can hand the pieces over to live Chaos. The alternative to rigid vertex animation when the pieces must become physical again. Writes <folder>/<name>.lilagc.json and .lilagc.bin in Unreal's space; with send, LilaLink makes the Geometry Collection and the cache at contentPath. Returns {json, bin, pieces, frames, breaks, assets}.
+
+**Objects:** destruction mesh or its modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `fo` | str | `'destruction'` | Output folder; relative paths are under the workspace. |
+| `name` | `n` | str |  | File name. Default: the mesh's. |
+| `start` | `st` | int |  | First frame. Default: the start of the playback range. |
+| `end` | `e` | int |  | Last frame. Default: the end of the playback range. |
+| `animation` | `a` | bool | `True` | Write the frames for a Chaos cache; False writes only the pieces. |
+| `profile` | `ax` | str | `'ue5'` | Axis profile: ue5 or ue6. |
+| `send` | `s` | bool | `False` | Make the Geometry Collection in the connected Unreal editor. |
+| `contentPath` | `cp` | str |  | With send: where the Geometry Collection goes, like /Game/Destruction/GC_Wall. |
+| `place` |  | bool | `False` | With send: put it in the open level with a Chaos Cache Manager playing it. |
+
+Not undoable.
+
+```python
+exportChaos('Wall', folder='Export/Chaos')
+```
+
+```python
+exportChaos('Wall', send=True, contentPath='/Game/Destruction/GC_Wall', place=True)
+```
+
+### freezeDestruction
+
+Turn a destruction into static level dressing: its pieces where they came to rest (or on a given frame) become separate meshes under one group, each with a UCX_ collision hull, ready to place in Unreal. Instances share one mesh per distinct piece (debris made from a few shapes), objects give each piece a mesh of its own. Works on any geometry-nodes result made of instances too, at the current frame. The destruction is hidden, not deleted. Returns {group, pieces, meshes, frame, settled}.
+
+**Objects:** destruction mesh or its modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `frame` | `f` | int |  | Frame to freeze. Default: where the simulation comes to rest. |
+| `end` | `e` | int |  | Last frame to look for rest in before going past it. Default: the end of the playback range. |
+| `meshes` |  | str | `'instances'` | instances: pieces of the same shape share a mesh; objects: every piece its own. |
+| `collision` | `c` | bool | `True` | A UCX_ convex hull under each piece. |
+| `hullPoints` |  | int | `32` | Most points in a collision hull. |
+| `smallest` |  | float | `0.0` | Pieces smaller across than this are left out, cm. |
+| `debris` |  | str | `'with'` | with: pieces and addDebris chunks; only: just the chunks (a group of their own); without: just the pieces. |
+| `name` | `n` | str |  | The group's name. Default: the mesh's plus _Frozen. |
+| `hide` |  | bool | `True` | Hide the destruction afterwards. |
+
+```python
+freezeDestruction('Wall')
+```
+
+```python
+freezeDestruction('Wall', frame=60, meshes='objects', smallest=5)
 ```
 
 ### wedgeDestruction
@@ -12644,11 +12918,184 @@ Make a texture set for a generated group, painted natively instead of through Pa
 
 Available when the Masonry extension is loaded.
 
+### age
+
+Weather masonry: sets the age inputs of a masonry wall or building (only the flags given; age defaults to 0.7 when none are). Every stone gets age, wet (near the ground and on exposed tops) and moss (where wet and exposed), sent to Unreal per instance for the masonry material. Returns how many stones carry moss and the averages.
+
+**Objects:** masonry mesh or modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `age` |  | float |  | How old it looks, 0 to 1: moss, wear and staining in the material. |
+| `moss` |  | float |  | How much moss grows where it is wet and exposed, 0 to 1. |
+| `wetHeight` |  | float |  | Damp band above the ground, cm; 0 is a fifth of the height. |
+| `plaster` |  | float |  | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. |
+| `plasterThickness` |  | float |  | Render coat thickness, cm; 0 is a third of a stone height. |
+| `ivy` |  | float |  | How much ivy climbs from the ground, 0 to 1. |
+| `ivyHeight` |  | float |  | How far up the ivy reaches, 0 to 1. |
+| `leaf` |  | float |  | Ivy leaf size, cm; 0 is two thirds of a typical stone. |
+
+```python
+age('MasonryWall', age=0.8, moss=0.6)
+```
+
+### makeDestructible
+
+Make a masonry wall or building destructible: its stones become the Destruction extension's pieces, held together by links where they touch (mortar strength times contact area, weaker with age) and to the ground, and the Rigid Body Solver runs them from startFrame. Its group gains Masonry Links, Rigid Body Solver and a Join with the core; open it in the Node Editor to add explosions or colliders, or use addExplosion. Needs the Destruction extension. Returns the group, links and pieces.
+
+**Objects:** masonry mesh or modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strength` | `s` | float | `30.0` | Mortar strength, N per cm2 of contact. |
+| `ageWeakens` |  | float | `0.6` | How much of its strength the oldest mortar has lost, 0 to 1. |
+| `impact` | `i` | tuple[float, float, float] |  | Where a blast hits, in the mesh's space, cm. |
+| `blast` | `b` | float | `0.0` | How hard the blast hits, cm/s; 0 lets it stand until something else breaks it. |
+
+```python
+makeDestructible('Tower', strength=20, impact=[0, 300, 0], blast=1500)
+```
+
+### masonryBuilding
+
+Build a whole masonry building from one JSON spec: walls (following the ground, sloped tops, batter, bands, cornices, buttresses) with doors, windows and niches under round, pointed, segmental or flat arches or lintels, plus columns and colonnades, stairs, barrel vaults, domes, freestanding arches and floors. Every part is a named region (north_wall, north_wall/door_1, portico/column_3) that ruin, masonryInfo and masonryCheck address. The spec's scale multiplies every length, stones included, for buildings far larger than human ones.
+
+The building is a geometry-nodes modifier around a Masonry Building node holding the spec, so it saves with the scene; change it by editing what masonrySpec returns and calling masonryBuilding again with node=. Ruin and age flags work as on masonryWall. Returns the mesh, modifier, group and stats (stones, roles, regions, ruin, triangle counts, collision hulls, bounds, seconds).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` |  | Any |  | The building: a JSON object (or its text). See the lila://masonry/spec-schema resource; masonrySpec reads one back. |
+| `name` | `n` | str | `'MasonryBuilding'` | Name of the mesh made to hold a new building. |
+| `node` |  | str |  | An existing building (its mesh or modifier) to rebuild with this spec and these flags instead of making one. |
+| `bevel` |  | float |  | Stone edge chamfer, cm. |
+| `wear` |  | float |  | How knocked about stone corners are, 0 to 1. |
+| `jitter` |  | float |  | How far stones wander and tilt inside their joints, 0 to 1. |
+| `protrude` |  | float |  | Stones pushed out of the face by up to this, cm. |
+| `variants` |  | int |  | How many differently worn versions of each stone size. |
+| `detail` |  | int |  | 0 worn, 1 clean chamfer, 2 plain boxes (fast preview). |
+| `tile` |  | float |  | Cm of stone per UV unit of the tiling texture. |
+| `chips` |  | float |  | Chips knocked out of stone edges and corners, 0 to 1; more on old, wet and damaged stones. |
+| `seed` |  | int |  | Another seed gives other wander, wear and cut positions. |
+| `left` |  | float |  | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. |
+| `collapse` |  | float |  | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. |
+| `slope` |  | float |  | How much lower it stands toward the collapse side, 0 to 1. |
+| `roughness` |  | float |  | How ragged the broken top is, 0 to 1. |
+| `gaps` |  | int |  | Breaches cut down toward the ground. |
+| `survivors` |  | float |  | Share of the stones just above the break that hang on. |
+| `loose` |  | float |  | Share of the top stones tipped or slid. |
+| `tip` |  | float |  | Most a loose stone tips, degrees. |
+| `rubble` |  | float |  | Share of the fallen stones lying at the foot; the rest are gone. |
+| `settle` |  | bool |  | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `ruinRegions` |  | Any |  | Only these regions ruin, comma separated (north_wall, tower_1/door_1); empty is all. |
+| `ruinSeed` |  | int |  | Another seed breaks it differently. |
+| `structural` |  | bool |  | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` |  | Any |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+| `age` |  | float |  | How old it looks, 0 to 1: moss, wear and staining in the material. |
+| `moss` |  | float |  | How much moss grows where it is wet and exposed, 0 to 1. |
+| `wetHeight` |  | float |  | Damp band above the ground, cm; 0 is a fifth of the height. |
+| `plaster` |  | float |  | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. |
+| `plasterThickness` |  | float |  | Render coat thickness, cm; 0 is a third of a stone height. |
+| `ivy` |  | float |  | How much ivy climbs from the ground, 0 to 1. |
+| `ivyHeight` |  | float |  | How far up the ivy reaches, 0 to 1. |
+| `leaf` |  | float |  | Ivy leaf size, cm; 0 is two thirds of a typical stone. |
+
+```python
+masonryBuilding(spec={'stone': {'length': 60, 'height': 30, 'depth': 40, 'joint': 1.5},
+    'walls': [{'name': 'nave', 'points': [[0, 0, 0], [2000, 0, 0], [2000, 0, 900], [0, 0, 900]], 'closed': True,
+               'height': 1200, 'thickness': 120, 'cornice': 2,
+               'openings': [{'name': 'door', 'at': 1000, 'width': 300, 'height': 600, 'arch': 'pointed'}]}],
+    'floors': [{'name': 'roof', 'points': [[0, 0, 0], [2000, 0, 0], [2000, 0, 900], [0, 0, 900]], 'y': 1200}]},
+    left=0.5, age=0.7)
+```
+
+```python
+b = masonrySpec('MasonryBuilding')
+b['spec']['scale'] = 8
+masonryBuilding(node='MasonryBuilding', spec=b['spec'])
+```
+
+### masonryCheck
+
+Check a masonry wall or building before shipping it: floating stones (not on the ground and touching nothing under them), standing stones interpenetrating by more than tolerance, missing collision, and an optional budget. Returns {ok, issues: [text], floating, floatingStones (the first ten: region, role, at), overlaps, rubbleOverlaps, collisionHulls, stones, triangles}.
+
+**Objects:** masonry mesh or modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` |  | float | `0.1` | Interpenetration allowed, and the gap a resting stone may have under it, cm. |
+| `maxStones` |  | int | `0` | Budget: most stones; 0 for none. |
+| `maxTriangles` |  | int | `0` | Budget: most stone triangles, instanced; 0 for none. |
+
+Not undoable.
+
+```python
+masonryCheck('MasonryBuilding', maxStones=50000)['issues']
+```
+
+### masonryFromMesh
+
+Lay masonry walls over a blockout mesh: it is sliced with level planes, each section's outline moved in to the wall's centre line, and walls laid there, so towers, tapered keeps and irregular blockouts become stone. A hollow blockout (walls with an inside) takes its wall thickness from the blockout; a solid one uses thickness. Sections with the same outline stack into one wall; a tapering blockout steps in band by band. Every masonryWall flag works the same. Returns what masonryWall returns, plus the blockout, the footprints' count and the thickness used.
+
+**Objects:** blockout mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `band` |  | float | `0.0` | Height of each slice, cm; 0 slices the blockout into eight bands. |
+| `hideBlockout` |  | bool | `True` | Hide the blockout once the walls stand on it. |
+| `name` | `n` | str | `'MasonryFromMesh'` | Name of the mesh made to hold the walls. |
+| `bond` |  | str | `'running'` | running, stack, english, flemish, header, gardenWall, herringbone, ashlar, rubble or dryStone. |
+| `thickness` |  | float | `0.0` | Wall thickness for a solid blockout, cm; 0 takes it from the blockout (a tenth of its narrower side when solid). |
+| `cornerAngle` |  | float | `30.0` | Turns sharper than this, degrees, are corners; gentler ones curve the wall. |
+| `batter` |  | float | `0.0` | Degrees each face leans in, so the wall thins upward. |
+| `bands` |  | Any |  | String course heights above the lowest ground, cm: a JSON list such as [300, 600]. |
+| `cornice` |  | int | `0` | Top courses corbelled out, each further than the one below. |
+| `openings` |  | Any |  | Doors, windows and niches as a JSON list: [{"at": cm along the footprint, "width", "height", "sill", "arch": lintel\|round\|pointed\|segmental\|flat, "kind": door\|window\|niche, "name"}]. |
+| `stoneLength` |  | float | `21.5` | Stone length along the face, cm. |
+| `stoneHeight` |  | float | `6.5` | Stone height, cm. Courses are fitted to the wall height. |
+| `stoneDepth` |  | float | `10.25` | Stone depth into the wall, cm; also a header's width on the face. |
+| `joint` |  | float | `1.0` | Mortar joint, cm. |
+| `recess` |  | float | `0.6` | How far the mortar sits behind the stone faces, cm. |
+| `bevel` |  | float | `0.5` | Stone edge chamfer, cm. |
+| `wear` |  | float | `0.5` | How knocked about stone corners are, 0 to 1. |
+| `jitter` |  | float | `1.0` | How far stones wander and tilt inside their joints, 0 to 1. |
+| `protrude` |  | float | `0.3` | Stones pushed out of the face by up to this, cm. |
+| `variants` |  | int | `6` | How many differently worn versions of each stone size. |
+| `detail` |  | int | `0` | 0 worn, 1 clean chamfer, 2 plain boxes (fast preview). |
+| `tile` |  | float | `100.0` | Cm of stone per UV unit of the tiling texture. |
+| `chips` |  | float | `0.3` | Chips knocked out of stone edges and corners, 0 to 1; more on old, wet and damaged stones. |
+| `seed` |  | int | `1` | Another seed gives other wander, wear and cut positions. |
+| `left` |  | float | `1.0` | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. |
+| `collapse` |  | float | `0.0` | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. |
+| `slope` |  | float | `0.5` | How much lower it stands toward the collapse side, 0 to 1. |
+| `roughness` |  | float | `0.35` | How ragged the broken top is, 0 to 1. |
+| `gaps` |  | int | `0` | Breaches cut down toward the ground. |
+| `survivors` |  | float | `0.1` | Share of the stones just above the break that hang on. |
+| `loose` |  | float | `0.4` | Share of the top stones tipped or slid. |
+| `tip` |  | float | `40.0` | Most a loose stone tips, degrees. |
+| `rubble` |  | float | `0.6` | Share of the fallen stones lying at the foot; the rest are gone. |
+| `settle` |  | bool | `False` | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `ruinRegions` |  | Any |  | Only these regions ruin, comma separated (north_wall, tower_1/door_1); empty is all. |
+| `ruinSeed` |  | int | `1` | Another seed breaks it differently. |
+| `structural` |  | bool | `False` | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` |  | Any |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+| `age` |  | float | `0.0` | How old it looks, 0 to 1: moss, wear and staining in the material. |
+| `moss` |  | float | `0.5` | How much moss grows where it is wet and exposed, 0 to 1. |
+| `wetHeight` |  | float | `0.0` | Damp band above the ground, cm; 0 is a fifth of the height. |
+| `plaster` |  | float | `0.0` | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. |
+| `plasterThickness` |  | float | `0.0` | Render coat thickness, cm; 0 is a third of a stone height. |
+| `ivy` |  | float | `0.0` | How much ivy climbs from the ground, 0 to 1. |
+| `ivyHeight` |  | float | `0.7` | How far up the ivy reaches, 0 to 1. |
+| `leaf` |  | float | `0.0` | Ivy leaf size, cm; 0 is two thirds of a typical stone. |
+
+```python
+masonryFromMesh('TowerBlockout', bond='ashlar', stoneLength=60, stoneHeight=30, stoneDepth=35)
+```
+
 ### masonryInfo
 
-What a masonry wall is made of, and whether it is clean.
+What a masonry wall or building is made of, and whether it is clean.
 
-Returns the same stats masonryWall does (stones, courses, roles, stone meshes, trimmed, dropped, triangle counts, bounds), the current settings, and checks: overlaps (stone pairs intersecting by more than 0.01 cm, 0 when clean) and ok.
+Returns the same stats masonryWall does (stones, courses, roles, regions with stone counts, stone meshes, trimmed, dropped, triangle counts, collision hulls, what the ruin did, bounds), the current settings, and checks: overlaps (standing stone pairs intersecting by more than 0.01 cm, 0 when clean) and ok.
 
 **Objects:** mesh or its masonry modifier (default the selection)
 
@@ -12660,9 +13107,9 @@ masonryInfo('MasonryWall')['checks']
 
 ### masonryShip
 
-Send a masonry wall to Unreal's open level, instanced: each stone mesh is imported once as a static mesh with three LODs (worn, clean chamfer, plain box), and the stones are placed as one instanced component (HISM by default) per stone mesh per ground chunk, so streaming and culling work per chunk. mode='merged' instead makes each chunk's stones one static mesh with the same three LODs. The core goes as its own mesh carrying the wall's collision as convex UCX pieces; stones have none. mode='lowPoly' sends each chunk as a box shell with the stones and core baked onto it (normal, AO, curvature) and its own UCX collision, for background walls and HLOD.
+Send a masonry wall or building to Unreal's open level, as it stands (ruin, rubble and age included), instanced: each stone mesh is imported once as a static mesh with three LODs (worn, clean chamfer, plain box), and the stones are placed as one instanced component (HISM by default) per stone mesh per ground chunk, so streaming and culling work per chunk. mode='merged' instead makes each chunk's stones one static mesh with the same three LODs. The core goes as its own mesh carrying the collision as convex UCX pieces; stones have none. mode='lowPoly' sends each chunk as a box shell with the stones and core baked onto it (normal, AO, curvature) and its own UCX collision, for background walls and HLOD (an intact wall's shape). Nanite is off unless asked: nanite=True builds Nanite data for the stone meshes, and mode='assembly' (UE 5.8 Nanite Assemblies) also writes the stones as one USD assembly of those meshes and places that instead of instanced components.
 
-With textures=True (the default) the stones also get a shared atlas: every stone mesh's worn LOD0 is baked onto its box into one normal, AO and curvature set, in uv0 of all three LODs (the tiling projection moves to uv1), and the textures go to <folder>/<mesh>/Textures. Slots: MasonryStone (LOD0), MasonryStoneFar (LOD1 and 2, which want the atlas normal), MasonryMortar (core), MasonryShell (low poly); Unreal finds or makes materials by these names, taking a Lila material's values when the scene has one. Instances carry custom primitive data 0 a stable random and 1 height up the wall (0 bottom course, 1 top). Sending again replaces the wall's chunks in place and removes the ones it no longer has.
+With textures=True (the default) the stones also get a shared atlas: every stone mesh's worn LOD0 is baked onto its box into one normal, AO and curvature set, in uv0 of all three LODs (the tiling projection moves to uv1), and the textures go to <folder>/<mesh>/Textures. Slots: MasonryStone (LOD0), MasonryStoneFar (LOD1 and 2), MasonryMortar (core), MasonryShell (low poly); Unreal finds or makes materials by these names, taking a Lila material's values when the scene has one. Instances carry custom primitive data 0 random, 1 height up the wall (0 bottom, 1 top), 2 age, 3 damage, 4 wet, 5 moss; merged meshes carry random, height, moss and wet as vertex colour and age and damage in uv2. Sending again replaces the wall's chunks in place and removes the ones it no longer has.
 
 Returns stats (stones, assets, groups, chunks, average triangles per stone mesh at each LOD, collisionHulls, atlasTexelsPerCm, shellTriangles, textures, bakeSeconds, removedGroups) plus, with wait=True, what Unreal imported and placed. dryRun=True returns the plan without baking, writing files or connecting.
 
@@ -12672,13 +13119,13 @@ Returns stats (stones, assets, groups, chunks, average triangles per stone mesh 
 | --- | --- | --- | --- | --- |
 | `folder` | `f` | str | `'/Game/Lila/Masonry'` | Content folder; the wall's assets go in <folder>/<mesh name>. |
 | `chunkSize` | `cs` | float | `400.0` | Ground cell per instanced component, cm. |
-| `mode` | `m` | str | `'hism'` | hism or ism: stones instanced per stone mesh per chunk. merged: each chunk's stones as one static mesh with three LODs. lowPoly: each chunk as a box shell with the stones baked onto it. |
-| `collisionBands` | `cb` | int | `1` | Height bands the core's convex collision is split into (UCX), 1 to 16. |
+| `mode` | `m` | str | `'hism'` | hism or ism: stones instanced per stone mesh per chunk. merged: each chunk's stones as one static mesh with three LODs. lowPoly: each chunk as a box shell with the stones baked onto it. assembly: a Nanite Assembly (UE 5.8) through USD. |
+| `nanite` | `na` | bool | `False` | Build Nanite data for the stone meshes (always on for assembly). |
 | `textures` | `tx` | bool | `True` | Bake and send textures: the stone atlas (instanced and merged) or each shell's maps (lowPoly, which always bakes). |
 | `textureSize` | `ts` | int | `2048` | Atlas or shell texture size, texels. |
 | `backend` |  | str | `'auto'` | Bake backend: auto (gpu when there is one), gpu or cpu. |
-| `material` | `mt` | str | `'generate'` | generate: instances of Lila's masonry master (M_LilaMasonry, built once, then yours to edit) per slot. none: materials matched or made by slot name. Or a material path to parent the instances to, which must have the master's parameters. |
-| `regenerateMaster` |  | bool | `False` | Rebuild M_LilaMasonry's graph from this version of Lila, discarding edits to it. |
+| `material` | `mt` | str | `'generate'` | generate: instances of Lila's masonry master (M_LilaMasonry, built on MF_LilaMasonry once, then yours to edit) per slot. none: materials matched or made by slot name. Or a material path to parent the instances to, which must have the master's parameters. |
+| `regenerateMaster` |  | bool | `False` | Rebuild M_LilaMasonry and MF_LilaMasonry from this version of Lila, discarding edits to them. |
 | `dryRun` |  | bool | `False` | Return the plan, placements included, without writing files or contacting Unreal. |
 | `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
 
@@ -12692,35 +13139,82 @@ masonryShip('MasonryWall', dryRun=True)['chunks']
 masonryShip('MasonryWall', wait=True)['unreal']
 ```
 
+```python
+masonryShip('Temple', mode='assembly', wait=True)
+```
+
+### masonrySpec
+
+A masonry building's spec and settings, to edit and pass back to masonryBuilding with node=; for a wall, its settings and footprints. Returns {spec, settings, regions, footprints}.
+
+**Objects:** mesh or its masonry modifier
+
+Not undoable.
+
+```python
+masonrySpec('MasonryBuilding')['spec']
+```
+
 ### masonryWall
 
 Build a masonry wall along a line or loop: stones laid in courses, corners bonded, a mortar core behind them.
 
-Give points= (a new mesh holds them as edges) or a mesh whose loose edges are the footprint. The wall is a geometry-nodes modifier around a Masonry Wall node; every flag becomes a keyable input on it, so change the wall later with setAttr on '<modifier>.<flag>' and check it with masonryInfo. Stones are instances of a few shared meshes with stone, course, role, face, random and variant attributes. Returns the mesh, modifier, group and stats (stones, courses, roles, stone meshes, trimmed, dropped, triangle counts, bounds). Lengths are cm.
+Give points= (a new mesh holds them as edges) or a mesh whose loose edges are the footprint. Each point's y is the ground: courses step over slopes, and heights= (or the footprint's point float wallHeight) slopes or breaks the top; ground= drops the footprint onto a terrain mesh. openings= cuts doors, windows and niches with arches or lintels, sills and jambs. The wall is a geometry-nodes modifier around a Masonry Wall node; every flag becomes a keyable input on it, so change it later with setAttr on '<modifier>.<flag>', ruin it with ruin, weather it with age, and check it with masonryInfo or masonryCheck. Returns the mesh, modifier, group and stats (stones, courses, roles, regions, stone meshes, trimmed, dropped, triangle counts, collision hulls, ruin, bounds, seconds). Lengths are cm.
 
 **Objects:** mesh whose loose edges are the footprint (optional)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `points` | `p` | list |  | Footprint, [[x, y, z], ...] in cm; the wall stands on the lowest point, Y up. |
+| `points` | `p` | list |  | Footprint, [[x, y, z], ...] in cm; each point's y is the ground there, Y up. |
 | `closed` | `c` | bool | `False` | Join the last point back to the first. |
+| `heights` |  | list |  | Wall height above each point, cm (one per point): sloping tops, gables, broken walls. |
+| `ground` |  | str |  | A mesh to stand the wall on: the footprint is resampled and dropped onto it. |
+| `groundStep` |  | float | `0.0` | Resampling step along the footprint for ground, cm; 0 is two stone lengths. |
 | `name` | `n` | str | `'MasonryWall'` | Name of the mesh made to hold the wall. |
-| `bond` | `b` | str | `'running'` | How stones are arranged. One of `running`, `stack`, `english`, `flemish`, `header`, `gardenWall`. |
-| `height` | `h` | float | `200.0` | Wall height, cm. |
-| `thickness` | `th` | float | `21.5` | Wall thickness, cm. |
-| `cornerAngle` | `ca` | float | `30.0` | Turns sharper than this, degrees, are corners. |
-| `stoneLength` | `sl` | float | `21.5` | Stone length, cm. |
-| `stoneHeight` | `sh` | float | `6.5` | Stone height, cm. |
-| `stoneDepth` | `sd` | float | `10.25` | Stone depth, cm. |
-| `joint` | `j` | float | `1.0` | Mortar joint, cm. |
-| `recess` | `r` | float | `0.6` | Mortar set back from the stone faces, cm. |
-| `bevel` | `bv` | float | `0.5` | Stone edge chamfer, cm. |
-| `wear` | `w` | float | `0.5` | Corner wear, 0 to 1. |
-| `jitter` | `ji` | float | `1.0` | Wander and tilt inside the joints, 0 to 1. |
-| `protrude` | `pr` | float | `0.3` | Push out of the face, cm. |
-| `variants` | `v` | int | `6` | Worn versions per stone size. |
-| `detail` | `d` | int | `0` | 0 worn, 1 clean chamfer, 2 plain boxes. |
-| `seed` | `s` | int | `1` | Random seed. |
+| `bond` |  | str | `'running'` | running, stack, english, flemish, header, gardenWall, herringbone, ashlar, rubble or dryStone. |
+| `height` |  | float | `200.0` | Wall height above the ground, cm, where the footprint has no per-point wallHeight. |
+| `thickness` |  | float | `21.5` | Wall thickness at the base, cm. Under 1.5 stone depths the wall is one stone thick. |
+| `cornerAngle` |  | float | `30.0` | Turns sharper than this, degrees, are corners; gentler ones curve the wall. |
+| `batter` |  | float | `0.0` | Degrees each face leans in, so the wall thins upward. |
+| `bands` |  | Any |  | String course heights above the lowest ground, cm: a JSON list such as [300, 600]. |
+| `cornice` |  | int | `0` | Top courses corbelled out, each further than the one below. |
+| `openings` |  | Any |  | Doors, windows and niches as a JSON list: [{"at": cm along the footprint, "width", "height", "sill", "arch": lintel\|round\|pointed\|segmental\|flat, "kind": door\|window\|niche, "name"}]. |
+| `stoneLength` |  | float | `21.5` | Stone length along the face, cm. |
+| `stoneHeight` |  | float | `6.5` | Stone height, cm. Courses are fitted to the wall height. |
+| `stoneDepth` |  | float | `10.25` | Stone depth into the wall, cm; also a header's width on the face. |
+| `joint` |  | float | `1.0` | Mortar joint, cm. |
+| `recess` |  | float | `0.6` | How far the mortar sits behind the stone faces, cm. |
+| `bevel` |  | float | `0.5` | Stone edge chamfer, cm. |
+| `wear` |  | float | `0.5` | How knocked about stone corners are, 0 to 1. |
+| `jitter` |  | float | `1.0` | How far stones wander and tilt inside their joints, 0 to 1. |
+| `protrude` |  | float | `0.3` | Stones pushed out of the face by up to this, cm. |
+| `variants` |  | int | `6` | How many differently worn versions of each stone size. |
+| `detail` |  | int | `0` | 0 worn, 1 clean chamfer, 2 plain boxes (fast preview). |
+| `tile` |  | float | `100.0` | Cm of stone per UV unit of the tiling texture. |
+| `chips` |  | float | `0.3` | Chips knocked out of stone edges and corners, 0 to 1; more on old, wet and damaged stones. |
+| `seed` |  | int | `1` | Another seed gives other wander, wear and cut positions. |
+| `left` |  | float | `1.0` | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. |
+| `collapse` |  | float | `0.0` | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. |
+| `slope` |  | float | `0.5` | How much lower it stands toward the collapse side, 0 to 1. |
+| `roughness` |  | float | `0.35` | How ragged the broken top is, 0 to 1. |
+| `gaps` |  | int | `0` | Breaches cut down toward the ground. |
+| `survivors` |  | float | `0.1` | Share of the stones just above the break that hang on. |
+| `loose` |  | float | `0.4` | Share of the top stones tipped or slid. |
+| `tip` |  | float | `40.0` | Most a loose stone tips, degrees. |
+| `rubble` |  | float | `0.6` | Share of the fallen stones lying at the foot; the rest are gone. |
+| `settle` |  | bool | `False` | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `ruinRegions` |  | Any |  | Only these regions ruin, comma separated (north_wall, tower_1/door_1); empty is all. |
+| `ruinSeed` |  | int | `1` | Another seed breaks it differently. |
+| `structural` |  | bool | `False` | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` |  | Any |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+| `age` |  | float | `0.0` | How old it looks, 0 to 1: moss, wear and staining in the material. |
+| `moss` |  | float | `0.5` | How much moss grows where it is wet and exposed, 0 to 1. |
+| `wetHeight` |  | float | `0.0` | Damp band above the ground, cm; 0 is a fifth of the height. |
+| `plaster` |  | float | `0.0` | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. |
+| `plasterThickness` |  | float | `0.0` | Render coat thickness, cm; 0 is a third of a stone height. |
+| `ivy` |  | float | `0.0` | How much ivy climbs from the ground, 0 to 1. |
+| `ivyHeight` |  | float | `0.7` | How far up the ivy reaches, 0 to 1. |
+| `leaf` |  | float | `0.0` | Ivy leaf size, cm; 0 is two thirds of a typical stone. |
 
 ```python
 masonryWall(points=[[0, 0, 0], [400, 0, 0], [400, 0, 300]], bond='flemish', height=250)
@@ -12728,9 +13222,95 @@ masonryWall(points=[[0, 0, 0], [400, 0, 0], [400, 0, 300]], bond='flemish', heig
 
 ```python
 tower = masonryWall(points=[[100 * math.cos(a / 12 * math.tau), 0, 100 * math.sin(a / 12 * math.tau)] for a in range(12)],
-                    closed=True, thickness=40, height=600)
+                    closed=True, thickness=40, height=600, openings=[{'at': 50, 'width': 60, 'height': 160, 'arch': 'round'}])
 setAttr(tower['modifier'] + '.bond', 'english')
 masonryInfo(tower['mesh'])
+```
+
+```python
+masonryWall(points=[[0, 0, 0], [800, 120, 0]], heights=[300, 180], stoneLength=60, stoneHeight=30, stoneDepth=35, thickness=80, batter=3)
+```
+
+### masonryWedge
+
+Try variants of a masonry wall or building side by side: count builds, each with the varied settings changed (by default another ruinSeed each), built in parallel, drawn in elevation into one contact sheet PNG. Returns each variant's settings and stats and the sheet's path; apply=<index> then sets that variant's settings on the modifier. vary is {setting: [values]} (cycled per variant) or a list of settings to step by one per variant.
+
+**Objects:** masonry mesh or modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` | `c` | int | `9` | How many variants. |
+| `vary` |  | Any |  | What changes: {"left": [0.75, 0.5, 0.25]} or ["ruinSeed", "seed"]. Default ruinSeed. |
+| `view` |  | tuple[float, float, float] |  | Direction the sheet looks along, horizontal; default -Z. |
+| `tile` |  | int | `256` | Tile size in the sheet, pixels. |
+| `file` | `f` | str |  | Where to write the sheet; default a temporary PNG. |
+| `apply` |  | int |  | Set this variant's settings on the modifier instead of wedging. |
+
+```python
+w = masonryWedge('Tower', count=9)
+masonryWedge('Tower', apply=4)
+```
+
+```python
+masonryWedge('Tower', vary={'left': [0.75, 0.5, 0.25]}, count=3)
+```
+
+### ruin
+
+Ruin masonry: stones above a ragged break fall, lower toward the collapse side and cut by gaps; a few just above it hang on; nothing is left floating; the tops tip; a share of what fell lies heaped at the foot (settle=True drops it with the rigid-body solver); floors break into pieces that fall where nothing holds them. left is the plain knob: 0.75, 0.5, 0.25 of the stone left standing. regions= limits it to named parts, such as the top of one wall.
+
+On a masonry wall or building it sets the modifier's ruin inputs (only the flags given; left defaults to 0.5 when none are), so it stays editable and saves with the scene. On other objects (stones placed by hand, any meshes) it ruins them in place: fallen ones move to the heap or are deleted. Returns the ruin stats (removed, survivors, loose, unsupported, rubble, slab pieces, fallen pieces, left).
+
+**Objects:** a masonry mesh or modifier, or the objects to ruin (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `left` |  | float |  | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. |
+| `collapse` |  | float |  | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. |
+| `slope` |  | float |  | How much lower it stands toward the collapse side, 0 to 1. |
+| `roughness` |  | float |  | How ragged the broken top is, 0 to 1. |
+| `gaps` |  | int |  | Breaches cut down toward the ground. |
+| `survivors` |  | float |  | Share of the stones just above the break that hang on. |
+| `loose` |  | float |  | Share of the top stones tipped or slid. |
+| `tip` |  | float |  | Most a loose stone tips, degrees. |
+| `rubble` |  | float |  | Share of the fallen stones lying at the foot; the rest are gone. |
+| `settle` |  | bool |  | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `regions` |  | Any |  | Only these regions ruin: a list or comma separated (north_wall, tower_1/door_1). Empty is all. |
+| `seed` |  | int |  | Another seed breaks it differently. |
+| `structural` |  | bool |  | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` |  | Any |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+
+```python
+ruin('MasonryWall', left=0.5, collapse=90, gaps=2)
+```
+
+```python
+ruin('Chapel', regions=['north_wall'], left=0.66)
+```
+
+```python
+ruin(['stone1', 'stone2', 'stone3'], left=0.4, settle=True)
+```
+
+### ruinPaint
+
+Paint damage onto a masonry wall or building, as the Ruin Brush does: stones within radius of the stroke fall (a negative strength holds them up instead). Strokes are kept on the modifier's ruinStrokes input, so they save with the scene and stay editable; clear=True removes them. Returns the ruin stats with painted, the stones the strokes took.
+
+**Objects:** masonry mesh or modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | The stroke, [[x, y, z], ...] in the mesh's space, cm. |
+| `radius` | `r` | float | `50.0` | Brush radius, cm. |
+| `strength` | `s` | float | `1.0` | 1 knocks stones out; -1 holds them up. |
+| `clear` |  | bool | `False` | Remove every stroke first. |
+
+```python
+ruinPaint('Chapel', points=[[200, 400, 0], [600, 380, 0]], radius=120)
+```
+
+```python
+ruinPaint('Chapel', clear=True)
 ```
 
 ## NanoVDB extension
@@ -14046,6 +14626,42 @@ Unbind a template instance from its meshes; the markers stay where they are.
 
 Available when the Settlement extension is loaded.
 
+### settlementAddExclusion
+
+Keeps a region clear of everything the settlement lays out (streets, blocks, lots, buildings, routes, growth): a polygon, or objects (a mesh by its footprint seen from above, a closed curve by its inside, an open curve as a corridor along it), with a clearance margin. Objects are measured now; run it again after moving them. Returns the edit ids, the checks and the counts. Undo removes them; they save with the scene.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `polygon` | `pg` | list |  | A closed polygon, [[x, z], ...] in cm. |
+| `objects` | `ob` | list |  | Meshes or curves to keep clear, by name. |
+| `margin` | `m` | float | `0.0` | Clearance around it, cm. |
+| `name` | `n` | str |  | A name to find it by. |
+
+```python
+settlementAddExclusion('Settlement', objects=['Monolith'], margin=1500)
+```
+
+### settlementAddStreet
+
+Adds a street the way it is drawn: its points are kept, and generated streets fill in around it. Points with heights that all lie on the walkable mesh (ramps, terraces, floors) make a path on it; otherwise it lies on the ground, cut where it enters an exclusion or leaves the outline. Returns the edit id, how it came out (paths), the checks and the counts. Undo removes it; it saves with the scene.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | The street's points, [[x, z], ...] or [[x, y, z], ...] in cm. |
+| `streetClass` | `c` | str | `'collector'` | Street class. One of `arterial`, `collector`, `local`, `alley`, `path`. |
+| `profile` | `pf` | str |  | Road profile (cross-section): settlementRoadProfiles lists them. Default: the class's. |
+| `width` | `w` | float |  | Width in cm, over the profile's. |
+| `mode` | `md` | str |  | auto (default): stops with a height on the walkable mesh go there, the rest on the ground; ground; or surface. |
+| `name` | `n` | str |  | A name to find it by. |
+
+```python
+settlementAddStreet('Settlement', points=[[-20000, 0], [0, 5000], [20000, 0]], profile='avenue')
+```
+
 ### settlementCreate
 
 Lay out a settlement: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile, blocks between them, lots along the streets and a building envelope on each lot (footprint, floors, height, roof: the space a building may fill; buildings are made elsewhere).
@@ -14063,6 +14679,10 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `waterWidth` | `ww` | float | `2000.0` | Width of the water lines, cm. |
 | `attractors` | `at` | list |  | Points: the first is the centre, the rest are places main roads run to (bridge, harbour, gate). |
 | `ground` | `gd` | str |  | Mesh the settlement stands on (world space). Empty for flat ground. |
+| `walkable` | `wk` | str |  | Mesh routes may walk on: a structure's ramps, terraces and floors (world space). |
+| `exclusions` | `ex` | list |  | Regions kept clear: a list of closed polygons [[x, z], ...]. |
+| `exclude` | `xo` | list |  | Objects kept clear: meshes by their footprint seen from above, curves (closed: their inside; open: a corridor along them). |
+| `exclusionMargin` | `xm` | float | `0.0` | Clearance around exclusions, cm. |
 | `name` | `n` | str | `'Settlement'` | Name of the mesh made to hold the site. |
 | `profile` | `pf` | str | `'medievalTown'` | Style. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
 | `pattern` | `pt` | str |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid. |
@@ -14073,6 +14693,11 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `heightScale` | `hs` | float | `1.0` | Multiplies building floors. |
 | `widthScale` | `ws` | float | `1.0` | Multiplies street widths. |
 | `lotScale` | `ls` | float | `1.0` | Multiplies lot sizes. |
+| `blocks` | `bk` | bool | `True` | Blocks and lots between the streets; off for streets and paths only. |
+| `buildings` | `bu` | bool | `True` | A building envelope on each lot; off for empty lots. |
+| `walkSlope` | `wsl` | float | `35.0` | Steepest walkable face of the walkable mesh, degrees. |
+| `walkStep` | `wst` | float | `60.0` | Height a walk may step between separate pieces of it, cm. |
+| `edits` | `ed` | str |  | Streets, routes, exclusions and road profiles as JSON (the edit commands write it). |
 | `showStreets` | `ss` | bool | `True` | Show street ribbons. |
 | `showLots` | `sl` | bool | `True` | Show lot outlines. |
 | `showBuildings` | `sb` | bool | `True` | Show building envelopes. |
@@ -14082,10 +14707,48 @@ settlementCreate(profile='medievalTown', size=60000)
 ```
 
 ```python
+settlementCreate(size=200000, exclude=['Temple'], exclusionMargin=2000, pattern='none', blocks=False)
+```
+
+```python
 town = settlementCreate(outline=[[-40000, -30000], [45000, -25000], [38000, 35000], [-35000, 30000]],
                         attractors=[[0, 0], [40000, 0]], ground='Terrain', profile='europeanCity')
 setAttr(town['modifier'] + '.overrides', '{"maxFloors": 9}')
 settlementInfo(town['mesh'])['checks']
+```
+
+### settlementDelete
+
+Removes streets, routes and exclusions added by the edit commands, by id, and generated streets by their stable id (settlementStreets lists them; the removal holds through re-runs while the layout still makes that street). Returns the ids removed, the checks and the counts.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` | `i` | list |  | Edit ids to remove. |
+
+```python
+settlementDelete('Settlement', ids=[4, 5])
+```
+
+### settlementEditStreet
+
+Changes a street or route added by settlementAddStreet or settlementRoute: its points (or stops), class, road profile, width, mode or name; or a generated street by its stable id (settlementStreets lists them): its class, profile or width, kept through re-runs. Only the flags given change. Returns the outcome as settlementRoute does.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` | `i` | int |  | The street or route to change: an edit id, or a generated street's stable id. |
+| `points` | `p` | list |  | New points (a street) or stops (a route). |
+| `streetClass` | `c` | str |  | Street class. One of `arterial`, `collector`, `local`, `alley`, `path`. |
+| `profile` | `pf` | str |  | Road profile (cross-section): settlementRoadProfiles lists them. Default: the class's. |
+| `width` | `w` | float |  | Width in cm, over the profile's. |
+| `mode` | `md` | str |  | auto (default): stops with a height on the walkable mesh go there, the rest on the ground; ground; or surface. |
+| `name` | `n` | str |  | A name to find it by. |
+
+```python
+settlementEditStreet('Settlement', id=3, profile='highway', streetClass='arterial')
 ```
 
 ### settlementExport
@@ -14104,6 +14767,25 @@ Not undoable.
 settlementExport('Settlement', path='C:/work/town.json')
 ```
 
+### settlementGrade
+
+Shapes a Terrain under the settlement in its City stamp layer: streets as strips graded along the road (pieces of at most segment), lots as building pads (padMode), squares as flat paved regions, each keyed by the settlement and the part's stable id, so grading again replaces them and removes the stamps of parts that are gone. Paths on the walkable mesh are left alone. Needs the Terrain extension. Returns the stamps made per kind, those removed, the terrain revision and any errors.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `terrain` | `tr` | str |  | The terrain mesh to shape (default the settlement's ground). |
+| `segment` | `sg` | float | `5000.0` | Longest street piece graded as one strip, cm. |
+| `streets` | `st` | bool | `True` | Streets as road features. |
+| `lots` | `lt` | bool | `True` | Lots as building pads (the envelope's footprint where there is one). |
+| `plazas` | `pz` | bool | `True` | Squares as region stamps. |
+| `padMode` | `pm` | str | `'flatten'` | How pads meet the slope. One of `flatten`, `carve`, `raise`, `blend`, `plinth`, `terraced`, `stilts`. |
+
+```python
+settlementGrade('Settlement', terrain='Terrain', padMode='terraced')
+```
+
 ### settlementInfo
 
 Measures and checks a settlement.
@@ -14116,6 +14798,18 @@ Not undoable.
 
 ```python
 settlementInfo('Settlement')['metrics']['orientationOrder']
+```
+
+### settlementMetrics
+
+Street measures comparable with real cities: street length and density, orientation entropy and order (Boeing 2019), intersections, dead-end ratio, degree histogram, block areas. Changes nothing.
+
+**Objects:** settlement mesh or its modifier (default the selection)
+
+Not undoable.
+
+```python
+settlementMetrics('Settlement')['deadEndRatio']
 ```
 
 ### settlementProfiles
@@ -14155,6 +14849,115 @@ Settles a whole map: cities on the best sites (flat, by a river but out of its f
 settlementRegion(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], cities=1, towns=2, villages=6)
 ```
 
+### settlementRoadProfileFromUnreal
+
+Reads a road definition in Unreal (a PCG data asset with ModulesInfo, or any asset holding slots with a name and a size, such as a City Sample shape grammar definition) and adds it to the settlement as a road profile, so streets laid with it match the road kit exactly. Slots are placed by their names (lane, median, parking, sidewalk or curb, verge); others count as verge and are listed. Returns the profile and the slots read.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `asset` | `as` | str |  | Content path of the definition. |
+| `name` | `n` | str |  | Profile name (default the asset's name). |
+
+```python
+settlementRoadProfileFromUnreal('Settlement', asset='/Game/CitySample/Roads/SG_Avenue')
+```
+
+### settlementRoadProfiles
+
+The built-in road profiles (cross-sections streets and routes may name) with every field, as {name: profile}, and which one each class takes by default. Custom ones go in a settlement's edits under roadProfiles, as {name: {base: 'street', sidewalk: 300}}.
+
+Not undoable.
+
+```python
+settlementRoadProfiles()['profiles']['avenue']['width']
+```
+
+### settlementRoadProfileToUnreal
+
+Writes a road profile to Unreal as a road shape grammar: a PCG data asset with a ModulesInfo pin (Symbol, Size, Scalable per slot: Verge, Sidewalk, Parking, Lane, Median) and a Grammar pin holding the grammar string, ready for Subdivide Segment and Duplicate Cross Sections on road splines. The profile is a built-in one, or one of the settlement's own when a settlement is given. Returns the asset, slots and grammar.
+
+**Objects:** settlement mesh (optional, for its own road profiles)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `profile` | `pf` | str | `'street'` | Road profile name. |
+| `asset` | `as` | str |  | Content path (default /Game/Lila/Settlement/RoadGrammar_<profile>). |
+
+Not undoable.
+
+```python
+settlementRoadProfileToUnreal(profile='avenue')
+```
+
+### settlementRoute
+
+Routes a street or path between points: each leg the cheapest way over the ground (around exclusions, along the slope, across rivers only where it must) or across the walkable mesh, from floor to ramp to terrace; a leg from one to the other leaves the mesh where it meets the ground nearest the way on. The route is re-solved whenever the ground, the walkable mesh or the exclusions change. Returns the edit id, its ground and surface lengths (or why it failed), the checks and the counts. Undo removes it; it saves with the scene.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `st` | list |  | Where the route starts, [x, z] on the ground or [x, y, z] (on the walkable mesh when it lies there). |
+| `end` | `en` | list |  | Where it ends. |
+| `via` | `v` | list |  | Stops on the way, in order: a list of points. |
+| `streetClass` | `c` | str | `'local'` | Street class. One of `arterial`, `collector`, `local`, `alley`, `path`. |
+| `profile` | `pf` | str |  | Road profile (cross-section): settlementRoadProfiles lists them. Default: the class's. |
+| `width` | `w` | float |  | Width in cm, over the profile's. |
+| `mode` | `md` | str |  | auto (default): stops with a height on the walkable mesh go there, the rest on the ground; ground; or surface. |
+| `name` | `n` | str |  | A name to find it by. |
+
+```python
+settlementRoute('Settlement', start=[-90000, -90000], end=[12000, 4500, 3000], streetClass='path', profile='footpath')
+```
+
+```python
+settlementRoute('Settlement', start=[-90000, 0], via=[[0, 60000]], end=[90000, 0], profile='serviceRoad')
+```
+
+### settlementSendToUnreal
+
+Sends a settlement to the connected Unreal editor, updating what it sent before. Roads go as landscape splines (roads='landscape', joined at junctions, shaping the landscape), as spline actors (roads='splines', with spline meshes of roadMesh along them), as ribbon meshes cut into cells (roads='meshes') or not at all; paths on the walkable mesh always go as a spline actor. pcg=True writes a PCG data asset (Load PCG Data Asset reads it) with pins Lots (polygons, attributes id, use, area, frontages, corner, frontClass, seed), Envelopes (footprint polygons with MaxHeight, Floors, FloorHeight, Base, Ground, Use, Roof, Era, Style, Seed), EnvelopePoints (one point per envelope, bounds the footprint and height, the same attributes) and Roads (splines with class, profile, width, lanes). zoneGraph=True writes ZoneGraph shapes: a spline per road with a lane profile made from its cross-section (tags Vehicle, Pedestrian), a polygon per junction, then rebuilds the ZoneGraph. Returns what Unreal made.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `roads` | `rd` | str | `'landscape'` | How roads go. One of `landscape`, `splines`, `meshes`, `none`. |
+| `roadMesh` | `rm` | str |  | Static mesh asset laid along road splines, such as /Game/Roads/SM_Road. |
+| `landscape` | `ls` | str |  | roads='landscape': the landscape's label (default the first one). |
+| `deformTerrain` | `dt` | bool | `True` | roads='landscape': the splines shape the landscape. |
+| `cell` | `ce` | float | `51200.0` | roads='meshes': side of the cells ribbons are cut into, cm. |
+| `pcg` | `pc` | bool | `True` | Lots, envelopes and roads as a PCG data asset. |
+| `zoneGraph` | `zg` | bool | `True` | Lanes as ZoneGraph shapes, for Mass traffic and crowds. |
+| `folder` | `f` | str | `'/Game/Lila/Settlement'` | Content folder for assets. |
+
+Not undoable.
+
+```python
+settlementSendToUnreal('Settlement', roads='landscape', pcg=True, zoneGraph=True)
+```
+
+### settlementStreets
+
+The streets a settlement lays, each with its stable id (the same street keeps it through unrelated edits and re-runs), class, road profile, width, length, the edit it came from (path, -1 when generated) and its points [x, y, z]. near= and radius= keep those passing close to a point; streetClass= one class. Pass an id to settlementEditStreet or settlementDelete to change or remove a generated street. Changes nothing.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `near` | `nr` | list |  | [x, z]: only streets passing within radius of it. |
+| `radius` | `r` | float | `2000.0` | cm. |
+| `streetClass` | `c` | str |  | Only this class. One of `arterial`, `collector`, `local`, `alley`, `path`. |
+
+Not undoable.
+
+```python
+main = settlementStreets('Settlement', near=[1200, -800], streetClass='arterial')[0]['id']
+settlementEditStreet('Settlement', id=main, profile='highway')
+```
+
 ### settlementSuggest
 
 Where settlements would go: the best sites inside an outline, best first, each with its score and the reasons behind it (flat: ground flatness, gradePercent, water: closeness to a river while out of the flood margin, bankDistanceM, confluence: where rivers meet, floodplain, edge: distance from the outline). No two sites closer than spacing. Changes nothing.
@@ -14174,6 +14977,21 @@ Not undoable.
 
 ```python
 settlementSuggest(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], count=3)
+```
+
+### settlementSurfaces
+
+Sets what a settlement stands and walks on: ground (the mesh its streets and lots sit on; empty for flat ground) and walkable (the mesh routes may walk on: a structure's ramps, terraces and floors). Both are live: editing the meshes re-runs the layout.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ground` | `gd` | str |  | Ground mesh, or empty for flat ground. |
+| `walkable` | `wk` | str |  | Walkable mesh, or empty for none. |
+
+```python
+settlementSurfaces('Settlement', ground='Terrain', walkable='Temple')
 ```
 
 ## Stagehand extension
@@ -14216,6 +15034,22 @@ Line objects up on one axis by their bounds: min, max or center of all of them, 
 | `axis` | `ax` | str | `'x'` | x, y or z. |
 | `to` |  | str | `'min'` | min, max, center, first or last. |
 | `side` | `sd` | str | `'min'` | Which side of each object lines up: min, max or center. |
+
+### assemblyCreate
+
+Group placed objects into an assembly: a group that goes to Unreal as one Level Instance (or Packed Level Actor) with unrealPlaceAssembly. Returns the group.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'Assembly'` | Name of the group. |
+| `kind` | `k` | str | `'levelInstance'` | What Unreal makes of it. One of `levelInstance`, `packedLevelActor`. |
+| `level` | `lv` | str |  | Unreal package for its level, e.g. /Game/Levels/Kits/LI_Gate. |
+
+```python
+assemblyCreate(['Gate_Left', 'Gate_Right', 'Gate_Arch'], name='Gate', kind='packedLevelActor')
+```
 
 ### distribute
 
@@ -14282,7 +15116,8 @@ With onto=, each target is moved above that mesh first (centred, or over at=) an
 | `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
 | `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
 | `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
-| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+| `time` | `ti` | float | `120.0` | Longest it simulates, seconds: it runs until everything is at rest, and the report says capped when this stopped it first. |
+| `reach` | `re` | float | `300.0` | Without colliders=, meshes within this many cm of a mover join as colliders (more below it, the way it falls). |
 
 ```python
 drop('mug', onto='desk', at=[40, 0, 10])
@@ -14345,6 +15180,32 @@ fillShelf(['Shelf_1', 'Shelf_2', 'Shelf_3'], items=['Books/Hardback', 'Books/Pap
 ```python
 r = fillShelf('Shelf_1', items=['Books/Hardback'], realize=True, leanChance=0.2)
 push(r['nodes'][0], direction=[1, 0, 0])
+```
+
+### instancesToObjects
+
+Turn the instances a geometry-nodes modifier makes (Fracture pieces, scattered props, an arrangement) into objects in the scene, one per instance, under a new group, where they were.
+
+mode instance makes the copies of each referenced mesh scene instances of one another (one mesh, many placements, sent to Unreal as instances); unique gives every object its own mesh. role= and material= give each a stagehandBody, so the pieces can be settled, pushed and dropped. The source mesh is hidden. One undo step. Returns group, objects, meshes (distinct referenced meshes) and count.
+
+**Objects:** mesh with a geometry-nodes modifier, or the modifier (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str | `'instance'` | instance: copies of one mesh share it. unique: each object gets its own. |
+| `name` | `n` | str |  | Name of the group (default <source>_Objects). |
+| `role` | `r` | str |  | Give each object a body with this role. One of `dynamic`, `static`, `kinematic`, `off`. |
+| `material` | `ma` | str |  | Give each object a body of this material (role dynamic unless role= says). One of `wood`, `book`, `paper`, `cardboard`, `stone`, `ceramic`, `metal`, `glass`, `plastic`, `rubber`, `fabric`. |
+| `hide` | `hi` | bool | `True` | Hide the source mesh. |
+| `limit` | `li` | int | `100000` | Refuse to make more objects than this. |
+
+```python
+r = instancesToObjects('Wall', role='dynamic', material='stone')
+settle(r['objects'])
+```
+
+```python
+instancesToObjects('Scatter', mode='unique')
 ```
 
 ### libraryAdd
@@ -14426,7 +15287,7 @@ Every word must match the name, tags, collection, id or description (prefixes an
 | --- | --- | --- | --- | --- |
 | `tags` | `t` | list |  | Only assets with every one of these tags. |
 | `collection` | `c` | str |  | Only this collection or the ones under it. |
-| `tier` |  | str |  | workspace, studio or user. |
+| `tier` |  | str |  | workspace, studio, user or starter. |
 | `maxSize` | `mx` | float |  | Largest side at most this, cm. |
 | `minSize` | `mn` | float |  | Largest side at least this, cm. |
 | `limit` | `l` | int | `50` | At most this many; 0 for all. |
@@ -14439,6 +15300,25 @@ librarySearch('wooden crate')
 
 ```python
 librarySearch(tags=['book'], maxSize=40)
+```
+
+### libraryStarter
+
+The starter props, built and given thumbnails: industrial (crates, barrels, pallets, beams, I-beams, pipes, panels, cable spools, scaffolding), debris (stone chunks S to XL, a rubble pile, a broken slab, rebar) and facility (lockers, consoles, supply crates, cable trays), each with physics and tags. Built from code into the user's config folder the first time the library is used; rebuild=True writes them again. Thumbnails are rendered where the app or batch mode can draw. Returns dir, built, assets (ids for place), thumbnails (rendered now) and missing.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `rebuild` | `rb` | bool | `False` | Write the props again even if they are there. |
+| `thumbnails` | `th` | bool | `True` | Render the thumbnails still missing (all of them after a rebuild). |
+
+Not undoable.
+
+```python
+libraryStarter()['assets']
+```
+
+```python
+place('Industrial/Barrel', on='Floor', count=6, spacing=[70, 0, 0])
 ```
 
 ### openSnapPoints
@@ -14468,7 +15348,8 @@ Meshes without one are static colliders, except the ones a command moves. materi
 | `density` | `d` | float |  | kg/m3. |
 | `friction` | `f` | float |  | 0 to 1. |
 | `bounce` | `b` | float |  | 0 to 1. |
-| `shape` | `s` | str |  | auto, box, hull, sphere, capsule or mesh. |
+| `shape` | `s` | str |  | auto, box, hull, sphere, capsule, mesh or decompose (convex parts). |
+| `maxParts` | `mp` | int |  | Most convex parts for decompose. |
 | `rounding` | `ro` | float |  | Collision edge rounding, cm. |
 | `remove` | `rm` | bool | `False` | Delete the body nodes instead. |
 
@@ -14565,7 +15446,8 @@ Everything touching the target (chained, smaller than it x8) may move unless mov
 | `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
 | `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
 | `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
-| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+| `time` | `ti` | float | `120.0` | Longest it simulates, seconds: it runs until everything is at rest, and the report says capped when this stopped it first. |
+| `reach` | `re` | float | `300.0` | Without colliders=, meshes within this many cm of a mover join as colliders (more below it, the way it falls). |
 
 ```python
 push('book_01', direction=[1, 0, 0])
@@ -14659,7 +15541,8 @@ The targets move, so do meshes with a dynamic physicsBody; every other visible m
 | `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
 | `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
 | `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
-| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+| `time` | `ti` | float | `120.0` | Longest it simulates, seconds: it runs until everything is at rest, and the report says capped when this stopped it first. |
+| `reach` | `re` | float | `300.0` | Without colliders=, meshes within this many cm of a mover join as colliders (more below it, the way it falls). |
 
 ```python
 settle(['mug', 'plate', 'book_01'])
@@ -14686,7 +15569,8 @@ What moves: movable=, else what touches it (chained) and is smaller than it. One
 | `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
 | `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
 | `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
-| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+| `time` | `ti` | float | `120.0` | Longest it simulates, seconds: it runs until everything is at rest, and the report says capped when this stopped it first. |
+| `reach` | `re` | float | `300.0` | Without colliders=, meshes within this many cm of a mover join as colliders (more below it, the way it falls). |
 
 ```python
 shake('shelf', amplitude=[4, 0, 0], duration=1.5)
@@ -14756,6 +15640,28 @@ Stack items one on another (plates, crates, books lying flat), each turned and n
 stackProps(items=['Kitchen/Plate'], at=[30, 90, 0], onto=['Counter'], count=8)
 ```
 
+### unrealPlaceAssembly
+
+Send an assembly to Unreal as one Level Instance (or Packed Level Actor): its meshes are imported and placed as actors (with their bodies' collision and physics), then made into a level of their own placed where they were. Sending it again replaces the one an earlier send made. Returns the placement plan and levelInstance (Unreal's answer, or the request with dryRun=True).
+
+**Objects:** assembly (a group made by assemblyCreate, or anything in one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str | `'/Game/Lila/Instances'` | Content folder for the meshes and, by default, the level. |
+| `kind` | `k` | str |  | Override the assembly's kind. One of `levelInstance`, `packedLevelActor`. |
+| `dryRun` |  | bool | `False` | Return what would be sent without contacting Unreal. |
+
+Not undoable.
+
+```python
+unrealPlaceAssembly('Gate')
+```
+
+```python
+unrealPlaceAssembly('Gate', kind='packedLevelActor', dryRun=True)['levelInstance']
+```
+
 ### wiggle
 
 Jostle meshes with small random pushes so they settle into a natural, slightly messy rest.
@@ -14774,7 +15680,8 @@ Only the targets (and dynamic bodies) move. One undo step. Returns the same repo
 | `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
 | `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
 | `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
-| `time` | `ti` | float | `10.0` | Longest it simulates, seconds; it stops sooner once everything is at rest. |
+| `time` | `ti` | float | `120.0` | Longest it simulates, seconds: it runs until everything is at rest, and the report says capped when this stopped it first. |
+| `reach` | `re` | float | `300.0` | Without colliders=, meshes within this many cm of a mover join as colliders (more below it, the way it falls). |
 
 ```python
 wiggle(['book_01', 'book_02', 'book_03'], strength=60)
@@ -15571,9 +16478,40 @@ tailorUnsew('Garment', seam=[3])
 
 Available when the Terrain extension is loaded.
 
+### terrainAddFeature
+
+Add a line feature to a terrain. street: graded along its length to maxGrade, levelled across width with a skirt; where it would sit far above the ground it becomes a bridge span and far below a tunnel span, left ungraded, and small streams it crosses are returned as culverts. canal and moat: carved depth below their water level (height=, else the lowest ground along them), added to terrainWaterInfo. bridge: a deck from end to end (or at height=), the ground cut to clearance below it. culvert and tunnel: registered (masks culvert, tunnel) for the water graph and exporters. Returns the centreline, maxGrade, spans, culverts, cut and fill, and the revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `pa` | list |  | The line [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). |
+| `object` | `obj` | str |  | A curve the feature follows live. |
+| `id` |  | str |  | Stable id; the same id again replaces it. Empty makes one. |
+| `layer` | `ly` | str | `'Stamps'` | Stamp layer; the city uses City. |
+| `width` | `w` | float | `600.0` | Width across the line, cm. |
+| `falloff` | `fo` | float | `300.0` | Skirt back to the ground, cm. |
+| `height` | `h` | float |  | Level along the up axis, cm: quay top, canal water level, bridge deck. |
+| `offset` | `of` | float | `0.0` | Added to the level, cm. |
+| `masks` | `mk` | list |  | Masks its coverage is written to; each kind has its own default. |
+| `maskValue` | `mv` | float | `1.0` | Mask value on it. |
+| `kind` | `k` | str | `'street'` | street (graded, bridges and tunnels left as spans, culverts found), canal or moat (carved water), bridge (registered, ground cut to the clearance), culvert or tunnel (registered). |
+| `depth` | `dp` | float | `200.0` | Canal and moat: depth below the water, cm. |
+| `maxGrade` | `mg` | float | `8.0` | Street: steepest grade, percent. |
+| `clearance` | `cl` | float | `500.0` | Bridge: deck height over the ground below; street: how far above the ground it bridges. |
+
+```python
+terrainAddFeature('Terrain', kind='street', id='mainStreet', path=[[-20000, 0], [0, 3000], [20000, 0]], width=800, maxGrade=6, layer='City')
+```
+
+```python
+terrainAddFeature('Terrain', kind='moat', object='CastleRing', width=1200, depth=300)
+```
+
 ### terrainBake
 
-Collapse a terrain's node graph into a file: the heightfield, masks and placement are written to a .lilahf next to the scene (<scene>_terrain/, else the workspace's terrain/ folder), and the terrain's group is replaced by a Read Heightfield node loading it. Edits made afterwards start from the baked result. Returns the file and terrainInfo's stats.
+Collapse a terrain's node graph into a file: the heightfield, masks and placement are written to a .lilahf next to the scene (<scene>_terrain/, else the workspace's terrain/ folder), and the terrain's group is replaced by a Read Heightfield node loading it, its path stored relative to the workspace (else the scene). Stamps and sculpt strokes are baked in with the rest. Edits made afterwards start from the baked result. Returns the file, the stored path and terrainInfo's stats.
 
 **Objects:** terrain mesh or its modifier
 
@@ -15585,17 +16523,122 @@ Collapse a terrain's node graph into a file: the heightfield, masks and placemen
 terrainBake('Terrain')['file']
 ```
 
+### terrainBuildable
+
+Polygons of contiguous buildable land: no steeper than maxSlope degrees, buildable (not water, cliff or unstable talus) and, with avoidFlood, under floodTolerance flood risk. Each has its outline, holes, area (m2), centroid, mean slope, height and buildability; largest first.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `minArea` | `ma` | float | `2000.0` | Smallest region, m2. |
+| `maxSlope` | `ms` | float | `15.0` | Steepest ground, degrees. |
+| `avoidFlood` | `af` | bool | `True` | Leave out ground that floods. |
+| `floodTolerance` | `ft` | float | `0.3` | Flood risk counted as flooding, 0 to 1. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+r = terrainBuildable('Terrain', minArea=5000, maxSlope=10)['regions']
+r[0]['area'], r[0]['centroid']
+```
+
+### terrainCheck
+
+What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water. Returns ok and the issues, each with its type, what it is about, where and a message.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `buildings` | `b` | list |  | Meshes standing on the terrain to check. |
+| `cutFillLimit` | `cf` | float | `500.0` | Largest cut plus fill per pad, m3. |
+| `maxGrade` | `mg` | float | `12.0` | Steepest street, percent. |
+| `floodTolerance` | `ft` | float | `0.5` | Flood risk counted as flooding. |
+| `floatTolerance` | `flt` | float | `10.0` | Gap under a building counted as floating, cm. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+c = terrainCheck('Terrain', buildings=['House1', 'House2'])
+c['ok'], c['issues']
+```
+
+### terrainContours
+
+Contour lines every interval cm of height, from base, optionally only inside region (a polygon). Returns levels with their lines as world-space point lists; closed lines end where they start.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `interval` | `i` | float | `1000.0` | Height between contours, cm. |
+| `base` | `b` | float | `0.0` | A height every contour is a whole number of intervals from. |
+| `region` | `rg` | list |  | Polygon to keep them inside. |
+| `curves` | `cv` | bool | `False` | Also make poly curves of them. |
+
+Not undoable.
+
+```python
+c = terrainContours('Terrain', interval=500)
+len(c['levels'])
+```
+
+### terrainContourStreets
+
+A hillside street layout inside region: streets along contours spacing cm apart, and cross streets every crossSpacing cm joining them; a cross street steeper than maxGrade percent is returned as stairs, or as a switchback when allowSwitchbacks. Returns streets (kind contour, cross, stairs or switchback, with points and grade) for terrainAddFeature.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `region` | `rg` | list |  | Polygon of the hillside. |
+| `spacing` | `sp` | float | `3000.0` | Between contour streets across the slope, cm. |
+| `crossSpacing` | `cs` | float | `8000.0` | Between cross streets along the contours, cm. |
+| `maxGrade` | `mg` | float | `10.0` | Steepest street, percent. |
+| `allowSwitchbacks` | `sw` | bool | `True` | Zigzag steep cross streets instead of stairs. |
+
+Not undoable.
+
+```python
+s = terrainContourStreets('Terrain', region=[[0, 0], [40000, 0], [40000, 30000], [0, 30000]], maxGrade=8)['streets']
+```
+
+### terrainCostField
+
+How expensive the ground is to build a route across: 1 + slope weight per 10 degrees + water weight where rivers (flow mask past waterFlow) or lakes run + weight x mask for any mask named in weights (cityFootprint, rock, ...). Returns min, max and mean, the revision and, with resolution, the grid itself (rows along stepX, advancing by stepZ from origin, on the ground plane); file= writes it as a float EXR.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `weights` | `w` | Any |  | {slope: 1, water: 20, waterFlow: 0.75, <mask>: weight}. |
+| `resolution` | `r` | int | `0` | Return the grid with this many samples along the longer side; 0 leaves it out. |
+| `file` | `f` | str |  | Write the full grid to this .exr. |
+
+Not undoable.
+
+```python
+terrainCostField('Terrain', weights={'slope': 2, 'water': 50, 'cityFootprint': 5}, resolution=64)['grid']
+```
+
 ### terrainCreate
 
 Make a terrain: a mesh whose geometry-nodes modifier builds a heightfield, starting as fractal noise (flat=True for level ground).
 
-The size, resolution and noise settings become keyable inputs on the modifier, so change the terrain later with setAttr on '<modifier>.<flag>' and read it back with terrainInfo or terrainSample. Open the group to add Terrain nodes. Lengths are cm; Y is up. Returns the mesh, modifier, group and terrainInfo's stats.
+The size, resolution and noise settings become keyable inputs on the modifier, so change the terrain later with setAttr on '<modifier>.<flag>' and read it back with terrainInfo or terrainSample. Open the group to add Terrain nodes. Lengths are cm. On a Z-up scene the mesh is turned so the terrain lies on the XY plane with heights up Z, and every terrain command works in those axes. Returns the mesh, modifier, group and terrainInfo's stats.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `size` | `sz` | list | `[100000.0, 100000.0]` | [width along X, depth along Z], cm. |
+| `size` | `sz` | list | `[100000.0, 100000.0]` | [width, depth] on the ground plane, cm. |
 | `resolution` | `r` | int | `513` | Samples along the longer side. |
-| `center` | `c` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Centre; Y is the base height. |
+| `center` | `c` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Centre; its up coordinate is the base height. |
 | `flat` | `f` | bool | `False` | Level ground, no noise. |
 | `amplitude` | `a` | float | `15000.0` | Height of the tallest features, cm. |
 | `featureSize` | `fs` | float | `40000.0` | Size of the largest features, cm. |
@@ -15618,6 +16661,25 @@ t = terrainCreate(size=[200000, 200000], resolution=1025, amplitude=40000, ridge
 terrainCreate(flat=True, size=[50000, 50000], name='Plain')
 ```
 
+### terrainDirtyRegions
+
+What changed on a terrain since a revision another terrain command returned: rectangles on the ground plane (min and max) where heights or masks differ, so a city re-plans only the blocks they touch. known is false when that revision is too old to compare (treat everything as changed).
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `since` | `s` | str |  | The revision to compare with. |
+| `tile` | `t` | int | `64` | Tile size, samples. |
+
+Not undoable.
+
+```python
+r0 = terrainInfo('Terrain')['revision']
+# ... edits ...
+terrainDirtyRegions('Terrain', since=r0)['regions']
+```
+
 ### terrainErode
 
 Erode a terrain made by terrainCreate: rivers carve drainage-consistent valleys, slopes over the talus angle shed scree, and the masks flow, wear, deposit and lakes appear for materials and scatter. Sets the terrain's erosion inputs (iterations is age: 50 to 150 looks natural) and returns terrainInfo's stats.
@@ -15630,6 +16692,7 @@ Erode a terrain made by terrainCreate: rivers carve drainage-consistent valleys,
 | `strength` | `s` | float |  | How fast rivers cut. |
 | `uplift` | `u` | float |  | Rise per step, cm. |
 | `talusAngle` | `ta` | float |  | Slopes steeper than this shed scree, degrees. |
+| `device` | `d` | str |  | cpu (exact, the same bytes everywhere), gpu, or auto (gpu when there is one). |
 
 ```python
 terrainErode('Terrain', iterations=120)['masks']['flow']
@@ -15639,7 +16702,7 @@ terrainErode('Terrain', iterations=120)['masks']['flow']
 
 Write a terrain to files for an engine or another tool.
 
-target='unreal' resamples to a landscape size Unreal accepts and writes <name>.r16 (16-bit heights laid out for Landscape import), <name>.png, one 8-bit <name>_<mask>.raw weightmap per mask and <name>.json with the section size, sections per component, component counts, actor location and scale (Unreal axes, cm) to import it with. target='files' writes <name>.exr (heights in cm), <name>.png and <name>.r16 (16-bit over the height range), a PNG per mask and <name>.json. Returns the settings and files.
+target='unreal' resamples to a landscape size Unreal accepts and writes <name>.r16 (16-bit heights laid out for Landscape import), <name>.png, one 8-bit <name>_<layer>.raw weightmap per paint layer and <name>.json with the section size, sections per component, component counts, actor location, rotation and scale (Unreal axes, cm) to import it with, and the layers (mask, layer name, file). target='files' writes <name>.exr (heights in cm), <name>.png and <name>.r16 (16-bit over the height range), a PNG per mask and <name>.json; a rotated terrain (or any on a Z-up scene) is written in its own space with its world matrix. Returns the settings and files.
 
 **Objects:** terrain mesh or its modifier
 
@@ -15650,12 +16713,34 @@ target='unreal' resamples to a landscape size Unreal accepts and writes <name>.r
 | `name` | `n` | str |  | File name stem; defaults to the terrain's name. |
 | `pad` | `p` | bool | `False` | unreal: keep the cell size and grow the landscape past the terrain, instead of resampling. |
 | `minScaleZ` | `sz` | float | `1.0` | unreal: smallest Z scale (100 is Unreal's default). |
+| `layers` | `ly` | Any |  | unreal: masks to send as paint layers, a list, or {mask: layer name}; default every mask. |
 
 Not undoable.
 
 ```python
 s = terrainExport('Terrain', target='unreal')
 s['resolution'], s['scale'], s['files']['height']
+```
+
+### terrainField
+
+An analysis field over the whole terrain: its min, max and mean, and with resolution= the grid itself (as terrainCostField returns it); file= writes it as a float EXR. Fields: height, slope (deg), aspect (deg from north, -Z), curvature, roughness, flow, flowDir, basinId, streamOrder, wet, hand (height above the drainage, cm), floodRisk (0 to 1), distanceToWater (cm, negative in water), nearestWaterId (river id, lakes 100000 + id), waterDepth, rockHardness, soilDepth, excavationCost, slopeClass (0 flat <5%, 1 gentle, 2 terraced, 3 steep, 4 unbuildable >35%), buildability (0 to 1), prominence, viewshedScore, solar, windExposure, or any mask.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `field` | `f` | str | `'buildability'` | Field name. |
+| `resolution` | `r` | int | `0` | Return the grid with this many samples along the longer side. |
+| `file` | `fi` | str |  | Write the full grid to this .exr. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+terrainField('Terrain', field='floodRisk', resolution=64)['grid']['values']
 ```
 
 ### terrainImport
@@ -15704,20 +16789,106 @@ Not undoable.
 terrainInfo('Terrain')['heightRange']
 ```
 
-### terrainSample
+### terrainProfile
 
-Heights under points, or a profile along a path.
-
-points= reads each point; path= walks the polyline every step cm and adds the distance along it and the grade (rise over run, percent) from the previous sample. Each sample has x, z, height, normal, slope (degrees), inside, and the masks named by masks=. World space, cm.
+A profile along a path every step cm: distance, height, the terrain's slope (deg), grade along the path and cross-slope across it (percent), any fields= read there, and the water it crosses (rivers with their id, width and water level; lakes and sea).
 
 **Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `points` | `p` | list |  | [[x, z] or [x, y, z], ...]. |
-| `path` | `pa` | list |  | Polyline [[x, z] or [x, y, z], ...] to profile. |
+| `path` | `pa` | list |  | Polyline [[x, z] or [x, y, z], ...]. |
+| `step` | `st` | float | `0.0` | Spacing, cm; 0 is the cell size. |
+| `fields` | `fl` | list |  | Fields to read along it. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+p = terrainProfile('Terrain', path=[[-20000, 0], [20000, 0]], step=500)
+max(abs(s['grade']) for s in p['samples']), p['water']
+```
+
+### terrainRaycast
+
+Where a ray from origin along direction first meets the terrain: hit, position and distance (cm). isSolid=points instead says for each point whether it is underground.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `origin` | `o` | tuple[float, float, float] | `[0.0, 100000.0, 0.0]` | Start, world space. |
+| `direction` | `d` | tuple[float, float, float] | `[0.0, -1.0, 0.0]` | Direction, world space. |
+| `isSolid` | `is` | list |  | Points [[x, y, z], ...] to test instead. |
+
+Not undoable.
+
+```python
+terrainRaycast('Terrain', origin=[0, 100000, 0], direction=[0, -1, 0])['position']
+```
+
+### terrainRegionStats
+
+Statistics of fields over a footprint polygon: min, max, mean and the 10th, 50th and 90th percentiles of each field (height by default, also slope, floodRisk, buildability, any mask), the area in m2 and the revision. A building's foundation depth is height max - min plus a margin.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `polygon` | `pg` | list |  | Footprint [[x, z] or [x, y, z], ...]. |
+| `fields` | `fl` | list | `['height', 'slope']` | Fields to summarise. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+s = terrainRegionStats('Terrain', polygon=[[0, 0], [2000, 0], [2000, 1500], [0, 1500]])
+s['fields']['height']['max'] - s['fields']['height']['min']
+```
+
+### terrainRoute
+
+The cheapest way from start to end over the terrain's cost field (see terrainCostField), never steeper than maxGrade percent where any way allows: switchbacks appear by themselves on steep ground. Returns the points on the surface (world space), length, cost, the steepest grade along it, withinGrade (false when nothing kept within maxGrade and the gentlest way was taken) and the revision; curve=True also makes a poly curve along it.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | list |  | [x, z] or [x, y, z]. |
+| `end` | `e` | list |  | [x, z] or [x, y, z]. |
+| `weights` | `w` | Any |  | As terrainCostField's. |
+| `maxGrade` | `mg` | float | `10.0` | Steepest grade allowed, percent; 0 for no limit. |
+| `resolution` | `r` | int | `1024` | Search grid samples along the longer side. |
+| `curve` | `cv` | bool | `False` | Also make a curve along the route. |
+| `name` | `n` | str | `'Route'` | Name of that curve. |
+
+```python
+r = terrainRoute('Terrain', start=[-40000, 0], end=[40000, 5000], maxGrade=8, weights={'water': 100})
+r['length'], r['maxGrade']
+```
+
+### terrainSample
+
+Heights under points, or a profile along a path.
+
+points= reads each point; path= walks the polyline every step cm and adds the distance along it and the grade (rise over run, percent) from the previous sample. Each sample has its ground coordinates (x and z; x and y on a Z-up scene), height along the up axis, position, normal, slope (degrees), inside, and the masks named by masks=. World space, cm, for terrains in any placement.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | [[x, z] or [x, y, z], ...]; [x, y] on a Z-up scene. |
+| `path` | `pa` | list |  | Polyline of points like points= to profile. |
 | `step` | `st` | float | `0.0` | Spacing along path, cm; 0 uses the terrain's cell size. |
 | `masks` | `m` | list |  | Mask names to read. |
+| `fields` | `fl` | list |  | Analysis fields to read (hand, floodRisk, buildability, slopeClass, solar, ... see terrainField). |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
 
 Not undoable.
 
@@ -15730,17 +16901,54 @@ profile = terrainSample('Terrain', path=[[-40000, 0], [40000, 0]], step=500)
 max(abs(s['grade']) for s in profile)
 ```
 
-### terrainSendToUnreal
+### terrainSculpt
 
-Send a terrain to the connected Unreal editor as a Landscape, or update the one it sent before.
+Sculpt a terrain by command: raise, lower, smooth, flatten or noise, in dabs at points=, along a path= polyline or along a curve object, each dab radius cm wide with a smooth falloff.
 
-Writes the terrain as terrainExport(target='unreal') does, into the link's cache, then has LilaLink build a landscape of that size and layout at the matching place and scale. Lila's heights go to an edit layer named Lila, so sculpting and splines on other layers in Unreal survive later sends; a terrain whose size or layout changed is rebuilt. gridSize sets the World Partition grid in a partitioned level. Returns the landscape and the export settings.
+Raise, lower and noise move the ground by strength cm at the centre; smooth and flatten go strength (0 to 1) of the way. Flatten levels to height (along the up axis) or the mean under the stroke. stage='base' sculpts before erosion, which then shapes it; stage='final' after erosion, before the stamps. Strokes are kept in a Terrain Sculpt node and replay on every evaluation, so they save with the scene and undo like any edit. clear=True drops the stage's strokes. Returns the stroke count, height range and revision.
 
 **Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `material` | `m` | str |  | Landscape material asset path, such as /Game/Terrain/M_Landscape. |
+| `op` | `o` | str | `'raise'` | raise, lower, smooth, flatten or noise. |
+| `points` | `p` | list |  | Dab centres [[x, z] or [x, y, z], ...]. |
+| `path` | `pa` | list |  | A polyline the stroke runs along. |
+| `curve` | `cv` | str |  | A curve object the stroke runs along. |
+| `radius` | `r` | float | `2000.0` | Dab radius, cm. |
+| `strength` | `s` | float | `100.0` | cm for raise, lower and noise; 0 to 1 for smooth and flatten. |
+| `spacing` | `sp` | float | `0.0` | Between dabs along a path, cm; 0 is a quarter of the radius. |
+| `height` | `h` | float |  | Flatten: target height along the up axis, cm; default the mean under the stroke. |
+| `noiseSize` | `ns` | float | `1000.0` | Noise: feature size, cm. |
+| `seed` | `sd` | int | `0` | Noise: seed. |
+| `stage` | `sg` | str | `'base'` | base (before erosion) or final (after it). |
+| `clear` | `cl` | bool | `False` | Remove every stroke of this stage instead of adding one. |
+| `replaceLast` | `rl` | bool | `False` | Replace the stage's last stroke instead of adding one (a stroke growing as it is drawn). |
+| `removeLast` | `rm` | bool | `False` | Remove the stage's last stroke instead of adding one. |
+
+```python
+terrainSculpt('Terrain', op='raise', points=[[0, 0]], radius=30000, strength=8000)
+```
+
+```python
+terrainSculpt('Terrain', op='flatten', curve='RoadLine', radius=1200, strength=1, stage='final')
+```
+
+### terrainSendToUnreal
+
+Send a terrain to the connected Unreal editor as a Landscape, or update the one it sent before.
+
+Writes the terrain as terrainExport(target='unreal') does, into the link's cache, then has LilaLink build a landscape of that size and layout at the matching place and scale. Lila's heights go to an edit layer named Lila, so sculpting and splines on other layers in Unreal survive later sends; a terrain whose size or layout changed is rebuilt. The landscape takes the terrain's rotation, and Z-up scenes map straight across.
+
+Masks go as paint layers (weightmaps on the Lila edit layer), each with a layer info asset next to the landscape's material. Without material=, LilaLink generates one on MF_LilaLandscapeLayer (a function to drop into your own landscape materials, one call per layer) sampling each layer; with material=, that material is used and needs the same layer names. gridSize sets the World Partition grid in a partitioned level. Returns the landscape, its layers and the export settings.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `material` | `m` | str |  | Landscape material asset path, such as /Game/Terrain/M_Landscape; empty uses the generated one. |
+| `makeMaterial` | `mm` | bool | `True` | Without material=, generate a landscape material for the layers. |
+| `layers` | `ly` | Any |  | Masks to send as paint layers, a list, or {mask: layer name}; default every mask. |
 | `gridSize` | `g` | int | `0` | World Partition grid size in components; 0 leaves it. |
 | `pad` | `p` | bool | `False` | Keep the cell size and grow the landscape past the terrain, instead of resampling. |
 | `timeout` | `to` | float | `300.0` | Seconds to wait for Unreal. |
@@ -15749,6 +16957,151 @@ Not undoable.
 
 ```python
 terrainSendToUnreal('Terrain', material='/Game/Terrain/M_Landscape')
+```
+
+### terrainSites
+
+Scored places for a kind of site, best first: townCentre (flat, buildable, near water and a river crossing, out of flood), harbour (sheltered, deep inshore, flat land behind, a river mouth), bridge and ford (from the rivers), mill (waterfalls and rapids), castle (prominent and defensible), temple (prominent and seen from afar), farmland (gentle, wet, deep soil) or quarry (exposed hard rock). Each has its position and score.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'townCentre'` | Kind of site. One of `townCentre`, `harbour`, `bridge`, `ford`, `mill`, `castle`, `temple`, `farmland`, `quarry`. |
+| `count` | `n` | int | `5` | How many. |
+| `spacing` | `sp` | float | `20000.0` | Least distance between them, cm. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+terrainSites('Terrain', kind='castle', count=3)['sites'][0]['position']
+```
+
+### terrainStampPad
+
+Stamp a building pad into a terrain: flatten (cut and fill to one level), carve (cut only), raise (fill only), blend, terraced (steps down the slope), plinth (no grading: the building gets a raised base) or stilts (no grading: piles).
+
+The footprint is a polygon or follows a mesh (its faces seen from above) or closed curve, live: moving that object moves the pad. A skirt of falloff cm blends back to the ground. Stamps sit in a layer after erosion, so erosion never re-cuts them; stamping the same id again replaces it, and the coverage goes into masks (cityFootprint by default). Returns padHeight, ground min/max/mean, cut and fill (cm3 and m3), area, plinthDepth, terraced levels, retaining walls where pad and ground part, piles for stilts and plinths, and the terrain revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `footprint` | `fp` | list |  | Polygon [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). |
+| `object` | `obj` | str |  | A mesh (its faces seen from above) or closed curve the stamp follows live. |
+| `id` |  | str |  | Stable id; stamping an id again replaces that stamp. Empty makes one. |
+| `layer` | `ly` | str | `'Stamps'` | Stamp layer (a Terrain Stamps node after erosion); the city uses City. |
+| `mode` | `m` | str | `'flatten'` | flatten, carve, raise, blend, plinth (no grading, a raised base), terraced (steps along the slope) or stilts (no grading, piles). |
+| `level` | `lv` | str |  | Target height from the ground under it: mean, min, max, median, or object (the source's lowest point). Default mean; max for plinth and stilts. |
+| `height` | `h` | float |  | Target height along the scene's up axis, cm; overrides level. |
+| `offset` | `of` | float | `0.0` | Added to the target height, cm. |
+| `falloff` | `fo` | float | `500.0` | Skirt width back to the ground, cm. |
+| `strength` | `st` | float | `1.0` | Blend: how far toward the target, 0 to 1. |
+| `masks` | `mk` | list | `['cityFootprint']` | Masks its coverage is written to. |
+| `maskValue` | `mv` | float | `1.0` | Mask value inside. |
+| `wallHeight` | `wh` | float | `50.0` | Report retaining walls where pad and ground part by more than this, cm. |
+| `steps` | `sp` | int | `0` | Terraced: number of steps; 0 picks from stepHeight. |
+| `stepHeight` | `sh` | float | `150.0` | Terraced: height per step when steps is 0, cm. |
+
+```python
+terrainStampPad('Terrain', id='temple', footprint=[[-2000, -1500], [2000, -1500], [2000, 1500], [-2000, 1500]], falloff=1500)
+```
+
+```python
+terrainStampPad('Terrain', id='house12', object='House12_base', mode='plinth')['plinthDepth']
+```
+
+### terrainStampQuay
+
+Build a waterfront along a line: quay (a vertical bank, the land side levelled, the water side dredged by depth), levee (a raised bank rise cm above the ground), embankment (raised on the land side only) or seawall (land side raised to rise above the highest ground along it, sheer to the water). side names the land side of travel. Lives in a stamp layer like terrainStampPad, follows a curve with object=, and returns cut and fill, the centreline and the revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `pa` | list |  | The line [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). |
+| `object` | `obj` | str |  | A curve the feature follows live. |
+| `id` |  | str |  | Stable id; the same id again replaces it. Empty makes one. |
+| `layer` | `ly` | str | `'Stamps'` | Stamp layer; the city uses City. |
+| `width` | `w` | float | `600.0` | Width across the line, cm. |
+| `falloff` | `fo` | float | `300.0` | Skirt back to the ground, cm. |
+| `height` | `h` | float |  | Level along the up axis, cm: quay top, canal water level, bridge deck. |
+| `offset` | `of` | float | `0.0` | Added to the level, cm. |
+| `masks` | `mk` | list |  | Masks its coverage is written to; each kind has its own default. |
+| `maskValue` | `mv` | float | `1.0` | Mask value on it. |
+| `kind` | `k` | str | `'quay'` | quay (vertical bank, dredged on the water side), levee (raised bank), embankment (one-sided bank) or seawall. |
+| `side` | `sd` | str | `'left'` | Which side of travel the land is on. One of `left`, `right`. |
+| `depth` | `dp` | float | `200.0` | Quay: dredged depth on the water side, cm. |
+| `rise` | `rs` | float | `200.0` | Levee, embankment, seawall: height above the ground, cm. |
+
+```python
+terrainStampQuay('Terrain', id='harbourQuay', path=[[0, 0], [8000, 0]], side='left', depth=400)
+```
+
+### terrainStampRegion
+
+Stamp a plaza, park or yard into a terrain: graded to a level (or falling at grade percent toward direction), with a slope skirt, a sheer wall edge (reported as walls) or steps. Footprint, layers, ids, masks and the result are as terrainStampPad's; masks such as paved or gardens tell materials and scatter what it is.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `footprint` | `fp` | list |  | Polygon [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). |
+| `object` | `obj` | str |  | A mesh (its faces seen from above) or closed curve the stamp follows live. |
+| `id` |  | str |  | Stable id; stamping an id again replaces that stamp. Empty makes one. |
+| `layer` | `ly` | str | `'Stamps'` | Stamp layer (a Terrain Stamps node after erosion); the city uses City. |
+| `mode` | `m` | str | `'flatten'` | flatten, carve, raise, blend, or dredge (lowered by depth). |
+| `level` | `lv` | str |  | Target height from the ground under it: mean, min, max, median, or object (the source's lowest point). Default mean; max for plinth and stilts. |
+| `height` | `h` | float |  | Target height along the scene's up axis, cm; overrides level. |
+| `offset` | `of` | float | `0.0` | Added to the target height, cm. |
+| `falloff` | `fo` | float | `500.0` | Skirt width back to the ground, cm. |
+| `strength` | `st` | float | `1.0` | Blend: how far toward the target, 0 to 1. |
+| `masks` | `mk` | list | `['cityFootprint']` | Masks its coverage is written to. |
+| `maskValue` | `mv` | float | `1.0` | Mask value inside. |
+| `wallHeight` | `wh` | float | `50.0` | Report retaining walls where pad and ground part by more than this, cm. |
+| `grade` | `gr` | float | `0.0` | Fall across it, percent, toward direction. |
+| `direction` | `dir` | list |  | Downhill [x, z] (x, y on Z-up); default the ground's own fall. |
+| `edge` | `ed` | str | `'slope'` | slope (blend over falloff), wall (sheer edge, reported as walls) or steps. |
+| `stepHeight` | `sh` | float | `150.0` | Steps edge: riser height, cm. |
+| `depth` | `dp` | float | `200.0` | Dredge: how far it lowers the ground, cm. |
+
+```python
+terrainStampRegion('Terrain', id='forum', footprint=[[0, 0], [6000, 0], [6000, 4000], [0, 4000]], grade=2, masks=['cityFootprint', 'paved'])
+```
+
+```python
+terrainStampRegion('Terrain', id='terrace', object='TerraceOutline', edge='wall')['walls']
+```
+
+### terrainStampRemove
+
+Remove stamps from a terrain by id, or a whole layer with all=True. Returns the ids removed.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` | `i` | list |  | Stamp ids. |
+| `layer` | `ly` | str | `'Stamps'` | Stamp layer. |
+| `all` | `a` | bool | `False` | Remove the layer with every stamp in it. |
+
+```python
+terrainStampRemove('Terrain', ids=['house12'], layer='City')
+```
+
+### terrainStamps
+
+The stamps on a terrain, by layer: each stamp's settings and what it did on the last evaluation (as terrainStampPad returns), and the terrain revision.
+
+**Objects:** terrain mesh or its modifier
+
+Not undoable.
+
+```python
+terrainStamps('Terrain')['layers']['City']
 ```
 
 ### terrainToMesh
@@ -15764,6 +17117,25 @@ A plain mesh copy of the terrain as it is now, in world space: quads facing up, 
 
 ```python
 terrainToMesh('Terrain', step=4)
+```
+
+### terrainWaterInfo
+
+All the water as one graph. rivers: reaches downstream-ordered with points (position, width, depth, bedHeight, waterLevel, flowSpeed, discharge, bankHeightL/R, bankTypeL/R: low, steep, cliff or gravelBar, floodplainWidthL/R), streamOrder, navigable, downstream, tributaries and mouth. lakes and sea: waterLevel, shoreline, depth, outlet, inlets, shore segments (beach, cliff, marsh, rocky) and harbourSites. Plus springs, wetlands, fords, bridgeSites (scored), confluences, rapids and waterfalls, and the canals, moats, culverts and bridges added as features. World space, cm; discharge m3/s.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
+| `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
+
+Not undoable.
+
+```python
+w = terrainWaterInfo('Terrain', seaLevel=0)
+[r['id'] for r in w['rivers'] if r['navigable']], w['bridgeSites'][:3]
 ```
 
 ## TrimSheets extension
@@ -15785,6 +17157,7 @@ Lay a trim along curves: a strip of quads following each curve, width= cm across
 | `offset` | `of` | float | `0.0` | Lift along the strip's normal, cm. |
 | `caps` | `cp` | bool | `True` | Cap the ends with the sheet's cap-tagged trim when it has one. |
 | `seed` | `s` | int | `0` | Slides the pattern along tiling trims. |
+| `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); each face keeps its palette when not given. |
 
 ```python
 trimAlongCurve('curve1', width=15)
@@ -15807,6 +17180,7 @@ Map the selected faces (whole selected meshes in object mode) onto one trim: eac
 | `splitAngle` | `sa` | float | `30.0` | Split islands where faces meet sharper than this, degrees. |
 | `orient` | `o` | str | `'worldUp'` | worldUp, longestU or asIs. |
 | `seed` | `s` | int | `0` | Offset along strips. |
+| `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); each face keeps its palette when not given. |
 | `randomOffset` | `ro` | bool | `False` | Slide islands to a random place along tiling strips; off centres them, so motifs sit symmetrically. |
 
 ```python
@@ -15839,6 +17213,7 @@ Hotspot the selected faces (whole selected meshes in object mode) onto a trim sh
 | `aspectWeight` | `aw` | float | `1.0` | How much shape matters. |
 | `sizeWeight` | `sw` | float | `1.0` | How much world size matters. |
 | `normalWeight` | `nw` | float | `0.5` | How much facing matters, for trims with a preferred direction. |
+| `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); each face keeps its palette when not given. |
 | `showError` | `se` | bool | `False` | Paint match quality into the colour set trimError. |
 
 ```python
@@ -15853,6 +17228,39 @@ trimAuto(seed=3, randomFlip=True, showError=True)
 trimAuto(tag='edge', orient='longestU')
 ```
 
+### trimCheck
+
+Check trim-mapped meshes against their sheets, island by island: texel density (px per metre) against the sheet's or targetPxPerM, the trim each maps to and how far it runs outside it, orientation (quarter turns from world up, skew, mirroring the trim doesn't allow), stretch, trims crossed (a sheet seam through the island), the mip its trim stays clean to, the trim's smallest feature in screen px at distance= for a screenHeight= display (readability), and neighbours showing the same trim at the same offset (repetition). Checks the selected meshes, or every mesh mapped onto a sheet when none is selected. showIssues paints a colour set trimCheck on the selected meshes (red issues, green clean). Returns per mesh {sheet, islands, withIssues, ok, pxPerM {min, max}, issues {kind: islands}, details} plus totals; details lists the islands with issues (all=True lists every one).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `uvSet` |  | str | `'uv0'` | UV set to write. |
+| `targetPxPerM` | `tpm` | float |  | Texel density islands should have; the sheet's when not given. |
+| `densityTolerance` | `dt` | float | `0.25` | Allowed density error in doublings (0.25 is about 19%). |
+| `maxStretch` | `ms` | float | `0.1` | Allowed stretch: larger uv scale over smaller, minus one. |
+| `maxSkew` | `mk` | float | `3.0` | Allowed skew off a quarter turn, degrees. |
+| `distance` | `d` | float | `1000.0` | Gameplay viewing distance, cm. |
+| `screenHeight` | `sh` | float | `1080.0` | Screen height, px. |
+| `fov` |  | float | `60.0` | Vertical field of view, degrees. |
+| `minFeaturePx` | `mf` | float | `2.0` | Smallest feature a trim may show on screen, px. |
+| `all` |  | bool | `False` | List every island, not only those with issues. |
+| `showIssues` | `si` | bool | `False` | Paint the selected meshes' colour set trimCheck: red islands with issues, green clean. |
+
+Not undoable.
+
+```python
+trimCheck()['issues']
+```
+
+```python
+trimCheck(distance=3000, screenHeight=2160, all=True)
+```
+
+```python
+trimCheck(targetPxPerM=256, showIssues=True)
+```
+
 ### trimDecal
 
 Trim decals over the selected edges: a strip wrapping each run of edges, half its width on each face beside them, floating offset= cm off the surface and mapped onto an edge trim with its crest on the edge, as <mesh>_Decal with the sheet's material. cut=True carves it into the mesh instead (Trim Cut): a groove depth= cm deep whose floor and walls carry the trim. Returns [{mesh, decal or cut, chains, trim}].
@@ -15865,6 +17273,7 @@ Trim decals over the selected edges: a strip wrapping each run of edges, half it
 | `offset` | `of` | float | `0.05` | Float off the surface, cm, so the decal doesn't fight it. |
 | `cut` | `c` | bool | `False` | Carve the strip into the mesh as a groove instead of floating it. |
 | `depth` | `d` | float | `0.5` | Groove depth for cut, cm. |
+| `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); each face keeps its palette when not given. |
 
 ```python
 trimDecal(width=3)
@@ -15872,6 +17281,81 @@ trimDecal(width=3)
 
 ```python
 trimDecal(cut=True, depth=0.4)
+```
+
+### trimDecalCreate
+
+Make a unique decal for what trims can't carry: an inscription, a key border, damage, or relief from your own meshes (high=), baked at its true size into normal, AO and height maps plus an opacity mask (where the relief stands off the flat surround, faded at the edges) and a base colour. The decal is a .lilatrim holding one trim (decal: true), so trimSheetEdit, trimSheetBake, trimSheetTexture and trimSheetPaint work on it: texture it with a smart material or paint it by hand. Place it with trimDecalPlace; trimDecalSend makes Unreal deferred decals of the placements. Returns the decal's summary and its bake.
+
+**Objects:** decal name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Decal name: letters, digits and underscores. |
+| `kind` | `k` | str | `'inscription'` | inscription (carved glyphs), border (key pattern), damage (chips and pits) or relief (only high=). |
+| `style` | `st` | str |  | A profile style instead of the kind's (glyphs, meander, chipped, fluting...). |
+| `width` | `w` | float | `200.0` | World width, cm. |
+| `height` | `h` | float | `50.0` | World height, cm. |
+| `resolution` | `r` | int | `1024` | Texture width, px; the height follows the aspect. |
+| `depth` | `d` | float |  | Relief depth, cm; the kind's when not given. |
+| `seed` | `s` | int | `0` | Pattern seed: other glyphs, other damage. |
+| `high` | `hi` | list |  | Scene meshes baked as the decal's relief, laid on it as trimSheetGenerate shows a sheet. |
+| `file` | `f` | str |  | Where to save; default <workspace>/TrimSheets/Decals/<name>.lilatrim. |
+| `overwrite` |  | bool | `False` | Replace an existing decal file. |
+| `bake` | `b` | bool | `True` | Bake it now. |
+| `backend` |  | str | `'auto'` | Bake backend: auto, gpu or cpu. |
+
+Not undoable.
+
+```python
+trimDecalCreate('TempleWords', kind='inscription', width=1200, height=180, seed=3)
+```
+
+```python
+trimDecalCreate('Breach', kind='damage', width=300, height=300)
+```
+
+### trimDecalPlace
+
+Place a unique decal (trimDecalCreate) in the scene: a quad of the decal's world size centred at position, facing normal with its top toward up, floating offset cm off the surface, with the decal's translucent material so it previews in the viewport. Move, turn and scale it like any mesh; trimDecalSend sends it to Unreal as a deferred decal projecting depth cm into the surface. Returns the node.
+
+**Objects:** decal file or name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `decal` | `dc` | str |  | The decal's .lilatrim, or its name under <workspace>/TrimSheets/Decals. |
+| `position` | `p` | list |  | Centre, cm; the origin when not given. |
+| `normal` | `nm` | list |  | The way it faces; +Y (a floor) when not given. |
+| `up` | `u` | list |  | The way its top points; world up, or -Z for a floor, when not given. |
+| `depth` | `d` | float | `20.0` | How far the Unreal decal projects into the surface, cm. |
+| `offset` | `of` | float | `0.05` | Lift off the surface in Lila's viewport, cm. |
+| `name` | `n` | str |  | Node name; DC_<decal> when not given. |
+
+```python
+trimDecalPlace('TempleWords', position=[0, 400, -2500], normal=[0, 0, 1])
+```
+
+### trimDecalSend
+
+Send placed unique decals to Unreal as deferred decals: each decal's maps (its painted texture set's base colour and normal when it has one, else the baked ones, and its opacity mask) go to <folder>/Textures, the decal master M_LilaDecal on MF_LilaDecal is generated (or rebuilt with regenerateMaster), each decal gets an instance MI_<decal>Decal, and each placement becomes a decal actor at the quad's place, size and facing, projecting its decalDepth into the surface. Sending again moves the same actors. Returns what Unreal made; dryRun=True returns the plan without connecting.
+
+**Objects:** decal nodes (default every placed decal)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str | `'/Game/Lila/Decals'` | Content folder for the textures and instances. |
+| `regenerateMaster` |  | bool | `False` | Rebuild M_LilaDecal's graph from this version of Lila. |
+| `wait` | `w` | bool | `True` | Block until Unreal has placed everything. |
+| `dryRun` |  | bool | `False` | Return the plan without connecting to Unreal. |
+
+Not undoable.
+
+```python
+trimDecalSend()
+```
+
+```python
+trimDecalSend(dryRun=True)['request']['decals'][0]['size']
 ```
 
 ### trimEdges
@@ -15889,6 +17373,125 @@ Trim the selected edges with a bevel strip: each edge gets a one-segment chamfer
 ```python
 trimEdges(width=1.5)
 ```
+
+### trimLive
+
+Keep the selected meshes trimmed while they change: adds a trimHotspot modifier to each one's stack, which hotspots the mesh under it onto the sheet whenever that mesh changes (a blockout edited, a generator's parameters, a modifier lower down) and when the sheet's layout is edited. Same matching and variation as trimAuto. Remove it, or apply the stack, to freeze the mapping. Returns {mesh: modifier}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `uvSet` |  | str | `'uv0'` | UV set to write. |
+| `splitAngle` | `sa` | float | `30.0` | Faces meeting sharper than this, degrees, become separate islands. |
+| `orient` | `o` | str | `'worldUp'` | worldUp, longestU or asIs. |
+| `tag` | `tg` | str |  | Only trims with this tag. |
+| `seed` | `s` | int | `0` | Variation seed. |
+| `randomOffset` | `ro` | bool | `True` | Slide islands along tiling strips. |
+| `randomFlip` | `rf` | bool | `False` | Turn islands 180 degrees at random where the trim allows. |
+| `sliceOversized` | `so` | bool | `True` | Cut islands taller than every strip into courses. |
+| `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); each face keeps its palette when not given. |
+
+```python
+trimLive()
+```
+
+```python
+trimLive(seed=2, palette='Rust')
+```
+
+### trimPaletteAdd
+
+Add a palette to a trim sheet: another material family on the same layout and baked maps, e.g. rusted iron and painted steel on one industrial sheet, or sandstone and basalt on one stone sheet. It gets the Lila material M_<sheet>_<name>; texture it with trimSheetTexture(palette=...), map faces to it with palette= on trimApply, trimAuto or trimPaletteAssign, and trimSheetSend makes MI_<sheet>_<name> for it in Unreal. scalars, vectors and switches are MF_LilaTrim parameters for that instance (Tint, EdgeTint, BaseRoughness, Metallic, EdgeWear, UseDetail...). Returns the palette list.
+
+**Objects:** palette name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `name` | `n` | str |  | Palette name: letters, digits and underscores. |
+| `material` | `m` | str |  | Smart material its texture set starts from; the sheet's when not given. |
+| `copyFrom` | `cf` | str |  | Palette whose material and parameters to start from (Default is the sheet's). |
+| `scalars` |  | Any |  | {parameter: number} for its Unreal instance. |
+| `vectors` |  | Any |  | {parameter: [r, g, b]} for its Unreal instance. |
+| `switches` |  | Any |  | {parameter: bool} for its Unreal instance. |
+
+Not undoable.
+
+```python
+trimPaletteAdd('Rust', material='Trim Rusty Iron', vectors={'Tint': [0.35, 0.2, 0.12]}, scalars={'EdgeWear': 2.0})
+```
+
+```python
+trimPaletteAdd('Basalt', copyFrom='Default', vectors={'Tint': [0.12, 0.12, 0.13]})
+```
+
+### trimPaletteAssign
+
+Put the selected faces (whole selected meshes in object mode) on a palette of their trim sheet, keeping their uvs: only faces mapped onto the sheet change. fromPalette= limits it to faces on that palette. Returns per mesh the faces moved.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `palette` | `pal` | str |  | Palette to put the faces on; Default is the sheet's own. |
+| `fromPalette` | `fp` | str |  | Only faces now on this palette. |
+
+```python
+trimPaletteAssign(palette='Rust')
+```
+
+```python
+trimPaletteAssign(palette='Default', fromPalette='Rust')
+```
+
+### trimPaletteEdit
+
+Change a palette: material= sets its smart material (retexture with trimSheetTexture(palette=..., replace=True)); scalars, vectors and switches merge into its Unreal parameters, a None value removing one. Default edits the sheet's own palette. Returns the palette list.
+
+**Objects:** palette name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `name` | `n` | str |  | Palette to change; Default is the sheet's own. |
+| `material` | `m` | str |  | Smart material. |
+| `scalars` |  | Any |  | {parameter: number or None}. |
+| `vectors` |  | Any |  | {parameter: [r, g, b] or None}. |
+| `switches` |  | Any |  | {parameter: bool or None}. |
+
+Not undoable.
+
+```python
+trimPaletteEdit('Rust', scalars={'EdgeWear': 0.5})
+```
+
+### trimPaletteList
+
+The palettes of a trim sheet: one layout and bake, several material families. Each entry has its name (Default is the sheet itself), smart material, Lila material slot, texture set (and whether it exists yet), Unreal instance name, and the instance parameters it sets (scalars, vectors, switches).
+
+**Objects:** sheet (default the current one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+
+Not undoable.
+
+```python
+[p['name'] for p in trimPaletteList()]
+```
+
+### trimPaletteRemove
+
+Remove a palette from a trim sheet. Its Lila material and texture set stay in the scene; meshes with faces still on it are listed in stillUsedBy, to move with trimPaletteAssign(palette='Default', fromPalette=...). Returns {palettes, stillUsedBy}.
+
+**Objects:** palette name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `name` | `n` | str |  | Palette to remove. |
+
+Not undoable.
 
 ### trimSheetBake
 
@@ -15916,12 +17519,14 @@ trimSheetBake(trims=['Plate128'])
 
 ### trimSheetCreate
 
-Make a trim sheet from a preset and bake it: the layout and every trim's profile go in a .lilatrim file, the generated high is baked onto a flat plane into normal, AO, curvature, height and cavity maps plus an exact trim ID map, and a Lila material M_<name> shows them. An existing file is kept (its settings may have been changed) and only baked when its textures are missing, so calling this again is cheap. Presets: industrialMetal, sciFiHull, woodTrims, concrete, stoneMouldings, hotspotGrid, ladder. The new sheet becomes current. Returns the sheet summary (trims with world sizes, textures, warnings) and the bake result.
+Make a trim sheet and bake it: the layout and every trim's profile go in a .lilatrim file, the generated high is baked onto a flat plane into normal, AO, curvature, height and cavity maps plus an exact trim ID map, and a Lila material M_<name> shows them. Without a preset the sheet is blank (width x height, no trims, or full-width raised strips of the heights in strips=); add trims with trimSheetEdit(add=...). An existing file is kept (its settings may have been changed) and only baked when its textures are missing, so calling this again is cheap. Presets: industrialMetal, sciFiHull, woodTrims, concrete, stoneMouldings, hotspotGrid, ladder, monumentalStone, industrialFrame, starfighterFacility. The new sheet becomes current. Returns the sheet summary (trims with world sizes, textures, warnings) and the bake result.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `preset` | `p` | str | `'industrialMetal'` | Layout and profiles to start from. One of `industrialMetal`, `sciFiHull`, `woodTrims`, `concrete`, `stoneMouldings`, `hotspotGrid`, `ladder`. |
-| `width` | `w` | int | `0` | Texture width, px (0: the preset's). |
+| `preset` | `p` | str | `'blank'` | Layout and profiles to start from; blank starts empty. One of `blank`, `industrialMetal`, `sciFiHull`, `woodTrims`, `concrete`, `stoneMouldings`, `hotspotGrid`, `ladder`, `monumentalStone`, `industrialFrame`, `starfighterFacility`. |
+| `height` | `h` | int | `0` | Texture height of a blank sheet, px (0: square). |
+| `strips` | `st` | list |  | Blank sheet: full-width raised strips of these heights, px, top to bottom. |
+| `width` | `w` | int | `0` | Texture width, px (0: the preset's, 2048 for a blank sheet). |
 | `file` | `f` | str |  | Where to save; default <workspace>/TrimSheets/<name>.lilatrim. |
 | `name` | `n` | str |  | Sheet name (texture prefix); default the preset's, T_<Preset>. |
 | `pxPerM` |  | float |  | Texels per metre: sets every trim's world size. |
@@ -15937,6 +17542,10 @@ trimSheetCreate(preset='sciFiHull')
 
 ```python
 trimSheetCreate(preset='woodTrims', width=1024, pxPerM=1024)['trims'][0]
+```
+
+```python
+trimSheetCreate(name='T_Hall', width=2048, height=1024, pxPerM=128, strips=[512, 256, 128, 64, 64])
 ```
 
 ### trimSheetCurrent
@@ -16038,17 +17647,18 @@ Not undoable.
 
 ### trimSheetPaint
 
-Get a trim sheet ready to paint by hand: its texture set (as trimSheetTexture makes it) and a flat <name>_Sheet plane with the sheet's material, selected, for the texture paint tool or the UV editor. Strokes land on the sheet's shared texels, so every mesh using the sheet shows them. Returns {set, plane}.
+Get a trim sheet ready to paint by hand: its texture set (as trimSheetTexture makes it) and a flat <name>_Sheet plane with the sheet's material, selected, for the texture paint tool or the UV editor. Strokes land on the sheet's shared texels, so every mesh using the sheet shows them. palette= paints that palette's set on a <name>_<palette>_Sheet plane. Returns {set, plane}.
 
 **Objects:** sheet (default the current one)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
+| `palette` | `pal` | str |  | Palette to paint; the default palette when not given. |
 
 ### trimSheetSend
 
-Send a trim sheet to Unreal: its baked textures go to <folder>/Textures, the trim master material M_LilaTrim is generated (or rebuilt with regenerateMaster) and an instance MI_<name> is made with the sheet's maps, and every mapped mesh in the scene that uses this sheet gets the instance on its sheet slot. Returns what Unreal made; wait=False queues it.
+Send a trim sheet to Unreal, in any order with its meshes: the meshes using the sheet are mapped (new ones under <folder>/<name>/Meshes/SM_<mesh>) and sent first, the baked textures go to <folder>/<name>/Textures, the trim master M_LilaTrim is generated (or rebuilt with regenerateMaster), each palette becomes an instance (MI_<name> for the default, MI_<name>_<palette> for the others) with the shared maps plus that palette's painted maps and parameters, and every mesh gets its palettes' instances on the matching slots. meshes='mapped' sends no meshes and fails listing the ones Unreal doesn't have. Returns {instances, assigned, meshes: {sent, newlyMapped}, missing, textures, materials, errors}; wait=False queues it; dryRun=True returns the plan without connecting.
 
 **Objects:** sheet (default the current one)
 
@@ -16057,12 +17667,22 @@ Send a trim sheet to Unreal: its baked textures go to <folder>/Textures, the tri
 | `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
 | `folder` | `f` | str | `'/Game/Lila/Trims'` | Content folder; the sheet's assets go in <folder>/<name>. |
 | `regenerateMaster` |  | bool | `False` | Rebuild M_LilaTrim's graph from this version of Lila, discarding edits to it. |
+| `meshes` | `me` | str | `'send'` | send: map and send the sheet's meshes first; mapped: only assign to meshes already in Unreal. |
 | `wait` | `w` | bool | `True` | Block until Unreal has imported everything. |
+| `dryRun` |  | bool | `False` | Return the plan (textures, instances, meshes) without connecting to Unreal. |
 
 Not undoable.
 
 ```python
 trimSheetSend()
+```
+
+```python
+trimSheetSend(dryRun=True)['request']['instances']
+```
+
+```python
+trimSheetSend(meshes='mapped')
 ```
 
 ### trimSheetTest
@@ -16082,14 +17702,15 @@ trimSheetTest()
 
 ### trimSheetTexture
 
-Texture a trim sheet with a smart material. The sheet's bake becomes the mesh maps of its texture set TS_<name>, so edge wear, cavity dirt and chips land on the bevels, and the set paints M_<name> live on every mesh using the sheet. The first call makes the set with a Sheet Bake layer (the baked normal and AO) and bakes the sheet if it has no textures; each call adds the smart material on top, kept to trims= (indices, names or tags) by Trim Mask masks when given. Returns {set, project, layer, material, trims, maps}.
+Texture a trim sheet with a smart material. The sheet's bake becomes the mesh maps of its texture set TS_<name>, so edge wear, cavity dirt and chips land on the bevels, and the set paints M_<name> live on every mesh using the sheet. The first call makes the set with a Sheet Bake layer (the baked normal and AO) and bakes the sheet if it has no textures; each call adds the smart material on top, kept to trims= (indices, names or tags) by Trim Mask masks when given. palette= textures that palette's own set TS_<name>_<palette> (painting M_<name>_<palette>) over the same bake. Returns {set, project, layer, material, palette, trims, maps}.
 
 **Objects:** sheet (default the current one)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `sheet` | `sh` | str |  | The .lilatrim file; the current sheet (trimSheetCurrent) when not given. |
-| `material` | `m` | str |  | Smart material name or .lilasmart; the sheet's own when not given. |
+| `palette` | `pal` | str |  | Palette to texture (trimPaletteList); the sheet's default palette when not given. |
+| `material` | `m` | str |  | Smart material name or .lilasmart; the palette's (else the sheet's) own when not given. |
 | `trims` | `t` | Any |  | Only on these trims: an index, name or tag, or a list of them. |
 | `name` | `n` | str |  | Layer name; the smart material's when not given. |
 | `replace` | `r` | bool | `False` | First remove every layer but Sheet Bake, so the sheet starts over. |
