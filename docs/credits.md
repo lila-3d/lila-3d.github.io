@@ -9,7 +9,7 @@ Who is credited in Lila, and how to get your name listed.
 1. Support Lila on [Ko-fi](https://ko-fi.com/jaredtaylor) or [GitHub Sponsors](https://github.com/sponsors/Vaei). On Ko-fi, leave the donation public. On GitHub, make the sponsorship public.
 2. Once your total reaches $30, your name appears in **Help > Credits** within a day.
 
-Totals add up across donations, in US dollars. Buying Lila on Steam doesn't count toward a tier.
+Totals add up across donations, in US dollars. Buying Lila on Steam pays for Lila itself, so it doesn't count toward a tier; Lila's supporter DLC on Steam does, up to Legendary.
 
 ## Tiers
 
