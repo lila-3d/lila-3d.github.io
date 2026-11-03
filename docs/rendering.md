@@ -64,5 +64,5 @@ On a camera, turn on **depth of field** and set **f-stop** and **focus distance*
 | Preferences > Viewport > Antialiasing > **Temporal** (`/viewport/aa/temporal`) | on | Smooths shading and texture shimmer as the view moves. |
 | Preferences > Viewport > **AO method** > Ray traced (`/viewport/ao/mode`) | accurate | Occlusion traced against the scene: no halos, off-screen occluders count. Needs a GPU with ray tracing. |
 | Preferences > Viewport > Frame Rate > **Max frame rate** (`/viewport/frameCap`) | Display refresh | -1 follows the monitor, 0 is unlimited, any other number is frames a second. "Play Every Frame" playback steps no faster than this. |
-| Preferences > Viewport > Frame Rate > **In background** (`/viewport/backgroundFrameCap`) | 30 | Cap while another app has focus; 0 keeps the cap above. |
+| Preferences > Viewport > Frame Rate > **In background** (`/viewport/backgroundFrameCap`) | Same as above | Cap while another app has focus. |
 | Preferences > Viewport > Frame Rate > **VSync** (`/viewport/vsync`) | off | Waits for each display refresh. Turn on if the view tears. |
