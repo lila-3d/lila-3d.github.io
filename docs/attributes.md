@@ -47,7 +47,7 @@ LilaLink ships examples of each: `ULilaExampleHealthComponent`, `ULilaExampleCom
 
 ## Edit several objects
 
-With several objects selected, an edit in the Attribute Editor or Channel Box changes only the lead object (the one last selected, or the one you click in the header chips). Hold **Alt** while editing to change every selected object that has the attribute. While Alt is held the header shows **Editing 3 objects**, fields that differ show `--`, and each changed field gets a count. Turn off the reminder strip with its **Turn off this hint** link.
+With several objects selected, a Channel Box edit changes every selected object that has the channel, unless its **Edit all selected** setting is off. An Attribute Editor edit changes only the lead object (the one last selected, or the one you click in the header chips). Hold **Alt** while editing to change every selected object that has the attribute. While Alt is held the header shows **Editing 3 objects**, fields that differ show `--`, and each changed field gets a count. Turn off the reminder strip with its **Turn off this hint** link.
 
 ## Add attributes from Python
 

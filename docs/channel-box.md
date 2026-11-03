@@ -6,7 +6,7 @@ The Channel Box works like Maya's, plus a filter, an object strip and a stripe o
 
 1. Select objects. With more than one, the strip at the top lists them in selection order: click one to make it the lead, drag to reorder.
 2. Type in **Filter channels**, or click the filter icons under it: once for only those channels, twice for all but those (the icon shows crossed out), again for off.
-3. Click a value and type. It goes to the lead object; hold **Alt** to set it on every selected object.
+3. Click a value and type. It goes to every selected object that has the channel; the values shown are the lead's.
 
 The stripe left of each name:
 
@@ -25,7 +25,7 @@ The right-click menu shows only what applies: key, breakdown and mute; copy and 
 
 ## Troubleshooting
 
-**A value changed on one object only.** Several are selected: hold Alt while you type or scrub.
+**A value changed on one object only.** **Edit all selected** (gear button) is off: hold Alt while you type or scrub, or turn it back on.
 
 **Middle-drag in the viewport doesn't scrub the highlighted channels.** The scrub setting (gear button) is **Off**, or **Select tool only** with the move, rotate or scale tool active.
 
@@ -33,7 +33,7 @@ The right-click menu shows only what applies: key, breakdown and mute; copy and 
 
 ## Options
 
-The gear button: scrub speed (the feather, walker and runner set 0.25, 1 and 4), hyperbolic scrubbing (faster drags go further), when a viewport middle drag scrubs, decimal places and namespaces (both shared with the Attribute Editor), and the lead-only hint. The **Nice/Long/Short** button switches names in both editors.
+The gear button: scrub speed (the feather, walker and runner set 0.25, 1 and 4), hyperbolic scrubbing (faster drags go further), when a viewport middle drag scrubs, decimal places and namespaces (both shared with the Attribute Editor), **Edit all selected** (off edits the lead only, Alt edits all) and the lead-only hint. The **Nice/Long/Short** button switches names in both editors.
 
 | Filter icon | Shows |
 | --- | --- |
