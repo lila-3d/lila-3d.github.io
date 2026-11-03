@@ -116,6 +116,17 @@ Lila only. Each file was written by Lila's own exporter from the ships.
 | STL, ASCII: the ships | 4.60 s | 3.48 s | 2,699 MB |
 | DXF: the ships as polyface meshes | 7.20 s | 4.83 s | 2,872 MB |
 
+<!-- history:start -->
+## History
+
+Snapshots of this page from major performance pushes, each kept as it was measured.
+
+| Date | Push | Compared with | |
+|---|---|---|---|
+| 27 October 2026 | First comparison with Maya | Maya 2026.3 | [Snapshot](performance/2026-10-27.md) |
+
+<!-- history:end -->
+
 ## How it was measured
 
 Each app was started fresh, with nothing else running, and timed alone. Both viewports were about 2 million pixels: Maya's 1864 x 1157, Lila's 1557 x 1283. Times "until on screen" run from the command to the first frame drawn afterwards.

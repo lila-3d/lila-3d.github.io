@@ -501,3 +501,60 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 /* The live list on the Credits page (credits-live.js). */
 .credits-list { list-style: none; padding-left: 0; }
 .credits-role { color: var(--muted); }
+
+/* Performance snapshots (docs/performance/<date>.md): a bar pinned over the page so a past result is never read as
+   the current one, and that page's tables muted. */
+:root {
+  --snap-ground: #241d0f;
+  --snap-line: #5a4719;
+  --snap-text: #f3e2b8;
+  --snap-muted: #cdb98c;
+  --snap-accent: #ffc94d;
+}
+
+.markdown-section .snapshot-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 24px;
+  padding: 10px 14px 10px 38px;
+  color: var(--snap-muted);
+  font-size: .875rem;
+  line-height: 1.45;
+  background: var(--snap-ground);
+  border: 1px solid var(--snap-line);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .45);
+}
+
+.markdown-section .snapshot-bar::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 12px;
+  width: 16px;
+  height: 16px;
+  background: var(--snap-accent);
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7L3 8'/%3E%3Cpath d='M3 3v5h5M12 7v5l3 3'/%3E%3C/svg%3E");
+}
+
+.markdown-section .snapshot-bar strong { color: var(--snap-text); font-weight: 600; }
+
+.markdown-section .snapshot-bar a {
+  margin-left: auto;
+  color: var(--snap-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.markdown-section .snapshot-bar a:hover { color: var(--snap-text); }
+
+.markdown-section:has(.snapshot-bar) table { filter: saturate(.4); }
