@@ -1461,7 +1461,7 @@ Surface normal on the evaluated domain.
 
 ### Object Info
 
-Another mesh object's evaluated mesh and transform. Its outMesh and worldMatrix are connected into the modifier, so editing it re-evaluates this group.
+Another mesh or curve object's evaluated shape and transform. Its mesh (or splines) and world matrix are connected into the modifier, so editing it re-evaluates this group. A curve comes out as curves; instance places it like world.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1472,7 +1472,7 @@ Another mesh object's evaluated mesh and transform. Its outMesh and worldMatrix 
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `object` |  |  | Name of the mesh object. |
+| `object` |  |  | Name of the mesh or curve object. |
 | `transformSpace` | `original`, `world`, `instance` | `original` | original keeps the mesh in its own space; world applies its world matrix; instance passes one instance of the mesh placed by its world matrix, which simulation nodes follow as a moving object. |
 | `relativeTo` | `world`, `owner` | `world` | world reads the object's transform as it is in the scene; owner reads it relative to the mesh this group runs on (where it stood when the object was connected), so moving both together changes nothing. |
 
@@ -4031,6 +4031,59 @@ Available when the Destruction extension is loaded.
 
 ### Destruction
 
+#### Damage Pieces
+
+Damages fractured pieces without simulating a break: cracked leaves every piece standing with a visible crack between neighbours and some slipped out of place; missing takes out the pieces around the impact; chipped takes small pieces off edges and corners; collapsed frees the pieces around the impact and lets everything settle under gravity, so what lost its support falls. The same inputs always give the same result.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pieces` | geometry | input |  | Pieces, as instances (from Fracture). |
+| `links` | geometry | input |  | Links between them (from Fracture or Anchor Pieces). |
+| `colliders` | geometry | input |  | Collapsed: things the pieces land on besides the ground. |
+| `amount` | float | input | `0.3` | How much is damaged, 0 to 1. Range 0 to 1. |
+| `impact` | vector | input | `[0, 0, 0]` | Where the damage centres, cm (missing, collapsed). |
+| `seed` | int | input | `1` | Another seed gives another result. |
+| `gap` | float | input | `0.3` | Cracked: width of the cracks, cm. At least 0. |
+| `shift` | float | input | `1` | Cracked: how far loose pieces slip, cm. At least 0. |
+| `tilt` | float | input | `2` | Cracked: how far loose pieces tip, degrees. At least 0. |
+| `gravity` | vector | input | `[0, -981, 0]` | Collapsed: cm/s2. |
+| `ground` | bool | input | `true` | Collapsed: a floor at Ground Height. |
+| `groundHeight` | float | input | `0` | Collapsed: cm. |
+| `strength` | float | input | `1` | Collapsed: multiplies the links' strength; lower brings more down. At least 0. |
+| `density` | float | input | `2400` | Collapsed: kg/m3. At least 1. |
+| `seconds` | float | input | `6` | Collapsed: longest it settles for, s. Range 0.5 to 60. |
+| `pieces` | geometry | output |  | The damaged pieces. |
+| `links` | geometry | output |  | The links still holding. |
+| `rubble` | geometry | output |  | Missing and chipped: the pieces taken out, where they were. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `cracked`, `missing`, `chipped`, `collapsed` | `cracked` | What kind of damage. |
+
+#### Debris From Events
+
+Small chunks and dust where things broke: each event point (a Rigid Body Solver's breaks) throws off chunks, more for harder breaks, that settle on the ground and on the pieces, ready to keep as level dressing; dust comes out as points (size, velocity, frame) for Niagara. Chunks share a few rock shapes, so they stay light. Without Settle they come out flying, with velocity, for another Rigid Body Solver.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `events` | geometry | input |  | Where things broke: points, with impulse and frame attributes when they have them. |
+| `colliders` | geometry | input |  | What chunks land on and take their inside material from: the pieces, or a mesh. |
+| `amount` | float | input | `4` | Chunks per break, on average. Range 0 to 1000. |
+| `size` | float | input | `8` | Typical chunk size, cm. At least 0.1. |
+| `sizeVariation` | float | input | `0.5` | 0 makes every chunk the same size; 1 from nothing to twice it. Range 0 to 1. |
+| `spread` | float | input | `300` | How fast chunks fly off, cm/s. At least 0. |
+| `dust` | int | input | `20` | Dust points per break. Range 0 to 10000. |
+| `seed` | int | input | `1` | Another seed gives another scatter. |
+| `settle` | bool | input | `true` | Let the chunks fall and come to rest. |
+| `gravity` | vector | input | `[0, -981, 0]` | cm/s2. |
+| `ground` | bool | input | `true` | A floor at Ground Height. |
+| `groundHeight` | float | input | `0` | cm. |
+| `density` | float | input | `2400` | kg/m3. At least 1. |
+| `seconds` | float | input | `6` | Longest the chunks settle for, s. Range 0.5 to 60. |
+| `material` | string | input |  | Material of the chunks; empty takes the pieces' inside material. |
+| `debris` | geometry | output |  | The chunks, as instances of a few shared shapes. |
+| `dust` | geometry | output |  | Dust points for Niagara. |
+
 #### Rigid Body Solver
 
 Simulates pieces falling, colliding and breaking apart, the same on every machine. Pieces are instances (from Fracture or Mesh to Pieces); links are two-point curves (from Connect Pieces) that hold pieces together until the force through them passes their strength; a link's strength can change over time, and 0 cuts it. Pieces with active = 0 follow their own transform until it turns 1. The simulation is cached frame by frame; changing anything upstream re-simulates from the first frame it affects.
@@ -4067,34 +4120,158 @@ Available when the Masonry extension is loaded.
 
 ### Masonry
 
+#### Masonry Age
+
+Weathers any instances as masonry: writes age, wet (near the ground and on exposed tops) and moss (where wet and exposed) per instance, the values Unreal's masonry material reads. Damage already on the instances is kept.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  | Instances to age: stones from a masonry node, or any instances. |
+| `age` | float | input | `0` | How old it looks, 0 to 1: moss, wear and staining in the material. Range 0 to 1. |
+| `moss` | float | input | `0.5` | How much moss grows where it is wet and exposed, 0 to 1. Range 0 to 1. |
+| `wetHeight` | float | input | `0` | Damp band above the ground, cm; 0 is a fifth of the height. Range 0 to 1000000. |
+| `plaster` | float | input | `0` | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. Range 0 to 1. |
+| `plasterThickness` | float | input | `0` | Render coat thickness, cm; 0 is a third of a stone height. Range 0 to 10000. |
+| `ivy` | float | input | `0` | How much ivy climbs from the ground, 0 to 1. Range 0 to 1. |
+| `ivyHeight` | float | input | `0.7` | How far up the ivy reaches, 0 to 1. Range 0 to 1. |
+| `leaf` | float | input | `0` | Ivy leaf size, cm; 0 is two thirds of a typical stone. Range 0 to 10000. |
+| `geometry` | geometry | output |  | The same instances with age, wet and moss. |
+
+#### Masonry Building
+
+A whole masonry building from a JSON spec: walls with openings, buttresses, bands and cornices, columns, stairs, vaults, domes, arches and floors, each a named region. The Ruin and Age inputs break and weather it; floors break into pieces that fall where nothing holds them. Stones are instances sharing a few meshes, with attributes stone, wall, course, role (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler, 5 voussoir, 6 keystone, 7 lintel, 8 sill, 9 jamb, 10 column, 11 step, 12 band, 13 slab, 14 rubble), face (0 outer, 1 inner, 2 through), region, random, variant, size, height, age, damage, wet, moss and loose. Lengths are cm.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | string | input | `{}` | The building as a JSON spec (masonrySpec reads it back; lila://masonry/spec-schema describes it). |
+| `bevel` | float | input | `0.5` | Stone edge chamfer, cm. Range 0 to 10000. |
+| `wear` | float | input | `0.5` | How knocked about stone corners are, 0 to 1. Range 0 to 1. |
+| `jitter` | float | input | `1` | How far stones wander and tilt inside their joints, 0 to 1. Range 0 to 1. |
+| `protrude` | float | input | `0.3` | Stones pushed out of the face by up to this, cm. Range 0 to 10000. |
+| `variants` | int | input | `6` | How many differently worn versions of each stone size. Range 1 to 64. |
+| `detail` | int | input | `0` | 0 worn, 1 clean chamfer, 2 plain boxes (fast preview). Range 0 to 2. |
+| `tile` | float | input | `100` | Cm of stone per UV unit of the tiling texture. Range 1 to 10000000. |
+| `chips` | float | input | `0.3` | Chips knocked out of stone edges and corners, 0 to 1; more on old, wet and damaged stones. Range 0 to 1. |
+| `seed` | int | input | `1` | Another seed gives other wander, wear and cut positions. Range 0 to 2147483647. |
+| `left` | float | input | `1` | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. Range 0 to 1. |
+| `collapse` | float | input | `0` | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. Range -360 to 360. |
+| `slope` | float | input | `0.5` | How much lower it stands toward the collapse side, 0 to 1. Range 0 to 1. |
+| `roughness` | float | input | `0.35` | How ragged the broken top is, 0 to 1. Range 0 to 1. |
+| `gaps` | int | input | `0` | Breaches cut down toward the ground. Range 0 to 64. |
+| `survivors` | float | input | `0.1` | Share of the stones just above the break that hang on. Range 0 to 1. |
+| `loose` | float | input | `0.4` | Share of the top stones tipped or slid. Range 0 to 1. |
+| `tip` | float | input | `40` | Most a loose stone tips, degrees. Range 0 to 89. |
+| `rubble` | float | input | `0.6` | Share of the fallen stones lying at the foot; the rest are gone. Range 0 to 1. |
+| `settle` | bool | input | `false` | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `ruinRegions` | string | input |  | Only these regions ruin, comma separated (north_wall, tower_1/door_1); empty is all. |
+| `ruinSeed` | int | input | `1` | Another seed breaks it differently. Range 0 to 2147483647. |
+| `structural` | bool | input | `false` | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` | string | input |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+| `age` | float | input | `0` | How old it looks, 0 to 1: moss, wear and staining in the material. Range 0 to 1. |
+| `moss` | float | input | `0.5` | How much moss grows where it is wet and exposed, 0 to 1. Range 0 to 1. |
+| `wetHeight` | float | input | `0` | Damp band above the ground, cm; 0 is a fifth of the height. Range 0 to 1000000. |
+| `plaster` | float | input | `0` | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. Range 0 to 1. |
+| `plasterThickness` | float | input | `0` | Render coat thickness, cm; 0 is a third of a stone height. Range 0 to 10000. |
+| `ivy` | float | input | `0` | How much ivy climbs from the ground, 0 to 1. Range 0 to 1. |
+| `ivyHeight` | float | input | `0.7` | How far up the ivy reaches, 0 to 1. Range 0 to 1. |
+| `leaf` | float | input | `0` | Ivy leaf size, cm; 0 is two thirds of a typical stone. Range 0 to 10000. |
+| `geometry` | geometry | output |  | Stones, core, plaster and ivy together. |
+| `stones` | geometry | output |  | The stones, as instances. |
+| `core` | geometry | output |  | The mortar core, a mesh. |
+| `dressing` | geometry | output |  | Plaster and ivy, a mesh. |
+
+#### Masonry Links
+
+Links for the Rigid Body Solver between masonry stones that touch, as two-point curves (pieceA, pieceB, type, strength, area): mortar strength times contact area, weakened by each stone's age. Grounded stones are tied to the world.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `stones` | geometry | input |  | Stones as instances (a masonry node's stones output, or any). |
+| `strength` | float | input | `30` | Mortar strength, N per cm2 of contact. Range 0 to 1000000. |
+| `ageWeakens` | float | input | `0.6` | How much of its strength the oldest mortar has lost, 0 to 1. Range 0 to 1. |
+| `anchor` | bool | input | `true` | Tie stones on the ground to the world. |
+| `links` | geometry | output |  | Links as two-point curves. |
+
+#### Masonry Ruin
+
+Ruins any instances as masonry: those above a ragged break fall (heaped at the foot as rubble, or gone), a few survive, nothing is left floating, and top ones tip. Writes damage and loose. Other components pass through.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  | Instances to ruin: stones from a masonry node, or any instances. |
+| `left` | float | input | `1` | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. Range 0 to 1. |
+| `collapse` | float | input | `0` | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. Range -360 to 360. |
+| `slope` | float | input | `0.5` | How much lower it stands toward the collapse side, 0 to 1. Range 0 to 1. |
+| `roughness` | float | input | `0.35` | How ragged the broken top is, 0 to 1. Range 0 to 1. |
+| `gaps` | int | input | `0` | Breaches cut down toward the ground. Range 0 to 64. |
+| `survivors` | float | input | `0.1` | Share of the stones just above the break that hang on. Range 0 to 1. |
+| `loose` | float | input | `0.4` | Share of the top stones tipped or slid. Range 0 to 1. |
+| `tip` | float | input | `40` | Most a loose stone tips, degrees. Range 0 to 89. |
+| `rubble` | float | input | `0.6` | Share of the fallen stones lying at the foot; the rest are gone. Range 0 to 1. |
+| `settle` | bool | input | `false` | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `ruinRegions` | string | input |  | Only these regions ruin, comma separated (north_wall, tower_1/door_1); empty is all. |
+| `ruinSeed` | int | input | `1` | Another seed breaks it differently. Range 0 to 2147483647. |
+| `structural` | bool | input | `false` | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` | string | input |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+| `geometry` | geometry | output |  | What is left, rubble included. |
+
 #### Masonry Wall
 
-Lays stones in courses along footprint lines (curves, or a mesh's loose edges) and builds the mortar core they sit in. Corners turn by alternating which wall runs through on each course; cut stones land mid wall. Stones are instances sharing a few meshes, with attributes stone, wall, course, role (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler), face (0 outer, 1 inner, 2 through), random, variant and size. Lengths are cm.
+Lays stones in courses along footprint lines and builds the mortar core they sit in. Corners turn by alternating which wall runs through; courses step over sloping ground; openings get arches or lintels, sills and jambs. The Ruin and Age inputs break and weather it. Stones are instances sharing a few meshes, with attributes stone, wall, course, role (0 stretcher, 1 header, 2 bat, 3 closer, 4 filler, 5 voussoir, 6 keystone, 7 lintel, 8 sill, 9 jamb, 10 column, 11 step, 12 band, 13 slab, 14 rubble), face (0 outer, 1 inner, 2 through), region, random, variant, size, height, age, damage, wet, moss and loose. Lengths are cm.
 
 ![Masonry Wall](../images/nodes/MasonryWall.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
-| `footprint` | geometry | input |  | Lines the wall stands on: curves, or a mesh's loose edges. Y is up. |
-| `bond` | string | input | `running` | How stones are arranged: running, stack, english, flemish, header, gardenWall. |
-| `height` | float | input | `200` | Wall height. At least 0. |
-| `thickness` | float | input | `21.5` | Wall thickness. Under 1.5 stone depths the wall is one stone thick. At least 1. |
-| `stoneLength` | float | input | `21.5` | Stone length along the face. At least 1. |
-| `stoneHeight` | float | input | `6.5` | Stone height; courses are fitted to the wall height. At least 0.5. |
-| `stoneDepth` | float | input | `10.25` | Stone depth into the wall, and a header's width on the face. At least 0.5. |
-| `joint` | float | input | `1` | Mortar joint. At least 0. |
-| `recess` | float | input | `0.6` | How far the mortar sits behind the stone faces. At least 0. |
-| `bevel` | float | input | `0.5` | Stone edge chamfer. At least 0. |
-| `wear` | float | input | `0.5` | 0 to 1: how knocked about stone corners are. Range 0 to 1. |
-| `jitter` | float | input | `1` | 0 to 1: how far stones wander and tilt inside their joints. Range 0 to 1. |
-| `protrude` | float | input | `0.3` | Stones pushed out of the face by up to this. At least 0. |
-| `cornerAngle` | float | input | `30` | Turns sharper than this, degrees, are corners; gentler ones curve. Range 1 to 179. |
+| `footprint` | geometry | input |  | Lines the wall stands on: curves, or a mesh's loose edges (point float wallHeight sets the height per point). Y is up; each point's Y is the ground. |
+| `bond` | string | input | `running` | running, stack, english, flemish, header, gardenWall, herringbone, ashlar, rubble or dryStone. |
+| `height` | float | input | `200` | Wall height above the ground, cm, where the footprint has no per-point wallHeight. Range 0 to 10000000. |
+| `thickness` | float | input | `21.5` | Wall thickness at the base, cm. Under 1.5 stone depths the wall is one stone thick. Range 1 to 1000000. |
+| `cornerAngle` | float | input | `30` | Turns sharper than this, degrees, are corners; gentler ones curve the wall. Range 1 to 179. |
+| `batter` | float | input | `0` | Degrees each face leans in, so the wall thins upward. Range 0 to 45. |
+| `bands` | string | input |  | String course heights above the lowest ground, cm: a JSON list such as [300, 600]. |
+| `cornice` | int | input | `0` | Top courses corbelled out, each further than the one below. Range 0 to 16. |
+| `openings` | string | input |  | Doors, windows and niches as a JSON list: [{"at": cm along the footprint, "width", "height", "sill", "arch": lintel\|round\|pointed\|segmental\|flat, "kind": door\|window\|niche, "name"}]. |
+| `stoneLength` | float | input | `21.5` | Stone length along the face, cm. Range 1 to 100000. |
+| `stoneHeight` | float | input | `6.5` | Stone height, cm. Courses are fitted to the wall height. Range 0.5 to 100000. |
+| `stoneDepth` | float | input | `10.25` | Stone depth into the wall, cm; also a header's width on the face. Range 0.5 to 100000. |
+| `joint` | float | input | `1` | Mortar joint, cm. Range 0 to 10000. |
+| `recess` | float | input | `0.6` | How far the mortar sits behind the stone faces, cm. Range 0 to 10000. |
+| `bevel` | float | input | `0.5` | Stone edge chamfer, cm. Range 0 to 10000. |
+| `wear` | float | input | `0.5` | How knocked about stone corners are, 0 to 1. Range 0 to 1. |
+| `jitter` | float | input | `1` | How far stones wander and tilt inside their joints, 0 to 1. Range 0 to 1. |
+| `protrude` | float | input | `0.3` | Stones pushed out of the face by up to this, cm. Range 0 to 10000. |
 | `variants` | int | input | `6` | How many differently worn versions of each stone size. Range 1 to 64. |
 | `detail` | int | input | `0` | 0 worn, 1 clean chamfer, 2 plain boxes (fast preview). Range 0 to 2. |
-| `seed` | int | input | `1` | Another seed gives other wander, wear and cut positions. |
-| `geometry` | geometry | output |  | Stones and core together. |
+| `tile` | float | input | `100` | Cm of stone per UV unit of the tiling texture. Range 1 to 10000000. |
+| `chips` | float | input | `0.3` | Chips knocked out of stone edges and corners, 0 to 1; more on old, wet and damaged stones. Range 0 to 1. |
+| `seed` | int | input | `1` | Another seed gives other wander, wear and cut positions. Range 0 to 2147483647. |
+| `left` | float | input | `1` | Share of the stone left standing, 0 to 1: 1 intact, 0.75, 0.5, 0.25 a stump. Range 0 to 1. |
+| `collapse` | float | input | `0` | Direction it fell toward, degrees about Y from +X; it stands lowest there and rubble lies that way. Range -360 to 360. |
+| `slope` | float | input | `0.5` | How much lower it stands toward the collapse side, 0 to 1. Range 0 to 1. |
+| `roughness` | float | input | `0.35` | How ragged the broken top is, 0 to 1. Range 0 to 1. |
+| `gaps` | int | input | `0` | Breaches cut down toward the ground. Range 0 to 64. |
+| `survivors` | float | input | `0.1` | Share of the stones just above the break that hang on. Range 0 to 1. |
+| `loose` | float | input | `0.4` | Share of the top stones tipped or slid. Range 0 to 1. |
+| `tip` | float | input | `40` | Most a loose stone tips, degrees. Range 0 to 89. |
+| `rubble` | float | input | `0.6` | Share of the fallen stones lying at the foot; the rest are gone. Range 0 to 1. |
+| `settle` | bool | input | `false` | Drop the rubble with the rigid-body solver (slower) instead of only heaping it. |
+| `ruinRegions` | string | input |  | Only these regions ruin, comma separated (north_wall, tower_1/door_1); empty is all. |
+| `ruinSeed` | int | input | `1` | Another seed breaks it differently. Range 0 to 2147483647. |
+| `structural` | bool | input | `false` | Also drop what can't stand under the rigid-body solver: arches without keystones, overhangs (slower). |
+| `ruinStrokes` | string | input |  | Painted damage as JSON [{points, radius, strength}]; ruinPaint and the Ruin Brush add to it. |
+| `age` | float | input | `0` | How old it looks, 0 to 1: moss, wear and staining in the material. Range 0 to 1. |
+| `moss` | float | input | `0.5` | How much moss grows where it is wet and exposed, 0 to 1. Range 0 to 1. |
+| `wetHeight` | float | input | `0` | Damp band above the ground, cm; 0 is a fifth of the height. Range 0 to 1000000. |
+| `plaster` | float | input | `0` | How much render coat is left on the outer faces, 0 to 1; it peels high up and where damaged. Range 0 to 1. |
+| `plasterThickness` | float | input | `0` | Render coat thickness, cm; 0 is a third of a stone height. Range 0 to 10000. |
+| `ivy` | float | input | `0` | How much ivy climbs from the ground, 0 to 1. Range 0 to 1. |
+| `ivyHeight` | float | input | `0.7` | How far up the ivy reaches, 0 to 1. Range 0 to 1. |
+| `leaf` | float | input | `0` | Ivy leaf size, cm; 0 is two thirds of a typical stone. Range 0 to 10000. |
+| `geometry` | geometry | output |  | Stones, core, plaster and ivy together. |
 | `stones` | geometry | output |  | The stones, as instances. |
 | `core` | geometry | output |  | The mortar core, a mesh. |
+| `dressing` | geometry | output |  | Plaster and ivy, a mesh. |
 
 ## NanoVDB extension
 
@@ -4130,13 +4307,13 @@ Available when the Settlement extension is loaded.
 
 #### Settlement
 
-Lays out a settlement inside an outline: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile's pattern, blocks between them, lots along the streets and a building envelope on each lot (the space a building may fill: footprint, floors, height, roof). Streets are ribbons with face attributes street and class (0 arterial, 1 collector, 2 local, 3 alley); lots are outlines with an edge attribute lot; envelopes are closed volumes with face attributes lot, use (0 residential, 1 commercial, 2 civic), floors and part (0 wall, 1 roof, 2 floor). Curves carry the centrelines, lot outlines and footprints. Lengths are cm, Y up.
+Lays out a settlement inside an outline: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile's pattern, blocks between them, lots along the streets and a building envelope on each lot (the space a building may fill: footprint, floors, height, roof). Exclusions (closed loops with int edge attribute exclude, or in edits) stay clear of all of it; edits add streets and routes, routed over the ground or across the walkable mesh. Streets are ribbons with face attributes street, class (0 arterial, 1 collector, 2 local, 3 alley, 4 path) and path (the edit id, -1 when generated); lots are outlines with an edge attribute lot; envelopes are closed volumes with face attributes lot, use (0 residential, 1 commercial, 2 civic), floors and part (0 wall, 1 roof, 2 floor). Curves carry the centrelines, lot outlines and footprints. Lengths are cm, Y up.
 
 ![Settlement](../images/nodes/Settlement.webp)
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
-| `site` | geometry | input |  | Outline (the largest closed curve or loose-edge loop), fixed streets (open lines) and points (the first is the centre, the rest attractors main roads run to). Loose edges with int attribute road are main roads arriving from outside; with int attribute water they are rivers, float attribute width their width. |
+| `site` | geometry | input |  | Outline (the largest closed curve or loose-edge loop), fixed streets (open lines) and points (the first is the centre, the rest attractors main roads run to). Loose edges with int attribute road are main roads arriving from outside; with int attribute water they are rivers, float attribute width their width; loops with int attribute exclude are exclusions. |
 | `ground` | geometry | input |  | Mesh the settlement stands on. Empty for flat ground at the site's height. |
 | `profile` | string | input | `medievalTown` | Style: hamlet, streetVillage, medievalTown, usTown, manhattan, europeanCity, modernCity, scifiMegacity. |
 | `pattern` | string | input |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid. |
@@ -4147,6 +4324,12 @@ Lays out a settlement inside an outline: arterial roads routed over the ground f
 | `widthScale` | float | input | `1` | Multiplies every street width. At least 0.05. |
 | `lotScale` | float | input | `1` | Multiplies lot frontage, depth and building depth. At least 0.05. |
 | `seed` | int | input | `1` | Another seed gives another settlement on the same site. |
+| `blocks` | bool | input | `true` | Blocks and lots between the streets. Off for streets and paths only. |
+| `buildings` | bool | input | `true` | A building envelope on each lot. Off for empty lots. |
+| `edits` | string | input |  | Streets, routes, exclusions and road profiles as JSON (settlementAddStreet, settlementRoute and settlementAddExclusion write it). |
+| `walkable` | geometry | input |  | Mesh routes may walk on: a structure's ramps, terraces and floors. |
+| `walkSlope` | float | input | `35` | Steepest walkable face, degrees. Range 0 to 89. |
+| `walkStep` | float | input | `60` | Height a walk may step between separate pieces, cm. At least 0. |
 | `showStreets` | bool | input | `true` | Include streets in geometry. |
 | `showLots` | bool | input | `true` | Include lot outlines in geometry. |
 | `showBuildings` | bool | input | `true` | Include building envelopes in geometry. |
@@ -4348,9 +4531,25 @@ Combines B into A on A's grid: B is read bilinearly at each of A's samples and c
 | --- | --- | --- | --- |
 | `blend` | `replace`, `add`, `subtract`, `multiply`, `max`, `min` | `max` | How the new value combines with the one there. |
 
+#### Buildable Regions
+
+Outlines of contiguous buildable land (see terrainBuildable) as closed curves, with area (m2), meanSlope and meanBuildability per curve; holes are their own curves with hole = 1.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `minArea` | float | input | `2000` | Smallest region, m2. At least 0. |
+| `maxSlope` | float | input | `15` | Steepest ground, degrees. Range 0 to 90. |
+| `avoidFlood` | bool | input | `true` | Leave out ground that floods. |
+| `floodTolerance` | float | input | `0.3` | Flood risk counted as flooding. Range 0 to 1. |
+| `riverArea` | float | input | `250000` | Drainage area, m2, past which water is a river. At least 1. |
+| `hasSea` | bool | input | `false` | There is a sea. |
+| `seaLevel` | float | input | `0` | Sea level, cm. |
+| `regions` | geometry | output |  |  |
+
 #### Erode Terrain
 
-Rivers cut valleys: stream-power erosion on the drainage network, with optional uplift building the land as it wears, and slopes over the talus angle shedding downhill. Every valley drains to the edge, which stays put. Writes masks flow (drainage), wear (removed), deposit (laid down) and lakes. Iterations is age: more is older and more carved. Lengths are cm.
+Rivers cut valleys: stream-power erosion on the drainage network, with optional uplift building the land as it wears, and slopes over the talus angle shedding downhill. Every valley drains to the edge, which stays put. Writes masks flow (drainage), wear (removed), deposit (laid down) and lakes. Iterations is age: more is older and more carved. Lengths are cm. Device gpu runs it on the graphics card (in the app), within float tolerance of cpu, which is exact and the same everywhere; auto takes the GPU when there is one.
 
 ![Erode Terrain](../images/nodes/ErodeTerrain.webp)
 
@@ -4366,6 +4565,10 @@ Rivers cut valleys: stream-power erosion on the drainage network, with optional 
 | `talusAngle` | float | input | `38` | Slopes steeper than this shed material, degrees. Range 1 to 89. |
 | `thermalIterations` | int | input | `2` | Thermal steps per erosion step. Range 0 to 100. |
 | `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `device` | `cpu`, `gpu`, `auto` | `cpu` | Where it runs. |
 
 #### Evaluate Texture Graph
 
@@ -4576,6 +4779,23 @@ Writes a named mask (made when missing) from a field, combined by blend. Masks r
 | --- | --- | --- | --- |
 | `blend` | `replace`, `add`, `subtract`, `multiply`, `max`, `min` | `replace` | How the new value combines with the one there. |
 
+#### Terrain Field
+
+Writes an analysis field into a mask of the heightfield: slope, aspect, curvature, roughness, flow, flowDir, basinId, streamOrder, wet, hand, floodRisk, distanceToWater, nearestWaterId, waterDepth, rockHardness, soilDepth, excavationCost, slopeClass, buildability, prominence, viewshedScore, solar or windExposure (see terrainField). Sample Heightfield reads it back per point.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `riverArea` | float | input | `250000` | Drainage area, m2, past which water is a river. At least 1. |
+| `hasSea` | bool | input | `false` | There is a sea. |
+| `seaLevel` | float | input | `0` | Sea level, cm. |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `field` | `height`, `slope`, `aspect`, `curvature`, `roughness`, `flow`, `flowDir`, `basinId`, `streamOrder`, `wet`, `hand`, `floodRisk`, `distanceToWater`, `nearestWaterId`, `waterDepth`, `rockHardness`, `soilDepth`, `excavationCost`, `slopeClass`, `buildability`, `prominence`, `viewshedScore`, `solar`, `windExposure` | `buildability` | Which field. |
+| `mask` |  |  | Mask to write; empty is the field's name. |
+
 #### Terrain Noise
 
 Fractal noise over world X and Z, from 0 to amplitude, combined into the heightfield's heights. Ridged turns rolling hills into sharp crests with detail gathered on them; warp bends the shapes so they don't line up. Works in world space, so neighbouring heightfields with the same settings join without a seam. Lengths are cm.
@@ -4599,6 +4819,64 @@ Fractal noise over world X and Z, from 0 to amplitude, combined into the heightf
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `blend` | `replace`, `add`, `subtract`, `multiply`, `max`, `min` | `add` | How the new value combines with the one there. |
+
+#### Terrain Sculpt
+
+Sculpt strokes replayed on the heightfield in order: raise, lower, smooth, flatten and noise, at points or along paths, with a radius and strength. terrainSculpt adds strokes; before Erode Terrain they are shaped by erosion, after it they stay as drawn.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `strokes` |  | `[]` | The strokes, a JSON list in the heightfield's own space (see terrainSculpt). |
+
+#### Terrain Sites
+
+Scored places for a kind of site (see terrainSites) as points with a score attribute, best first.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `count` | int | input | `5` | How many. Range 1 to 1000. |
+| `spacing` | float | input | `20000` | Least distance between them, cm. At least 0. |
+| `riverArea` | float | input | `250000` | Drainage area, m2, past which water is a river. At least 1. |
+| `hasSea` | bool | input | `false` | There is a sea. |
+| `seaLevel` | float | input | `0` | Sea level, cm. |
+| `sites` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `kind` | `townCentre`, `harbour`, `bridge`, `ford`, `mill`, `castle`, `temple`, `farmland`, `quarry` | `townCentre` | Kind of site. |
+
+#### Terrain Stamps
+
+Footprint stamps: building pads and plazas, parks and yards flattened, carved, raised, blended, terraced or left on plinths and stilts, each with a skirt back to the ground, and their coverage written to masks such as cityFootprint. Each stamp's footprint is a polygon or follows a mesh or curve through an Object Info node in this group, so moving that object moves the stamp. terrainStampPad and terrainStampRegion write the list; put this after Erode Terrain so erosion never re-cuts a pad.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `stamps` |  | `[]` | The stamps, a JSON list in the heightfield's own space (see terrainStampPad). |
+
+#### Terrain Water
+
+The water on a heightfield as geometry: rivers as curves with width, depth, waterLevel, bedHeight, discharge and flowSpeed per point and streamOrder per curve; lake and sea shorelines as closed curves with waterLevel; and the sites (springs, fords, bridge sites, confluences, rapids, waterfalls) as points with a score. See terrainWaterInfo.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `riverArea` | float | input | `250000` | Drainage area, m2, past which water is a river. At least 1. |
+| `hasSea` | bool | input | `false` | There is a sea. |
+| `seaLevel` | float | input | `0` | Sea level, cm. |
+| `rivers` | geometry | output |  |  |
+| `shorelines` | geometry | output |  |  |
+| `sites` | geometry | output |  |  |
 
 #### Thermal Erosion
 
@@ -4636,6 +4914,7 @@ Maps the mesh's uvs onto a trim sheet: islands split by angle, rectified, measur
 | `randomOffset` | bool | input | `true` | Slide islands along tiling strips. |
 | `randomFlip` | bool | input | `false` | Turn islands 180 degrees at random. |
 | `uvSet` | string | input | `uv0` | UV set to write. |
+| `palette` | string | input |  | Palette the faces use; the sheet's default when empty. |
 | `geometry` | geometry | output |  | The mesh with its uvs on the sheet. |
 
 #### Trim Sheet Generator
