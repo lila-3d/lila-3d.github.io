@@ -1642,31 +1642,6 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 | `coordinates` |  | str |  | meanValue (default) \| green \| somigliana \| harmonic |
 | `name` |  | str |  | Name for the deformer. |
 
-### cameraBookmark
-
-Jump the active view to a camera bookmark, or set, clear or list them.
-
-Each camera has its own slots 1 to 9: every camera node, and each built-in view (persp, top, front ...). Bookmarks act on the camera the active view shows. Jumping is a camera undo step, not a scene one. Returns whether it jumped, the slot set, or with query the slots in use.
-
-**Objects:** slot
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `set` | `s` | bool |  | Save the view's camera in the slot instead of jumping to it. |
-| `clear` | `c` | bool |  | Remove the slot's bookmark; with no slot, every one on the camera. |
-| `query` | `q` | bool |  | Return the slots holding a bookmark. |
-
-Not undoable.
-
-```python
-cameraBookmark(1, set=True)
-cameraBookmark(1)
-```
-
-```python
-cameraBookmark(query=True)
-```
-
 ### cameraSettings
 
 Query or set a camera's gate display, film fit and near clip. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
@@ -1901,12 +1876,6 @@ Not undoable.
 Throw away simulation caches, so the next simulate starts from the start frame.
 
 **Objects:** simulation nodes (default all)
-
-Not undoable.
-
-### clearSnapSurface
-
-Clear the snap surface, so surface snapping hits every visible mesh again and moves stop conforming.
 
 Not undoable.
 
@@ -2893,16 +2862,6 @@ Stop deformers reading their field.
 
 **Objects:** deformers
 
-### displacementHeatmap
-
-Show how far deformation moves each point as a grayscale overlay (white the most moved point) on the selected meshes, or on every deformed mesh when none is selected. A display setting, so not undoable.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `on` |  | bool |  | Default: toggle. |
-
-Not undoable.
-
 ### displayLayer
 
 Edit a display layer's switches (V, P, display type, colour, name); with no flags, query it. Returns its info: name, visibility, hideOnPlayback, displayType, color (null for none), order and members.
@@ -2939,18 +2898,6 @@ Live distance between two points. Each point is an object name or [x, y, z] (a l
 | `attach` | `at` | bool | `True` | From selected vertices: parent the locators to their meshes. |
 | `name` | `n` | str |  | Name for the measure node. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new node. |
-
-### docsInfo
-
-Where the docs are read from: {root, source (override | cache | bundled), ref, sha, refs, cacheRoot, autoUpdate}. root is null when there are none yet.
-
-Not undoable.
-
-### docsUpdate
-
-Download the latest docs for this version in the background; the result shows in the status line.
-
-Not undoable.
 
 ### dominantInfluence
 
@@ -3149,14 +3096,6 @@ Change a driven channel: replace its keys, infinity, interpolation of every key,
 | `postInfinity` |  | str |  | After the last key. One of `constant`, `linear`, `cycle`, `cycleRelative`, `oscillate`. |
 | `curveName` |  | str |  | Unreal curve to bake into; empty for none. |
 | `driver` | `d` | str |  | A new driving plug; empty disconnects it. |
-
-### editMaterial
-
-Show a material in the Material Editor, without assigning it.
-
-**Objects:** material
-
-Not undoable.
 
 ### editMorphTarget
 
@@ -5538,14 +5477,6 @@ Make a looker: the joint aims at it (aimAxis at the looker, upAxis toward upVect
 | `name` | `n` | str |  | Name; default <joint>_looker. |
 | `parent` | `p` | str |  | Node to put the element under, such as a character. |
 
-### lookThru
-
-Make the active view look through a camera node, or switch it to a view (persp, top, front, side, ...). Returns the name of what the active view looks through; with no argument it only returns it.
-
-**Objects:** camera
-
-Not undoable.
-
 ### ls
 
 List nodes, optionally filtered by type or the selection.
@@ -6230,19 +6161,6 @@ Open closed curves at parameter (span units, default their start), keeping the s
 | --- | --- | --- | --- | --- |
 | `parameter` | `p` | float | `0.0` | Where to open, in spans from the start. |
 
-### openDocs
-
-Show the Docs panel at a page: "essentials", "curves?id=pipe", "python/". Empty for the docs home. UI only.
-
-**Objects:** page
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `page` | `p` | str |  | Page id as in the docs site's URL after #/, optionally with ?id=<heading> |
-| `api` | `a` | str |  | A Python symbol (lila.ops.polyCube) whose API page to open instead |
-
-Not undoable.
-
 ### openExample
 
 Open an example scene by name (from examples) as an untitled scene. Saving asks for a file, so the shipped example is never overwritten. Not undoable.
@@ -6406,32 +6324,6 @@ Fill four boundary curves (in any order and direction, end to end) with a Coons 
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
-### perfTraceDialog
-
-Open Help > Record Performance Trace.
-
-Not undoable.
-
-### perfTraceRecord
-
-Start recording a performance trace (Help > Record Performance Trace) for `seconds` once the recorder connects. Returns the zip it will write; perfTraceStatus says when it is done.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `seconds` | `s` | int | `10` | How long to record. |
-
-Not undoable.
-
-```python
-lila.ops.perfTraceRecord(seconds=10)
-```
-
-### perfTraceStatus
-
-The performance trace recording: state (idle, connecting, recording, saving, done, failed), secondsLeft, path (the zip), error, elevated and systemTracing (call-stack sampling and context switches, only when running as administrator).
-
-Not undoable.
-
 ### pickerRun
 
 Run a picker item's action on its targets resolved in a namespace: select them, toggle an attr (every target follows the first), apply a pose to their character, or run a command (args default to the targets). Returns what the action returned.
@@ -6501,10 +6393,6 @@ pin("Button", "Jacket", source="face", index=12)
 ```python
 pin("Bead", "Wire", curveMode="fraction", along=0.25)
 ```
-
-### pinComponentPivot
-
-Pin the component manipulator where it is and how it is turned, so it stays through selection and component mode changes until resetComponentPivot. It follows the selection's centre unless moved with Edit Pivot.
 
 ### pipe
 
@@ -7470,116 +7358,11 @@ Redo the last undone command.
 
 Not undoable.
 
-### referenceImage
-
-Add, replace, edit, remove or list reference images.
-
-Reference images show as tabs in the Reference windows and as overlays in the viewports (referenceOverlay). Files given are added as tabs of a window (the first one unless window is set) and their ids returned. With edit, the flags change one image; replace swaps its file and keeps every other setting.
-
-**Objects:** files
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `edit` | `e` | str |  | Id of the image the flags change. |
-| `replace` | `rp` | str |  | Id of an image whose file becomes the one given. |
-| `remove` | `rm` | list |  | Ids of images to remove, with their overlays. |
-| `query` | `q` | bool |  | Return the images (or the one named by edit) as dicts. |
-| `name` | `n` | str |  | Tab label. |
-| `window` | `w` | str |  | Reference window id the images are tabs of ("main" is the first); empty takes them out of every window. |
-| `index` | `i` | int |  | Tab position for added images; default the end. |
-| `current` | `c` | bool |  | Make the (first) image its window's shown tab. |
-| `flipH` | `fh` | bool |  | Mirror left to right. |
-| `flipV` | `fv` | bool |  | Mirror top to bottom. |
-| `grayscale` | `g` | bool |  | Show without color, to judge values. |
-| `quarterTurns` | `qt` | int |  | Clockwise quarter turns, 0 to 3. |
-| `brightness` | `b` | float |  | Added in display space, -1 to 1. |
-| `contrast` | `ct` | float |  | Around mid gray, 0 to 4. |
-| `embed` | `em` | bool |  | Keep the file's bytes in the set, so it travels without the file; False links to the file again. |
-
-```python
-referenceImage("refs/front.jpg", "refs/side.jpg")
-```
-
-```python
-referenceImage("refs/front_v2.jpg", replace="ref1")
-```
-
-```python
-referenceImage(edit="ref2", flipH=True, grayscale=True)
-```
-
-### referenceOverlay
-
-Show a reference image glued to a view's screen, or edit, remove or list overlays.
-
-The positional argument is a reference image id or an image file (added to the set without a tab). The overlay draws in front of the model at low opacity by default; depth behind puts it under the model. Placement is in view heights from the anchor, so a parked overlay stays parked when the view resizes. bind remembers the view's camera: goTo returns to it, and the overlay fades as the view turns away.
-
-**Objects:** image
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `view` | `v` | str |  | View name the overlay shows in; default the active view. |
-| `edit` | `e` | str |  | Id of the overlay the flags change. |
-| `remove` | `rm` | list |  | Ids of overlays to remove. |
-| `query` | `q` | bool |  | Return the overlays (of view, when given) as dicts. |
-| `opacity` | `o` | float |  | 0 to 1. |
-| `depth` | `d` | str |  | Over the model or under it. One of `front`, `behind`. |
-| `mode` | `m` | str |  | outline draws only the image's edges, leaving the model visible. One of `normal`, `grayscale`, `outline`. |
-| `anchor` | `an` | str |  | The view point offset is measured from. One of `center`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`. |
-| `offset` | `of` | list |  | [x, y] from the anchor to the image centre, in view heights, y down. |
-| `scale` | `s` | float |  | Shown height in view heights. |
-| `rotation` | `r` | float |  | Degrees clockwise. |
-| `crop` | `cr` | list |  | [u0, v0, u1, v1]: the part of the image shown, 0 to 1 from its top left. The image stays where it is on screen. |
-| `visible` | `vis` | bool |  | Shown or hidden. |
-| `ghost` | `gh` | bool |  | Draw the meshes see-through while the overlay shows. |
-| `outlineColor` | `oc` | tuple[float, float, float] |  | Line color of outline mode, display RGB 0 to 1. |
-| `fadeAngle` | `fa` | float |  | Degrees from the bound view at which it has faded out. |
-| `focalLength` | `fl` | float |  | The lens the photo was taken with, in mm. |
-| `bind` | `b` | bool |  | Remember the view's camera now; False forgets it. |
-| `matchLens` | `ml` | bool |  | With bind, set the view's lens to focalLength first. |
-| `goTo` | `g` | bool |  | Move the view back to the bound camera. |
-| `park` | `p` | bool |  | Lay the view's overlays out opaque down its right edge. |
-| `active` | `a` | bool |  | Make it the overlay the O keys and handles act on. |
-
-```python
-referenceOverlay("refs/front.jpg", view="persp", opacity=0.25)
-```
-
-```python
-referenceOverlay(edit="overlay1", mode="outline", bind=True, matchLens=True)
-```
-
-```python
-referenceOverlay(edit="overlay2", goTo=True)
-```
-
 ### references
 
 Every reference: namespace, path, loaded, and its local edits.
 
 Not undoable.
-
-### referenceSet
-
-Save, load, clear the reference image set, or say where it is kept.
-
-Storage scene keeps the set in the scene file; project in references.lilaref in the project folder; user in Lila's config folder, shared by every scene. Changing storage carries the current set over.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `save` | `s` | str |  | Write the set to a .lilaref file. |
-| `load` | `l` | str |  | Replace the set with a .lilaref file's. |
-| `clear` | `c` | bool |  | Remove every image and overlay. |
-| `storage` | `st` | str |  | Where the set is kept. One of `scene`, `project`, `user`. |
-| `query` | `q` | bool |  | Return the storage and the whole set. |
-
-```python
-referenceSet(save="refs/hero.lilaref")
-```
-
-```python
-referenceSet(storage="project")
-```
 
 ### refreshClay
 
@@ -8011,10 +7794,6 @@ reportIssue("crate", m="Over the triangle budget", fix="lila.ops.polyReduce('cra
 Make a joint the root of its skeleton by reversing the parent chain above it. Joints keep their world placement.
 
 **Objects:** joint
-
-### resetComponentPivot
-
-Put the component manipulator back on the selection's centre and the tool's own axes, ending a pinned pivot.
 
 ### resetCorrection
 
@@ -8771,17 +8550,6 @@ Get latest. No files = the whole workspace (git: pull --ff-only).
 
 Not undoable.
 
-### sculptBrush
-
-Pick the sculpt tool's brush: a built-in or registered brush by name, or a brush preset by id (see brushPresets). Returns {brush, preset}.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `brush` |  | str |  | A brush name: draw, clayStrips, damStandard, ... or a registered brush's. |
-| `preset` |  | str |  | A brush preset id, such as user/Skin Pores. |
-
-Not undoable.
-
 ### sculptCancel
 
 Leave sculpt mode without changing the mesh, discarding the proxy (a kept proxy stays as it was).
@@ -9448,14 +9216,6 @@ Query or set the scene's render resolution. preset is one of 'HD 1080', 'QHD 144
 
 Not undoable.
 
-### setSnapSurface
-
-Make meshes the snap surface for this session: surface snapping hits only them, and the move tool keeps moved objects and components on them. Returns the snap surface.
-
-**Objects:** meshes (default: the selection)
-
-Not undoable.
-
 ### setSymmetry
 
 Object-space symmetry for component edits on meshes: 'off', a mirror plane 'x', 'y' or 'z', or 'radial': count wedges repeated round radialAxis (with mirror=True also mirrored within each wedge), every edit applied to all of them.
@@ -9871,12 +9631,6 @@ Put reverse foot controls on the sole of the current pose with roll, twist and b
 | --- | --- | --- | --- | --- |
 | `align` | `al` | bool | `False` | Level the control instead. |
 | `key` | `k` | bool | `True` | Key the control's channels at the current time. |
-
-### snapSurface
-
-The meshes set as the snap surface; empty when none is set.
-
-Not undoable.
 
 ### snapToComponentCenter
 
@@ -10590,12 +10344,6 @@ Bring images into a texture set's stack as layers, bottom to top: each image (a 
 A texture set's layer stack as JSON: layers bottom first (with each channel's resolved enable, mode and opacity), masks, anchors, the base values, the mesh maps it reads, and mode: stack, or graph when the graph was edited as nodes beyond what the stack can show (or was never layered).
 
 **Objects:** set
-
-Not undoable.
-
-### texLiveStatus
-
-The viewport's live texture sets: per set its material, tiles and evaluation levels (size, idle, passes, compiles, GPU milliseconds) and the last error; idle is whether every set has finished its latest edit.
 
 Not undoable.
 
@@ -12009,17 +11757,6 @@ One vertex paint stroke: dabs is a list of {center, radius, opacity, view, eye} 
 | `dabs` |  | list |  | The stamps, in order. |
 | `live` |  | int | `0` | Internal: adopts the stroke the viewport tool already applied. |
 
-### viewCamera
-
-The active view's camera: with eye and lookAt, put its perspective camera there (scenes save it, so a scene opens on that view). Returns the view's state {view, persp: {target, distance, yaw, pitch, orthoWidth, focalLength}}.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `eye` |  | tuple[float, float, float] |  | Where the camera stands, cm. |
-| `lookAt` | `la` | tuple[float, float, float] |  | The point it looks at, cm. |
-
-Not undoable.
-
 ### viewPlace
 
 Place a camera node: eye is its world position, lookAt the point it aims at, up the world direction its top leans to. Flags left out keep the camera's current value; with eye alone it moves without turning. Fails on a locked camera.
@@ -12042,46 +11779,6 @@ What the active viewport draws and counts now: {hud: {scene, objects, components
 | `pick` |  | list |  | Widget pixels: [x, y] for a click, or [x0, y0, x1, y1] for a marquee. |
 
 Not undoable.
-
-### viewportRenderer
-
-Pick the renderer a viewport draws with: "lila" for Lila's own, or one an extension registered (viewportRenderers lists them). Lila still draws selection, gizmos and the HUD over another renderer's image. With no renderer, only returns the viewport's current one.
-
-**Objects:** renderer id
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `panel` | `p` | int |  | The viewport, numbered in the order they were made; default the active one. Example: `viewportRenderer("lila", panel=1)` |
-
-Not undoable.
-
-```python
-viewportRenderer("cpuShaded")  # the active view draws with the example renderer
-viewportRenderer("lila")
-```
-
-### viewportRenderers
-
-The renderers a viewport can draw with, Lila's own first: [{id, name, doc}].
-
-Not undoable.
-
-### viewportRendererSetting
-
-Read or change a setting of the renderer a viewport draws with (a Hydra delegate's render settings). With no key, returns them all as [{key, name, value}]; with a key, its value; with a key and a value, sets it. A set value is saved and given to every viewport using that renderer, now and whenever it starts.
-
-**Objects:** key, value
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `panel` | `p` | int |  | The viewport; default the active one. |
-
-Not undoable.
-
-```python
-viewportRendererSetting()  # [{key, name, value}, ...]
-viewportRendererSetting("myEngine:metersPerUnit", 0.01)
-```
 
 ### viewportStats
 
