@@ -271,11 +271,11 @@ Select the meshes (or faces, to strap only those), start the **Strap Tool** and 
 
 | Key | In Sculpt Curves |
 | --- | --- |
-| **1**-**0** | Brush |
 | **B**-drag or **Ctrl+scroll** | Radius |
 | **M**-drag or **Shift+scroll** | Strength |
 | **Shift** / **Ctrl** | Smooth / invert for that stroke |
 
+- Pick strand and lock brushes in the **Groom** palette (see [Hair](hair.md)).
 - Select a mesh with the curves and run **Groom Surface** to root them on it. Add and Density need one.
 - Hair card UVs put the root at the top of its atlas cell.
 

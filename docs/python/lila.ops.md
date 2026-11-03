@@ -2259,6 +2259,26 @@ Create a display layer holding the objects (the selection by default), taking th
 | `name` | `n` | str |  | Name; layer1 when empty, made unique. |
 | `empty` | `e` | bool | `False` | Make it with no members, whatever is selected. |
 
+### createGroom
+
+A new groom growing from a scalp mesh: a guide curve (empty, or the curve given, or count guides grown from the scalp), the groom node and its locks mesh. Draw locks with groomDraw or the Draw Lock tool, style them with groomAddStyle. Returns {groom, guides, locks}.
+
+**Objects:** scalp
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `guides` |  | str |  | An existing curve to use as the guides. |
+| `count` | `c` | int | `0` | Guides to grow straight out of the scalp; 0 starts empty. |
+| `length` | `l` | float | `10.0` | Length of grown guides, cm. |
+| `symmetry` | `sym` | str | `'x'` | Mirror the guides across the world plane: off, x, y or z. |
+| `name` | `n` | str | `'Hair'` | Base name of the new nodes. |
+| `width` |  | float |  | Lock width, cm, times each lock's width and its points' radius. |
+| `thickness` |  | float |  | Thickness as a fraction of width; 1 is round. |
+| `profile` |  | str |  | Cross-section of every lock without one of its own. One of `tube`, `ribbon`, `crescent`, `teardrop`, `custom`. |
+| `widthRamp` |  | str |  | Width from root to tip: keys "t:scale". |
+| `twist` |  | float |  | Twist from root to tip, degrees. |
+| `sides` |  | int |  | Points around each lock. |
+
 ### createMaterial
 
 Create a material (Unreal default lit inputs). Faces use it through a slot of the same name. Returns its name.
@@ -2615,13 +2635,13 @@ Surface a network of crossing curves with quads, live: the curves sort into U an
 
 ### curveSculptStroke
 
-One curve sculpting stroke on a curve holding many curves (hair): comb, smooth, length, puff, add, delete, density, cut, pinch or slide. dabs is a list of {center, normal, radius, strength, delta, view} in world space, as the Sculpt Curves tool records them. Roots stay put (on the groom surface) except under slide and add. Returns {changed, added, removed, curves}.
+One curve sculpting stroke on a curve holding many curves (hair): comb, smooth, length, puff, add, delete, density, cut, pinch or slide, and on a groom's guides the lock brushes grab, twist, widen, flatten, curl, frizz, clump, split, merge and settle. dabs is a list of {center, normal, radius, strength, delta, view} in world space, as the Sculpt Curves tool records them. Roots stay put (on the groom surface) except under slide and add. Returns {changed, added, removed, curves}.
 
 **Objects:** curve
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `brush` | `b` | str | `'comb'` | The brush. One of `comb`, `smooth`, `length`, `puff`, `add`, `delete`, `density`, `cut`, `pinch`, `slide`. |
+| `brush` | `b` | str | `'comb'` | The brush. One of `comb`, `smooth`, `length`, `puff`, `add`, `delete`, `density`, `cut`, `pinch`, `slide`, `grab`, `twist`, `widen`, `flatten`, `curl`, `frizz`, `clump`, `split`, `merge`, `settle`. |
 | `dabs` | `d` | list |  | [{center, normal, radius, strength, delta, view}, ...] world space; radius in cm. |
 | `falloff` |  | str | `'smooth'` | Falloff: smooth, sphere, root, sharp, linear, constant, bell, or a soft select preset name. |
 | `strength` | `s` | float | `0.5` | Brush strength, 0 to 1. |
@@ -2638,6 +2658,7 @@ One curve sculpting stroke on a curve holding many curves (hair): comb, smooth, 
 | `seed` |  | int | `0` | Random seed for add, delete and density. |
 | `surface` |  | str |  | Mesh the roots grow from; default the curve's groomSurface. |
 | `selectedOnly` |  | bool | `True` | With points of the curve selected, only the curves holding them change. |
+| `settleWhileGrabbing` |  | bool | `False` | Grab: the locks near the grabbed ones settle as it moves, making room. |
 
 ### curveSymmetry
 
@@ -4549,6 +4570,56 @@ Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
 
+### groomAddStyle
+
+Adds a style modifier to a groom's stack: split, clump, curl, wave, frizz, noise, length, cut or flyaways. Every one works on locks and strands alike. Returns the new node.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` | `s` | str |  | The modifier. One of `split`, `clump`, `curl`, `wave`, `frizz`, `noise`, `length`, `cut`, `flyaways`. |
+| `position` | `p` | int | `-1` | Where in the stack, 0 first; -1 appends. |
+| `amount` |  | float |  | Sets the modifier's amount when it has one. |
+| `frequency` |  | float |  | Sets the modifier's frequency when it has one. |
+| `radius` |  | float |  | Sets the modifier's radius when it has one. |
+| `count` |  | int |  | Sets the modifier's count when it has one. |
+| `spread` |  | float |  | Sets the modifier's spread when it has one. |
+| `length` |  | float |  | Sets the modifier's length when it has one. |
+| `widthScale` |  | float |  | Sets the modifier's widthScale when it has one. |
+| `randomness` |  | float |  | Sets the modifier's randomness when it has one. |
+| `seed` |  | int |  | Sets the modifier's seed when it has one. |
+| `ramp` |  | str |  | Sets the modifier's ramp when it has one. |
+
+### groomDraw
+
+Adds locks along a stroke to a groom's guides: points from the root, world space; the root snaps to the scalp. shape draws a lock, a braid (three strands), a rope (two) or a ringlet. pressure (0 to 1 per point) sets the width along it. Returns the new guides' ids.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pt` | list |  | [[x, y, z], ...] from root to tip, world space. |
+| `pressure` | `pr` | list |  | Pen pressure per point, 0 to 1. |
+| `shape` | `s` | str | `'lock'` | What the stroke draws. One of `lock`, `braid`, `rope`, `ringlet`. |
+| `size` |  | float | `1.0` | Braid and rope half width, ringlet radius, cm. |
+| `period` |  | float | `4.0` | Length of one turn of a braid, rope or ringlet, cm. |
+| `width` | `w` | float | `1.0` | Width of the new locks relative to the groom's. |
+| `profile` |  | str |  | Cross-section of the new locks; default the groom's. One of `tube`, `ribbon`, `crescent`, `teardrop`, `custom`. |
+| `snapRoot` |  | bool | `True` | Move the root onto the scalp. |
+
+### groomEditLock
+
+Sets one guide's lock width (relative to the groom's) and twist from root to tip, as the viewport lock handles do. index is the guide's place among the curve's own splines.
+
+**Objects:** guides
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `index` | `i` | int | `0` | Which guide. |
+| `width` | `w` | float |  | Width relative to the groom's. |
+| `twist` | `t` | float |  | Twist from root to tip, degrees: replaces the guide's tilt with an even ramp. |
+
 ### groomGuides
 
 Grow guide curves out of a mesh along its normals, spread evenly by area (and a density map), as a new curve with the mesh as its groom surface. Returns the curve.
@@ -4565,6 +4636,110 @@ Grow guide curves out of a mesh along its normals, spread evenly by area (and a 
 | `densitySet` |  | str |  | Vertex color set used as the density map (bright: dense, black: none). |
 | `seed` |  | int | `1` | Random seed. |
 | `name` | `n` | str |  | Name of the new curve. |
+
+### groomLoadPreset
+
+Applies a hairstyle preset to a groom: its lock settings, its style stack in place of the groom's, and its guides fitted to the scalp when it has them. Returns how many guides it added.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Preset id (groomPresets) or a .lilagroom file. |
+| `guides` | `g` | bool | `True` | Add the preset's guides when it has them. |
+| `replace` |  | bool | `False` | The preset's guides replace the groom's. |
+
+### groomPart
+
+A parting: turns the locks whose roots lie near the line so they leave the scalp away from it. points is the line, world space. Returns how many locks turned.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `pt` | list |  | [[x, y, z], ...] along the parting, world space. |
+| `radius` | `r` | float | `3.0` | How far from the line roots turn, cm. |
+| `strength` | `s` | float | `1.0` | 0 to 1: how far they turn. |
+
+### groomPreset
+
+Adds a hairstyle preset's guides to a groom: a ponytail or bun gathered at a point on the scalp, or bangs along a line between two. Returns the new guides' ids.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str | `'ponytail'` | The preset. One of `ponytail`, `bun`, `bangs`. |
+| `at` |  | tuple[float, float, float] |  | Ponytail and bun: where it gathers; bangs: one end of the fringe. World space. |
+| `to` |  | tuple[float, float, float] |  | Bangs: the other end of the fringe. |
+| `count` | `c` | int | `16` | Locks. |
+| `length` | `l` | float | `20.0` | Length, cm. |
+| `radius` | `r` | float | `6.0` | Ponytail: how far roots spread from the gather point; bun: its size, cm. |
+| `down` |  | tuple[float, float, float] | `[0.0, -1.0, 0.0]` | Which way hair falls, world space. |
+| `seed` |  | int | `1` | Random seed. |
+
+### groomPresets
+
+Hairstyle presets in the groom folders (Lila's, the studio's, yours and the project's). Returns [{id, name, doc, source, guides, file}, ...].
+
+### groomSavePreset
+
+Saves a groom's lock settings and style stack as a hairstyle preset, with its guides when guides is on. Returns the preset id.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Preset name. |
+| `doc` |  | str |  | One line on what it looks like. |
+| `guides` | `g` | bool | `False` | Keep the guides too, so loading it draws the hairstyle. |
+| `scope` |  | str | `'user'` | Where it goes. One of `user`, `project`. |
+
+### groomSettle
+
+Settles a groom's guides under gravity: roots stay on the scalp, locks fall, rest on it and on each other sized by their thickness, keeping some of their styled shape. Returns {curves, contacts, motion, penetration}.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `steps` |  | int | `90` | Solver steps (at 60 a second). |
+| `bend` | `b` | float | `0.5` | Bend stiffness, 0 (rope) to 1 (wire). |
+| `holdShape` | `hs` | float | `0.15` | Pull back toward the styled shape, 0 to 1. |
+| `rootStiffness` |  | float | `0.9` | How firmly roots keep their direction out of the scalp, 0 to 1. |
+| `damping` |  | float | `0.08` | Damping per step, 0 to 1. |
+| `slip` |  | float | `0.25` | How freely locks slide on what they rest on, 0 to 1. |
+| `gravity` |  | tuple[float, float, float] | `[0.0, -981.0, 0.0]` | Gravity, world space, cm/s^2. |
+| `lockCollisions` |  | bool | `True` | Locks collide with each other. |
+
+### groomShell
+
+One watertight mesh over a groom's locks, smooth-unioned so they join into a single surface ready for retopology (quadRemesh). Live: it follows the groom. Returns [mesh, groomShell].
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `voxelSize` |  | float |  | Mesh resolution, cm. |
+| `blend` |  | float |  | Smooth union between locks, cm: larger fills the gaps between them. |
+| `inflate` |  | float |  | Grows every lock, cm. |
+| `segments` |  | int |  | Round cones per lock; 0 uses every ring. |
+| `skipStrays` |  | bool |  | Leave stray strands out. |
+| `projectSteps` |  | int |  | Steps moving vertices onto the surface. |
+| `gpu` |  | bool |  | Sample the field on the GPU when one is available. |
+| `name` | `n` | str |  | Mesh name; default <groom>Shell. |
+
+### groomStack
+
+Lists a groom's style modifiers in order, or changes the stack: move one to a position, toggle it on or off, or remove it. Returns the stack as [{node, style, enabled}, ...].
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edit` | `e` | str | `'list'` | What to do. One of `list`, `move`, `toggle`, `remove`. |
+| `node` |  | str |  | The modifier to move, toggle or remove. |
+| `to` |  | int | `0` | move: its new position, 0 first. |
 
 ### groomSurface
 

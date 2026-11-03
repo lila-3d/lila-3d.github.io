@@ -43,6 +43,7 @@
   - [Clay](clay.md)
   - [Bridge](bridge.md)
   - [Curves](curves.md)
+  - [Hair](hair.md)
   - [Sculpting](sculpting.md)
     - [Brushes, presets and alphas](sculpt-brushes.md)
   - [Reference images](reference-images.md)
