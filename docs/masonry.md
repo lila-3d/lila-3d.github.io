@@ -114,9 +114,11 @@ Other modes:
 
 - `mode="merged"`: each chunk's stones as one static mesh with the same three LODs, for few draw calls instead of instancing.
 - `mode="lowPoly"`: each chunk as a shell with the stones and core baked onto it and its own collision, following the walls as they stand, ruins included. For background walls and HLOD.
-- `mode="assembly"`: a Nanite Assembly (UE 5.8) written through USD, with the stone meshes as parts. Nanite is otherwise off; `nanite=True` builds Nanite data for the stone meshes in any mode.
+- `mode="assembly"`: a Nanite Assembly (UE 5.8) written through USD, with the stone meshes as parts. The Unreal project needs the **Interchange OpenUSD** plugin and `r.Nanite.AllowAssemblies=1` under `[/Script/Engine.RendererSettings]` in `DefaultEngine.ini` (or Nanite Foliage on), then an editor restart. Nanite is otherwise off; `nanite=True` builds Nanite data for the stone meshes in any mode.
 
 ## Troubleshooting
+
+**Assembly send fails with "is USD, which this project cannot import" or "is a Nanite Assembly, which this project does not build".** Set up the project as described under `mode="assembly"` above, restart the editor and send again.
 
 **"has no loose edges to build along".** The mesh has faces. Build from a mesh holding only edges, or pass `points=`.
 
