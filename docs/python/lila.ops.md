@@ -1121,7 +1121,7 @@ Rename many objects at once: a new name, find/replace (plain or regex, $1 for gr
 | `stripStart` |  | int | `0` | Characters to drop from the front. |
 | `stripEnd` |  | int | `0` | Characters to drop from the back. |
 | `stripDigits` |  | bool | `False` | Drop the trailing number and the separator before it. |
-| `case` |  | str |  | PascalCase, camelCase, snake_case, UPPER_SNAKE, lower or UPPER; empty keeps it. |
+| `case` |  | str |  | PascalCase, camelCase, snake_case, UPPER_SNAKE, asciiLower or UPPER; empty keeps it. |
 | `prefix` |  | str |  | Added in front. |
 | `suffix` |  | str |  | Added at the end. |
 | `start` |  | int | `1` | The number '#' gives the first object. |
