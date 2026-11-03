@@ -111,6 +111,48 @@ Tune the parameters.
 
 > After building, the Attribute Editor holds segments, couplings, flanges, bolt rings and hose corrugation.
 
+### Pipes on a trim sheet
+
+Set the pipe's **UVs** attributes to map it straight onto one strip: **uvLayout** `along` runs U along the pipe and V around it, **vMin** / **vMax** pick the strip, and **texelDensity** tiles it along the length at world scale (0.01 is one tile per metre). Caps and rims go into the **cap** rectangle, a tube's inner surface into the **inner** one. Sweeps (**extrude**), straps and cable pipes take the same attributes.
+
+```python
+pipe("Run", uvLayout="along", vMin=0.5, vMax=0.625, texelDensity=0.01)
+cable(points=[[0, 300, 0], [400, 300, 0]], pipe=True, pipeOptions={"uvLayout": "along", "vMin": 0.875, "vMax": 1.0})
+```
+
+Moving a live pipe to another strip means changing these attributes. A UV tool used on a live pipe bakes it into the mesh first: its settings stop applying, and the log says so. To edit UVs by hand on purpose, bake it yourself with `bakeModifierStack("Pipe")`.
+
+### Routing
+
+Select the meshes to keep clear of, start **Curves > Pipe Route Tool** (or **Level > Pipes and Channels**) and click where the pipe starts and ends. It leaves and arrives along the surfaces you click and builds a live pipe; moving an obstacle reroutes it. **[** / **]** set the radius. From Python:
+
+```python
+pipeRoute(start=[-300, 100, 0], end=[300, 100, 0], obstacles=["Wall"], pipe=True, pipeOptions={"radius": 5})
+```
+
+**clearance** is the least distance from the centreline to an obstacle (the pipe radius plus a gap). Raise one axis of **axisCost** to keep runs off it (`[1, 5, 1]` avoids risers), and **bendCost** for fewer bends. **startDir** / **endDir** make it leave and arrive along an axis, for nozzles.
+
+### Supports
+
+Select the pipe and the walls, floors and ceilings, then **Curves > Pipe Supports**. Hangers, wall brackets, floor stands or clamps go along the pipe, each reaching to the nearest surface, and follow the pipe's path, radius and bends live.
+
+```python
+pipeSupports("Pipe", surfaces=["Ceiling", "WallA"], spacing=250)
+pipeSupports("Pipe", surfaces=["Floor"], target="floor", supportMeshNode="MyStand")
+```
+
+**style** `auto` picks a hanger to a ceiling, a bracket to a wall and a stand to a floor. Your own support mesh points +Y at the surface and +Z along the pipe, and stretches along Y to reach it.
+
+## Carved channels
+
+Select the path curve and the mesh, then **Curves > Carve Channel** (its option box sets the profile). It cuts a U channel, V groove, half round or stepped trench along the curve: terrain, a floor, the top of a wall. It stays live as a **channelModifier** on the mesh: move the curve or change the profile and it recuts.
+
+```python
+carveChannel("RiverPath", surface="Terrain", shape="stepped", width=300, depth=150)
+```
+
+The curve can be drawn in plan: **followSurface** drops it onto the mesh. The walls take strip UVs, one tile per metre along by default. Only faces near the curve are recut, so kilometre-wide terrain carves as fast as a small mesh.
+
 ## Along a curve
 
 <!-- TODO image: a rail mesh deformed along a curve beside an array of fence posts along the same curve (images/curves/along-curve.png) -->
@@ -246,6 +288,12 @@ Select the meshes (or faces, to strap only those), start the **Strap Tool** and 
 ## Troubleshooting
 
 **The pipe shows a bend warning.** A corner is tighter than the pipe can bend. Raise the bend radius or smooth the path.
+
+**A pipe route is a straight line through an obstacle.** No way round was found within the search area: lower **clearance** or **cellSize**, or raise **margin**. The reason is in the route node's **Warning** attribute.
+
+**Supports are missing at some stations.** No surface was within **maxReach**, or the station sits on a bend. Add the wall or ceiling to **surfaces**, or raise **maxReach**.
+
+**A channel isn't cut, or cuts the far side of a mesh.** Only faces turned toward **up** are carved; set **up** to the surface's outward direction (a wall's normal for a channel in a wall).
 
 **A strap goes round the wrong thing or isn't made.** The slash crosses nothing between its ends, or crosses an open mesh, where the strap follows the cut without bridging. The reason is in the path node's **Warning** attribute.
 
