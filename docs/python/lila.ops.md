@@ -1409,7 +1409,7 @@ Bridge two curves with a blend curve, live: G0 position, G1 tangent, G2 curvatur
 | `mesh` | `m` | str |  | Blend to this mesh's border instead of a second curve. |
 | `edge` | `e` | int |  | Border edge of mesh= to blend to. |
 | `edgeT` |  | float | `0.5` | Where along the edge, 0 to 1. |
-| `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Name of the blend curve. |
 
 ### blendImport
@@ -1490,7 +1490,7 @@ Bridge two mesh border loops or edge chains (the selected edges, on one mesh or 
 | `edgesA` |  | list |  | Edges of side A. |
 | `meshB` |  | str |  | Mesh of side B. |
 | `edgesB` |  | list |  | Edges of side B. |
-| `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name. |
 
 ### boundingMesh
@@ -2610,7 +2610,7 @@ Surface a network of crossing curves with quads, live: the curves sort into U an
 | `uCurves` |  | list |  | Curves forced into the U family. |
 | `vCurves` |  | list |  | Curves forced into the V family. |
 | `flip` |  | bool | `False` | Flip the faces. |
-| `constructionHistory` | `ch` | bool | `True` | Keep the history node so the result stays live. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name. |
 
 ### curveSculptStroke
@@ -8154,7 +8154,7 @@ Revolve profile curves around an axis into a quad mesh with live history. Return
 | `sections` |  | int |  | Segments around the axis. |
 | `caps` |  | bool |  | Close the ends of a partial sweep of a closed profile. |
 | `flip` |  | bool |  | Flip the faces. |
-| `material` |  | float |  | The material every face uses, by name; empty is the default. |
+| `material` |  | str |  | The material every face uses, by name; empty is the default. |
 | `tessellation` |  | str |  | How curves become points: fixed segments per span, adaptive to the error and angle, or game (straight spans one segment, curved ones by angle, corners exact). |
 | `segments` |  | int |  | Segments per curved span (fixed). |
 | `chordError` |  | float |  | Largest gap from the true curve, cm (adaptive). |
