@@ -50,6 +50,8 @@ validate()   # or File > Validate Scene, or Validate in the panel
 
 **A command fails with "is blocked by".** An issue lists that command in `blocks`. Fix it, or clear it with `clearIssues(id=...)`.
 
+**An Unreal send fails with "blocked by validation".** `unrealPlaceInstances`, `unrealSync` and `unrealSendCurve` run every validator first and stop on an issue on what they send whose `blocks` lists `unreal`, `*` or the command. Other issues on it come back in the result's `issues` (placements) or the log.
+
 **Issues are gone after reopening the scene.** They're never saved. Run your validators again.
 
 **Info has no badge in the outliner.** It's off by default: turn on **Preferences > Interface > Issues > Badge info in the outliner**.

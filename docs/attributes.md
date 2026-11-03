@@ -33,7 +33,7 @@ How a component reaches Unreal through LilaLink is per object and component:
 | Mode | In Unreal |
 | --- | --- |
 | Asset User Data (default) | A `LilaComponentUserData` on the mesh or actor, values by name |
-| Actor Tags | Tags `Component.attr=value` |
+| Actor Tags | Tags `Component.attr=value`, or with `tags="value"` the bare values (a string `whale-architecture` tags `whale-architecture`; a true bool tags its name) |
 | Actor Component | A component of the class you name, properties set by matching names |
 | Data Asset | A data asset of the class you name, referenced from the user data |
 | Custom Exporter | Your C++ `ILilaComponentExporter` or a Python function registered under that name |
@@ -42,6 +42,8 @@ How a component reaches Unreal through LilaLink is per object and component:
 ```python
 componentExport("Crate", component="Physics", mode="component", unrealClass="/Script/MyGame.PhysicsTuning")
 ```
+
+FBX and glTF exports carry every added attribute, whatever its Unreal mode: FBX as user properties, glTF as node `extras`, each named `Component.attr` (or the attribute's name when it has no component).
 
 LilaLink ships examples of each: `ULilaExampleHealthComponent`, `ULilaExampleComponentData`, a C++ exporter and `lila_example_exporter.py` (import it from your project's `init_unreal.py`).
 
