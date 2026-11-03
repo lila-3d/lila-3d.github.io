@@ -8658,9 +8658,13 @@ Get latest. No files = the whole workspace (git: pull --ff-only).
 
 Not undoable.
 
+### sculptAddLevel
+
+Subdivide the sculpt once more and sculpt the new level (from a lower level, the finest is subdivided). Returns {level, levels, points, faces}.
+
 ### sculptCancel
 
-Leave sculpt mode without changing the mesh, discarding the proxy (a kept proxy stays as it was).
+Leave sculpt mode without changing the mesh, discarding the sculpt (a kept <mesh>_high stays as it was).
 
 ### sculptColor
 
@@ -8677,28 +8681,53 @@ Start a corrective: pose the rig, then this copies the mesh as it looks now into
 
 **Objects:** mesh
 
+### sculptDeleteHigher
+
+Delete the levels above the one being sculpted, and their detail. Returns {level, levels, points, faces}.
+
+### sculptDuplicateLowPoly
+
+Without leaving sculpt mode, duplicate the mesh as the low poly sculptExit would leave with this method at this level, next to it. The copy keeps the mesh's materials, transform and modifiers. Returns its name.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `method` |  | str | `'closest'` | closest, normal or fit. |
+| `level` |  | int | `0` | 0 keeps the mesh's topology; higher subdivides it that many times. |
+| `name` |  | str |  | Name for the copy; default <mesh>_low<level>. |
+
 ### sculptEnter
 
-Enter sculpt mode on a mesh: builds a temporary high-resolution proxy of its cage to sculpt on. mode='subdivide' (Catmull-Clark, levels deep) reprojects exactly on exit; 'remesh' sculpts a uniform voxel remesh; 'direct' sculpts the mesh itself. Resumes from a kept proxy when there is one. Returns {mesh, mode, levels, points, faces}.
+Enter sculpt mode on a mesh: builds a high-resolution copy of its cage to sculpt on, outside the scene. mode='subdivide' gives Catmull-Clark levels to step between (sculptLevel) and fits back exactly on exit; 'remesh' sculpts a uniform voxel remesh; 'direct' sculpts the mesh itself. Resumes from the high poly a previous exit kept (<mesh>_high). Returns {mesh, mode, level, levels, points, faces}.
 
 **Objects:** mesh
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mode` |  | str | `'subdivide'` | subdivide, remesh or direct. |
-| `levels` |  | int | `2` | Subdivision levels of the proxy, 1 to 6. |
+| `levels` |  | int | `2` | Subdivision levels to start with, 1 to 6. |
 | `resolution` |  | int | `192` | Voxels along the longest side, for mode='remesh'. |
-| `resume` |  | bool | `True` | Continue from the mesh's kept proxy when it has one. |
+| `resume` |  | bool | `True` | Continue from the mesh's kept high poly when it has one. |
 
 ### sculptExit
 
-Leave sculpt mode, moving the low-poly cage onto the sculpt. method='fit' solves for the cage whose subdivision best matches the sculpt (least squares through the subdivision stencils); 'closest' and 'normal' project each cage point onto the sculpted surface instead. Only positions change: UVs and other attributes stay, except that polypaint lands on the cage's polypaint color set, sampled from the sculpt. keepProxy stores the proxy, polypaint included, as a hidden child mesh to resume from and to bake from. Returns {mesh, maxMove}.
+Leave sculpt mode, moving the mesh (the low poly) onto the sculpt. method='closest' moves each point to the nearest spot on the sculpt and 'normal' along its normal onto it: a game mesh to bake onto. 'fit' solves for the cage whose subdivision best matches the sculpt, its points off the surface: a mesh to subdivide again. The fit is to the finest level from any level. Only positions change: UVs and other attributes stay, except that polypaint lands on the mesh's polypaint color set. high keeps the sculpt as the hidden child <mesh>_high to bake from, at the finest level, highLevel levels below it, or level highLevel; the next sculptEnter gets every level back from it, less the levels lowLevel moved into the low poly. Returns {mesh, maxMove, high: {mesh, level, levels} or null}.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `method` |  | str | `'fit'` | fit, closest or normal. |
-| `keepProxy` |  | bool | `False` | Keep the sculpt as a hidden child mesh. |
+| `method` |  | str | `'closest'` | closest, normal or fit. |
+| `high` |  | str | `'highest'` | Which level <mesh>_high keeps: highest, belowHighest, level, or none to keep nothing. |
+| `highLevel` |  | int | `1` | Levels below the highest (belowHighest), or the level (level). |
+| `lowLevel` |  | int | `0` | The level the low poly comes out at: 0 keeps the mesh's topology, higher subdivides it that many times (its UVs with it). |
 | `iterations` |  | int | `3` | Project-and-fit rounds for remeshed proxies. |
+
+### sculptLevel
+
+Sculpt another subdivision level: 0 is the cage, the highest the finest. Going down keeps the finer detail, and going back up lays it over whatever changed below. Returns {level, levels, points, faces}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `level` |  | int | `0` | The level to sculpt. |
+| `step` |  | int | `0` | Move this many levels from the current one instead (1 up, -1 down). |
 
 ### sculptMask
 
@@ -8712,13 +8741,13 @@ Change the sculpt mask (masked points resist every brush) or the freeze layer (f
 
 ### sculptState
 
-The open sculpt session: {active, mesh, mode, levels, points, faces, symmetry, masked, frozen, painted}.
+The open sculpt session: {active, mesh, mode, level, levels, points, faces, symmetry, masked, frozen, painted}.
 
 Not undoable.
 
 ### sculptStroke
 
-One brush stroke on the sculpt proxy: dabs is a list of {center, normal, radius, pressure, opacity, flow, view, delta, direction} in world space (only center is required; opacity defaults to pressure). Honours the mask, frozen points and the mesh's symmetry, mirrored exactly. Returns {points} changed.
+One brush stroke on the sculpt: dabs is a list of {center, normal, radius, pressure, opacity, flow, view, delta, direction} in world space (only center is required; opacity defaults to pressure). Honours the mask, frozen points and the mesh's symmetry, mirrored exactly. Returns {points} changed.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
