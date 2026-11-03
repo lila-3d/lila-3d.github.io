@@ -614,6 +614,27 @@ Join the second curve onto the first at their nearest ends (merged when they mee
 | `blend` | `bl` | bool | `False` | Join with a smooth span rather than a straight one. |
 | `keepOriginal` | `kp` | bool | `False` | Keep the second curve. |
 
+### audio
+
+Create an audio node from a sound file, or edit the one named. Returns its name.
+
+Audio plays under the time slider during playback and scrubbing. With take, it belongs to that take: heard only while the take is active, its offset counted from the take's start.
+
+**Objects:** audio node to edit (omit to create one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fileName` | `f` | str |  | Sound file; stored relative to the workspace root. |
+| `offset` | `o` | float |  | Frame the sound starts at. |
+| `gain` | `g` | float |  | Volume multiplier. |
+| `mute` | `m` | bool |  | Silence it. |
+| `take` | `t` | str |  | Take it belongs to. |
+| `name` | `n` | str |  | Name; made unique. |
+
+```python
+audio(fileName='sound/dialogue.wav', offset=12)
+```
+
 ### autoBevel
 
 Add an autoBevel modifier to the top of each mesh's stack: bevels fold edges found live on its input mesh. Returns the modifier names.
@@ -1326,6 +1347,20 @@ Create a Bezier curve through anchors, with auto handles unless handles are give
 | `closed` | `c` | bool | `False` | A closed loop. |
 | `name` | `n` | str |  | Name; made unique. |
 
+### bindMedia
+
+Give a take its own audio and reference video: the media plays only while the take is active and starts from the take's start. remove takes them off the take again.
+
+**Objects:** take, then audio nodes or image planes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `remove` | `rm` | bool | `False` | Unbind instead. |
+
+```python
+bindMedia('Walk', 'walkVO', 'walkRef')
+```
+
 ### blendConvert
 
 Convert a Blender .blend file to a Lila scene: opened as its own scene, saved, and the scene left empty. Returns the destination, skipped features and warnings.
@@ -1607,6 +1642,31 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 | `coordinates` |  | str |  | meanValue (default) \| green \| somigliana \| harmonic |
 | `name` |  | str |  | Name for the deformer. |
 
+### cameraBookmark
+
+Jump the active view to a camera bookmark, or set, clear or list them.
+
+Each camera has its own slots 1 to 9: every camera node, and each built-in view (persp, top, front ...). Bookmarks act on the camera the active view shows. Jumping is a camera undo step, not a scene one. Returns whether it jumped, the slot set, or with query the slots in use.
+
+**Objects:** slot
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `s` | bool |  | Save the view's camera in the slot instead of jumping to it. |
+| `clear` | `c` | bool |  | Remove the slot's bookmark; with no slot, every one on the camera. |
+| `query` | `q` | bool |  | Return the slots holding a bookmark. |
+
+Not undoable.
+
+```python
+cameraBookmark(1, set=True)
+cameraBookmark(1)
+```
+
+```python
+cameraBookmark(query=True)
+```
+
 ### cameraSettings
 
 Query or set a camera's gate display, film fit and near clip. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
@@ -1841,6 +1901,12 @@ Not undoable.
 Throw away simulation caches, so the next simulate starts from the start frame.
 
 **Objects:** simulation nodes (default all)
+
+Not undoable.
+
+### clearSnapSurface
+
+Clear the snap surface, so surface snapping hits every visible mesh again and moves stop conforming.
 
 Not undoable.
 
@@ -2827,6 +2893,16 @@ Stop deformers reading their field.
 
 **Objects:** deformers
 
+### displacementHeatmap
+
+Show how far deformation moves each point as a grayscale overlay (white the most moved point) on the selected meshes, or on every deformed mesh when none is selected. A display setting, so not undoable.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool |  | Default: toggle. |
+
+Not undoable.
+
 ### displayLayer
 
 Edit a display layer's switches (V, P, display type, colour, name); with no flags, query it. Returns its info: name, visibility, hideOnPlayback, displayType, color (null for none), order and members.
@@ -2863,6 +2939,18 @@ Live distance between two points. Each point is an object name or [x, y, z] (a l
 | `attach` | `at` | bool | `True` | From selected vertices: parent the locators to their meshes. |
 | `name` | `n` | str |  | Name for the measure node. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new node. |
+
+### docsInfo
+
+Where the docs are read from: {root, source (override | cache | bundled), ref, sha, refs, cacheRoot, autoUpdate}. root is null when there are none yet.
+
+Not undoable.
+
+### docsUpdate
+
+Download the latest docs for this version in the background; the result shows in the status line.
+
+Not undoable.
 
 ### dominantInfluence
 
@@ -3061,6 +3149,14 @@ Change a driven channel: replace its keys, infinity, interpolation of every key,
 | `postInfinity` |  | str |  | After the last key. One of `constant`, `linear`, `cycle`, `cycleRelative`, `oscillate`. |
 | `curveName` |  | str |  | Unreal curve to bake into; empty for none. |
 | `driver` | `d` | str |  | A new driving plug; empty disconnects it. |
+
+### editMaterial
+
+Show a material in the Material Editor, without assigning it.
+
+**Objects:** material
+
+Not undoable.
 
 ### editMorphTarget
 
@@ -3474,6 +3570,21 @@ Export meshes to PLY in world space, merged into one mesh, defaulting to the sel
 
 Not undoable.
 
+### exportSoundCues
+
+Write the sounds the cues fire, to play them in Unreal.
+
+One row per sound by time: Frame, Time (seconds), X, Y, Z (cm, in the axis profile's space), Sound (file name without extension, to match an imported Sound Wave), File, Volume, Cue, Event, Object, Piece and Strength. A .csv imports into Unreal as a Data Table; a .json is a list of objects. Reads cached simulation frames only. Returns {path, sounds}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | str |  | The .csv or .json file. |
+| `start` | `s` | float |  | First frame. Default: the playback range's. |
+| `end` | `e` | float |  | Last frame. Default: the playback range's. |
+| `profile` | `ax` | str | `'ue5'` | Axis profile of the positions: ue5, ue6 or generic (Lila's own). |
+
+Not undoable.
+
 ### exportStl
 
 Export meshes to STL in world space, triangulated, defaulting to the selection and the meshes under it. Binary merges them into one solid; ASCII writes a solid per mesh. Returns the path.
@@ -3739,6 +3850,12 @@ List the file translators: which extensions File > Open, Import and Export handl
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `operation` |  | str |  | Only translators that support this: open \| import \| export |
+
+Not undoable.
+
+### fileTypes
+
+The file types Lila can open from Explorer: extension, description, whether it is a scene format, whether it is ticked in the prefs and whether Explorer opens it with Lila now.
 
 Not undoable.
 
@@ -4692,7 +4809,9 @@ Create an image plane for modelling from reference images, or edit the image pla
 | `showInAllViews` | `sia` | bool |  | Show an attached plane in every view, not only through its camera. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new plane. |
 | `useFrameExtension` | `ufe` | bool |  | Image sequence following the time slider. |
-| `frameOffset` | `fo` | int |  | Added to the current frame for the sequence file. |
+| `frameOffset` | `fo` | int |  | Added to the current frame for the sequence file or video frame. |
+| `startFrame` | `sf` | float |  | Video: the frame its first picture shows on. |
+| `fps` |  | float |  | Video: playback rate; 0 for the file's own. |
 | `fit` | `fi` | str |  | How the image fills its frame. One of `fill`, `best`, `horizontal`, `vertical`, `toSize`. |
 | `width` | `w` | float |  | Frame width, cm. |
 | `height` | `h` | float |  | Frame height, cm (with maintainRatio off). |
@@ -5221,7 +5340,7 @@ Not undoable.
 
 ### listIssues
 
-The current issues, as dicts {id, source, severity, target, object, component, attribute, message, resolved, blocks, fix}.
+The current issues, as dicts {id, source, severity, target, object, component, attribute, message, resolved, blocks, fix, select}.
 
 **Objects:** objects
 
@@ -5245,6 +5364,12 @@ Not undoable.
 Names of every material; with objects, their slots instead: [{object, slots: [{slot, material, faces}]}].
 
 **Objects:** [objects...]
+
+Not undoable.
+
+### listMedia
+
+Every audio node and image plane with its file, whether it plays now (live), the takes it belongs to and the scene time its start falls on (seconds).
 
 Not undoable.
 
@@ -5412,6 +5537,14 @@ Make a looker: the joint aims at it (aimAxis at the looker, upAxis toward upVect
 | `weight` | `w` | float | `1.0` | Blend of the aim over the joint's own rotation. |
 | `name` | `n` | str |  | Name; default <joint>_looker. |
 | `parent` | `p` | str |  | Node to put the element under, such as a character. |
+
+### lookThru
+
+Make the active view look through a camera node, or switch it to a view (persp, top, front, side, ...). Returns the name of what the active view looks through; with no argument it only returns it.
+
+**Objects:** camera
+
+Not undoable.
 
 ### ls
 
@@ -5873,7 +6006,7 @@ Add a morph deformer (morph targets) to the base mesh, the last argument, with a
 
 ### morphTargets
 
-A morph's targets in order: [{node, name, weight, live, inBetweens, driver, editing}]. driver is the plug setting the weight (a pose driver for a corrective), editing the edit mesh in edit mode. Set a weight with setAttr(node + ".weight", w).
+A morph's targets in order: [{node, name, weight, sliderMin, sliderMax, live, inBetweens, driver, editing}]. driver is the plug setting the weight (a pose driver for a corrective), editing the edit mesh in edit mode, sliderMin and sliderMax the panel slider's range. Set a weight with setAttr(node + ".weight", w).
 
 **Objects:** morph, mesh or target
 
@@ -6097,6 +6230,19 @@ Open closed curves at parameter (span units, default their start), keeping the s
 | --- | --- | --- | --- | --- |
 | `parameter` | `p` | float | `0.0` | Where to open, in spans from the start. |
 
+### openDocs
+
+Show the Docs panel at a page: "essentials", "curves?id=pipe", "python/". Empty for the docs home. UI only.
+
+**Objects:** page
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `page` | `p` | str |  | Page id as in the docs site's URL after #/, optionally with ?id=<heading> |
+| `api` | `a` | str |  | A Python symbol (lila.ops.polyCube) whose API page to open instead |
+
+Not undoable.
+
 ### openExample
 
 Open an example scene by name (from examples) as an untitled scene. Saving asks for a file, so the shipped example is never overwritten. Not undoable.
@@ -6260,6 +6406,32 @@ Fill four boundary curves (in any order and direction, end to end) with a Coons 
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
+### perfTraceDialog
+
+Open Help > Record Performance Trace.
+
+Not undoable.
+
+### perfTraceRecord
+
+Start recording a performance trace (Help > Record Performance Trace) for `seconds` once the recorder connects. Returns the zip it will write; perfTraceStatus says when it is done.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seconds` | `s` | int | `10` | How long to record. |
+
+Not undoable.
+
+```python
+lila.ops.perfTraceRecord(seconds=10)
+```
+
+### perfTraceStatus
+
+The performance trace recording: state (idle, connecting, recording, saving, done, failed), secondsLeft, path (the zip), error, elevated and systemTracing (call-stack sampling and context switches, only when running as administrator).
+
+Not undoable.
+
 ### pickerRun
 
 Run a picker item's action on its targets resolved in a namespace: select them, toggle an attr (every target follows the first), apply a pose to their character, or run a command (args default to the targets). Returns what the action returned.
@@ -6285,7 +6457,7 @@ Select the nodes a picker's items target, resolved in a namespace (the picker's 
 
 ### pickWalk
 
-Walk the selection through the hierarchy like the arrow keys: up to the parent, down to the first child, left/right to the previous/next sibling (wrapping).
+Walk the selection through the hierarchy like the arrow keys: up to the parent, down to the first child, left/right to the previous/next sibling (wrapping). Right after a delete, with nothing selected since, it walks from where the deleted objects were.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -6329,6 +6501,10 @@ pin("Button", "Jacket", source="face", index=12)
 ```python
 pin("Bead", "Wire", curveMode="fraction", along=0.25)
 ```
+
+### pinComponentPivot
+
+Pin the component manipulator where it is and how it is turned, so it stays through selection and component mode changes until resetComponentPivot. It follows the selection's centre unless moved with Edit Pivot.
 
 ### pipe
 
@@ -7294,11 +7470,116 @@ Redo the last undone command.
 
 Not undoable.
 
+### referenceImage
+
+Add, replace, edit, remove or list reference images.
+
+Reference images show as tabs in the Reference windows and as overlays in the viewports (referenceOverlay). Files given are added as tabs of a window (the first one unless window is set) and their ids returned. With edit, the flags change one image; replace swaps its file and keeps every other setting.
+
+**Objects:** files
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edit` | `e` | str |  | Id of the image the flags change. |
+| `replace` | `rp` | str |  | Id of an image whose file becomes the one given. |
+| `remove` | `rm` | list |  | Ids of images to remove, with their overlays. |
+| `query` | `q` | bool |  | Return the images (or the one named by edit) as dicts. |
+| `name` | `n` | str |  | Tab label. |
+| `window` | `w` | str |  | Reference window id the images are tabs of ("main" is the first); empty takes them out of every window. |
+| `index` | `i` | int |  | Tab position for added images; default the end. |
+| `current` | `c` | bool |  | Make the (first) image its window's shown tab. |
+| `flipH` | `fh` | bool |  | Mirror left to right. |
+| `flipV` | `fv` | bool |  | Mirror top to bottom. |
+| `grayscale` | `g` | bool |  | Show without color, to judge values. |
+| `quarterTurns` | `qt` | int |  | Clockwise quarter turns, 0 to 3. |
+| `brightness` | `b` | float |  | Added in display space, -1 to 1. |
+| `contrast` | `ct` | float |  | Around mid gray, 0 to 4. |
+| `embed` | `em` | bool |  | Keep the file's bytes in the set, so it travels without the file; False links to the file again. |
+
+```python
+referenceImage("refs/front.jpg", "refs/side.jpg")
+```
+
+```python
+referenceImage("refs/front_v2.jpg", replace="ref1")
+```
+
+```python
+referenceImage(edit="ref2", flipH=True, grayscale=True)
+```
+
+### referenceOverlay
+
+Show a reference image glued to a view's screen, or edit, remove or list overlays.
+
+The positional argument is a reference image id or an image file (added to the set without a tab). The overlay draws in front of the model at low opacity by default; depth behind puts it under the model. Placement is in view heights from the anchor, so a parked overlay stays parked when the view resizes. bind remembers the view's camera: goTo returns to it, and the overlay fades as the view turns away.
+
+**Objects:** image
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` | `v` | str |  | View name the overlay shows in; default the active view. |
+| `edit` | `e` | str |  | Id of the overlay the flags change. |
+| `remove` | `rm` | list |  | Ids of overlays to remove. |
+| `query` | `q` | bool |  | Return the overlays (of view, when given) as dicts. |
+| `opacity` | `o` | float |  | 0 to 1. |
+| `depth` | `d` | str |  | Over the model or under it. One of `front`, `behind`. |
+| `mode` | `m` | str |  | outline draws only the image's edges, leaving the model visible. One of `normal`, `grayscale`, `outline`. |
+| `anchor` | `an` | str |  | The view point offset is measured from. One of `center`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`. |
+| `offset` | `of` | list |  | [x, y] from the anchor to the image centre, in view heights, y down. |
+| `scale` | `s` | float |  | Shown height in view heights. |
+| `rotation` | `r` | float |  | Degrees clockwise. |
+| `crop` | `cr` | list |  | [u0, v0, u1, v1]: the part of the image shown, 0 to 1 from its top left. The image stays where it is on screen. |
+| `visible` | `vis` | bool |  | Shown or hidden. |
+| `ghost` | `gh` | bool |  | Draw the meshes see-through while the overlay shows. |
+| `outlineColor` | `oc` | tuple[float, float, float] |  | Line color of outline mode, display RGB 0 to 1. |
+| `fadeAngle` | `fa` | float |  | Degrees from the bound view at which it has faded out. |
+| `focalLength` | `fl` | float |  | The lens the photo was taken with, in mm. |
+| `bind` | `b` | bool |  | Remember the view's camera now; False forgets it. |
+| `matchLens` | `ml` | bool |  | With bind, set the view's lens to focalLength first. |
+| `goTo` | `g` | bool |  | Move the view back to the bound camera. |
+| `park` | `p` | bool |  | Lay the view's overlays out opaque down its right edge. |
+| `active` | `a` | bool |  | Make it the overlay the O keys and handles act on. |
+
+```python
+referenceOverlay("refs/front.jpg", view="persp", opacity=0.25)
+```
+
+```python
+referenceOverlay(edit="overlay1", mode="outline", bind=True, matchLens=True)
+```
+
+```python
+referenceOverlay(edit="overlay2", goTo=True)
+```
+
 ### references
 
 Every reference: namespace, path, loaded, and its local edits.
 
 Not undoable.
+
+### referenceSet
+
+Save, load, clear the reference image set, or say where it is kept.
+
+Storage scene keeps the set in the scene file; project in references.lilaref in the project folder; user in Lila's config folder, shared by every scene. Changing storage carries the current set over.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `save` | `s` | str |  | Write the set to a .lilaref file. |
+| `load` | `l` | str |  | Replace the set with a .lilaref file's. |
+| `clear` | `c` | bool |  | Remove every image and overlay. |
+| `storage` | `st` | str |  | Where the set is kept. One of `scene`, `project`, `user`. |
+| `query` | `q` | bool |  | Return the storage and the whole set. |
+
+```python
+referenceSet(save="refs/hero.lilaref")
+```
+
+```python
+referenceSet(storage="project")
+```
 
 ### refreshClay
 
@@ -7309,6 +7590,19 @@ Rewire clay objects to their shapes after shapes were reordered or reparented ou
 ```python
 refreshClay("Dog")
 ```
+
+### registerFileTypes
+
+Make Explorer open Lila's scenes (.lila, .lilaa) and the given import formats with this Lila, for the current user. Import formats left out are handed back to what opened them before. Saved in the prefs, so later starts keep it. dryRun returns the registry values instead of writing them.
+
+**Objects:** [extension...]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scenes` |  | bool | `True` | Register .lila and .lilaa. |
+| `dryRun` |  | bool | `False` | Return {key: {name: value}} for HKCU\Software\Classes without writing. |
+
+Not undoable.
 
 ### relaxMesh
 
@@ -7700,6 +7994,7 @@ The target is "<object>[.<component>[:<attribute>]]": a Lila path or a USD prim 
 | `source` | `src` | str |  | Who reports it, so it can clear its own. Defaults to the validator running, else "user". |
 | `blocks` | `b` | list |  | Commands it refuses to let run until it is cleared. Example: `reportIssue("crate", m="No collision", severity="error", blocks=["exportFbx"])` |
 | `fix` | `fx` | str |  | Python that fixes it, run by fixIssue and the Fix button. |
+| `select` | `sel` | str |  | Python that selects the components it is about, run by selectIssue and clicking the issue. |
 
 Not undoable.
 
@@ -7716,6 +8011,10 @@ reportIssue("crate", m="Over the triangle budget", fix="lila.ops.polyReduce('cra
 Make a joint the root of its skeleton by reversing the parent chain above it. Joints keep their world placement.
 
 **Objects:** joint
+
+### resetComponentPivot
+
+Put the component manipulator back on the selection's centre and the tool's own axes, ending a pinned pivot.
 
 ### resetCorrection
 
@@ -8472,6 +8771,17 @@ Get latest. No files = the whole workspace (git: pull --ff-only).
 
 Not undoable.
 
+### sculptBrush
+
+Pick the sculpt tool's brush: a built-in or registered brush by name, or a brush preset by id (see brushPresets). Returns {brush, preset}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `brush` |  | str |  | A brush name: draw, clayStrips, damStandard, ... or a registered brush's. |
+| `preset` |  | str |  | A brush preset id, such as user/Skin Pores. |
+
+Not undoable.
+
 ### sculptCancel
 
 Leave sculpt mode without changing the mesh, discarding the proxy (a kept proxy stays as it was).
@@ -8737,6 +9047,12 @@ The joints a click on a skinned mesh's face could mean: [{joint, role, weight}] 
 | `redirect` | `r` | bool | `True` | Follow selectAs; off treats the dominant joint as the click. |
 
 Not undoable.
+
+### selectIssue
+
+Selects an issue's object, then runs its select Python (when it has one and the session has Python) to pick the components it is about. Returns whether the components were picked.
+
+**Objects:** id
 
 ### selectLoop
 
@@ -9129,6 +9445,14 @@ Query or set the scene's render resolution. preset is one of 'HD 1080', 'QHD 144
 | `pixelAspect` | `pa` | float |  | Pixel width over height. |
 | `deviceAspect` | `da` | float |  | Displayed image width over height. |
 | `query` | `q` | bool | `False` |  |
+
+Not undoable.
+
+### setSnapSurface
+
+Make meshes the snap surface for this session: surface snapping hits only them, and the move tool keeps moved objects and components on them. Returns the snap surface.
+
+**Objects:** meshes (default: the selection)
 
 Not undoable.
 
@@ -9527,7 +9851,7 @@ Smooth a deformer's weight map (or a field's painted layer) over the mesh's edge
 
 ### smoothPreview
 
-Display meshes subdivided without changing them (the 1/2/3 keys). level 0 is off.
+Display meshes subdivided without changing them (the 1/2/3 keys), including every mesh under a given group. level 0 is off.
 
 **Objects:** objects
 
@@ -9547,6 +9871,12 @@ Put reverse foot controls on the sole of the current pose with roll, twist and b
 | --- | --- | --- | --- | --- |
 | `align` | `al` | bool | `False` | Level the control instead. |
 | `key` | `k` | bool | `True` | Key the control's channels at the current time. |
+
+### snapSurface
+
+The meshes set as the snap surface; empty when none is set.
+
+Not undoable.
 
 ### snapToComponentCenter
 
@@ -9604,6 +9934,41 @@ Not undoable.
 Make soft selection read a field: soft select weights are multiplied by the field's value. No field clears it. A preference, so not undoable.
 
 **Objects:** field
+
+Not undoable.
+
+### soundCue
+
+Create a sound cue, or edit the one named: sounds fired by simulation events (contact, break) above a strength, for the targets given. Returns its name.
+
+**Objects:** soundCue to edit (omit to create one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `eventType` | `et` | str |  | any, contact or break. |
+| `minStrength` | `min` | float |  | Weaker events are silent (break: N s; contact: cm/s). |
+| `fullStrength` | `full` | float |  | Strength that plays at full volume. |
+| `targets` | `tg` | str |  | Nodes or object sets, space separated; empty for all. |
+| `sounds` | `snd` | list |  | Sound files; one is picked per event. |
+| `volume` | `v` | float |  | Loudest volume. |
+| `minVolume` | `mv` | float |  | Quietest volume, as a fraction of volume. |
+| `minInterval` | `mi` | float |  | Seconds an object stays quiet after a sound. |
+| `seed` | `sd` | int |  | Changes which sound each event picks. |
+| `mute` | `m` | bool |  | Silence it. |
+| `name` | `n` | str |  | Name; made unique. |
+
+```python
+soundCue(eventType='break', minStrength=50, sounds=['sfx/crack1.wav', 'sfx/crack2.wav'], targets='wall')
+```
+
+### soundCueTriggers
+
+The sounds the scene's cues fire over a frame range, from what the simulations have already cached: time, frame, sound, gain, cue, event, object, piece, strength and position.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | float |  | First frame. Default: the playback range's. |
+| `end` | `e` | float |  | Last frame. Default: the playback range's. |
 
 Not undoable.
 
@@ -9787,6 +10152,18 @@ Apply a strap preset (strap, rope, tape, metalBand or zipTie) to strap nodes, or
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'strap'` | strap, rope, tape, metalBand or zipTie. |
+
+### studioRestrictions
+
+The prefs a studio can lock, from Lila and its extensions: id, label, doc, the pref (file and key) a studio folder's "$locked" list names, the owner, whether it is locked now and the value that applies. Any pref can be locked; these are the ones documented for it. With an id, just that one.
+
+**Objects:** [id]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lockedOnly` | `lo` | bool | `False` | Only the restrictions a studio folder locks now. |
+
+Not undoable.
 
 ### suggestSplitPlanes
 
@@ -10216,6 +10593,12 @@ A texture set's layer stack as JSON: layers bottom first (with each channel's re
 
 Not undoable.
 
+### texLiveStatus
+
+The viewport's live texture sets: per set its material, tiles and evaluation levels (size, idle, passes, compiles, GPU milliseconds) and the last error; idle is whether every set has finished its latest edit.
+
+Not undoable.
+
 ### texMoveLayer
 
 Move a layer in a texture set's stack: right above or below another layer, into a folder, or to an index.
@@ -10529,6 +10912,14 @@ Which project images the material editor's texture lists show. Globs relative to
 | `exclude` | `e` | list |  | Exclude globs; [] clears them. |
 | `scene` | `s` | bool | `False` | Set the scene's override instead of the workspace's lists. |
 | `clear` | `c` | bool | `False` | Remove the lists at that level (with scene, the scene falls back to the workspace). |
+
+### timeSliderSound
+
+The sound the time slider plays and draws (Maya's Time Slider > Audio). Without sound, returns it; an empty sound plays every audio node of the active takes.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sound` | `s` | str |  | Audio node to play alone, or empty for all. |
 
 ### toggleSymmetry
 
@@ -11055,6 +11446,12 @@ Not undoable.
 Remove the Unreal mapping of the given nodes (or the selection). Returns how many were removed.
 
 **Objects:** nodes
+
+### unregisterFileTypes
+
+Stop Explorer opening any file type with Lila, for the current user, restoring the previous handlers. Saved in the prefs, so later starts don't register them again.
+
+Not undoable.
 
 ### uvAlignToEdge
 
@@ -11612,6 +12009,17 @@ One vertex paint stroke: dabs is a list of {center, radius, opacity, view, eye} 
 | `dabs` |  | list |  | The stamps, in order. |
 | `live` |  | int | `0` | Internal: adopts the stroke the viewport tool already applied. |
 
+### viewCamera
+
+The active view's camera: with eye and lookAt, put its perspective camera there (scenes save it, so a scene opens on that view). Returns the view's state {view, persp: {target, distance, yaw, pitch, orthoWidth, focalLength}}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `eye` |  | tuple[float, float, float] |  | Where the camera stands, cm. |
+| `lookAt` | `la` | tuple[float, float, float] |  | The point it looks at, cm. |
+
+Not undoable.
+
 ### viewPlace
 
 Place a camera node: eye is its world position, lookAt the point it aims at, up the world direction its top leans to. Flags left out keep the camera's current value; with eye alone it moves without turning. Fails on a locked camera.
@@ -11624,6 +12032,56 @@ Place a camera node: eye is its world position, lookAt the point it aims at, up 
 | `lookAt` | `la` | tuple[float, float, float] |  | World point to aim at, cm. |
 | `up` |  | tuple[float, float, float] |  | World up direction. |
 | `orthographicWidth` | `ow` | float |  | Width of an orthographic view, cm. |
+
+### viewportInspect
+
+What the active viewport draws and counts now: {hud: {scene, objects, components, uniqueTris, uniqueObjectTris}, size: [width, height], draws: {count, placements, nodes, flags}, picked}. picked, with pick, is what a click (two equal corners) or marquee there would select. For checking the view in tests and scripts.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pick` |  | list |  | Widget pixels: [x, y] for a click, or [x0, y0, x1, y1] for a marquee. |
+
+Not undoable.
+
+### viewportRenderer
+
+Pick the renderer a viewport draws with: "lila" for Lila's own, or one an extension registered (viewportRenderers lists them). Lila still draws selection, gizmos and the HUD over another renderer's image. With no renderer, only returns the viewport's current one.
+
+**Objects:** renderer id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | int |  | The viewport, numbered in the order they were made; default the active one. Example: `viewportRenderer("lila", panel=1)` |
+
+Not undoable.
+
+```python
+viewportRenderer("cpuShaded")  # the active view draws with the example renderer
+viewportRenderer("lila")
+```
+
+### viewportRenderers
+
+The renderers a viewport can draw with, Lila's own first: [{id, name, doc}].
+
+Not undoable.
+
+### viewportRendererSetting
+
+Read or change a setting of the renderer a viewport draws with (a Hydra delegate's render settings). With no key, returns them all as [{key, name, value}]; with a key, its value; with a key and a value, sets it. A set value is saved and given to every viewport using that renderer, now and whenever it starts.
+
+**Objects:** key, value
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | int |  | The viewport; default the active one. |
+
+Not undoable.
+
+```python
+viewportRendererSetting()  # [{key, name, value}, ...]
+viewportRendererSetting("myEngine:metersPerUnit", 0.01)
+```
 
 ### viewportStats
 
@@ -13115,6 +13573,172 @@ Key the joints to the simulated pose at a frame (default the current one), on th
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `frame` | `f` | int |  | Frame. Default: the current one. |
+
+## Print extension
+
+Available when the Print extension is loaded.
+
+### export3mf
+
+Export meshes (default the selection) to a 3MF file in world space: one object per mesh, triangulated, with the current colour set as vertex colours. Returns the path.
+
+**Objects:** path objects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `unit` |  | str | `'mm'` | The file's length unit. One of `mm`, `cm`, `m`, `in`. |
+| `upAxis` |  | str | `'z'` | The file's up axis; 3MF is Z up. One of `y`, `z`. |
+| `colors` |  | bool | `True` | Write the current colour set. |
+
+Not undoable.
+
+### import3mf
+
+Import a 3MF file: each built object as a mesh, in the file's unit, with vertex colours as a colour set. Returns the new meshes.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `upAxis` |  | str | `'z'` | The file's up axis. One of `y`, `z`. |
+
+### printAnalyze
+
+Colour meshes by wall thickness (red under the minimum, green from three times it) or by overhang (red where faces lean past the support angle from vertical), as a colour set shown unlit with a legend in the viewport. mode='off' removes the colours. Returns per mesh the thinnest wall in mm, or the overhanging faces and support area in cm2.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str | `'thickness'` | What to show. One of `thickness`, `overhang`, `off`. |
+| `minWall` |  | float | `-1.0` | Thickness map: the minimum wall, mm; -1 takes the printer's. |
+| `angle` |  | float | `-1.0` | Overhang map: degrees from vertical that print without support; -1 takes the printer's. |
+
+```python
+printAnalyze(mode='overhang', angle=50)
+```
+
+```python
+printAnalyze(mode='off')
+```
+
+### printCheck
+
+Check meshes (default the selection) for printing: non-manifold edges and points, holes, flipped and zero-area faces, self-intersections, separate shells and walls under the minimum. Each problem becomes an issue on the mesh whose click selects its components and whose Fix repairs it where a fix exists. Returns the counts per mesh.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `minWall` |  | float | `-1.0` | Thinnest wall that prints, mm; -1 takes the printer's. |
+| `report` |  | bool | `True` | Replace the meshes' print issues in the Validation panel with this run's. |
+| `nonManifold` |  | bool | `True` | Look for non-manifold edges or points. |
+| `holes` |  | bool | `True` | Look for holes. |
+| `flipped` |  | bool | `True` | Look for flipped faces. |
+| `zeroArea` |  | bool | `True` | Look for zero-area faces. |
+| `selfIntersections` |  | bool | `True` | Look for self-intersecting faces. |
+| `shells` |  | bool | `True` | Look for separate shells. |
+| `thinWalls` |  | bool | `True` | Look for points under the minimum wall. |
+
+Not undoable.
+
+```python
+printCheck()
+```
+
+```python
+printCheck('Statue', minWall=1.2)
+```
+
+### printDrainHole
+
+Drill a drain hole into a hollowed mesh: at position (world, onto the nearest surface), else at the selected components, else at the lowest point. Goes through the wall into the cavity unless depth is set.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | tuple[float, float, float] |  | World point on or near the surface. |
+| `normal` |  | tuple[float, float, float] |  | Outward direction to drill against; default the surface's. |
+| `radius` |  | float | `2.5` | mm. |
+| `depth` |  | float | `0.0` | mm; 0 goes through into the cavity. |
+
+### printHollow
+
+Hollow meshes, keeping a wall of the given thickness (an inner surface offset inward), and drill a drain hole at the lowest point. For resin prints and to save material. Returns the volumes before and after, cm3.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `thickness` |  | float | `2.0` | Wall thickness, mm. |
+| `drainHoles` |  | int | `1` | Drain holes drilled at the lowest point: 0 or 1. |
+| `holeRadius` |  | float | `2.5` | Drain hole radius, mm. |
+
+```python
+printHollow('Bust', thickness=2.5)
+```
+
+### printInfo
+
+Real-world size (mm, width x depth x height), volume (cm3), area, watertightness, shells and support area of meshes, and whether they fit the printer chosen in Preferences > Print.
+
+**Objects:** meshes
+
+Not undoable.
+
+### printLayFlat
+
+Turn each mesh onto the side that needs the least support (axis sides and its largest flat faces), and stand it on the bed.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` |  | float | `-1.0` | Degrees from vertical that print without support; -1 takes the printer's. |
+| `toBed` |  | bool | `True` | Move it down onto the ground plane. |
+
+### printScaleToFit
+
+Scale meshes together, about their base centre, so they fit the printer's build volume. Returns the scale.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `margin` |  | float | `5.0` | Room kept free at the bed's edges, mm. |
+| `enlarge` |  | bool | `False` | Also scale up what is smaller than the volume. |
+
+### printSelect
+
+Select the components of a mesh that one print check finds (holes as edges, thin walls as points...). Returns how many.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `check` |  | str | `'holes'` | Which check. One of `nonManifold`, `holes`, `flipped`, `zeroArea`, `selfIntersections`, `shells`, `thinWalls`. |
+| `minWall` |  | float | `-1.0` | Thinnest wall that prints, mm; -1 takes the printer's. |
+
+### printSplit
+
+Cut a closed mesh by a plane into two capped parts (<name>Top and <name>Bottom), with registration pegs on the lower part and matching holes, widened by the tolerance, in the upper. Hides the original. Returns the parts.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` |  | tuple[float, float, float] |  | World point on the plane; default the bounds centre. |
+| `normal` |  | tuple[float, float, float] |  | Plane normal, toward the top part; default up. |
+| `pegs` |  | int | `1` | Pegs along the cut; 0 for none. |
+| `pegRadius` |  | float | `2.5` | mm. |
+| `pegLength` |  | float | `6.0` | How far a peg stands out of the cut, mm. |
+| `tolerance` |  | float | `0.2` | Clearance between peg and hole, mm. |
+| `layFlat` |  | bool | `False` | Turn each part onto its best side afterwards. |
+
+```python
+printSplit('Statue', point=(0, 20, 0), normal=(0, 1, 0), pegs=2)
+```
 
 ## Puppeteer extension
 

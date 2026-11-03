@@ -15,6 +15,14 @@ lila.prefs.set("general", "/viewport/fov", 50.0)
 get(file, key, default=None)
 ```
 
+## is_locked
+
+```python
+is_locked(file, key)
+```
+
+True when a studio folder locks the pref: set() is then ignored and get() returns the studio's value.
+
 ## set
 
 ```python
