@@ -11,22 +11,28 @@ How to get help with Lila and report bugs.
 
 ## Report a bug
 
-Post it in the **Bug Reports** forum of the [Steam discussions](https://steamcommunity.com/app/5520720/discussions/). Include:
+**Help > Report Issue** sends it to the [Lila issue tracker](https://github.com/lila-3d/issues). You don't need a GitHub account.
 
-- What you did, what you expected, and what happened instead. Steps that reproduce it every time are the most useful thing you can send.
-- A support bundle: **Help > Save Support Bundle** saves one zip with your Lila version, system and GPU, this session's log, your last crash reports and your preferences (tokens and passwords removed). Attach it to your post.
-- A screenshot or short video if it's visual.
-- The scene, if it only happens in one file and you're able to share it.
+1. Pick a **Type**: Bug, Crash, Performance, Feature Request or Question. Each asks its own questions.
+2. Answer them. If you know the **Steps to reproduce**, the shortest steps that make it happen every time are the most useful thing you can send.
+3. Leave **Attach support bundle** on for bugs, crashes and performance. It holds your Lila version, system and GPU, this session's log, your last crash reports and your preferences (tokens and passwords removed). Tick **Include the open scene** if it only happens in one file and you can share it.
+4. Click **Send**.
 
-**If Lila crashed**, the support bundle already holds the crash report. To paste one into your post instead, click **Copy Crash Report** in the crash dialog, or **Help > Copy Last Crash Report** if you closed it.
+The title and answers are public. The support bundle, screenshot and attached file are private: only I can open them.
+
+Replies show in **Help > My Reports**, and Lila tells you when a new one arrives. Fill in **GitHub user** if you'd also like GitHub to notify you.
+
+**If Lila crashed**, click **Report Crash...** in the window Lila shows when it starts again. The report opens as a Crash with that crash's report attached.
+
+**Already on GitHub?** You can [open an issue there](https://github.com/lila-3d/issues/issues/new/choose) instead. Anything attached there is public, so leave the support bundle out and use **Help > Report Issue** when you need to send one.
 
 ## Report a slow viewport
 
-1. Open the scene where it's slow, then **Help > Record Performance Trace**.
-2. Click **Record** and do the slow thing (orbit, select, scrub) until it stops. 10 seconds is plenty.
-3. Attach the zip it saves to your bug report, with a line on what you were doing.
+1. Open the scene where it's slow, then **Help > Report Issue** and set **Type** to **Performance**.
+2. Click **Record Trace...**, then **Record**, and do the slow thing (orbit, select, scrub) until it stops. 10 seconds is plenty. The trace attaches to the report by itself.
+3. Fill in the rest and click **Send**.
 
-For more detail, click **Restart as Administrator** in the same window first. Windows only lets Lila sample where its time goes, including inside the graphics driver, while it runs as administrator. It changes nothing else, and the recording works without it. Open Lila normally again afterwards.
+For more detail, click **Restart as Administrator** in the recorder first. Lila reopens with your report as you left it. Windows only lets Lila sample where its time goes, including inside the graphics driver, while it runs as administrator. It changes nothing else, and the recording works without it. Open Lila normally again afterwards.
 
 The trace holds timings, Lila's function names, your system and GPU and this session's log. It holds no scene data.
 
@@ -36,7 +42,11 @@ The trace holds timings, Lila's function names, your system and GPU and this ses
 
 **Lila crashed and I had unsaved work.** Start Lila again. It offers to restore what it recovered.
 
-**Lila crashes on startup after an update or a prefs change.** Close Lila, open `%APPDATA%\Lila`, and rename the `prefs` folder to `prefs-old`. Lila starts with default preferences. If that fixes it, mention it in your bug report and attach the old folder.
+**Lila crashes on startup after an update or a prefs change.** Close Lila, open `%APPDATA%\Lila`, and rename the `prefs` folder to `prefs-old`. Lila starts with default preferences. If that fixes it, mention it in your bug report and zip the old folder into **Attach File...**.
+
+**Report Issue says a file or the support bundle is over 25 MB.** Untick **Include the open scene** if it's ticked. For a file that has to be bigger, send the report without it and email the file to lila3d.app@gmail.com with the report number.
+
+**Report Issue says it can't reach the report service.** Check your connection and click **Send** again; the dialog keeps what you typed. If it keeps failing, save a support bundle and try later.
 
 **Steam says "No internet connection" when installing.** Steam has signed you out without saying so. Sign out of Steam and back in, then install again.
 
