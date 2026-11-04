@@ -1,7 +1,6 @@
 {
   "apps": [
     "Maya 2026.3",
-    "Blender 5.2",
     "Lila"
   ],
   "appColors": {
@@ -12,10 +11,6 @@
     "Maya": [
       "#3fcf6b",
       "#1fb5b0"
-    ],
-    "Blender": [
-      "#f5792a",
-      "#ffb15e"
     ]
   },
   "tables": [
@@ -27,7 +22,6 @@
           "task": "Import the ships OBJ, until on screen",
           "values": [
             55.3,
-            15.982,
             6.604
           ]
         },
@@ -35,7 +29,6 @@
           "task": "Save native binary (.mb / .lila)",
           "values": [
             0.61,
-            0.659,
             0.811
           ]
         },
@@ -43,7 +36,6 @@
           "task": "Open native binary, until on screen",
           "values": [
             4.05,
-            2.465,
             2.984
           ]
         },
@@ -51,7 +43,6 @@
           "task": "Save native ASCII (.ma / .lilaa)",
           "values": [
             19.5,
-            null,
             5.498
           ]
         },
@@ -59,7 +50,6 @@
           "task": "Open native ASCII, until on screen",
           "values": [
             30.0,
-            null,
             7.332
           ]
         },
@@ -67,16 +57,14 @@
           "task": "Export FBX",
           "values": [
             37.5,
-            23.886,
             12.59
           ],
-          "notes": "Lila writes tangents by default, Maya and Blender don't; without them Lila took 4.7 s, and Blender took 46.9 s with them"
+          "notes": "Lila writes tangents by default, Maya doesn't; without them Lila took 4.7 s"
         },
         {
           "task": "Import that FBX, until on screen",
           "values": [
             48.7,
-            22.245,
             5.402
           ]
         }
@@ -91,7 +79,6 @@
           "task": "Native binary (.mb / .lila)",
           "values": [
             1129,
-            499,
             517
           ]
         },
@@ -99,7 +86,6 @@
           "task": "Native ASCII (.ma / .lilaa)",
           "values": [
             2923,
-            null,
             2889
           ]
         },
@@ -107,16 +93,14 @@
           "task": "FBX, each app's defaults",
           "values": [
             504,
-            466,
             1880
           ],
-          "notes": "Lila's default writes tangents, Maya's and Blender's don't"
+          "notes": "Lila's default writes tangents, Maya's doesn't"
         },
         {
           "task": "FBX without tangents",
           "values": [
             504,
-            466,
             611
           ]
         }
@@ -130,7 +114,6 @@
           "task": "Weld the exploded ship (1.5 million vertices, 0.0001 cm), until on screen",
           "values": [
             1.74,
-            1.858,
             1.42
           ]
         },
@@ -138,19 +121,16 @@
           "task": "Subdivide the ships once (13.5 million to 40.5 million faces), until on screen",
           "values": [
             42.4,
-            "crashed",
             19.86
           ],
-          "notes": "Maya crashed after it in one of two sessions; Blender (Subdivision Surface, level 1, applied) crashed"
+          "notes": "Maya crashed after it in one of two sessions"
         },
         {
           "task": "Object to vertices (6.75 million), until on screen",
           "values": [
             0.154,
-            10.646,
             0.121
-          ],
-          "notes": "Blender: entering Edit Mode with every vertex selected"
+          ]
         }
       ]
     },
@@ -162,16 +142,14 @@
           "task": "Shaded",
           "values": [
             11.87,
-            null,
             3.72
           ],
-          "notes": "8x antialiasing; Blender's viewport has no multisampling"
+          "notes": "8x antialiasing"
         },
         {
           "task": "Shaded with ambient occlusion",
           "values": [
             13.18,
-            null,
             3.1
           ],
           "notes": "Lila fast mode; accurate mode 6.8 ms"
@@ -180,7 +158,6 @@
           "task": "Wireframe on shaded (20 million edges)",
           "values": [
             12.16,
-            null,
             4.73
           ]
         },
@@ -188,7 +165,6 @@
           "task": "Object selected",
           "values": [
             7.79,
-            null,
             4.63
           ]
         },
@@ -196,7 +172,6 @@
           "task": "Vertex mode, all 6.75 million vertices selected",
           "values": [
             17.3,
-            null,
             5.04
           ]
         }
@@ -210,7 +185,6 @@
           "task": "Shaded",
           "values": [
             5.63,
-            1.8,
             1.74
           ],
           "notes": "Lila's Temporal mode, one sample a frame refined once the view stops: 1.85 ms"
@@ -219,16 +193,14 @@
           "task": "Shaded with ambient occlusion",
           "values": [
             7.08,
-            1.83,
             2.04
           ],
-          "notes": "Lila fast mode; Blender: world-space cavity"
+          "notes": "Lila fast mode"
         },
         {
           "task": "Wireframe on shaded (20 million edges)",
           "values": [
             5.8,
-            4.37,
             3.72
           ]
         },
@@ -236,7 +208,6 @@
           "task": "Object selected",
           "values": [
             3.6,
-            2.83,
             3.73
           ]
         },
@@ -244,7 +215,6 @@
           "task": "Vertex mode, all 6.75 million vertices selected",
           "values": [
             8.47,
-            11.59,
             5.53
           ],
           "notes": "Lila's Temporal mode: 3.84 ms"
@@ -259,25 +229,22 @@
           "task": "Get every vertex position into numpy, usual API",
           "values": [
             13.69,
-            0.6280403,
             2.22e-05
           ],
-          "notes": "Maya: MFnMesh.getPoints; Blender: MeshVertices.foreach_get into float64; Lila: Node.points_array"
+          "notes": "Maya: MFnMesh.getPoints; Lila: Node.points_array"
         },
         {
           "task": "Get every vertex position into numpy, fastest route",
           "values": [
             0.022,
-            0.0194791,
             2.22e-05
           ],
-          "notes": "Maya: API 1 MFnMesh.getRawPoints through ctypes; Blender: the position attribute's foreach_get into float32"
+          "notes": "Maya: API 1 MFnMesh.getRawPoints through ctypes"
         },
         {
           "task": "Compute with numpy",
           "values": [
             1.33,
-            0.965,
             1.305
           ]
         },
@@ -285,7 +252,6 @@
           "task": "Compute with numpy on 32 threads",
           "values": [
             0.711,
-            0.621,
             0.75
           ]
         },
@@ -293,7 +259,6 @@
           "task": "Compute in pure Python",
           "values": [
             27.3,
-            18.8,
             18.0
           ],
           "notes": "100,000 vertices timed, extrapolated"
@@ -302,19 +267,17 @@
           "task": "Get every normal into numpy (40.5 million face-vertices)",
           "values": [
             75.74,
-            0.0586,
             0.138
           ],
-          "notes": "Maya: MFnMesh.getNormals and getNormalIds; Blender: Mesh.corner_normals; Lila: Node.normals_array"
+          "notes": "Maya: MFnMesh.getNormals and getNormalIds; Lila: Node.normals_array"
         },
         {
           "task": "Get every tangent into numpy (MikkTSpace)",
           "values": [
             76.01,
-            6.4156,
             3.28
           ],
-          "notes": "Maya: MFnMesh.getTangents; Blender: Mesh.calc_tangents, then the loops' tangents and signs; Lila: Node.tangents_array"
+          "notes": "Maya: MFnMesh.getTangents; Lila: Node.tangents_array"
         }
       ]
     }
