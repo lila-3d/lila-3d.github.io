@@ -394,7 +394,7 @@ The **Presenter Mode** button at the right end of the viewport's bottom bar show
 - the keys and mouse buttons you press, and Alt navigation
 - each action you run, with its menu path and its hotkey
 - edits from drags and panels, and commands an agent runs
-- the current tool and mode
+- the current tool, as an icon beside the view cube
 - a highlight around the cursor
 
 ![Presenter mode showing recent actions and held keys](images/essentials/presenter-mode.png)
