@@ -38,6 +38,7 @@
   - [Attributes and arrays](attributes.md)
   - [Channel Box](channel-box.md)
   - [Drive and connect](driving.md)
+  - [Expressions](expressions.md)
   - [Component Spreadsheet](component-spreadsheet.md)
 - <span class="nav-label">Modeling</span>
   - [Clay](clay.md)

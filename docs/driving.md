@@ -19,25 +19,15 @@ Faster ways for common cases:
 
 ```python
 expression("box.ty", string="ctrl.ry * 0.5 + clamp(foot.roll, 0, 90)")
-expression("box.ty", query=True)          # {text, native, nodes}
-expression("box.ty", delete=True)
 connectByName("ctrl", "box")
 listConnections("box", source=True, destination=False, plugs=True)
 ```
 
 ## Expressions
 
-Expressions are Python syntax. This subset compiles to rig math nodes, so it evaluates as fast as nodes and shows in the node editor:
-
-- numbers, `pi`, `tau`, `e`, `True`, `False`, and other plugs by name (`ctrl.ry`, `foot.roll`)
-- `+ - * / % **`, `< <= > >= == !=`, `and`, `or`, `not`, `a if condition else b`
-- `abs min max clamp lerp sin cos tan asin acos atan atan2 sqrt exp pow log sign fmod hypot degrees radians wrap mapRange`
-
-Anything else (other functions, lists, chained comparisons) runs as Python each time an input changes: slower, and it stays in Lila. `python=True` forces Python.
+See [Expressions](expressions.md): the syntax, Maya equivalents and running them in Unreal.
 
 ## Troubleshooting
-
-**The expression didn't compile to nodes.** `expression(...)` returns `native: False` and the reason, such as a function outside the list above. Rewrite it with the listed functions, or accept the Python version.
 
 **"isn't a number; drive one of its components".** Expressions drive one number: drive `box.tx`, not `box.translate`.
 

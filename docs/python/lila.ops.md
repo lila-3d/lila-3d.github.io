@@ -3707,7 +3707,7 @@ lila.ops.exportWebViewer("C:/Portfolio/Ship", title="Ship", author="Jared Taylor
 
 ### expression
 
-Drive a plug with an expression in Python syntax: expression('box.ty', string='ctrl.ry * 0.5 + clamp(foot.roll, 0, 90)'). Numbers, other plugs by name, + - * / % **, comparisons, and/or/not, `a if c else b` and abs, min, max, clamp, lerp, sin, cos, tan, asin, acos, atan, atan2, sqrt, exp, pow, log, sign, fmod, hypot, degrees, radians, wrap and mapRange compile to rig math nodes: as fast as nodes, shown in the node editor. Anything else runs as Python (slower, Lila only). Returns {native, nodes, reason}.
+Drive a plug with an expression in Python syntax: expression('box.ty', string='ctrl.ry * 0.5 + clamp(foot.roll, 0, 90)'). Numbers, other plugs by name, time (seconds) and frame, + - * / % **, comparisons, and/or/not, `a if c else b` and abs, min, max, clamp, lerp, sin, cos, tan, asin, acos, atan, atan2, sqrt, exp, pow, log, sign, fmod, hypot, degrees, radians, wrap, mapRange, floor, ceil, round, trunc, noise(x, seed), random(seed) or random(seed, min, max), linstep(min, max, x) and smoothstep(min, max, x) compile to rig math nodes: as fast as nodes, shown in the node editor, and sent to Unreal Control Rig by unrealExpressionRig. Anything else runs as Python with time and frame in scope (slower, Lila only). Returns {native, nodes, reason}; query adds the Unreal program.
 
 **Objects:** plug
 
@@ -3715,7 +3715,7 @@ Drive a plug with an expression in Python syntax: expression('box.ty', string='c
 | --- | --- | --- | --- | --- |
 | `string` | `s` | str |  | The expression; a leading = is optional. |
 | `python` | `py` | bool | `False` | Run it as Python even when it compiles to nodes. |
-| `query` | `q` | bool | `False` | Return {text, native, nodes} for the plug's expression, or None. |
+| `query` | `q` | bool | `False` | Return {text, native, nodes, program, programInputs} for the plug's expression, or None. |
 | `delete` | `d` | bool | `False` | Remove the plug's expression and its nodes. |
 
 ### extendCurve
@@ -11382,6 +11382,21 @@ Name what unrealPlaceInstances sends as each placement's custom primitive data, 
 ```python
 unrealCustomData("Boulder", data=["random", "wear", "tint"])
 ```
+
+### unrealExpressionRig
+
+Build a Control Rig in Unreal that runs the character's expressions live: one Lila Expression node each, evaluating exactly as Lila does. Targets are bone channels, morph target weights (as curves) or attributes under the root (as curves named node_attr); inputs that aren't bones, morph weights or time become float controls. Expressions that run as Python stay in Lila. Returns {rig, animBlueprint, expressions, skipped, controls, curves, warnings, unreal}.
+
+**Objects:** root
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the root's skeletal mapping. |
+| `rig` | `r` | str |  | The Control Rig asset to create or update. Default: CR_<mesh>_Expressions beside the mesh. |
+| `postProcess` | `pp` | bool | `True` | Run the rig from the mesh's post-process Anim Blueprint (made as ABP_<name>_Expressions) so the expressions play wherever the mesh does, and make it the mesh's default animating rig. A post-process Anim Blueprint you made is left alone, with a warning to add a Control Rig node to it. |
+| `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
+
+Not undoable.
 
 ### unrealImport
 
