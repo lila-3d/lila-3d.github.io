@@ -36,7 +36,7 @@ groomShell(g["groom"], voxelSize=0.4)
 
 ## Options
 
-Draw Hair and Sculpt Curves open the **Groom** palette: pick the next stroke (lock, braid, rope, ringlet, part, ponytail, bun, bangs) or the brush there. **Part** turns nearby locks away from the line you drag; **Ponytail** and **Bun** gather where you click; **Bangs** run along the drag. **Show keys** lists each tool's keys in the corner of the view.
+Draw Hair and Sculpt Curves open the **Groom** palette: pick the next stroke (lock, braid, rope, ringlet, part, ponytail, bun, bangs) or the brush there. **Part** turns nearby locks away from the line you drag; **Ponytail** and **Bun** gather where you click; **Bangs** run along the drag. Each kind keeps its own settings; middle-click a field to reset it, or **Reset** for all of the current mode or brush. **B**+drag sets the width, and up and down the thickness (the length for ponytail, bun and bangs, the reach for a parting). **Show keys** lists each tool's keys in the corner of the view.
 
 With **Mirror X** on, draw one side. A lock started within its width of the middle roots on the mirror line, one drawn along the line becomes a single centred lock, and holding **X** widens that reach. Brushing either side edits the guides.
 
