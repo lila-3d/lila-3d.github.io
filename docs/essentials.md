@@ -394,14 +394,14 @@ The **Presenter Mode** button at the right end of the viewport's bottom bar show
 - the keys and mouse buttons you press, and Alt navigation
 - each action you run, with its menu path and its hotkey
 - edits from drags and panels, and commands an agent runs
-- the current tool, as an icon beside the view cube
+- the current tool, as an icon above the caption
 - a highlight around the cursor
 
 ![Presenter mode showing recent actions and held keys](images/essentials/presenter-mode.png)
 
 Typing into text fields is never shown. Use **Presenter Caption...** from the command palette to put a line of text on screen, such as what you're about to do.
 
-The button beside it, **Edit Presenter Layout**, lets you drag each block where you want it, scroll over a block to scale it, and pick which elements show. Turn it off again and the presenter ignores the mouse.
+The button beside it, **Edit Presenter Layout**, lets you drag each block where you want it (it snaps to a grid; hold Ctrl to place it freely or Shift to keep it on one axis), scroll over a block to scale it, and pick which elements show. Turn it off again and the presenter ignores the mouse.
 
 ![Editing the presenter layout](images/essentials/presenter-layout.png)
 
