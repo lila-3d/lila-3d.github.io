@@ -16108,7 +16108,7 @@ tailorAddPocket('Shirt', panel='Front', position=[5, 30], flap=True)
 
 ### tailorAddTrim
 
-Put copies of a trim on a garment's drape at points, each standing on the cloth with its +Z out of it and riding the cloth rigidly from then on: your mesh, or a built-in shape (button, grommet, rivet, toggle, buckle, zipTooth, slider). The copies make one new mesh. Returns [mesh, binding].
+Put copies of a trim on a garment's drape at points, or spaced along edges, each standing on the cloth with its +Z out of it and riding the cloth rigidly from then on: your mesh (eyes, teeth, spines, plates), or a built-in shape (button, grommet, rivet, toggle, buckle, zipTooth, slider). Along edges, each copy's +Y follows the edge. The copies make one new mesh. Returns [mesh, binding].
 
 **Objects:** garment
 
@@ -16117,6 +16117,11 @@ Put copies of a trim on a garment's drape at points, each standing on the cloth 
 | `mesh` | `m` | str |  | Your trim, modelled at the origin with +Z facing out of the cloth, cm. |
 | `shape` | `sh` | str | `'button'` | A built-in trim, when mesh is left out. One of `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth`, `slider`. |
 | `points` | `pts` | list |  | Where, [[x, y, z], ...] world cm, on or near the cloth. |
+| `along` | `al` | str |  | Edges to space copies along instead of points, as tailorSew sides, e.g. "Hood L:0:1". |
+| `count` | `c` | int | `0` | Copies along the edges; 0 spaces them by spacing. |
+| `spacing` | `sg` | float | `3.0` | Between copies along the edges, cm. |
+| `inset` | `in` | float | `0.5` | Copies in from the edge, cm. |
+| `scale` | `sc` | float | `1.0` | Size of each copy. |
 | `name` | `n` | str | `'Trims'` | Name of the new mesh. |
 | `spin` | `sp` | float | `0.0` | Turn each copy about its +Z, degrees. |
 
@@ -16126,6 +16131,10 @@ tailorAddTrim('Coat', shape='button', points=[[0, 130, 16], [0, 118, 17], [0, 10
 
 ```python
 tailorAddTrim('Coat', mesh='SM_Buckle', points=[[0, 100, 16]])
+```
+
+```python
+tailorAddTrim('Onesie', mesh='Tooth', along='Hood L:0:1', count=2, spin=180)
 ```
 
 ### tailorAddZip
@@ -16202,7 +16211,7 @@ Bake a fabric's wrinkle normal maps: a square of it squeezed along U, then along
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
 | `size` | `s` | int | `512` | Map width and height, texels. |
 | `tile` | `tl` | float | `20.0` | The square of cloth one map covers, cm. |
 | `compress` | `c` | float | `0.25` | How far the square is squeezed, 0 to 0.6. |
@@ -16267,15 +16276,16 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, `dropShoulderTop`, `shirt`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`. |
+| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, `dropShoulderTop`, `shirt`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`, `onesie`, `booties`. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `fabric` | `fab` | str |  | Fabric preset; the block's own when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the block placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
 | `wait` | `w` | bool | `False` | Drape before returning instead of in the background. |
 | `fit` | `ft` | bool | `True` | Size the block to the collider's measurements and stand it where the collider stands. |
+| `neck` | `nk` | float |  | Height of the base of the neck above the collider's feet, cm, when the measured one is wrong. |
 | `params` | `pr` | Any |  | Block parameters by name, metres and 0/1 for switches, e.g. {'sleeveStyle': 9, 'sleeveLength': 0.6}. Sleeve styles: 0 set-in, 1 cuffed, 2 bishop, 3 bell, 4 puff, 5 cap, 6 flutter, 7 leg-of-mutton, 8 poet, 9 drop-shoulder, 10 batwing, 11 raglan, 12 marie, 13 flounce, 14 slit, 15 tiered, 16 petal, 17 cape. |
 
 ```python
@@ -16348,7 +16358,7 @@ Adds to the named or selected garment; with none, starts a garment on the select
 | `clearance` | `cl` | float | `1.5` | How far the panel starts outside the body, cm. |
 | `layer` | `l` | int | `0` | Layer: higher layers sit outside lower ones. |
 | `collider` | `c` | str |  | The body, when a new garment is started; the selected mesh otherwise. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
 | `particleDistance` | `pd` | float | `2.0` | Cloth edge length of a new garment, cm. |
 | `simulate` | `sim` | bool | `True` | Drape a new garment. |
 | `frames` | `fr` | int | `90` | Solver frames for a new garment. |
@@ -16450,7 +16460,7 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 | `file` | `f` | str |  | The pattern specification JSON. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the file placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
@@ -16630,7 +16640,7 @@ Without panels it sets the garment's fabric preset; with them, those panels get 
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
 | `panel` | `p` | list |  | Panels by name or index; all panels' shared fabric when left out. |
 
 ```python
@@ -16703,7 +16713,7 @@ Add a strap to a garment along a path (a belt, a sash, a bandolier): a strip of 
 | `curve` | `cv` | str |  | A curve to follow instead of points (its points, world space). |
 | `width` | `w` | float | `4.0` | Strap width, cm. |
 | `name` | `n` | str | `'Strap'` | Panel name; made unique. |
-| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Banner`. |
+| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
 | `closed` | `cl` | bool | `False` | The path closes on itself (a belt round the waist). |
 
 ```python

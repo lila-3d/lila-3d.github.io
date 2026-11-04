@@ -26,6 +26,13 @@ tailorCreateBlock(block='tee', collider=body, params={'sleeveStyle': 9, 'dropSho
 
 Sleeve caps are drafted to fit their armhole: the cap's length is the armhole's plus the style's ease, so a set-in sleeve eases in smoothly and a puff gathers.
 
+`onesie` is a one-piece suit: top, trousers, hood and booties sewn together, cut from the `Plush` fabric (`Fleece` is a lighter option). Seam 0 runs down the centre front, ready for a zip. `'tail': 1` adds a stuffed tail out of the small of the back; `tailStiffness` 0 lets it hang limp. `booties` makes the feet on their own.
+
+```python
+tailorCreateBlock(block='onesie', collider=body, params={'tail': 1, 'tailLength': 0.8}, frames=400, wait=True)
+tailorAddZip('Onesie', seam=0, open=0.2)
+```
+
 ## Check the pattern
 
 **Tailor > Pattern Editor** lists what a pattern maker would flag, each with what to change: a sleeve cap shorter than its armhole or with too much ease, a flat dropped-shoulder cap on a shoulder that isn't dropped, seam sides that don't match, too little ease round the chest for the body, crossed outlines, panels too small for the cloth, grain off true. Click a finding to see the panel or seam. `tailorCheck` returns the same list, and the `tailor` validator puts it on the garment mesh as diagnostics.
@@ -56,6 +63,7 @@ With a garment selected, paint on it in the viewport. **[** and **]** size the b
 
 ```python
 tailorAddTrim('Coat', shape='button', points=[[0, 130, 16], [0, 118, 17]])  # rigid pieces riding the cloth
+tailorAddTrim('Onesie', mesh='Spine', along='Hood L:1:12', count=5)          # along an edge
 tailorAddPocket('Shirt', panel='Front', position=[5, 30], flap=True)
 tailorAddCollar('Shirt')                                                     # style='band' for a stand collar
 tailorAddBeltLoops('Trousers', panel='Front L', height=68, count=2)
@@ -66,7 +74,7 @@ tailorDamage('Cloak', points=[[5, 90, -20]], radius=4)                       # k
 tailorStrap('Tunic', curve='BeltPath', closed=True, width=5)                 # a belt or sash along a path
 ```
 
-Built-in trims are `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth` and `slider`. Your own trim: model it at the origin, cm, with +Z facing out of the cloth, and pass `mesh=`. Each copy rides the cloth at its middle without bending. Pockets, belt loops and the collar are also on the Pattern Editor's right-click menu. Sides like `'Hood L:5:9'` are panel, first and last outline point, as **Sew** mode and `tailorSew` use.
+Built-in trims are `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth` and `slider`. Your own trim (eyes, teeth, spines): model it at the origin, cm, with +Z facing out of the cloth, and pass `mesh=`. `along='Hood L:0:6'` spaces copies along edges instead of at points, each turned to follow the edge; `scale` sizes them. Each copy rides the cloth at its middle without bending. Pockets, belt loops and the collar are also on the Pattern Editor's right-click menu. Sides like `'Hood L:5:9'` are panel, first and last outline point, as **Sew** mode and `tailorSew` use.
 
 ## Animate it
 
@@ -103,7 +111,7 @@ To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBa
 
 ## Troubleshooting
 
-**The garment doesn't fit the body.** Blocks read height and chest, waist, hip, neck and head girths from horizontal slices of the body. A body lying down, facing another axis, or with arms fused to the torso reads wrong. Stand it in +Y facing +Z, or pass `fit=False` and use the default 180 cm body.
+**The garment doesn't fit the body.** Blocks read height and chest, waist, hip, neck and head girths from horizontal slices of the body. A big cartoon head is fine: the neck is found from the slices and everything below it is sized from there. If the garment still sits too high or low, give the neck's height above the feet: `tailorCreateBlock(block='onesie', collider=body, neck=62)`. A body lying down, facing another axis, or with arms fused to the torso reads wrong. Stand it in +Y facing +Z, or pass `fit=False` and use the default 180 cm body.
 
 **The mesh stays flat and undraped.** The drape is still running (see the progress bar), or **simulate** is off on the garment node. In scripts, pass `wait=True` to get the finished drape back.
 
