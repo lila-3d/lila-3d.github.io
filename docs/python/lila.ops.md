@@ -8976,7 +8976,7 @@ One brush stroke on the sculpt: dabs is a list of {center, normal, radius, press
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `brush` |  | str | `'draw'` | draw, clayStrips, inflate, grab, smooth, flatten, pinch, crease, scrape, damStandard, trimDynamic, polish, fold, mask, relax, freeze, paint, or a brush an extension registered. |
+| `brush` |  | str | `'draw'` | draw, clayStrips, inflate, grab, smooth, flatten, pinch, crease, scrape, damStandard, trimDynamic, polish, fold, mask, relax, freeze, paint, fill, clay, layer, blob, magnify, planar, snakeHook, elasticGrab, nudge, thumb, rotate, pose, boundary, or a brush an extension registered. |
 | `paint` |  | bool | `False` | Shape brushes also paint color where they move points. |
 | `color` |  | list | `[1.0, 1.0, 1.0]` | Paint color, linear [r, g, b]. |
 | `falloff` |  | str | `'smooth'` | Falloff: smooth, sphere, root, sharp, linear, constant, bell, or a soft select preset name. |
@@ -12232,6 +12232,7 @@ What the active viewport draws and counts now: {hud: {scene, objects, components
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `pick` |  | list |  | Widget pixels: [x, y] for a click, or [x0, y0, x1, y1] for a marquee. |
+| `path` | `p` | str |  | Also render the view's live frame (tools and their drawing included) offscreen to this PNG. |
 
 Not undoable.
 
