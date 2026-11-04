@@ -53,9 +53,9 @@ Link two shapes of a clay object with a round cone between their centres, ZSpher
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `thickness` | `th` | float | `0.6` | Each end's radius as a fraction of its shape's size. |
+| `thickness` | `th` | float | `1.0` | Each end's radius as a fraction of its shape's size. |
 | `operation` | `op` | str | `'add'` | How the link joins the clay before it. One of `add`, `subtract`, `intersect`. |
-| `blend` | `b` | float |  | Smooth join radius, cm. |
+| `blend` | `b` | float |  | Smooth join radius, cm; 0 by default at full thickness. |
 | `color` | `c` | tuple[float, float, float] |  | Linear colour. |
 | `name` | `n` | str | `'ClayLink'` | Name; made unique. |
 | `skipSelect` | `ss` | bool | `False` | Leave the selection as it is. |
