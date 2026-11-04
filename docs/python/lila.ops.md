@@ -5009,6 +5009,35 @@ Create an image plane for modelling from reference images, or edit the image pla
 | `displayMode` | `dm` | str |  | lookingThrough or allViews. |
 | `placement` | `pl` | str |  | behind, inScene or inFront of the geometry. |
 | `locked` | `lk` | bool |  | Not pickable in the viewport (reference mode). |
+| `drawOrder` | `do` | int |  | Higher draws in front of lower among planes with the same placement. |
+| `keyBackground` | `kb` | bool |  | Clear the picture's background (its top left corner's color). |
+| `keyTolerance` | `kt` | float |  | How far from the background color still clears, 0 to 1. |
+
+### imagePlaneCut
+
+Cut an image plane into pieces to repose the picture, e.g. arms drawn at a poor angle: imagePlaneCut(points=[[x, y, z], ...], symmetry='x'). The first two points span the joint and the piece their midpoint lies on is cut. More points go around the limb and close back to the first, a lasso: the limb is what lies inside. With only two, the limb is the side away from the piece's pivot, each end running on to the edge fanned 30 degrees out from straight across. The limb becomes a new image plane parented under the piece, pivoting at the joint, so turning its rotateZ swings it. Cut shoulder, then elbow, then wrist for a chain. Returns the new pieces.
+
+**Objects:** image planes to cut, with the pieces under them (default: whichever the cut lies on)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | Any |  | The cut in world space: [[x, y, z], ...], two or more points on the plane. |
+| `symmetry` | `sym` | str | `'off'` | Also make the mirror cut across a world plane: off, x, y or z. |
+| `mirrorTransform` | `mt` | bool | `True` | With symmetry: the mirrored piece follows the first one's transform and pivots, mirrored. |
+| `keyBackground` | `kb` | bool | `True` | Clear the background of the plane cut and its pieces, so a turned piece doesn't cover its neighbours. |
+| `aspect` | `a` | float | `0.0` | The picture's width over height, so an uncut plane is cut at the picture's edge; 0 runs cuts past it. |
+
+### imagePlaneGuide
+
+Add, remove or clear guide lines drawn over an image plane, for lining limbs up with an angle while reposing: imagePlaneGuide('front', lines=[[x0, y0, x1, y1]]). Each runs from its start through its end to the picture's edge, in the plane's own XY (local cm). Returns how many guides it has.
+
+**Objects:** image plane
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lines` | `l` | Any |  | Guides to add: [[x0, y0, x1, y1], ...] in the plane's local cm. |
+| `remove` | `rm` | int |  | Index of a guide to remove. |
+| `clear` | `cl` | bool | `False` | Remove every guide. |
 
 ### importAlembic
 

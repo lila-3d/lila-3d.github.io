@@ -33,6 +33,22 @@ For likeness work, match the camera to each photo once and come back to it later
 2. Click **Duplicate** in the overlay toolbar and crop the copy to the side view. Do the same for the back.
 3. Bind each one to its view, as above, so each shows only from its own side.
 
+## Repose a drawing
+
+When a character sheet has the arms at a poor angle, cut its image plane at the joints and turn the pieces. **Shift**+click the image plane button on the viewport toolbar to tear off **Create > Reference Images** beside you.
+
+1. Make an image plane from the sheet (**Create > Reference Images > Image Plane...**) and open **Create > Reference Images > Cut Image Plane**.
+2. Click either side of the shoulder, then click around the arm and press **Enter**. Everything inside that loop becomes the arm piece. The dot between the first two points is where it pivots.
+3. Cut the elbow, then the wrist, the same way. Each cut part is parented under the part it came from, so the forearm follows the upper arm.
+4. To aim for an angle, open **Create > Reference Images > Image Plane Guides** and drag from the shoulder: the guide snaps to 15 degree steps (**Shift** for any angle) and shows its angle. **Ctrl**+click a guide to delete it.
+5. Select a piece and rotate it around Z. With mirroring on (**X** in the tool, on by default), the other arm is cut too and follows it, pivot included.
+
+Cut pieces clear their background (the picture's top left colour) so a turned piece doesn't cover its neighbours.
+
+```python
+imagePlaneCut(points=[(20, 150, 0), (18, 130, 0)], symmetry="x")
+```
+
 ## Troubleshooting
 
 **O does nothing.** O works on the active view's overlays. Click in the view first; a message says so when it has none.
@@ -44,6 +60,14 @@ For likeness work, match the camera to each photo once and come back to it later
 **A tab shows "Can't read this image".** The file moved. Drop the file on the window with **Shift** held to point the tab at it again.
 
 **A floating window ignores clicks.** It's set to click-through. Use **Windows > Reference Windows Clickable**.
+
+**A cut takes part of the body with the arm, or leaves part of the arm behind.** With only the two joint points, the cut runs on to the picture's edge (dashed) and guesses the limb. Undo, and click around the limb before pressing **Enter**.
+
+**The background around a piece doesn't clear, or the figure's edges do.** Change **keyTolerance** on the pieces in the Attribute Editor, or turn **keyBackground** off for a picture with its own transparency.
+
+**The wrong image plane draws in front.** Raise **drawOrder** on the one that belongs in front (Channel Box). Pieces add their own to the plane they were cut from, so set it on the uncut plane to move the whole figure.
+
+**Cut Image Plane won't start a cut on a plane.** Planes that follow the perspective camera can't be cut. Planes on an orthographic view (front, side, top) become free planes when cut.
 
 **Closed a torn-off window by mistake.** Closing it closes its tabs; **Ctrl+Z** brings them back.
 
