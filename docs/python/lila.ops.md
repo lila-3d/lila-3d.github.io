@@ -45,6 +45,25 @@ Add an attribute to objects (Maya's addAttr): attributeType for a single value o
 | `category` |  | str |  | A heading the Attribute Editor groups it under. |
 | `doc` |  | str |  | What it is for: editors show it as a tooltip. |
 
+### addClayLink
+
+Link two shapes of a clay object with a round cone between their centres, ZSphere style. The link follows the shapes as they move and resize. Returns the link.
+
+**Objects:** start shape, end shape
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `thickness` | `th` | float | `0.6` | Each end's radius as a fraction of its shape's size. |
+| `operation` | `op` | str | `'add'` | How the link joins the clay before it. One of `add`, `subtract`, `intersect`. |
+| `blend` | `b` | float |  | Smooth join radius, cm. |
+| `color` | `c` | tuple[float, float, float] |  | Linear colour. |
+| `name` | `n` | str | `'ClayLink'` | Name; made unique. |
+| `skipSelect` | `ss` | bool | `False` | Leave the selection as it is. |
+
+```python
+addClayLink(["Body", "Head"], thickness=0.5)
+```
+
 ### addClayPrimitive
 
 Add a clay shape to a clay object or group, after its other shapes. Given a shape, adds next to it. Returns the new shape.
@@ -1864,7 +1883,7 @@ clayJoints("Dog", mesh=mesh)
 
 ### clayShapeAt
 
-The clay shape of a clay object at a world point: the one the point is deepest inside, else the nearest. Cuts count. Returns its path, or None for an object without shapes.
+The clay shape or link of a clay object at a world point: the one the point is deepest inside, else the nearest. Cuts count. Returns its path, or None for an object without shapes.
 
 **Objects:** clay object or anything in it
 
@@ -4605,6 +4624,7 @@ Adds locks along a stroke to a groom's guides: points from the root, world space
 | `size` |  | float | `1.0` | Braid and rope half width, ringlet radius, cm. |
 | `period` |  | float | `4.0` | Length of one turn of a braid, rope or ringlet, cm. |
 | `width` | `w` | float | `1.0` | Width of the new locks relative to the groom's. |
+| `thickness` | `th` | float | `1.0` | Thickness of the new locks relative to the groom's. |
 | `profile` |  | str |  | Cross-section of the new locks; default the groom's. One of `tube`, `ribbon`, `crescent`, `teardrop`, `custom`. |
 | `snapRoot` |  | bool | `True` | Move the root onto the scalp. |
 
