@@ -17408,7 +17408,7 @@ trimAlongCurve(orient='wall', trim='Plate128')
 
 ### trimApply
 
-Map the selected faces (whole selected meshes in object mode) onto one trim: each island is split by angle, rectified, turned to suit the trim and fitted to it (stretched to a strip's height and slid along it, or fitted inside a rectangle). Faces get the sheet's material and remember their trim (face int 'trim', index + 1). Returns per mesh the islands placed.
+Map the selected faces (whole selected meshes in object mode) onto one trim: each island is split by angle, rectified, turned to suit the trim and fitted to it (stretched to a strip's height, or fitted inside a rectangle). Along a strip, a run spans a whole number of sheet widths, so copies laid end to end tile, and runs on round corners. Faces get the sheet's material and remember their trim (face int 'trim', index + 1). Returns per mesh the islands placed.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -17420,7 +17420,7 @@ Map the selected faces (whole selected meshes in object mode) onto one trim: eac
 | `orient` | `o` | str | `'worldUp'` | worldUp, longestU or asIs. |
 | `seed` | `s` | int | `0` | Offset along strips. |
 | `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); each face keeps its palette when not given. |
-| `randomOffset` | `ro` | bool | `False` | Slide islands to a random place along tiling strips; off centres them, so motifs sit symmetrically. |
+| `randomOffset` | `ro` | bool | `False` | Slide islands to a random place along tiling strips; off starts each run on the sheet's edge and spans whole sheets, so copies tile. |
 
 ```python
 trimApply(trim='Plate128')
