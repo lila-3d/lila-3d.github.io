@@ -1,6 +1,6 @@
 # Performance
 
-The same 13.5 million triangles in each app, as drawn during these tests, both with ambient occlusion and 8x antialiasing.
+The same 13.5 million triangles in each app, with ambient occlusion: Lila and Maya at 8x antialiasing, Blender with its samples added once the view stopped.
 
 <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span>
 
@@ -10,15 +10,20 @@ The same 13.5 million triangles in each app, as drawn during these tests, both w
 
 ![Maya 2026.3 viewport with the ships](images/performance/maya-viewport.png)
 
+<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span>
+
+![Blender 5.2 viewport with the ships](images/performance/blender-viewport.png)
+
 > Same machine, same files, timed in the running app from the command until the result draws on the screen.
 
 ## Measured on
 
 | | |
 | --- | --- |
-| Date | 4 November 2026 (Maya: 27 October 2026) |
+| Date | 4 and 5 November 2026 (Maya's files and modelling: 27 October 2026) |
 | Lila | 0.1.0, build of 4 November 2026 |
 | Maya | 2026.3 (cut 202510291147-60ec9eda33) |
+| Blender | 5.2.3 LTS, OpenGL |
 | CPU | AMD Ryzen 9 5950X, 16 cores |
 | RAM | 128 GB |
 | GPU | NVIDIA GeForce RTX 5080, 16 GB, driver 610.88 |
@@ -39,39 +44,39 @@ Results are coloured by how far they are from the best on their row: <span style
 
 ### Files
 
-| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
-|---|---|---|---|
-| Import the ships OBJ, until on screen | <span style="color:#de4c36">55.3 s</span> | <span style="color:#2fa442;font-weight:700">6.60 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 8.4x faster** |
-| Save native binary (.mb / .lila) | <span style="color:#b4a409;font-weight:700">0.610 s</span> | <span style="color:#cc9807">0.811 s</span> | **<span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya</span> 1.3x faster** |
-| Open native binary, until on screen | <span style="color:#cc9708">4.05 s</span> | <span style="color:#b3a409;font-weight:700">2.98 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.4x faster** |
-| Save native ASCII (.ma / .lilaa) | <span style="color:#d67020">19.5 s</span> | <span style="color:#6da427;font-weight:700">5.50 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 3.5x faster** |
-| Open native ASCII, until on screen | <span style="color:#d76a23">30.0 s</span> | <span style="color:#63a42b;font-weight:700">7.33 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 4.1x faster** |
-| Export FBX<br><small>Lila writes tangents by default, Maya doesn't; without them Lila took 4.7 s</small> | <span style="color:#d4771b">37.5 s</span> | <span style="color:#7aa422;font-weight:700">12.6 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 3.0x faster** |
-| Import that FBX, until on screen | <span style="color:#df4937">48.7 s</span> | <span style="color:#2aa444;font-weight:700">5.40 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 9.0x faster** |
+| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
+|---|---|---|---|---|
+| Import the ships OBJ, until on screen | <span style="color:#de4c36">55.3 s</span> | <span style="color:#d28016">16.0 s</span> | <span style="color:#89a41b;font-weight:700">6.60 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 2.4x faster** |
+| Save native binary (.mb / .lila) | <span style="color:#c3a402;font-weight:700">0.610 s</span> | <span style="color:#caa102">0.659 s</span> | <span style="color:#cc9807">0.811 s</span> | **<span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya</span> 1.1x faster** |
+| Open native binary, until on screen | <span style="color:#ce900d">4.05 s</span> | <span style="color:#bba406;font-weight:700">2.47 s</span> | <span style="color:#cb9c05">2.98 s</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.2x faster** |
+| Save native ASCII (.ma / .lilaa) | <span style="color:#d67020">19.5 s</span> | - | <span style="color:#6da427;font-weight:700">5.50 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 3.5x faster** |
+| Open native ASCII, until on screen | <span style="color:#d76a23">30.0 s</span> | - | <span style="color:#63a42b;font-weight:700">7.33 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 4.1x faster** |
+| Export FBX<br><small>Lila writes tangents by default, Maya and Blender don't; without them Lila took 4.7 s, and Blender took 46.9 s with them</small> | <span style="color:#d4771b">37.5 s</span> | <span style="color:#cf8a10">23.9 s</span> | <span style="color:#9ba414;font-weight:700">12.6 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.9x faster** |
+| Import that FBX, until on screen | <span style="color:#df4937">48.7 s</span> | <span style="color:#d76a24">22.2 s</span> | <span style="color:#62a42c;font-weight:700">5.40 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 4.1x faster** |
 
 ### File sizes, the ships
 
-| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
-|---|---|---|---|
-| Native binary (.mb / .lila) | <span style="color:#d18414">1129 MB</span> | <span style="color:#90a418;font-weight:700">517 MB</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 2.2x smaller** |
-| Native ASCII (.ma / .lilaa) | <span style="color:#c9a400">2923 MB</span> | <span style="color:#c9a400">2889 MB</span> | ≈ even |
-| FBX, each app's defaults<br><small>Lila's default writes tangents, Maya's doesn't</small> | <span style="color:#6aa429;font-weight:700">504 MB</span> | <span style="color:#d66e21">1880 MB</span> | **<span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya</span> 3.7x smaller** |
-| FBX without tangents | <span style="color:#bba406;font-weight:700">504 MB</span> | <span style="color:#cb9c05">611 MB</span> | **<span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya</span> 1.2x smaller** |
+| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
+|---|---|---|---|---|
+| Native binary (.mb / .lila) | <span style="color:#d18215">1129 MB</span> | <span style="color:#c9a400">499 MB</span> | <span style="color:#c9a400">517 MB</span> | ≈ even |
+| Native ASCII (.ma / .lilaa) | <span style="color:#c9a400">2923 MB</span> | - | <span style="color:#c9a400">2889 MB</span> | ≈ even |
+| FBX, each app's defaults<br><small>Lila's default writes tangents, Maya's and Blender's don't</small> | <span style="color:#caa102">504 MB</span> | <span style="color:#c3a402;font-weight:700">466 MB</span> | <span style="color:#d76a23">1880 MB</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.1x smaller** |
+| FBX without tangents | <span style="color:#caa102">504 MB</span> | <span style="color:#c3a402;font-weight:700">466 MB</span> | <span style="color:#cc9907">611 MB</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.1x smaller** |
 
 ### Modelling
 
-| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
-|---|---|---|---|
-| Weld the exploded ship (1.5 million vertices, 0.0001 cm), until on screen | <span style="color:#cb9c05">1.74 s</span> | <span style="color:#baa406;font-weight:700">1.42 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.2x faster** |
-| Subdivide the ships once (13.5 million to 40.5 million faces), until on screen<br><small>Maya crashed after it in one of two sessions</small> | <span style="color:#d18513">42.4 s</span> | <span style="color:#92a417;font-weight:700">19.9 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 2.1x faster** |
-| Object to vertices (6.75 million), until on screen | <span style="color:#cb9a06">0.154 s</span> | <span style="color:#b8a407;font-weight:700">0.121 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.3x faster** |
+| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
+|---|---|---|---|---|
+| Weld the exploded ship (1.5 million vertices, 0.0001 cm), until on screen | <span style="color:#cb9c05">1.74 s</span> | <span style="color:#cc9907">1.86 s</span> | <span style="color:#baa406;font-weight:700">1.42 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.2x faster** |
+| Subdivide the ships once (13.5 million to 40.5 million faces), until on screen<br><small>Maya crashed after it in one of two sessions; Blender (Subdivision Surface, level 1, applied) crashed</small> | <span style="color:#d18513">42.4 s</span> | <span style="color:#e0453a">crashed</span> | <span style="color:#92a417;font-weight:700">19.9 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 2.1x faster** |
+| Object to vertices (6.75 million), until on screen<br><small>Blender: entering Edit Mode with every vertex selected</small> | <span style="color:#cb9a06">0.154 s</span> | <span style="color:#e0453a">10.6 s</span> | <span style="color:#b8a407;font-weight:700">0.121 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.3x faster** |
 
 ### Stability
 
-| | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> |
-| --- | --- | --- |
-| Crashes | <span style="color:#e0453a">1</span>: subdividing the ships (exception 0xc0000409, in one of two sessions) | <span style="color:#22a447">0</span> |
-| Hangs | <span style="color:#e0453a">3 of 3</span>: welding the single ship at 0.01 cm, ended with End Task after several minutes | <span style="color:#22a447">0</span>: the same weld finished in 0.6 s |
+| | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> |
+| --- | --- | --- | --- |
+| Crashes | <span style="color:#e0453a">1</span>: subdividing the ships (exception 0xc0000409, in one of two sessions) | <span style="color:#e0453a">1</span>: subdividing the ships (Subdivision Surface, level 1, applied) | <span style="color:#22a447">0</span> |
+| Hangs | <span style="color:#e0453a">3 of 3</span>: welding the single ship at 0.01 cm, ended with End Task after several minutes | not tested | <span style="color:#22a447">0</span>: the same weld finished in 0.6 s |
 
 The 0.01 cm weld is extreme: the ship is about 1 cm long, so almost every edge is shorter than that and the whole mesh collapses.
 
@@ -79,27 +84,41 @@ If Lila crashes, hangs or is slow on your files, report it.
 
 ### Viewport
 
-| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
-|---|---|---|---|
-| Shaded | <span style="color:#cc9807">4.73 ms</span> | <span style="color:#b4a409;font-weight:700">3.54 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.3x faster** |
-| Shaded with ambient occlusion<br><small>Lila fast mode; accurate mode 6.8 ms</small> | <span style="color:#cd920b">5.58 ms</span> | <span style="color:#aaa40d;font-weight:700">3.65 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.5x faster** |
-| Wireframe on shaded (20 million edges) | <span style="color:#c9a400">4.99 ms</span> | <span style="color:#c9a400">4.85 ms</span> | ≈ even |
-| Object selected | <span style="color:#d76a23">19.4 ms</span> | <span style="color:#63a42b;font-weight:700">4.76 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 4.1x faster** |
-| Vertex mode, all 6.75 million vertices selected | <span style="color:#cb9c05">6.42 ms</span> | <span style="color:#baa406;font-weight:700">5.25 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.2x faster** |
+| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
+|---|---|---|---|---|
+| Shaded<br><small>8x antialiasing; Blender's viewport has no multisampling</small> | <span style="color:#d5741d">11.9 ms</span> | - | <span style="color:#75a424;font-weight:700">3.72 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 3.2x faster** |
+| Shaded with ambient occlusion<br><small>Lila fast mode; accurate mode 6.8 ms</small> | <span style="color:#d76824">13.2 ms</span> | - | <span style="color:#60a42d;font-weight:700">3.10 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 4.3x faster** |
+| Wireframe on shaded (20 million edges) | <span style="color:#d27d18">12.2 ms</span> | - | <span style="color:#85a41d;font-weight:700">4.73 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 2.6x faster** |
+| Object selected | <span style="color:#ce8f0d">7.79 ms</span> | - | <span style="color:#a3a410;font-weight:700">4.63 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.7x faster** |
+| Vertex mode, all 6.75 million vertices selected | <span style="color:#d5711f">17.3 ms</span> | - | <span style="color:#70a426;font-weight:700">5.04 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 3.4x faster** |
 
 Lila's accurate ambient occlusion only darkens ambient light, at the cost of drawing the scene twice. Its fast mode, like Maya's, darkens the finished image. Pick in **Preferences > Viewport > AO method**.
+
+### Viewport, no antialiasing
+
+| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
+|---|---|---|---|---|
+| Shaded<br><small>Lila's Temporal mode, one sample a frame refined once the view stops: 1.85 ms</small> | <span style="color:#d5741e">5.63 ms</span> | <span style="color:#c9a400">1.80 ms</span> | <span style="color:#c9a400">1.74 ms</span> | ≈ even |
+| Shaded with ambient occlusion<br><small>Lila fast mode; Blender: world-space cavity</small> | <span style="color:#d76c22">7.08 ms</span> | <span style="color:#c1a403;font-weight:700">1.83 ms</span> | <span style="color:#caa003">2.04 ms</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.1x faster** |
+| Wireframe on shaded (20 million edges) | <span style="color:#cd920b">5.80 ms</span> | <span style="color:#cb9d04">4.37 ms</span> | <span style="color:#bda405;font-weight:700">3.72 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.2x faster** |
+| Object selected | <span style="color:#cb9a06">3.60 ms</span> | <span style="color:#b8a407;font-weight:700">2.83 ms</span> | <span style="color:#cc9907">3.73 ms</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.3x faster** |
+| Vertex mode, all 6.75 million vertices selected<br><small>Lila's Temporal mode: 3.84 ms</small> | <span style="color:#cd920b">8.47 ms</span> | <span style="color:#d08513">11.6 ms</span> | <span style="color:#aaa40d;font-weight:700">5.53 ms</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.5x faster** |
+
+Blender's viewport draws one sample a frame while the view moves, then adds samples once it stops. Lila's **Preferences > Viewport > Antialiasing > Mode > Temporal** works the same way, with temporal antialiasing on the moving frames.
 
 ### Python, 6.75 million vertices
 
 > Lila hands numpy its vertex buffer directly with no copy, so the gather time doesn't grow with mesh size. Maya copies every position.
 
-| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
-|---|---|---|---|
-| Get every vertex position into numpy, usual API<br><small>Maya: MFnMesh.getPoints; Lila: Node.points_array</small> | <span style="color:#e0453a">13.7 s</span> | <span style="color:#22a447;font-weight:700">22.2 µs</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 616667x faster** |
-| Get every vertex position into numpy, fastest route<br><small>Maya: API 1 MFnMesh.getRawPoints through ctypes</small> | <span style="color:#e0453a">0.0220 s</span> | <span style="color:#22a447;font-weight:700">22.2 µs</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 991x faster** |
-| Compute with numpy | <span style="color:#c9a400">1.33 s</span> | <span style="color:#c9a400">1.31 s</span> | ≈ even |
-| Compute with numpy on 32 threads | <span style="color:#c5a402;font-weight:700">0.711 s</span> | <span style="color:#caa201">0.750 s</span> | **<span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya</span> 1.1x faster** |
-| Compute in pure Python<br><small>100,000 vertices timed, extrapolated</small> | <span style="color:#cd930a">27.3 s</span> | <span style="color:#aba40d;font-weight:700">18.0 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 1.5x faster** |
+| Task | <span style="background:linear-gradient(90deg,#3fcf6b,#1fb5b0);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Maya 2026.3</span> | <span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender 5.2</span> | <span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> | Difference |
+|---|---|---|---|---|
+| Get every vertex position into numpy, usual API<br><small>Maya: MFnMesh.getPoints; Blender: MeshVertices.foreach_get into float64; Lila: Node.points_array</small> | <span style="color:#e0453a">13.7 s</span> | <span style="color:#e0453a">0.628 s</span> | <span style="color:#22a447;font-weight:700">22.2 µs</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 28290x faster** |
+| Get every vertex position into numpy, fastest route<br><small>Maya: API 1 MFnMesh.getRawPoints through ctypes; Blender: the position attribute's foreach_get into float32</small> | <span style="color:#e0453a">0.0220 s</span> | <span style="color:#e0453a">0.0195 s</span> | <span style="color:#22a447;font-weight:700">22.2 µs</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 877x faster** |
+| Compute with numpy | <span style="color:#cc9708">1.33 s</span> | <span style="color:#b3a409;font-weight:700">0.965 s</span> | <span style="color:#cc9808">1.31 s</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.4x faster** |
+| Compute with numpy on 32 threads | <span style="color:#ca9e03">0.711 s</span> | <span style="color:#bfa404;font-weight:700">0.621 s</span> | <span style="color:#cb9c05">0.750 s</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 1.1x faster** |
+| Compute in pure Python<br><small>100,000 vertices timed, extrapolated</small> | <span style="color:#cd930a">27.3 s</span> | <span style="color:#c9a400">18.8 s</span> | <span style="color:#c9a400">18.0 s</span> | ≈ even |
+| Get every normal into numpy (40.5 million face-vertices)<br><small>Maya: MFnMesh.getNormals and getNormalIds; Blender: Mesh.corner_normals; Lila: Node.normals_array</small> | <span style="color:#e0453a">75.7 s</span> | <span style="color:#8ba41a;font-weight:700">0.0586 s</span> | <span style="color:#d28116">0.138 s</span> | **<span style="background:linear-gradient(90deg,#f5792a,#ffb15e);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Blender</span> 2.4x faster** |
+| Get every tangent into numpy (MikkTSpace)<br><small>Maya: MFnMesh.getTangents; Blender: Mesh.calc_tangents, then the loops' tangents and signs; Lila: Node.tangents_array</small> | <span style="color:#e0453a">76.0 s</span> | <span style="color:#d08811">6.42 s</span> | <span style="color:#98a415;font-weight:700">3.28 s</span> | **<span style="background:linear-gradient(90deg,#4da3ff,#e8f3ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700">Lila</span> 2.0x faster** |
 
 Lila's FBX export writes tangents and binormals by default, so Unreal uses the same tangent space Lila shows. Tangents are most of the gap in FBX size: turn them off in the FBX export options (`exportFbx(path, tangents=False)`) when Unreal should compute its own.
 
@@ -123,7 +142,7 @@ Snapshots of this page from major performance pushes, each kept as it was measur
 
 | Date | Push | Compared with | |
 |---|---|---|---|
-| 4 November 2026 | Viewport faster than Maya | Maya 2026.3 | [Snapshot](performance/2026-11-04.md) |
+| 4 November 2026 | Viewport faster than Maya, Blender 5.2 added | Maya 2026.3, Blender 5.2 | [Snapshot](performance/2026-11-04.md) |
 | 27 October 2026 | First comparison with Maya | Maya 2026.3 | [Snapshot](performance/2026-10-27.md) |
 
 ### Lila over time
@@ -144,11 +163,11 @@ Snapshots of this page from major performance pushes, each kept as it was measur
 | Weld the exploded ship (1.5 million vertices, 0.0001 cm), until on screen | 1.24 s | 1.42 s |
 | Subdivide the ships once (13.5 million to 40.5 million faces), until on screen | 34.2 s | 19.9 s |
 | Object to vertices (6.75 million), until on screen | 0.116 s | 0.121 s |
-| Shaded | 5.68 ms | 3.54 ms |
-| Shaded with ambient occlusion | 5.79 ms | 3.65 ms |
-| Wireframe on shaded (20 million edges) | 6.14 ms | 4.85 ms |
-| Object selected | 6.02 ms | 4.76 ms |
-| Vertex mode, all 6.75 million vertices selected | 6.82 ms | 5.25 ms |
+| Shaded | 5.68 ms | 3.72 ms |
+| Shaded with ambient occlusion | 5.79 ms | 3.10 ms |
+| Wireframe on shaded (20 million edges) | 6.14 ms | 4.73 ms |
+| Object selected | 6.02 ms | 4.63 ms |
+| Vertex mode, all 6.75 million vertices selected | 6.82 ms | 5.04 ms |
 | Get every vertex position into numpy, usual API | 184 µs | 22 µs |
 | Get every vertex position into numpy, fastest route | 184 µs | 22 µs |
 | Compute with numpy | 1.30 s | 1.30 s |
@@ -159,7 +178,7 @@ Snapshots of this page from major performance pushes, each kept as it was measur
 
 ## How it was measured
 
-Each app was started fresh, with nothing else running, and timed alone. Both viewports were about 2 million pixels: Maya's 1864 x 1157, Lila's 1600 x 1260. Times "until on screen" run from the command to the first frame drawn afterwards.
+Each app was started fresh, with nothing else running, and timed alone. Each viewport was about 2 million pixels: Maya's 1662 x 1114, Blender's and Lila's 1600 x 1260. Times "until on screen" run from the command to the first frame drawn afterwards.
 
 ### Maya
 
@@ -174,7 +193,9 @@ Each script ran in the open Maya through a command port. The timer wraps the com
 | Subdivide | `cmds.polySmooth(mesh, dv=1)` |
 | Object to vertices | object selected, `mel.eval("ConvertSelectionToVertices")` |
 
-Viewport: Viewport 2.0 (DirectX 11), Smooth Shaded, `hardwareRenderingGlobals` at 8 samples with SSAO on or off per row. The camera is framed on the ships with `viewFit`, then turned 3 degrees and redrawn with `cmds.refresh(force=True, currentView=True)` 40 times; the time is the average per redraw. `nvidia-smi` showed the GPU at 100% through a longer 1,500-frame run, so the GPU set the pace and wall time is GPU time.
+Viewport: Viewport 2.0 (DirectX 11), Smooth Shaded, `hardwareRenderingGlobals` at 8 samples or with multisampling off, SSAO on or off per row. The camera is framed on the ships with `viewFit`, then orbited to 8 angles 45 degrees apart (`tools/benchmarks/maya_viewport.py`); at each, `cmds.refresh(force=True, currentView=True)` runs 30 times and the time is the average per redraw. The row is the median of the 8 angles. `nvidia-smi` showed the GPU at 100% through a longer run, so the GPU set the pace and wall time is GPU time.
+
+Snapshots before 4 November turned Maya's camera in place instead of orbiting it, so the ships left the view for about half the frames: their Maya viewport times are too low.
 
 ### Lila
 
@@ -190,11 +211,26 @@ Each script ran in the open Lila through its MCP server. The timer wraps the com
 | Subdivide | `polySubdivide(mesh, levels=1)` |
 | Object to vertices | object selected and the viewport idle for 3 s, `convertSelection("vertex")`, median of three |
 
-Viewport: shaded, 8x antialiasing, framed with Frame All. The camera orbits while `viewportStats()` reads the GPU time of each finished frame from Vulkan timestamp queries; the time is the median of 12 samples.
+Viewport: shaded, framed with Frame All, at 8x antialiasing or with antialiasing off. The camera visits 8 angles 45 degrees apart; at each, timeline playback keeps the viewport drawing while `viewportStats()` reads the GPU time of each finished frame from Vulkan timestamp queries, and the angle's time is the median of those. The row is the median of the 8 angles.
+
+### Blender
+
+Each step ran in the open Blender (`--factory-startup --gpu-vsync off`, the 3D view maximised) from a script driven by `bpy.app.timers`. The timer wraps the operator, then waits until a draw handler on the 3D view fires.
+
+| Task | Command |
+| --- | --- |
+| Import | `bpy.ops.wm.obj_import(filepath=path)` |
+| Save and open | `bpy.ops.wm.save_as_mainfile(filepath=path)`, then `bpy.ops.wm.open_mainfile(filepath=path, load_ui=False)` |
+| FBX | `bpy.ops.export_scene.fbx(filepath=path)` with the default settings (`use_tspace=True` for tangents), then `bpy.ops.import_scene.fbx(filepath=path)` into an empty scene |
+| Weld | Edit Mode, all selected, `bpy.ops.mesh.remove_doubles(threshold=0.0001)` |
+| Subdivide | a Subdivision Surface modifier at level 1, then `bpy.ops.object.modifier_apply` |
+| Object to vertices | object selected, `bpy.ops.object.mode_set(mode="EDIT")` with every vertex selected |
+
+Viewport: Solid shading on OpenGL, world-space cavity on or off per row. Blender has no multisampling in the viewport: it draws one sample a frame while the view moves and adds more once it stops, so each frame turns the view by 0.05 degrees to keep it drawing a fresh frame. The time is the wall time of `bpy.ops.wm.redraw_timer(type="DRAW_SWAP")` over 20 frames, the median of 5 runs, at 4 angles 45 degrees apart; the row is the median of the angles.
 
 ### Python
 
-The same maths runs in both apps from one file, `tools/benchmarks/mesh_compute.py` in the Lila repository. Both apps give the same checksum: mean -0.343375486 -0.065308194 0.008460365, covariance trace 0.027830457.
+The same maths runs in every app from one file, `tools/benchmarks/mesh_compute.py` in the Lila repository. All three give the same checksum: mean -0.343375486 -0.065308194 0.008460365, covariance trace 0.027830457.
 
 Gathering the positions:
 
@@ -204,9 +240,13 @@ points = lila.Node("Default").points_array()
 
 # Maya, the usual route
 points = np.array(om.MFnMesh(path).getPoints(om.MSpace.kObject))[:, :3]
+
+# Blender
+points = np.empty(len(mesh.vertices) * 3)
+mesh.vertices.foreach_get("co", points)
 ```
 
-Lila's gather time is the median of five runs. The full scripts are `python/examples/mesh_compute_benchmark.py` (Lila) and `tools/benchmarks/maya_mesh_compute.py` (Maya). Threading in Lila is covered in [Threads and big meshes](python-threads.md).
+Lila's gather time is the median of five runs. The full scripts are `python/examples/mesh_compute_benchmark.py` (Lila), `tools/benchmarks/maya_mesh_compute.py` (Maya) and `tools/benchmarks/blender_bench.py` (Blender, every Blender row). Threading in Lila is covered in [Threads and big meshes](python-threads.md).
 
 <details>
 <summary>mesh_compute.py</summary>

@@ -970,8 +970,8 @@ footer p { margin: 0 0 6px; }
 
   <section class="area wrap" aria-labelledby="speed">
     <div>
-      <h2 id="speed">Faster than Maya</h2>
-      <p class="more">Timed against Maya 2026.3 on the same machine and files. Maya still wins some rows, and every result is published.</p>
+      <h2 id="speed">Faster than Maya and Blender</h2>
+      <p class="more">Timed against Maya 2026.3 and Blender 5.2 on the same machine and files. They still win some rows, and every result is published.</p>
       <p class="more"><a href="docs/#/performance">Full results and method</a></p>
       <figure class="bench frame" data-slot="clip-benchmark">
         <video src="assets/clips/lila-vs-maya-obj-import.mp4" poster="assets/clips/lila-vs-maya-obj-import.webp" autoplay muted loop playsinline aria-label="Lila and Maya 2026.3 importing the same 13.5-million-triangle OBJ side by side: Lila is on screen in 6.8 seconds, Maya in 55.3"></video>
@@ -981,7 +981,7 @@ footer p { margin: 0 0 6px; }
       <li>
         <span class="big">8.4x</span>
         <h3>Imports a 13.5-million-triangle scene</h3>
-        <p>OBJ: 6.6 s in Lila, 55.3 s in Maya. FBX: 5.4 s in Lila, 48.7 s in Maya. Both until it's on screen.</p>
+        <p>OBJ: 6.6 s in Lila, 16.0 s in Blender, 55.3 s in Maya. FBX: 5.4 s in Lila, 22.2 s in Blender, 48.7 s in Maya. Both until it's on screen.</p>
       </li>
       <li>
         <span class="big">3.5x</span>
@@ -991,12 +991,12 @@ footer p { margin: 0 0 6px; }
       <li>
         <span class="big">990x</span>
         <h3>Gets 6.75 million points into numpy</h3>
-        <p>Against Maya's fastest route. Its usual API takes 13.7 s.</p>
+        <p>Against Maya's fastest route; Blender's takes 19 ms. Maya's usual API takes 13.7 s.</p>
       </li>
       <li>
         <span class="big">0</span>
         <h3>Crashes and hangs</h3>
-        <p>Maya crashed once and hung three times on the same tests.</p>
+        <p>On the same tests, Maya crashed once and hung three times, and Blender crashed once.</p>
       </li>
     </ul>
   </section>
