@@ -1,0 +1,224 @@
+{
+  "apps": [
+    "Maya 2026.3",
+    "Lila"
+  ],
+  "appColors": {
+    "Lila": [
+      "#4da3ff",
+      "#e8f3ff"
+    ],
+    "Maya": [
+      "#3fcf6b",
+      "#1fb5b0"
+    ]
+  },
+  "tables": [
+    {
+      "title": "Files",
+      "unit": "s",
+      "rows": [
+        {
+          "task": "Import the ships OBJ, until on screen",
+          "values": [
+            55.3,
+            6.604
+          ]
+        },
+        {
+          "task": "Save native binary (.mb / .lila)",
+          "values": [
+            0.61,
+            0.811
+          ]
+        },
+        {
+          "task": "Open native binary, until on screen",
+          "values": [
+            4.05,
+            2.984
+          ]
+        },
+        {
+          "task": "Save native ASCII (.ma / .lilaa)",
+          "values": [
+            19.5,
+            5.498
+          ]
+        },
+        {
+          "task": "Open native ASCII, until on screen",
+          "values": [
+            30.0,
+            7.332
+          ]
+        },
+        {
+          "task": "Export FBX",
+          "values": [
+            37.5,
+            12.59
+          ],
+          "notes": "Lila writes tangents by default, Maya doesn't; without them Lila took 4.7 s"
+        },
+        {
+          "task": "Import that FBX, until on screen",
+          "values": [
+            48.7,
+            5.402
+          ]
+        }
+      ]
+    },
+    {
+      "title": "File sizes, the ships",
+      "unit": "MB",
+      "better": "smaller",
+      "rows": [
+        {
+          "task": "Native binary (.mb / .lila)",
+          "values": [
+            1129,
+            517
+          ]
+        },
+        {
+          "task": "Native ASCII (.ma / .lilaa)",
+          "values": [
+            2923,
+            2889
+          ]
+        },
+        {
+          "task": "FBX, each app's defaults",
+          "values": [
+            504,
+            1880
+          ],
+          "notes": "Lila's default writes tangents, Maya's doesn't"
+        },
+        {
+          "task": "FBX without tangents",
+          "values": [
+            504,
+            611
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Modelling",
+      "unit": "s",
+      "rows": [
+        {
+          "task": "Weld the exploded ship (1.5 million vertices, 0.0001 cm), until on screen",
+          "values": [
+            1.74,
+            1.42
+          ]
+        },
+        {
+          "task": "Subdivide the ships once (13.5 million to 40.5 million faces), until on screen",
+          "values": [
+            42.4,
+            19.86
+          ],
+          "notes": "Maya crashed after it in one of two sessions"
+        },
+        {
+          "task": "Object to vertices (6.75 million), until on screen",
+          "values": [
+            0.154,
+            0.121
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Viewport",
+      "unit": "ms",
+      "rows": [
+        {
+          "task": "Shaded",
+          "values": [
+            4.73,
+            3.54
+          ]
+        },
+        {
+          "task": "Shaded with ambient occlusion",
+          "values": [
+            5.58,
+            3.65
+          ],
+          "notes": "Lila fast mode; accurate mode 6.8 ms"
+        },
+        {
+          "task": "Wireframe on shaded (20 million edges)",
+          "values": [
+            4.99,
+            4.85
+          ]
+        },
+        {
+          "task": "Object selected",
+          "values": [
+            19.35,
+            4.76
+          ]
+        },
+        {
+          "task": "Vertex mode, all 6.75 million vertices selected",
+          "values": [
+            6.42,
+            5.25
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Python, 6.75 million vertices",
+      "unit": "s",
+      "rows": [
+        {
+          "task": "Get every vertex position into numpy, usual API",
+          "values": [
+            13.69,
+            2.2199999999999998e-05
+          ],
+          "notes": "Maya: MFnMesh.getPoints; Lila: Node.points_array"
+        },
+        {
+          "task": "Get every vertex position into numpy, fastest route",
+          "values": [
+            0.022,
+            2.2199999999999998e-05
+          ],
+          "notes": "Maya: API 1 MFnMesh.getRawPoints through ctypes"
+        },
+        {
+          "task": "Compute with numpy",
+          "values": [
+            1.33,
+            1.305
+          ]
+        },
+        {
+          "task": "Compute with numpy on 32 threads",
+          "values": [
+            0.711,
+            0.75
+          ]
+        },
+        {
+          "task": "Compute in pure Python",
+          "values": [
+            27.3,
+            18.0
+          ],
+          "notes": "100,000 vertices timed, extrapolated"
+        }
+      ]
+    }
+  ]
+}
