@@ -22,7 +22,13 @@ The **Clay** palette opens while the tool is on: shape or stroke, add or cut, ra
 
 In stroke mode, a lit tip under the cursor means a stroke started there extends or branches it.
 
-With a clay object selected, its shapes show as outlines; cuts are red.
+**Chain** (C) works like ZSpheres: each click places a shape linked to the selected one, and the new shape is next in the chain. Shift-click a shape to branch from it. Links follow their shapes as you move or resize them; **Thickness** sets their radius as a fraction of each end shape's size, for new links or the selected ones. In Python, `addClayLink(["Body", "Head"])` links two shapes.
+
+Hold Shift while dragging out a shape to give it the last shape's radius.
+
+**Edit > Duplicate** (Ctrl+D) copies shapes and links into the same clay. Duplicate a whole finger (its shapes and links) and the copied links join the copied shapes; a link to a shape you didn't copy, like the palm, stays joined to it.
+
+With a clay object selected, its shapes show as outlines; cuts are red. Clicking its surface then selects the shape or link under the cursor.
 
 With one shape selected, drag its solid ring to size it and its dashed ring to set its blend.
 
