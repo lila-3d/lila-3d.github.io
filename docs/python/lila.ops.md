@@ -7149,6 +7149,7 @@ Extrude the selected faces along their normals, or in edge mode grow a strip of 
 | `thickness` |  | float | `0.0` | Distance along the normals, cm. |
 | `offset` |  | float | `0.0` | Faces: inward distance of the extruded border, cm; negative grows them. Edges: outward distance from their faces, cm. |
 | `individual` |  | bool | `False` | Each face separately. |
+| `keepBack` |  | bool | `True` | Faces: where the extruded faces only border open edges, as a whole open shell, keep a copy facing back at the base. |
 | `duplicate` |  | bool | `False` | Faces: leave the mesh as it is and put the extruded faces in a new mesh. |
 | `keepSides` |  | bool | `False` | With duplicate, the new mesh also keeps the side faces. |
 
