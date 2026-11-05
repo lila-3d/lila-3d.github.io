@@ -7592,7 +7592,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `500` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
-| `timeout` |  | float | `5.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
+| `timeout` |  | float | `60.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
@@ -7604,6 +7604,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
+| `edgesAround` |  | int | `8` | Thin round parts of a closed shape, like fingers, get at least this many edges round them, at the cost of faces elsewhere; 0 off. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
 | `seamless` |  | bool | `False` | Experimental: also try a global layout that only turns at the poles, kept when it has fewer irregular points. |
 | `poles` |  | list |  | The poles the edge flow turns at, as {position: world [x, y, z], valence: 3 or 5}, and nowhere else. Start from retopoPoles; on a closed shell (4 - valence) must sum to what retopoPoles reports. |
@@ -8311,7 +8312,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `500` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
-| `timeout` |  | float | `5.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
+| `timeout` |  | float | `60.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
@@ -8323,6 +8324,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
+| `edgesAround` |  | int | `8` | Thin round parts of a closed shape, like fingers, get at least this many edges round them, at the cost of faces elsewhere; 0 off. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
 | `seamless` |  | bool | `False` | Experimental: also try a global layout that only turns at the poles, kept when it has fewer irregular points. |
 | `poles` |  | list |  | The poles the edge flow turns at, as {position: world [x, y, z], valence: 3 or 5}, and nowhere else. Start from retopoPoles; on a closed shell (4 - valence) must sum to what retopoPoles reports. |
