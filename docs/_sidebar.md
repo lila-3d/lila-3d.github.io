@@ -28,6 +28,7 @@
 - [File formats](formats.md)
 - [Studio setup](studio-setup.md)
 - [Telemetry and privacy](privacy.md)
+- [AI position](ai.md)
 
 ---
 

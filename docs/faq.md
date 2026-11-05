@@ -29,7 +29,7 @@ Only when you ask it to.
 
 ### Was Lila built with AI?
 
-Yes, as a coding assistant. Lila's creator designed its architecture, tools and workflows, and every feature was tested and reworked by hand. AI made a tool of this scope possible for one person.
+Yes, as a coding assistant. Lila's creator designed its architecture, tools and workflows, and every feature was tested and reworked by hand. AI made a tool of this scope possible for one person. More in [AI position](ai.md).
 
 ### Does Lila open Maya scenes?
 
