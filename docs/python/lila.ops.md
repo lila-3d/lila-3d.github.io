@@ -7583,13 +7583,15 @@ Put objects (the selection by default) on a turntable: the selected turntable, o
 
 ### quadRemesh
 
-Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard edges and guide curves, at about the target face count, with UVs (and optionally normals) transferred from the source. Open borders, sharp creases, crease corners and cone tips are kept. Where the shape is too thin or tight for the requested size (a strip narrower than the edge length) it retries finer, so the face count can come out higher. The kept source is hidden. Runs off the UI thread with a cancellable progress bar, and gives up after timeout= seconds with an error saying how far it got, changing nothing. Returns {name, metrics}.
+Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard edges and guide curves, at about the target face count, with UVs (and optionally normals) transferred from the source. Open borders, sharp creases, crease corners and cone tips are kept. Where the shape is too thin or tight for the requested size (a strip narrower than the edge length) it retries finer, so the face count can come out higher. The kept source is hidden. Runs off the UI thread with a cancellable progress bar, and gives up after timeout= seconds with an error saying how far it got, changing nothing. Returns {name, metrics, layout}, and with poles= where each pole landed: {point, position, valence, valenceMatched}, or null where none came out near it.
 
 **Objects:** source
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `500` | Approximate face count. |
+| `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `5.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
@@ -7598,6 +7600,9 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. |
 | `guides` |  | list |  | Mesh nodes whose edges are guide curves. |
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
+| `featureGuides` |  | list |  | Mesh nodes whose edges get an edge loop laid on them, like a hard edge. |
+| `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
+| `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
 | `seamless` |  | bool | `False` | Experimental: also try a global layout that only turns at the poles, kept when it has fewer irregular points. |
@@ -8303,7 +8308,9 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `500` | Approximate face count. |
+| `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `5.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
@@ -8312,6 +8319,9 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. |
 | `guides` |  | list |  | Mesh nodes whose edges are guide curves. |
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
+| `featureGuides` |  | list |  | Mesh nodes whose edges get an edge loop laid on them, like a hard edge. |
+| `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
+| `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
 | `seamless` |  | bool | `False` | Experimental: also try a global layout that only turns at the poles, kept when it has fewer irregular points. |
