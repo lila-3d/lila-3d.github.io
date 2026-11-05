@@ -126,7 +126,8 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/python/"]::before,
 .sidebar-nav a[href="#/cpp/"]::before,
 .sidebar-nav a[href^="https://ko-fi.com"]::before,
-.sidebar-nav a[href^="https://lila-3d.github.io"]::before {
+.sidebar-nav a[href^="https://lila-3d.github.io"]::before,
+.sidebar-nav a[href^="https://github.com/lila-3d"]::before {
   content: "";
   display: inline-block;
   width: 16px;
@@ -200,6 +201,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href^="https://ko-fi.com"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20s-8-4.8-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.2 12 20 12 20z'/%3E%3C/svg%3E"); }
 /* The one coloured icon: supporting Lila should stand out from the navigation. */
 .sidebar-nav a[href^="https://ko-fi.com"]::before { background: #ff5e7e; }
+.sidebar-nav a[href^="https://github.com/lila-3d"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='5' r='2'/%3E%3Ccircle cx='6' cy='19' r='2'/%3E%3Ccircle cx='18' cy='6' r='2'/%3E%3Cpath d='M6 7v10M18 8v1a6 6 0 0 1-6 6H8'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href^="https://lila-3d.github.io"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'/%3E%3C/svg%3E"); }
 
 /* One shared marker for the headings listed under the current page. */
