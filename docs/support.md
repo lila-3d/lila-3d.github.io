@@ -20,7 +20,7 @@ How to get help with Lila and report bugs.
 
 The title and answers are public. The support bundle, screenshot and attached file are private: only I can open them.
 
-Replies show in **Help > My Reports**, and Lila tells you when a new one arrives. Fill in **GitHub user** if you'd also like GitHub to notify you.
+Replies show in **Help > My Reports**, and Lila tells you when a new one arrives. If I ask for more, the report shows **Needs Info**: type your answer under the replies and click **Send Reply**. Like the report, it's public; an attached file stays private. Fill in **GitHub user** if you'd also like GitHub to notify you.
 
 **If Lila crashed**, click **Report Crash...** in the window Lila shows when it starts again. The report opens as a Crash with that crash's report attached.
 
