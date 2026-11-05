@@ -572,7 +572,7 @@ A single value.
 
 Type `image`.
 
-An image file sampled in uv, wrapping at the edges, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet).
+An image file sampled in uv, wrapping at the edges, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
