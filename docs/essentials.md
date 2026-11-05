@@ -92,6 +92,28 @@ Or click the dashed line at the top of any menu to tear it off where it is (a se
 
 ![Dragging Point Light from the Light palette onto a character](images/essentials/menu-tear-off.png)
 
+## Build your own menu
+
+**Windows > Menu Editor** builds menus from any actions, Python or commands. Put one on the menu bar, or inside any menu as a submenu or a titled section. Press **Save** and it appears straight away, tears off like Lila's own, and **Shift+T** finds it.
+
+![Menu Editor placing My Amazing Menu as a submenu of File, after Get from ZBrush](images/essentials/menu-editor.png)
+
+![My Amazing Menu open in the File menu](images/essentials/user-menu-submenu.png)
+
+Double-click an action in the list to add it. A row with its own label, Python or a command becomes an action under **User Menus**, so the Hotkey Editor can bind it.
+
+![Shift+T finding My Amazing Menu](images/essentials/user-menu-search.png)
+
+![My Amazing Menu torn off as a palette](images/essentials/user-menu-tear-off.png)
+
+From a script:
+
+```python
+setUserMenu(menu={"title": "Kit", "parent": "Mesh", "as": "section", "items": [{"action": "mesh.bevel"}, {"action": {"python": "print('hi')"}, "label": "Say Hi"}]})
+```
+
+Menus are saved in `userMenus.json` in your prefs folder (**Help > Open Prefs Folder**).
+
 ## Snapping
 
 Hold a key while moving to snap:
