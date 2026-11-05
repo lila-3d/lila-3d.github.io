@@ -57,6 +57,26 @@ Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no
 - **For Unreal:** mesh sequences for Niagara flipbooks, vertex animation textures (including changing topology and rigid pieces for destruction), ML Deformer training data, and pose drivers as JSON.
 - **LilaLink** sends meshes, textures and splines straight into a running Unreal editor, with no files in between.
 
+## License
+
+The full text is in [LICENSE](https://github.com/lila-3d/Lila/blob/main/LICENSE).
+
+### Can I fork Lila?
+
+Yes, to read, build and change it for yourself or inside your studio, contractors included. You can't publish builds, modified versions or forks, or host Lila for others: point people to the official download. Extensions built against the SDK aren't forks, so you can share or sell them under any terms.
+
+### Do you take pull requests?
+
+No pull requests, patches or outside code. Lila's code has one owner, which keeps its license and IP simple for the studios that use it.
+
+### How do I get a fix or feature in?
+
+Ask for it with **Help > Report Issue** (see [Support](support.md)). A diff that shows the idea is welcome as a pointer, and I'll write the change.
+
+### What if Lila stops being developed?
+
+If 24 months pass with no official release, the source of the last release also becomes Apache 2.0, and anyone can fork and distribute it.
+
 ## Technical
 
 ### Why does Lila save `.lila` instead of USD?
