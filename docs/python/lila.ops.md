@@ -7606,7 +7606,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `edgesAround` |  | int | `8` | Thin round parts of a closed shape, like fingers, get at least this many edges round them, at the cost of faces elsewhere; 0 off. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
-| `seamless` |  | bool | `False` | Experimental: also try a global layout that only turns at the poles, kept when it has fewer irregular points. |
+| `seamless` |  | bool | `True` | Also try a global layout that only turns at the poles, with close poles merged or spread apart; kept when it is as clean with fewer irregular points. Slower. |
 | `poles` |  | list |  | The poles the edge flow turns at, as {position: world [x, y, z], valence: 3 or 5}, and nowhere else. Start from retopoPoles; on a closed shell (4 - valence) must sum to what retopoPoles reports. |
 | `relaxIterations` |  | int | `6` | Tangential relax passes on the surface. |
 | `transferUvs` |  | bool | `True` | Copy UV sets from the source. |
@@ -8326,7 +8326,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `edgesAround` |  | int | `8` | Thin round parts of a closed shape, like fingers, get at least this many edges round them, at the cost of faces elsewhere; 0 off. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
-| `seamless` |  | bool | `False` | Experimental: also try a global layout that only turns at the poles, kept when it has fewer irregular points. |
+| `seamless` |  | bool | `True` | Also try a global layout that only turns at the poles, with close poles merged or spread apart; kept when it is as clean with fewer irregular points. Slower. |
 | `poles` |  | list |  | The poles the edge flow turns at, as {position: world [x, y, z], valence: 3 or 5}, and nowhere else. Start from retopoPoles; on a closed shell (4 - valence) must sum to what retopoPoles reports. |
 
 Not undoable.
