@@ -67,7 +67,7 @@ Hold **W**, **E** or **R** and left-click for that tool's marking menu: world or
 ## Find the rest
 
 - **Ctrl+T** searches every menu command by name.
-- Hold **F1** for every hotkey. **Windows > Hotkey Editor** changes them.
+- Hold **F1** for every hotkey. **Edit > Hotkey Editor** changes them.
 - Hold **Space** for the hotbox: every menu at the cursor.
 - **Z** or **Ctrl+Z** undoes, **Shift+Z** redoes, **G** repeats the last command.
 
