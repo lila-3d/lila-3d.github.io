@@ -7641,6 +7641,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `preset` |  | str | `'none'` | Starting settings for what the mesh is for; flags set to other than their default win. One of `none`, `gameCharacter`, `midPoly`, `hero`, `stylized`, `hardSurface`, `prop`. |
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
@@ -8363,6 +8364,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `preset` |  | str | `'none'` | Starting settings for what the mesh is for; flags set to other than their default win. One of `none`, `gameCharacter`, `midPoly`, `hero`, `stylized`, `hardSurface`, `prop`. |
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
