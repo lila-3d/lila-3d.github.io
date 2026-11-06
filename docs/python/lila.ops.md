@@ -2372,6 +2372,11 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `irisDepth` |  | float |  | Eye: how deep the iris sits under the cornea; it shifts with the view. |
 | `limbalRing` |  | float |  | Eye: darkening around the iris's edge, 0 to 1. |
 | `bevelRadius` |  | float |  | Rounds hard edges as they shade, by ray tracing the surfaces within this many cm; 0 is off. Needs a GPU with ray tracing. Bake a roundedNormal map to keep it for game engines. |
+| `heightMap` |  | str |  | Linear height texture (red channel, 16 bit), 0.5 at the surface. Unreal gets it as HeightMap. |
+| `normalFromHeight` |  | bool |  | Rebuild the shape's normals from the height map and lay the normal map on them as detail (bake detailNormal for it), so steep sides light as walls. Unreal builds it with MF_LilaHeightNormal. |
+| `heightDepth` |  | float |  | cm from height 0 to height 1: the relief the height map stands for. |
+| `heightUvWidth` |  | float |  | World size of the UV square along U, cm. |
+| `heightUvHeight` |  | float |  | World size of the UV square along V, cm. |
 | `baseColorMapWrapU` |  | Any |  | What baseColorMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `baseColorMapWrapV` |  | Any |  | What baseColorMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `baseColorMapFilter` |  | Any |  | How baseColorMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
@@ -10770,6 +10775,7 @@ Export a texture set's channels through an export preset (a bake target: unreal,
 | `optional` |  | bool | `True` | Also write the preset's optional maps the set has channels for. |
 | `incremental` |  | bool | `False` | Only rewrite files whose inputs or pixels changed since the last export to this folder. |
 | `backend` |  | str |  | gpu or cpu; the GPU when left out and the renderer can run. |
+| `normalFromHeight` |  | bool |  | Write the normal as detail over the height, with the height at 16 bits, for materials that rebuild normals from it; the set's normalFromHeight when left out. |
 
 Not undoable.
 
@@ -11054,7 +11060,7 @@ Not undoable.
 
 ### texSetSettings
 
-Change a texture set's settings: the keys given replace the set's (channels, width, height, tiles, normalConvention, bakeProject, exportPreset, material). Returns the full settings.
+Change a texture set's settings: the keys given replace the set's (channels, width, height, tiles, normalConvention, bakeProject, exportPreset, material, heightDepth, uvWidth, uvHeight, normalFromHeight, normalFade). Returns the full settings.
 
 **Objects:** set settings
 

@@ -22,6 +22,8 @@ Low and High add the meshes under the selection too; Shift+click adds only the s
 
 **Hard edge warnings.** A hard edge that isn't on a UV seam shows as a visible split in the normal map. Split the UVs there or soften the edge.
 
+**Steep sides light like the flat top (bricks, dentils, stone joints).** A bake looking straight down never sees vertical walls, so the normal map has none. Bake **Detail Normal** with **Height**, as in Options below.
+
 **Per-material resolution does nothing.** The output name needs `{material}`, so each texture set writes its own files.
 
 ## Options
@@ -29,6 +31,12 @@ Low and High add the meshes under the selection too; Shift+click adds only the s
 **ORM or CRM for Unreal.** Both pack three greyscale maps into one texture: ORM is ambient occlusion, roughness, metallic; CRM is cavity, roughness, metallic. Prefer CRM for games. Unreal draws its own ambient occlusion at runtime (Lumen, SSAO, distance field AO), so baked AO in the material darkens the same crevices a second time. Cavity holds the fine detail that runtime AO is too coarse to catch, so it pairs with it instead of doubling it. Use ORM when a material or another engine expects baked AO.
 
 **Base colour with emissive.** Add the **Base Colour + Emissive** map on the Maps tab: base colour in RGB, an emissive mask in A. Its channel rows can take any channel of any baked map.
+
+**Normals from height.** For walls that light as walls, and normals that match displacement or parallax: bake **Detail Normal** and **Height** together. The material rebuilds the shape's normals from the height and lays the detail normal on top. Assigning the maps (automatic for Unreal targets, or **Assign** in the Baker) sets this up in Lila: it fills **Height Map** and ticks **Normals From Height** in the Material Editor, with the depth and UV size the bake measured. In Unreal, drop `MF_LilaHeightNormal` (in `/Game/LilaLink/Masters`) into your material: connect the height map, the sampled detail normal and the same **HeightDepth**, **HeightUVWidth** and **HeightUVHeight**. Materials LilaLink generates use it already. Texture sets export this way when **Normals from height** is ticked in the set's settings.
+
+![Sharp-sided dentils baked onto a trim sheet: with the baked normal they read as flat stickers; rebuilt from the height, their sides light](images/baking/normals-from-height-lila.webp)
+
+![The same trim sheet in Unreal with parallax: the baked normal leaves the dentils flat, MF_LilaHeightNormal gives them walls](images/baking/normals-from-height-unreal.webp)
 
 **Per texture set.** On the Output tab, pick a material in **Texture Set** to give it its own resolution, format, bits, supersampling and padding.
 

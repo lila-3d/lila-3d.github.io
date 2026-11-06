@@ -113,7 +113,7 @@ The bake adds an opacity mask (where the relief stands off the flat surround) an
 | `pxPerM` | per preset | Texels per metre; sets every trim's world size. |
 | `padding` | 8 | Texels dilated past each trim when baking. |
 | `mipLevel` | 3 | Borders on multiples of 2^mipLevel px stay clean down to that mip; the editor snaps to it. |
-| `maps` | normal, ao, curvature, height, cavity | What the bake writes. |
+| `maps` | normal, ao, curvature, height, cavity, detailNormal | What the bake writes. With `detailNormal`, Lila and Unreal rebuild the relief's normals from the height, so the sides of dentils and carvings light as walls; the instance's **UseHeightNormals** switch turns it off. |
 | `supersampling` | 16 | Samples per texel when baking. |
 | `high` | none | Scene meshes baked as extra high poly detail (see the tutorial below). |
 | `highReplaces` | `false` | The `high` meshes are the whole high poly instead of adding to the generated relief. |

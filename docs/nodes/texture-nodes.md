@@ -1348,7 +1348,7 @@ Convexity from a normal map: above 0.5 on ridges, below in creases.
 
 Type `heightToNormal`.
 
-A tangent-space normal (OpenGL, green up) from the slope of a height. Exports convert to the preset's convention.
+A tangent-space normal (OpenGL, green up) from the slope of a height. depth is the cm from height 0 to 1 and sizeU, sizeV the world size of the UV square, cm, so the slopes are real ones; intensity scales them. Exports convert to the preset's convention.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -1358,6 +1358,9 @@ A tangent-space normal (OpenGL, green up) from the slope of a height. Exports co
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `intensity` |  | `1` |  |
+| `depth` |  | `5` |  |
+| `sizeU` |  | `100` |  |
+| `sizeV` |  | `100` |  |
 
 ### Normal Blend
 
