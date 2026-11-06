@@ -60,7 +60,7 @@ Engines that take Maya's COLLADA animations (PhyreEngine games among them) want 
 exportCollada("C:/game/attack.dae", kind="animation")
 ```
 
-Every channel of every joint is written, constant ones too, in centimetres, Y up. Run the file through the engine's converter as you would Maya's.
+Every joint the animation keys or moves gets all its channels, constant ones too, in centimetres, Y up. Unkeyed joints get none, so the game's own face and secondary animation still drives them. Run the file through the engine's converter as you would Maya's.
 
 Lila stores vertex positions in double precision, and OBJ, FBX and Lila scenes carry every digit, so a mesh comes back out bit for bit however far it sits from the origin. STL, glTF, USD, Alembic and PLY store positions as 32-bit floats: about 7 significant digits, which moves points by up to 0.04 mm at 1 km from the origin and 0.3 mm at 10 km.
 
