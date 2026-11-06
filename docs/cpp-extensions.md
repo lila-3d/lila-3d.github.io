@@ -116,6 +116,8 @@ Lila looks for packages in these folders, in order: `LILA_EXTENSION_PATH` (separ
 
 `lilaExtensionUninit(ext::Context&)` is optional: export it to free the extension's own state when it unloads.
 
+Flags that name scene nodes: wrap the flag in `nodeFlag(flag, "mesh")` (`<lila/Command.h>`) so its option box field becomes a node picker. Types are `mesh`, `curve`, `joint`, `camera`, `transform` (any object) or `node` (anything); join several with `|`. Python extensions pass `"nodeType"` in the flag dict.
+
 Sculpt brushes (`<lila/Sculpt.h>`): see [Extension brushes](sculpt-brushes.md#extension-brushes).
 
 GPU compute (`<lila/GpuCompute.h>`, UI extensions): a `lila::gpu::Session` owns buffers and kernels, and `Session::run` records work on the render thread and waits for it. Buffers are reached from Slang through device addresses, so pass them in push constants or another buffer. Compile shaders with `lila_add_shaders(<target> FILES a.slang OUTPUT_DIR <package>/shaders)` (needs `slangc`), and load them with `Recorder::kernel` by absolute path from `ext::Context::root()`. It needs the viewport running: `lila::gpu::available()` is false in batch runs, so keep a CPU path.

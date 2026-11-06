@@ -16,6 +16,17 @@ Press **Ctrl+T** and type. Every menu command is searchable.
 - **Shift+Enter**, or clicking the square at the end of a row, opens the command's options.
 - **Ctrl+F** switches to searching the scene, **Shift+T** to [tearing off a menu](#tear-off-a-menu-as-a-palette).
 
+## Name objects in an option box
+
+Fields that take a mesh, curve, joint or other object have a dropdown of the scene's matches, an eyedropper that takes the mesh you click in a viewport, and a button that loads the selection. Also:
+
+- Middle-drag objects from the Outliner onto the field.
+- In a field that takes several, **Shift**-click the load button to add the selection. The eyedropper adds or removes each mesh you click until **Esc** or right-click.
+- Empty, a field showing *Selected mesh* uses the selection. Middle-click a field to empty it.
+- A warning icon means a name isn't in the scene or isn't the right kind. Hover it to see which.
+
+<!-- TODO image: Stitch options with the Surfaces field's dropdown open (images/essentials/node-picker.png) -->
+
 ## Hotkey cheat sheet
 
 Hold **F1** to show every hotkey. Release it to close.
