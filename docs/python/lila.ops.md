@@ -3371,6 +3371,37 @@ Write animated meshes to one Alembic (.abc, Ogawa) file: a sample per frame with
 
 Not undoable.
 
+### exportCollada
+
+Export objects to a COLLADA 1.4.1 file (.dae) laid out the way Maya's COLLADA exporter writes it, so pipelines built on Maya's files read it: Y up, each node's transform as translate, jointOrient, rotate and scale elements with every animated channel sampled per frame (or one matrix per node with bakeTransforms), meshes as polylists (or triangles) with normals and UV sets, skins as controllers with bind shape and inverse bind matrices, joints as JOINT nodes, several takes as animation clips, lights, cameras, and materials as lambert effects with diffuse, emission, transparency and bump maps. kind=animation writes the skeleton and its animation alone, like the animation files game engines take. Returns the path.
+
+**Objects:** path objects...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'skeletal'` | static \| skeletal \| animation. skeletal writes meshes, skins and animation (Maya's Rigged and Animation exports), static meshes and transforms only, animation the skeleton and its animation without meshes. |
+| `bakeTransforms` |  | bool | `False` | Write each node's transform as one matrix animated as sampled matrices; off writes Maya's translate, jointOrient, rotate and scale elements, each animated channel its own curve, as Maya's exporter does by default. |
+| `triangles` |  | bool | `False` | Write triangles instead of polylists. |
+| `maxInfluences` | `mi` | int | `8` | Skin influences per vertex, heaviest kept and renormalised. |
+| `animation` | `anim` | bool | `True` | Write animation. |
+| `deformOnly` | `do` | bool | `True` | Skip non-deform joints (IK helpers and rig-only joints). |
+| `start` | `st` | float |  | First frame; the playback start by default. |
+| `end` | `et` | float |  | Last frame; the playback end by default. |
+| `take` |  | str |  | Clip name; the active take's, else Take 001. |
+| `takes` |  | Any |  | Scene takes to write, one clip each, one after another: 'all' or a list of names. |
+| `normals` |  | bool | `True` | Write normals. |
+| `vertexColors` |  | bool | `False` | Write vertex color sets. |
+| `textures` |  | bool | `True` | Write texture maps; off writes material colors only. |
+| `copyTextures` |  | bool | `False` | Copy textures next to the file; off references them where they are. |
+| `lights` |  | bool | `True` | Write point, spot and directional lights. |
+| `worldSpace` | `ws` | bool | `False` | Bake world transforms into the meshes and flatten the hierarchy (static exports). |
+| `atOrigin` |  | bool | `False` | Drop the exported roots' own transforms, keeping their children relative. |
+| `children` |  | bool | `True` | Include the descendants of the given objects. |
+| `units` | `u` | str | `'cm'` | File units: cm (Maya's), m, mm, in or ft. Lengths are scaled to them. |
+| `selectionOnly` | `sl` | bool | `True` | Without objects: the selection, or every root when False. |
+
+Not undoable.
+
 ### exportDeformerWeights
 
 Write a deformer's weight map (or a field's painted layer) to a JSON file, with the mesh's world positions and triangles so it can be imported onto other topology.
@@ -5066,6 +5097,27 @@ Import a BVH motion capture file as joints keyed every frame.
 | `parent` | `p` | str |  | Parent the skeleton under this node. |
 | `setPlayback` | `sp` | bool | `True` | Set the scene fps and range from the file. |
 | `endSites` | `es` | bool | `True` | Make end sites as non-deform joints. |
+
+### importCollada
+
+Import a COLLADA 1.4.1 file (.dae): the visual scene's nodes as transforms, joints and meshes, converted from the file's up axis and unit to the scene's axes and cm.
+
+Transform stacks (matrix, translate, rotate, scale, lookat, skew) are read in order. Polylists, triangles and polygons become meshes with normals (hard edges where they split), every UV set and every color set; material symbols become slots named after the materials they bind to. Skin controllers become skinClusters with their bind shape, inverse bind matrices and weights; a joint's rest rotation goes into its jointOrient. Animations of whole matrices or single transform elements and their components (LINEAR, STEP and BEZIER) are sampled once per frame onto translate, rotate and scale; with several animation clips each becomes a take over its range, the first active. Materials become material nodes with diffuse, emission, transparency and bump.
+
+Returns the new node names, or with report=True a dict of nodes, roots, joints, skinClusters, materials, clips, fps, start, end, curves, upAxis, unitMeters, authoringTool, skipped and warnings.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `parent` | `p` | str |  | Parent the imported roots under this node. |
+| `skins` |  | bool | `True` | Rebuild skin controllers as joints and skinClusters with their weights and bind matrices. |
+| `animation` | `anim` | bool | `True` | Import the animation, one key per frame. |
+| `fps` |  | float | `0.0` | Frames per second to sample at; 0 guesses from the key spacing. |
+| `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the animation. |
+| `materials` |  | bool | `True` | Create material nodes; off keeps only the slot names on the faces. |
+| `report` |  | bool | `False` | Return the import report instead of just the names. |
+| `select` |  | bool | `True` | Select the imported roots. |
 
 ### importDeformerWeights
 

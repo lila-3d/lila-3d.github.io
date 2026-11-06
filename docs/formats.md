@@ -13,6 +13,7 @@ Which formats Lila reads and writes, and what to pick for each job.
 | Lila scene | `.lila`, `.lilaa` | Yes | Save |
 | FBX | `.fbx` | Yes | Yes |
 | glTF 2.0 | `.gltf`, `.glb` | Yes | Yes |
+| COLLADA | `.dae` | Yes | Yes |
 | USD | `.usd`, `.usda`, `.usdc`, `.usdz` | Yes, as a live stage | Yes |
 | OBJ | `.obj` | Yes | Yes |
 | STL | `.stl` | Yes | Yes |
@@ -38,11 +39,28 @@ Which to use:
 | Sculpting in ZBrush | **Send to ZBrush** ([ZBrush](zbrush.md)) |
 | Studio pipelines, Houdini, Omniverse, Apple | USD |
 | Web, Godot, Blender, Sketchfab | glTF (`.glb` for a single file) |
+| Engines and tools built on Maya's COLLADA (PhyreEngine and others) | COLLADA |
 | 3D printing | 3MF, or STL (see [3D printing](3d-printing.md)) |
 | CAD drawings, laser cutting, CNC | DXF |
 | Scans, photogrammetry, point clouds | PLY |
 | CAD meshes, large worlds, anything that must stay exact | OBJ, FBX or a Lila scene |
 | Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`, `exportAlembic`, `importAlembic`) |
+
+COLLADA carries the hierarchy, meshes with their UV and color sets, material slots and simple materials, skeletons, skin weights and animation. Export writes the layout of Maya's COLLADA exporter: translate, jointOrient, rotate and scale on every node, each channel sampled every frame, so engines and tools built on Maya's `.dae` files read it.
+
+### COLLADA animation for a game engine
+
+Engines that take Maya's COLLADA animations (PhyreEngine games among them) want the skeleton and its animation, without meshes:
+
+1. Import the rig from the engine's own `.dae`, or the `.fbx` or Maya file it came from.
+2. Animate the joints.
+3. Select the root joint and run:
+
+```python
+exportCollada("C:/game/attack.dae", kind="animation")
+```
+
+Every channel of every joint is written, constant ones too, in centimetres, Y up. Run the file through the engine's converter as you would Maya's.
 
 Lila stores vertex positions in double precision, and OBJ, FBX and Lila scenes carry every digit, so a mesh comes back out bit for bit however far it sits from the origin. STL, glTF, USD, Alembic and PLY store positions as 32-bit floats: about 7 significant digits, which moves points by up to 0.04 mm at 1 km from the origin and 0.3 mm at 10 km.
 
@@ -98,6 +116,10 @@ addAttr("Crate", longName="health:max", attributeType="double", defaultValue=100
 
 **A mesh far from the origin moves slightly after export.** STL, glTF, USD, Alembic and PLY round positions to 32-bit floats. Export as OBJ or FBX to keep them exact.
 
+**A COLLADA animation plays on the wrong joints or bends them the wrong way in the engine.** Engines match joints by name and expect each joint's own jointOrient. Import the rig from the engine's own `.dae` (or the Maya file it came from) rather than rebuilding it, so names and jointOrients match. COLLADA import keeps the file's jointOrients and rotate orders.
+
+**COLLADA import skips visibility channels and physics.** Lila reads translate, rotate, scale and matrix animation; visibility curves and physics scenes are listed in the import report and left out.
+
 **A glTF or USD import lists skipped items.** The import report lists everything that didn't come across and why.
 
 **A value isn't the one you set.** A stronger opinion wins. Select the object and click **Opinions...** in its USD Prim section, or **...** beside one property: every layer's opinion is listed strongest first, with the arc it comes through, and the one the value comes from in bold. A property whose edit is hidden shows a warning icon, and setting it logs which layer wins. Scripts use `usdStageOpinions`.
@@ -142,12 +164,15 @@ addAttr("Crate", longName="health:max", attributeType="double", defaultValue=100
 
 ## Options
 
-Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`, `importMaterialX`, `exportMaterialX`, `blendImport`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
+Each format's options are on its import and export commands (`importGltf`, `exportGltf`, `importCollada`, `exportCollada`, `usdStageOpen`, `importUsd`, `exportUsd`, `importFbx`, `exportFbx`, `importStl`, `exportStl`, `importPly`, `exportPly`, `importDxf`, `exportDxf`, `importMaterialX`, `exportMaterialX`, `blendImport`). See the [Python API](python/lila.ops.md) for every flag. The ones worth knowing:
 
 | Command | Option | What it does |
 | --- | --- | --- |
 | `exportGltf` | `draco` | Draco-compresses the meshes. Much smaller files; slightly lossy positions. |
 | `exportGltf` | `embedImages` | Puts the textures inside the file. On by default for `.glb`. |
+| `exportCollada` | `kind` | `skeletal` (default) writes meshes, skins and animation, `animation` only the skeleton and its animation, `static` meshes alone. |
+| `exportCollada` | `bakeTransforms` | Writes each node's transform as one matrix instead of Maya's translate, rotate and scale. |
+| `exportCollada` / `importCollada` | `takes` / `fps` | Several takes go out as animation clips and come back as takes. Import samples at the file's frame rate unless `fps` is set. |
 | `exportUsd` | `splitLayers` | Writes geometry, materials and animation as separate layers under one root file. |
 | `exportUsd` | `textures` | `relative`, `absolute` or `copy` texture paths. `.usdz` always packages them. |
 | `exportFbx` | `textures` | Writes base color, normal and emissive maps with their wrap. Off by default, since LilaLink sends textures itself. |
@@ -178,6 +203,7 @@ Lila does not use the Autodesk FBX SDK, so no Autodesk licence terms come with i
 | --- | --- | --- |
 | FBX | [ufbx](https://github.com/ufbx/ufbx) parses the file; Lila builds the scene from it | Lila's own binary FBX 7.4 writer |
 | OBJ | Lila's own | Lila's own |
+| COLLADA | Lila's own | Lila's own |
 | STL | Lila's own | Lila's own |
 | PLY | Lila's own | Lila's own |
 | DXF | Lila's own | Lila's own |
