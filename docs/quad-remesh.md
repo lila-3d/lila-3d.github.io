@@ -19,7 +19,9 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 ## Troubleshooting
 
-**Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count, and parts thinner than a face fold, so it retries finer. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
+**Far more faces than Target Faces.** The status line says when it went finer. Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count, and parts thinner than a face fold, so it retries finer. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
+
+**The status line warns that the **Seamless** layout didn't come out clean.** The result used another layout, named in the warning, with more poles or flow that turns at patch corners. Change **Target Faces** a little or lower **Edges Around Thin Parts**, then apply again.
 
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance**. Lower it if poles crowd onto flat areas nearby.
 
