@@ -98,6 +98,13 @@ Its own, on Vulkan 1.3.
 
 Yes, as a viewport renderer. Any Hydra render delegate, Storm or your own engine's, can draw a viewport while Lila keeps its gizmos and selection on top, and it sees both Lila's objects and live USD stages. See [Viewport renderers and Hydra](viewport-renderers.md).
 
+### Is Lila built on a dependency graph?
+
+Yes, like Maya: nodes, typed attributes, connections, and dirty propagation, so only what changed recomputes. Construction history, rigs, deformers and procedural setups all live in it. Two things work differently from Maya:
+
+- **One evaluator, parallel by default.** Maya has the serial DG plus the Evaluation Manager, with modes to pick and a fallback when a node isn't safe for parallel. Lila has one evaluator: it walks the graph in dependency order and computes independent nodes across cores. There's nothing to switch on.
+- **No cycles.** A connection that would make a loop is refused when you make it, so evaluation order is always defined.
+
 ### How does undo work?
 
 Every command, tool drag and selection change is one undo step. Selection steps don't mark the scene as unsaved. **Windows > Editors > Scene > Undo History** lists the steps; click one to jump there.
