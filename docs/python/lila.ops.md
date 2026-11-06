@@ -7635,13 +7635,13 @@ Put objects (the selection by default) on a turntable: the selected turntable, o
 
 ### quadRemesh
 
-Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard edges and guide curves, at about the target face count, with UVs (and optionally normals) transferred from the source. Open borders, sharp creases, crease corners and cone tips are kept. Where the shape is too thin or tight for the requested size (a strip narrower than the edge length) it retries finer, so the face count can come out higher. The kept source is hidden. Runs off the UI thread with a cancellable progress bar, and gives up after timeout= seconds with an error saying how far it got, changing nothing. Returns {name, metrics, layout, attempts: [{layout, faces, defects, irregular}] for every layout tried, notes: where the result departs from what was asked}, and with poles= where each pole landed: {point, position, valence, valenceMatched}, or null where none came out near it.
+Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard edges and guide curves, at about the target face count, optionally with UVs and normals transferred from the source. Open borders, sharp creases, crease corners and cone tips are kept. Where the shape is too thin or tight for the requested size (a strip narrower than the edge length) it retries finer, so the face count can come out higher. The kept source is hidden. Runs off the UI thread with a cancellable progress bar, and gives up after timeout= seconds with an error saying how far it got, changing nothing. Returns {name, metrics, layout, attempts: [{layout, faces, defects, irregular}] for every layout tried, notes: where the result departs from what was asked}, and with poles= where each pole landed: {point, position, valence, valenceMatched}, or null where none came out near it.
 
 **Objects:** source
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `preset` |  | str | `'none'` | Starting settings for what the mesh is for; flags set to other than their default win. One of `none`, `gameCharacter`, `midPoly`, `hero`, `stylized`, `hardSurface`, `prop`. |
+| `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
@@ -7665,7 +7665,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `seamless` |  | bool | `True` | Also try a global layout that only turns at the poles, with close poles merged or spread apart; kept when it is as clean with fewer irregular points. Slower. |
 | `poles` |  | list |  | The poles the edge flow turns at, as {position: world [x, y, z], valence: 3 or 5}, and nowhere else. Start from retopoPoles; on a closed shell (4 - valence) must sum to what retopoPoles reports. |
 | `relaxIterations` |  | int | `6` | Tangential relax passes on the surface. |
-| `transferUvs` |  | bool | `True` | Copy UV sets from the source. |
+| `transferUvs` |  | bool | `False` | Copy UV sets from the source. |
 | `transferNormals` |  | bool | `False` | Copy the source's normals as custom normals. |
 | `keepSource` |  | bool | `True` | Keep the source mesh; false deletes it. |
 | `hideSource` |  | bool | `True` | Hide the kept source mesh. |
@@ -8365,7 +8365,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `preset` |  | str | `'none'` | Starting settings for what the mesh is for; flags set to other than their default win. One of `none`, `gameCharacter`, `midPoly`, `hero`, `stylized`, `hardSurface`, `prop`. |
+| `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
