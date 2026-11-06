@@ -63,6 +63,8 @@ quadRemesh("Rock", targetFaces=2000,
 
 **Quad Remesh gave far more faces than Target Faces.** Parts thinner than a face (hair locks, fingers) fold at that size, so it retries finer, up to about four times the faces. Remesh thin parts separately at a higher count.
 
+**Too few faces at the groin, armpits or hands to deform.** Raise **Joint Density** in the Density section of the options; 1 makes joints about three times as dense, at the cost of faces elsewhere.
+
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance** in the Edge Flow section of the options. Lower it if poles crowd onto flat areas nearby; 0 turns it off, for props.
 
 **Method Grid gave flowing loops instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles; anything else gets Field.
