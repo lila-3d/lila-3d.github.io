@@ -66,7 +66,30 @@ Everything registered through `ctx` belongs to the extension and is removed when
 
 ### Rebuilding while Lila runs
 
-Windows locks a loaded DLL, so unload before you build: `unloadExtension("hello")`, build, then `loadExtension("hello")`. Unloading fails while the scene uses the extension's node types.
+Build straight into the package while it's loaded: Lila loads an extension's libraries from a copy in the temp folder, so the package's own files stay unlocked. Extensions installed with Lila load in place. Then `reloadExtension("hello")` picks up the new build.
+
+To reload on every build, watch the package:
+
+```python
+watchExtension("hello")
+```
+
+Once the package's files stop changing for 500 ms, Lila sends the `extensionChanged` event with the changed files in `paths`, then reloads the extension. The watch is kept across sessions; `watchExtension("hello", off=True)` stops it.
+
+To decide yourself, for example to reload only when Python changed, turn the reload off and handle the event:
+
+```python
+from lila import events
+
+def changed(e):
+    if any(p.endswith(".py") for p in e["paths"]):
+        reloadExtension(e["name"])
+
+watchExtension("hello", reload=False)
+events.subscribe("extensionChanged", changed)
+```
+
+`settle` sets the quiet time in milliseconds. `__pycache__`, `.pyc` files and hidden folders are ignored. A reload called from the extension's own `extensionChanged` handler runs once the handler returns.
 
 ## Troubleshooting
 
@@ -77,6 +100,8 @@ Windows locks a loaded DLL, so unload before you build: `unloadExtension("hello"
 **"does not export lilaExtensionSdkVersion".** A source file must include `<lila/Extension.h>`, which exports it.
 
 **"could not load ...: The specified module could not be found".** A DLL the extension needs isn't next to it or on the PATH. Put its own dependencies in the package folder beside its DLL.
+
+**A rebuilt Hydra render delegate doesn't change after a reload.** USD can't unload a render delegate once it has loaded one. Restart Lila.
 
 **"failed to initialize (code N)".** `lilaExtensionInit` returned N; anything but 0 is a failure, and Lila unloads it.
 
