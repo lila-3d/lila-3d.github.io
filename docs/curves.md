@@ -230,12 +230,12 @@ The curve can be drawn in plan: **followSurface** drops it onto the mesh. The wa
 
 ## Stitches
 
-Select a curve and the mesh it lies on, then **Curves > Stitch**. The thread is real geometry: it arches out of each hole and dives into the next, in twisted plies, with UVs running along it. It stays live: edit the curve, the mesh or the settings and the stitches follow.
+Select a curve and the meshes it lies on, then **Curves > Stitch**. Each stitch sits on the closest of them. The thread is real geometry: it arches out of each hole and dives into the next, in twisted plies, with UVs running along it. It stays live: edit the curve, the mesh or the settings and the stitches follow.
 
 <!-- TODO image: saddle, zigzag and cross stitches on a leather surface (images/curves/stitches.png) -->
 
 ```python
-stitch('SeamCurve', surface='Shoe', preset='heavyLeather')
+stitch('SeamCurve', surfaces=['Shoe', 'Tongue'], preset='heavyLeather')
 stitch('Hem', pattern='zigzag', stitchWidth=0.6, rows=2)
 ```
 
@@ -310,7 +310,7 @@ Select the meshes (or faces, to strap only those), start the **Strap Tool** and 
 
 **No stitches, or a warning that none fit.** The curve is shorter than one stitch. Shorten **stitchLength**.
 
-**Stitches float off or sink into the mesh.** Only the mesh connected as the surface counts. Select both the curve and the mesh before **Stitch**. A thread sinking in has a negative **restHeight**, or too high a **flatten**.
+**Stitches float off or sink into the mesh.** Only the meshes in **Surfaces** count. Select the curve and the meshes before **Stitch**, or add the meshes in the option box. A thread sinking in has a negative **restHeight**, or too high a **flatten**.
 
 **A strap goes round the wrong thing or isn't made.** The slash crosses nothing between its ends, or crosses an open mesh, where the strap follows the cut without bridging. The reason is in the path node's **Warning** attribute.
 
