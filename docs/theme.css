@@ -86,6 +86,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/quad-remesh"]::before,
 .sidebar-nav a[href="#/baking"]::before,
 .sidebar-nav a[href="#/destruction"]::before,
+.sidebar-nav a[href="#/rigid-bind"]::before,
 .sidebar-nav a[href="#/retargeting"]::before,
 .sidebar-nav a[href="#/creature-rigging"]::before,
 .sidebar-nav a[href="#/masonry"]::before,
@@ -163,6 +164,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/creature-rigging"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17c3 0 4 -3 6 -3s3 3 6 3s4 -3 6 -3'/%3E%3Cpath d='M5 13l2 -6l4 2l4 -2l2 6'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/retargeting"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 4a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'/%3E%3Cpath d='M4 17l5 1l.75 -1.5'/%3E%3Cpath d='M15 21l0 -4l-4 -3l1 -6'/%3E%3Cpath d='M7 12l0 -3l5 -1l3 3l3 1'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/destruction"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h7l-2 6 3 3-2 7H4zM14 4h6v16h-7l2-7-3-3z'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/rigid-bind"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17c3-4 6-6 9-6s6 2 9 6'/%3E%3Cpath d='M5 13l2-4 4 1-1 4zM14 10l4-1 2 4-4 1z'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/masonry"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 5h18v14H3zM3 12h18M9 5v7M15 12v7'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/settlement"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 21V11l5-4 5 4v10M13 21V9l4-3 4 3v12M2 21h20M7 21v-4h2v4'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/terrain"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20l6-10 4 6 2-3 6 7z'/%3E%3C/svg%3E"); }

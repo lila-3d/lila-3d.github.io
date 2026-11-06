@@ -8459,6 +8459,39 @@ Revolve profile curves around an axis into a quad mesh with live history. Return
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
+### rigidBind
+
+Add a rigid bind: separate pieces (scales, plates, shingles) ride the driver's surface without bending, relaxing their spacing and pushing apart where they would pass through each other or the driver. Pieces are the int point attribute 'piece', else each mesh's connected parts. Give the piece meshes first and the driver last; more drivers with drivers=. Returns the deformers.
+
+**Objects:** meshes..., driver
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `drivers` |  | list |  | More driver meshes, up to 8 in all. |
+| `maxDrivers` |  | int | `4` | Driver triangles each point follows, 1 to 32. |
+| `falloff` |  | float | `2.0` | Triangles within this many times the nearest distance count; higher is smoother. |
+| `collisionShape` |  | str | `'box'` | off \| sphere \| capsule \| box |
+| `params` |  | Any |  | {param: value} for any other attribute. |
+| `name` |  | str |  | Name for the deformer. |
+
+```python
+rigidBind('Scales', 'Arm', params={'collisionLift': 1.0, 'thickness': 0.05})
+```
+
+### rigidBindToSkin
+
+Turn a rigid bind into skin weights for games: every point of a piece takes the driver's skin weights where the piece sits, so each piece moves with the driver's joints as one rigid-looking part, with no extra joints and no bake. Relaxation and collision are dropped. The driver must be skinned; the rigid bind is replaced by a skinCluster bound like the driver's. Returns the skinClusters.
+
+**Objects:** rigid binds or meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `maxInfluences` |  | int | `4` | Joints per piece. |
+
+```python
+rigidBindToSkin('Scales', maxInfluences=4)
+```
+
 ### rigidify
 
 Add a rigidify deformer: regions of the meshes keep their rest shape and move rigidly with the deformation under them. Regions are the meshes' islands, the selected components (each connected patch one region), sets, or the painted weights. Returns the deformers.

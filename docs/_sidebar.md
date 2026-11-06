@@ -65,6 +65,7 @@
   - [Animation](animation.md)
   - [Retargeting](retargeting.md)
   - [Creature rigging](creature-rigging.md)
+  - [Rigid bind](rigid-bind.md)
   - [Destruction](destruction.md)
 - <span class="nav-label">Lighting and rendering</span>
   - [Lights](lights.md)
