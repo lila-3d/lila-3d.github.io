@@ -7645,7 +7645,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
-| `timeout` |  | float | `60.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
+| `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
@@ -8368,7 +8368,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `method` |  | str | `'field'` | field: quads follow curvature, creases and guides; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), field otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
-| `timeout` |  | float | `60.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits forever. |
+| `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
