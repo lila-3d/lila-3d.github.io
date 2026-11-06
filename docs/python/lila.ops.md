@@ -7658,6 +7658,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `jointDensity` |  | float | `0.5` | Extra faces at joints, armpits and finger webs, where the mesh bends: 0 none, 1 about three times as dense there. |
+| `jointDensityReach` |  | float | `6.0` | How far Joint Density's extra faces reach from a fold, in faces; lower keeps them tight to the joint. |
 | `jointPoleAvoidance` |  | float | `30.0` | Keeps poles out of joints, armpits and finger webs; higher pushes them further onto flatter parts. 0 off. |
 | `edgesAround` |  | int | `12` | Thin round parts of a closed shape, like fingers, get at least this many edges round them, at the cost of faces elsewhere; 0 off. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
@@ -8381,6 +8382,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `jointDensity` |  | float | `0.5` | Extra faces at joints, armpits and finger webs, where the mesh bends: 0 none, 1 about three times as dense there. |
+| `jointDensityReach` |  | float | `6.0` | How far Joint Density's extra faces reach from a fold, in faces; lower keeps them tight to the joint. |
 | `jointPoleAvoidance` |  | float | `30.0` | Keeps poles out of joints, armpits and finger webs; higher pushes them further onto flatter parts. 0 off. |
 | `edgesAround` |  | int | `12` | Thin round parts of a closed shape, like fingers, get at least this many edges round them, at the cost of faces elsewhere; 0 off. |
 | `resolveGaps` |  | bool | `True` | Finer where the surface comes close to itself across a gap (a ball in a pocket), so the gap isn't bridged; costs faces. |
