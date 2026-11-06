@@ -9151,7 +9151,7 @@ Grow the face selection across edges where neighbouring faces bend less than an 
 
 ### selectByMaterial
 
-Select what a material is assigned to: whole objects when it covers every face of each, otherwise just the faces it is assigned to. faces=true always selects faces, faces=false always whole objects. Returns the objects.
+Select what a material is assigned to: whole objects when it covers every face of each, otherwise just the faces it is assigned to. Default also takes faces on slots with no material. faces=true always selects faces, faces=false always whole objects. Returns the objects.
 
 **Objects:** material
 
@@ -12436,6 +12436,20 @@ Add a warp deformer with a from and a to handle at the meshes' centre: moving, r
 | `radius` |  | float |  | Falloff radius, cm. Default: a quarter of the meshes' size. |
 | `params` |  | Any |  | {param: value} to set on each deformer. |
 | `name` |  | str |  | Name for the deformer. |
+
+### watchExtension
+
+Follow edits to an extension's package: once writes settle, send the extensionChanged event with the changed files, then reload the extension. Kept across sessions. Returns the watched extensions.
+
+**Objects:** id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `reload` |  | bool | `True` | Reload it after the event. False only sends the event, for handlers that decide. |
+| `settle` |  | int | `500` | Milliseconds the package must be quiet before the event, so one build gives one event. |
+| `off` |  | bool | `False` | Stop watching it. |
+
+Not undoable.
 
 ### wrap
 
