@@ -10288,6 +10288,50 @@ Show a splitRings modifier's input mesh (it and later modifiers pass through) wi
 
 **Objects:** modifier or mesh
 
+### stitch
+
+Sew thread along curves: running (saddle with rotation), zigzag, cross or blanket stitches, in rows, as real geometry arching in and out of the surface with twisted plies and UVs along the thread. Sits on a mesh when one is given. Live: editing the curve, the mesh or the settings updates the stitches. Returns [mesh, curveStitch] per curve.
+
+**Objects:** curves (default: the selected curves)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pattern` |  | str |  | How the thread runs: dashes, side-to-side diagonals, an X per stitch, or legs across joined along the line. One of `running`, `zigzag`, `cross`, `blanket`. |
+| `stitchLength` |  | float |  | Each stitch's length along the line, cm. |
+| `stitchGap` |  | float |  | Between stitches, cm. |
+| `rotation` |  | float |  | Running: each stitch turned in the surface, degrees (a saddle stitch's slant). |
+| `stitchWidth` |  | float |  | Zigzag, cross and blanket: how far across the line a stitch reaches, cm. |
+| `rows` |  | int |  | Parallel rows of stitches. |
+| `rowSpacing` |  | float |  | Between rows, cm. |
+| `rowAlign` |  | str |  | Where extra rows go: centred on the line or to one side. One of `center`, `left`, `right`. |
+| `offset` |  | float |  | The stitching moved across the line, cm. |
+| `diameter` |  | float |  | Thread thickness, cm. |
+| `flatten` |  | float |  | 0 round, toward 1 a flat ribbon pressed into the surface. |
+| `plies` |  | int |  | Strands twisted into the thread. |
+| `twist` |  | float |  | Turns of the plies per cm of thread. |
+| `restHeight` |  | float |  | How far the thread's underside sits off the surface, cm; negative sinks it in. |
+| `insetDepth` |  | float |  | How deep the thread dives into its holes, cm. |
+| `jitter` |  | float |  | Hand-sewn wobble in spacing, angle and length; 0 is machine-even. |
+| `seed` |  | int |  | The wobble's seed. |
+| `continuousUv` |  | bool |  | V runs on along the line from stitch to stitch; off, each stitch starts at 0. |
+| `uvScale` |  | float |  | Texture repeats per thread circumference along V. |
+| `uvRandom` |  | float |  | Each stitch's V shifted by up to this much at random. |
+| `sides` |  | int |  | Sides round each ply. |
+| `segments` |  | int |  | Rings along each stitch. |
+| `up` |  | tuple[float, float, float] |  | With no surface mesh: which way is out of the surface along the curve. |
+| `preset` |  | str |  | Starting settings (flags given as well win). One of `running`, `topstitch`, `saddle`, `denim`, `heavyLeather`, `zigzag`, `cross`, `blanket`. |
+| `surface` | `srf` | str |  | The mesh the stitches sit on (default: the selected mesh). Leave out for none. |
+| `constructionHistory` | `ch` | bool | `True` | Keep the stitch node so editing the curve or settings updates the stitches. |
+| `name` | `n` | str |  | Mesh name; made unique. |
+
+```python
+stitch('SeamCurve', surface='Shoe', preset='heavyLeather')
+```
+
+```python
+stitch('Hem', pattern='zigzag', stitchWidth=0.6, rows=2)
+```
+
 ### stop
 
 Stop playback.
@@ -16176,6 +16220,48 @@ Add a patch pocket on a panel, tacked round all but its mouth, with an optional 
 
 ```python
 tailorAddPocket('Shirt', panel='Front', position=[5, 30], flap=True)
+```
+
+### tailorAddStitching
+
+Topstitch a garment: thread sewn along its seams (every seam, or the ones given) or along any edges, laid out on the flat pattern so rows keep their spacing however the cloth drapes, and latched to the cloth so it bends with it. Real geometry with plies and UVs along the thread, as the stitch command makes along curves. Returns [mesh, binding, stitches].
+
+**Objects:** garment
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str |  | Starting settings (flags given as well win). One of `running`, `topstitch`, `saddle`, `denim`, `heavyLeather`, `zigzag`, `cross`, `blanket`. |
+| `seams` | `s` | list |  | Seam indices to stitch; default every seam. |
+| `seamSide` | `ss` | str | `'both'` | Which side of each seam: both, a or b. |
+| `along` | `al` | str |  | Edges to stitch instead of seams, as tailorSew sides, e.g. "Hood L:0:1" (hems, pockets). |
+| `inset` | `in` | float | `0.4` | First row in from the edge, cm. |
+| `pattern` | `pt` | str |  | running, zigzag, cross or blanket. |
+| `stitchLength` | `sl` | float |  | Each stitch's length, cm. |
+| `stitchGap` | `sg` | float |  | Between stitches, cm. |
+| `rotation` | `ro` | float |  | Running: each stitch's slant, degrees. |
+| `stitchWidth` | `sw` | float |  | Zigzag, cross and blanket: reach across the line, cm. |
+| `rows` | `r` | int |  | Parallel rows, going inward. |
+| `rowSpacing` | `rs` | float |  | Between rows, cm. |
+| `diameter` | `d` | float |  | Thread thickness, cm. |
+| `flatten` | `fl` | float |  | 0 round, toward 1 pressed flat. |
+| `plies` | `pl` | int |  | Strands twisted into the thread. |
+| `twist` | `tw` | float |  | Ply turns per cm. |
+| `restHeight` | `rh` | float |  | Thread's underside off the cloth, cm; negative sinks it in. |
+| `insetDepth` | `id` | float |  | How deep the thread dives into its holes, cm. |
+| `jitter` | `j` | float |  | Hand-sewn wobble; 0 is machine-even. |
+| `seed` | `sd` | int |  | The wobble's seed. |
+| `name` | `n` | str | `'Stitching'` | Name of the new mesh. |
+
+```python
+tailorAddStitching('Jacket', preset='denim')
+```
+
+```python
+tailorAddStitching('Onesie', seams=[0, 3], seamSide='a', rows=2)
+```
+
+```python
+tailorAddStitching('Onesie', along='Hood L:2:5', pattern='blanket', inset=0)
 ```
 
 ### tailorAddTrim

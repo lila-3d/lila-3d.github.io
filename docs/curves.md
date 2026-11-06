@@ -228,6 +228,19 @@ The curve can be drawn in plan: **followSurface** drops it onto the mesh. The wa
 
 > A span running straight along gravity can't sag.
 
+## Stitches
+
+Select a curve and the mesh it lies on, then **Curves > Stitch**. The thread is real geometry: it arches out of each hole and dives into the next, in twisted plies, with UVs running along it. It stays live: edit the curve, the mesh or the settings and the stitches follow.
+
+<!-- TODO image: saddle, zigzag and cross stitches on a leather surface (images/curves/stitches.png) -->
+
+```python
+stitch('SeamCurve', surface='Shoe', preset='heavyLeather')
+stitch('Hem', pattern='zigzag', stitchWidth=0.6, rows=2)
+```
+
+Presets: `running`, `topstitch`, `saddle`, `denim`, `heavyLeather`, `zigzag`, `cross`, `blanket`. **rotation** slants running stitches into a saddle stitch; **jitter** makes them look hand-sewn. Rows go to the curve's left (+**offset**) when **rowAlign** is `left`. With no mesh, **up** says which way is out of the surface.
+
 ## Straps
 
 Select the meshes (or faces, to strap only those), start the **Strap Tool** and drag a slash across what to strap. With nothing selected it straps any visible mesh; hidden meshes and faces never count. The strap wraps around everything the slash crosses, in the plane of the slash seen edge on. Several objects crossed become one bundle.
@@ -294,6 +307,10 @@ Select the meshes (or faces, to strap only those), start the **Strap Tool** and 
 **Supports are missing at some stations.** No surface was within **maxReach**, or the station sits on a bend. Add the wall or ceiling to **surfaces**, or raise **maxReach**.
 
 **A channel isn't cut, or cuts the far side of a mesh.** Only faces turned toward **up** are carved; set **up** to the surface's outward direction (a wall's normal for a channel in a wall).
+
+**No stitches, or a warning that none fit.** The curve is shorter than one stitch. Shorten **stitchLength**.
+
+**Stitches float off or sink into the mesh.** Only the mesh connected as the surface counts. Select both the curve and the mesh before **Stitch**. A thread sinking in has a negative **restHeight**, or too high a **flatten**.
 
 **A strap goes round the wrong thing or isn't made.** The slash crosses nothing between its ends, or crosses an open mesh, where the strap follows the cut without bridging. The reason is in the path node's **Warning** attribute.
 

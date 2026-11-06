@@ -72,9 +72,13 @@ tailorAddLacing('Bodice', sideA='Back L:1:2', sideB='Back R:3:0', pairs=8)   # w
 tailorAddZip('Jacket', seam=4, open=0.3)                                     # teeth and slider, open past the slider
 tailorDamage('Cloak', points=[[5, 90, -20]], radius=4)                       # kind='tear' for a slit
 tailorStrap('Tunic', curve='BeltPath', closed=True, width=5)                 # a belt or sash along a path
+tailorAddStitching('Jeans', preset='denim')                                  # topstitching on every seam
+tailorAddStitching('Onesie', along='Hood L:2:5', pattern='blanket', inset=0) # round a hem
 ```
 
-Built-in trims are `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth` and `slider`. Your own trim (eyes, teeth, spines): model it at the origin, cm, with +Z facing out of the cloth, and pass `mesh=`. `along='Hood L:0:6'` spaces copies along edges instead of at points, each turned to follow the edge; `scale` sizes them. Each copy rides the cloth at its middle without bending. Pockets, belt loops and the collar are also on the Pattern Editor's right-click menu. Sides like `'Hood L:5:9'` are panel, first and last outline point, as **Sew** mode and `tailorSew` use.
+Built-in trims are `button`, `grommet`, `rivet`, `toggle`, `buckle`, `zipTooth` and `slider`. Your own trim (eyes, teeth, spines): model it at the origin, cm, with +Z facing out of the cloth, and pass `mesh=`. `along='Hood L:0:6'` spaces copies along edges instead of at points, each turned to follow the edge; `scale` sizes them. Each copy rides the cloth at its middle without bending. Pockets, belt loops and the collar are also on the Pattern Editor's right-click menu.
+
+**Tailor > Add Stitching** sews thread along every seam of the selected garment, both sides, `inset` cm in from the seam; `seams=[0, 3]` and `seamSide='a'` narrow it down. Rows are laid out on the flat pattern, so their spacing holds however the cloth drapes, and the thread bends with the cloth. The stitch settings and presets are the same as **Curves > Stitch**. Sides like `'Hood L:5:9'` are panel, first and last outline point, as **Sew** mode and `tailorSew` use.
 
 ## Animate it
 
@@ -119,7 +123,7 @@ To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBa
 
 **Bake didn't skin the mesh.** The body has no skinCluster. Skin it, then bake again.
 
-**A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again. Trims bind again on their own.
+**A latched render mesh stopped following.** The garment was re-meshed after binding (a pattern edit or a new particle distance). Bind it again. Trims bind again on their own. Stitching is laid out on the pattern as it was: delete it and add it again.
 
 **Auto-Sew misses a seam.** It sews edges that face each other within `maxGap` (8 cm) as placed, or that both open upwards with the body under them. Move the panels closer, or sew the pair in **Sew** mode. Edges that hang open facing each other, like a poncho's sides, get sewn: unsew them.
 
