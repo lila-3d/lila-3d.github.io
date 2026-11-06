@@ -82,6 +82,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/turntable"]::before,
 .sidebar-nav a[href="#/animation"]::before,
 .sidebar-nav a[href="#/topology"]::before,
+.sidebar-nav a[href="#/quad-remesh"]::before,
 .sidebar-nav a[href="#/baking"]::before,
 .sidebar-nav a[href="#/destruction"]::before,
 .sidebar-nav a[href="#/retargeting"]::before,
@@ -155,6 +156,7 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .sidebar-nav a[href="#/animation"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20h18M7 20v-2M17 20v-2M12 4l5 5-5 5-5-5z'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/bridge"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7v10M21 7v10M3 9c4 4 14 4 18 0M3 15c4 -4 14 -4 18 0'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/topology"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 5h18v14H3zM3 12c6-4 12-4 18 0M12 5c-3 5-3 9 0 14'/%3E%3C/svg%3E"); }
+.sidebar-nav a[href="#/quad-remesh"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/baking"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h16v16H4zM4 12l8-8M4 20L20 4M12 20l8-8'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/creature-rigging"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17c3 0 4 -3 6 -3s3 3 6 3s4 -3 6 -3'/%3E%3Cpath d='M5 13l2 -6l4 2l4 -2l2 6'/%3E%3C/svg%3E"); }
 .sidebar-nav a[href="#/retargeting"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 4a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'/%3E%3Cpath d='M4 17l5 1l.75 -1.5'/%3E%3Cpath d='M15 21l0 -4l-4 -3l1 -6'/%3E%3Cpath d='M7 12l0 -3l5 -1l3 3l3 1'/%3E%3C/svg%3E"); }

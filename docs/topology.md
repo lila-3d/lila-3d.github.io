@@ -36,20 +36,7 @@ Retopologize by hand or automatically, from the **Topology** menu or the **Topol
 
 ## Quad Remesh
 
-**Topology > Quad Remesh** rebuilds the selected mesh as quads at about **Target Faces**; the source stays, hidden. For terrain tiles and other open sheets seen from one side, set **Method** to **Grid**: straight rows, no poles.
-
-Steer it from Python:
-
-```python
-quadRemesh("Rock", targetFaces=2000,
-    densityHandles=[{"position": [0, 120, 10], "radius": 15, "scale": 0.5}],
-    featureGuidePoints=[[[0, 100, 0], [10, 110, 5], [20, 100, 0]]],
-    guides=["flowCurve"])
-```
-
-- `densityHandles`: faces `scale` times as long within `radius` cm, easing out to the edge. Under 1 is denser.
-- `featureGuides` (mesh nodes) or `featureGuidePoints` (world points): an edge loop lands on the curve, like a hard edge. `guides` only turns the flow along it.
-- `poles`, from **Topology > Retopo Poles** or `retopoPoles`: the result's `poles` says where each one landed, with `valenceMatched` false where the valence came out different.
+**Topology > Quad Remesh** rebuilds the selected mesh as quads automatically; see [Quad Remesh](quad-remesh.md).
 
 ## Troubleshooting
 
@@ -60,13 +47,5 @@ quadRemesh("Rock", targetFaces=2000,
 **A cylinder ring is missing.** The line has to cross the reference; its cut plane is the line and your view direction, so draw it across the limb, not along it.
 
 **Auto Region ran over most of the reference.** Double-click only inside a hole closed by retopo faces all round.
-
-**Quad Remesh gave far more faces than Target Faces.** Parts thinner than a face (hair locks, fingers) fold at that size, so it retries finer, up to about four times the faces. Remesh thin parts separately at a higher count.
-
-**Too few faces at the groin, armpits or hands to deform.** Raise **Joint Density** in the Density section of the options; 1 makes joints about three times as dense, at the cost of faces elsewhere.
-
-**A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance** in the Edge Flow section of the options. Lower it if poles crowd onto flat areas nearby; 0 turns it off, for props.
-
-**Method Grid gave flowing loops instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles; anything else gets Field.
 
 **A region doesn't join its border.** Its edge length is far from the border's; set the toolkit's Edge length closer to the retopo mesh's.

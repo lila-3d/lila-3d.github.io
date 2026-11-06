@@ -51,6 +51,7 @@
     - [Brushes, presets and alphas](sculpt-brushes.md)
   - [Reference images](reference-images.md)
   - [Topology](topology.md)
+    - [Quad Remesh](quad-remesh.md)
   - [Baking](baking.md)
   - [Turntable](turntable.md)
   - [3D printing](3d-printing.md)
