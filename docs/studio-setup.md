@@ -43,7 +43,7 @@ A file in `shelves/` in the studio folder appears as a shelf for everyone. Lock 
 
 Unlocked, each artist can rearrange it as their own.
 
-Hotkeys (`hotkeys.json`), naming rules (`naming.json`) and Lila's marking menus (`markingMenus/<name>.json`) work the same way. Layouts don't.
+Hotkeys (`hotkeys.json`), keymaps (`keymaps/<name>.json`, listed in every artist's Hotkey Editor), naming rules (`naming.json`) and Lila's marking menus (`markingMenus/<name>.json`) work the same way. Layouts don't.
 
 Sculpt [brush presets](sculpt-brushes.md#presets) in `brushes/` in the studio folder appear in everyone's Sculpt panel. Artists can't delete them from Lila.
 
