@@ -68,6 +68,7 @@ Hold **W**, **E** or **R** and left-click for that tool's marking menu: world or
 
 - **Ctrl+T** searches every menu command by name.
 - Hold **F1** for every hotkey. **Edit > Hotkey Editor** changes them.
+- Bring your Maya hotkeys: **Import from Maya** in the Hotkey Editor reads a hotkey set from `Documents/maya/<version>/prefs/hotkeys` (`.mhk`, or `userHotkeys.mel` from older Maya). Custom scripts and Maya-only commands are listed as skipped.
 - Hold **Space** for the hotbox: every menu at the cursor.
 - **Z** or **Ctrl+Z** undoes, **Shift+Z** redoes, **G** repeats the last command.
 
