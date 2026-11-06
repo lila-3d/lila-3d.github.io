@@ -47,6 +47,8 @@ Hotkeys (`hotkeys.json`), naming rules (`naming.json`) and Lila's marking menus 
 
 Sculpt [brush presets](sculpt-brushes.md#presets) in `brushes/` in the studio folder appear in everyone's Sculpt panel. Artists can't delete them from Lila.
 
+[Option box presets](essentials.md#save-option-box-presets) in `optionPresets/<command>/` in the studio folder, such as `optionPresets/quadRemesh/Crowd Character.json`, appear in that command's **Preset** menu for everyone. Save one in Lila and copy it from **Edit > Show Presets Folder**. An artist's preset of the same name replaces the studio's for them.
+
 ## Updating
 
 Edit the files in the studio folder. Every running Lila picks up the change within about 5 seconds, including new or removed shelves.

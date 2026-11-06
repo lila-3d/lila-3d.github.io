@@ -42,7 +42,7 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 | Hard Surface | 6000 | Machines and props with hard edges: loops on hard edges and creases over 30 degrees, no joint handling. |
 | Prop | 3000 | Static props: denser at curves, no joint handling. |
 
-A preset fills in the options below; change any of them afterwards. From Python, flags you pass win over the preset.
+A preset fills in the options below; change any of them afterwards. **Edit > Save Preset...** adds your own to the menu ([sharing presets](essentials.md#save-option-box-presets)). From Python, `preset=` also takes a saved preset's name, and flags you pass win over the preset.
 
 ![The presets on the same character. Top: Game Character, Mid-Poly, Hero. Bottom: Stylized, Hard Surface, Prop](images/quad-remesh/presets.webp)
 
@@ -94,7 +94,7 @@ quadRemesh("Rock", targetFaces=2000,
 
 | Option | Default | What it does |
 | --- | --- | --- |
-| Transfer UVs | on | Copies the source's UV sets onto the new mesh. |
+| Transfer UVs | off | Copies the source's UV sets onto the new mesh. |
 | Transfer Normals | off | Copies the source's normals as custom normals. |
 | Keep Source | on | Keeps the source mesh; off deletes it. |
 | Timeout | 0 | Seconds before giving up; 0 runs until done or aborted. |

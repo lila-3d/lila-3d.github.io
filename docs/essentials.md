@@ -27,6 +27,15 @@ Fields that take a mesh, curve, joint or other object have a dropdown of the sce
 
 <!-- TODO image: Stitch options with the Surfaces field's dropdown open (images/essentials/node-picker.png) -->
 
+## Save option box presets
+
+**Edit > Save Preset...** in an option box keeps its values under a name in the **Preset** menu at the top of the box. **Save Project Preset...** keeps them in the project's `.lila` folder instead, so everyone working in the project gets them.
+
+- To share one, send the file from **Edit > Show Presets Folder**; the other artist uses **Edit > Import Preset...**.
+- Fields that name scene objects aren't saved.
+- Commands that take `preset=` from Python, like `quadRemesh`, accept a saved preset's name.
+- For a whole studio, see [Studio setup](studio-setup.md#studio-shelves).
+
 ## Hotkey cheat sheet
 
 Hold **F1** to show every hotkey. Release it to close.
