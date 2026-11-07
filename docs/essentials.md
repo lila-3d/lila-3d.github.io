@@ -29,9 +29,9 @@ Fields that take a mesh, curve, joint or other object have a dropdown of the sce
 
 ## Save option box presets
 
-**Edit > Save Preset...** in an option box keeps its values under a name in the **Preset** menu at the top of the box. **Save Project Preset...** keeps them in the project's `.lila` folder instead, so everyone working in the project gets them.
+**Save Preset...** on an option box's **...** menu keeps its values under a name in the **Preset** menu at the top of the box. **Save Project Preset...** keeps them in the project's `.lila` folder instead, so everyone working in the project gets them.
 
-- To share one, send the file from **Edit > Show Presets Folder**; the other artist uses **Edit > Import Preset...**.
+- To share one, send the file from **... > Show Presets Folder**; the other artist uses **... > Import Preset...**.
 - Fields that name scene objects aren't saved.
 - Commands that take `preset=` from Python, like `quadRemesh`, accept a saved preset's name.
 - For a whole studio, see [Studio setup](studio-setup.md#studio-shelves).
@@ -59,8 +59,6 @@ Hold **F1** to show every hotkey. Release it to close.
 | **A** | Frame everything |
 | **Alt+F** | Centre the view on the surface under the cursor, keeping the zoom |
 
-From the viewport toolbar button, click the surface afterwards.
-
 ## Camera bookmarks
 
 | Press | To |
@@ -72,7 +70,7 @@ Each camera has its own slots, including persp and each ortho view, and they sav
 
 ## Hide the selection highlight
 
-The **Highlight Selection** button at the left of the viewport's bottom bar turns off the selection highlight, so you can see the mesh change while you adjust a modifier or attribute.
+**Overlays > Highlight Selection** in the viewport header turns off the selection highlight, so you can see the mesh change while you adjust a modifier or attribute.
 
 ## Floating shelf
 
@@ -240,7 +238,7 @@ Symmetry in Lila stays exact across modeling, UVs, weights and joints. **Shift+X
 
 ### Radial symmetry
 
-Pick **Radial** in the viewport toolbar's symmetry menu, or **Mesh > Symmetry Radial**. Edits, selections, sculpt and paint then repeat round the axis, **Radial Count** times. **Radial Mirror** also mirrors each wedge (rims, hubcaps, flowers).
+Pick **Radial** from the arrow on the viewport header's **Symmetry** button, or **Mesh > Symmetry Radial**. Edits, selections, sculpt and paint then repeat round the axis, **Radial Count** times. **Radial Mirror** also mirrors each wedge (rims, hubcaps, flowers).
 
 - Or model one wedge, then **Mesh > Symmetrize Radial**. It rebuilds the mesh exactly N-fold, welds the seams and turns radial symmetry on.
 - UV edits on a radial mesh stack every wedge on one set of UVs. Turn symmetry off first to lay the wedges out separately.
@@ -439,7 +437,7 @@ Set naming rules in **Preferences > Naming**, and Lila either warns when a name 
 
 ## Presenter mode for streams and tutorials
 
-The **Presenter Mode** button at the right end of the viewport's bottom bar shows viewers what you're doing:
+The **Presenter Mode** button on the viewport header shows viewers what you're doing:
 
 - the keys and mouse buttons you press, and Alt navigation
 - each action you run, with its menu path and its hotkey

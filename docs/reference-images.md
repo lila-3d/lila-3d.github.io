@@ -35,7 +35,7 @@ For likeness work, match the camera to each photo once and come back to it later
 
 ## Repose a drawing
 
-When a character sheet has the arms at a poor angle, cut its image plane at the joints and turn the pieces. **Shift**+click the image plane button on the viewport toolbar to tear off **Create > Reference Images** beside you.
+When a character sheet has the arms at a poor angle, cut its image plane at the joints and turn the pieces. Tear off **Create > Reference Images** to keep it beside you.
 
 1. Make an image plane from the sheet (**Create > Reference Images > Image Plane...**) and open **Create > Reference Images > Cut Image Plane**.
 2. Click either side of the shoulder, then click around the arm and press **Enter**. Everything inside that loop becomes the arm piece. The dot between the first two points is where it pivots.

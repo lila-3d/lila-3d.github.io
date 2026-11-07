@@ -1,6 +1,6 @@
 # 3D printing
 
-Get a mesh ready for the slicer: closed, thick enough, sized for your printer, hollowed or split if it needs to be, then out as STL or 3MF. Everything is on the **Print** menu (Modeling menu set) and the **Print** shelf.
+Get a mesh ready for the slicer: closed, thick enough, sized for your printer, hollowed or split if it needs to be, then out as STL or 3MF. Everything is on the **Print** menu (the **Print** layout's menu bar, or **Ctrl+T** anywhere) and the **Print** shelf.
 
 <!-- media: Wall Thickness map on a sculpt with the viewport legend -->
 

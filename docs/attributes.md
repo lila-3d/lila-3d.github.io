@@ -6,7 +6,7 @@ Add, edit and organise attributes and components on any node. Attributes can be 
 
 1. Select an object and click **+** next to the search field.
 2. Type a name (`health:max`) and press Enter: pick the type, default, range and heading, then Enter again. Or pick a component, or an object under **Copy from** to copy its added attributes.
-3. The attribute appears under its heading in **Extra Attributes**.
+3. The attribute appears in its own section below the **Added** line, named after its category (**Custom** when it has none).
 
 - **Edit**: double-click the label, or hover the row and click the pencil at the label's left end. Renaming keeps connections, keys and drivers; changing the type converts the value and drops its connections.
 - **Move**: drag a row's grip (left of the pencil) onto another row to put it before that one, or onto a heading to move it there. Drag a heading onto another to reorder components.
@@ -74,7 +74,7 @@ deleteAttr("Crate.mode")
 
 - `attributeType`: `bool`, `long`, `float`, `double`, `double3`, `enum`, `matrix`, `compound`; `multi=True` makes it an array.
 - `dataType`: `string`, `stringArray`, `doubleArray`, `Int32Array`, `vectorArray`.
-- Added attributes show under **Extra Attributes** in the attribute editor, keyable ones in the channel box. They save with the scene and duplicate with the node.
+- Added attributes show in the **Attributes** tab below the **Added** line, a section per category, keyable ones in the channel box. They save with the scene and duplicate with the node.
 
 ## Compounds
 

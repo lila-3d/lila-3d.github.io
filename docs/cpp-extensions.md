@@ -151,7 +151,7 @@ GPU compute (`<lila/GpuCompute.h>`, UI extensions): a `lila::gpu::Session` owns 
 
 `ui::attributeEditor::addSection(ctx, type, title, factory)` (`<lila/UI.h>`, needs `UI` in `lila_add_extension`) adds a section to the Attribute Editor of every node whose type is or derives from `type`; `"transform"` covers every object. The factory gets the node and returns any `QWidget`, or `nullptr` to skip that node. The section goes away when the extension unloads.
 
-This one adds an **Add Component...** button that picks from a list and adds the component's attributes, grouped under its name in **Extra Attributes**, as one undo step:
+This one adds an **Add Component...** button that picks from a list and adds the component's attributes, in a section named after it below the **Added** line in the **Attributes** tab, as one undo step:
 
 ```cpp
 #include <lila/Command.h>
