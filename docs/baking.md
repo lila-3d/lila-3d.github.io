@@ -34,6 +34,8 @@ Low and High add the meshes under the selection too; Shift+click adds only the s
 
 **Normals from height.** For walls that light as walls, and normals that match displacement or parallax: bake **Detail Normal** and **Height** together. The material rebuilds the shape's normals from the height and lays the detail normal on top. Assigning the maps (automatic for Unreal targets, or **Assign** in the Baker) sets this up in Lila: it fills **Height Map** and ticks **Normals From Height** in the Material Editor, with the depth and UV size the bake measured. In Unreal, drop `MF_LilaHeightNormal` (in `/Game/LilaLink/Masters`) into your material: connect the height map, the sampled detail normal and the same **HeightDepth**, **HeightUVWidth** and **HeightUVHeight**. Materials LilaLink generates use it already. Texture sets show and export their normal this way when **Normals from height** is ticked in the set's settings; trim sheets turn it on for their sets when they bake a detail normal.
 
+[Most normals are wrong. How can we fix it?](https://www.youtube.com/watch?v=FyyYLycTGyc) explains the problem well. Lila's fix differs from the one in the video.
+
 ![Sharp-sided dentils baked onto a trim sheet: painted over the baked normal they read as flat stickers; rebuilt from the height, their sides light](images/baking/normals-from-height-lila.webp)
 
 ![The same trim sheet in Unreal with parallax: the baked normal leaves the dentils flat, MF_LilaHeightNormal gives them walls](images/baking/normals-from-height-unreal.webp)
