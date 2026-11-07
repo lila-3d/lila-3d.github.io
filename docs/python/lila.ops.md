@@ -1468,6 +1468,19 @@ Read a Blender .blend file without importing it: the Blender version that saved 
 
 Not undoable.
 
+### blendKeys
+
+Blend picked keys' values towards their neighbours, an ease, the line between their neighbours, a smoothed value or the default. Each run of picked keys blends between the unpicked keys either side. Returns the number of keys changed.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `keys` | `k` | Any |  | Exact keys: [{curve: curve or plug name, times: [seconds], valuePivot, valueScale, valueOffset}], the last three overriding the call's for that channel. Without it, every key of the objects in time. |
+| `time` | `t` | Any |  | Seconds or (start, end): the keys of the objects to use when keys is not given. |
+| `mode` | `m` | str | `'neighbour'` | neighbour: towards the key before (< 0) or after (> 0). ease: onto an ease-in (< 0) or ease-out (> 0) curve between the neighbours. pushPull: away from (> 0) or onto (< 0) the line between them. smooth: towards the average of each key's neighbours. default: towards the attribute's default value. |
+| `amount` | `a` | float | `0.5` | -1 to 1. |
+
 ### blendOpen
 
 Open a Blender .blend file as a new, untitled scene (save it to keep it as .lila). Not undoable. Returns the import report.
@@ -1698,7 +1711,7 @@ Render several views offscreen and tile them into one PNG contact sheet (row by 
 | `isolate` |  | bool | `False` | Only the selected objects. |
 | `frameSelection` | `fs` | bool | `False` | Frame the selected objects or components instead of everything shown. |
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
-| `showSelection` |  | bool | `True` | Tint selected components. |
+| `showSelection` |  | bool | `True` | Tint selected components, and outline selected terrains drawn from their heights. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `path` | `p` | str |  | PNG file to write. |
@@ -1724,7 +1737,7 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `isolate` |  | bool | `False` | Only the selected objects. |
 | `frameSelection` | `fs` | bool | `False` | Frame the selected objects or components instead of everything shown. |
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
-| `showSelection` |  | bool | `True` | Tint selected components. |
+| `showSelection` |  | bool | `True` | Tint selected components, and outline selected terrains drawn from their heights. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `path` | `p` | str |  | PNG file to write. |
@@ -2380,24 +2393,31 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `baseColorMapWrapU` |  | Any |  | What baseColorMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `baseColorMapWrapV` |  | Any |  | What baseColorMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `baseColorMapFilter` |  | Any |  | How baseColorMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `baseColorMapColorSpace` |  | Any |  | How baseColorMap's 8- and 16-bit values are read: auto (sRGB, as a colour map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `metallicMapWrapU` |  | Any |  | What metallicMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `metallicMapWrapV` |  | Any |  | What metallicMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `metallicMapFilter` |  | Any |  | How metallicMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `metallicMapColorSpace` |  | Any |  | How metallicMap's 8- and 16-bit values are read: auto (linear, as a data map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `roughnessMapWrapU` |  | Any |  | What roughnessMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `roughnessMapWrapV` |  | Any |  | What roughnessMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `roughnessMapFilter` |  | Any |  | How roughnessMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `roughnessMapColorSpace` |  | Any |  | How roughnessMap's 8- and 16-bit values are read: auto (linear, as a data map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `normalMapWrapU` |  | Any |  | What normalMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `normalMapWrapV` |  | Any |  | What normalMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `normalMapFilter` |  | Any |  | How normalMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `normalMapColorSpace` |  | Any |  | How normalMap's 8- and 16-bit values are read: auto (linear, as a data map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `ambientOcclusionMapWrapU` |  | Any |  | What ambientOcclusionMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `ambientOcclusionMapWrapV` |  | Any |  | What ambientOcclusionMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `ambientOcclusionMapFilter` |  | Any |  | How ambientOcclusionMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `ambientOcclusionMapColorSpace` |  | Any |  | How ambientOcclusionMap's 8- and 16-bit values are read: auto (linear, as a data map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `ormMapWrapU` |  | Any |  | What ormMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `ormMapWrapV` |  | Any |  | What ormMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `ormMapFilter` |  | Any |  | How ormMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `ormMapColorSpace` |  | Any |  | How ormMap's 8- and 16-bit values are read: auto (linear, as a data map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `emissiveMapWrapU` |  | Any |  | What emissiveMap shows past its edges along U: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `emissiveMapWrapV` |  | Any |  | What emissiveMap shows past its edges along V: repeat, clamp (the edge texels), mirror (repeat flipped) or black. |
 | `emissiveMapFilter` |  | Any |  | How emissiveMap is filtered: linear (smooth, mipmapped) or nearest (hard texels, for pixel art). |
+| `emissiveMapColorSpace` |  | Any |  | How emissiveMap's 8- and 16-bit values are read: auto (sRGB, as a colour map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 
 ### createMesh
 
@@ -2527,9 +2547,13 @@ Not undoable.
 
 ### currentTime
 
-Query or set the current time in seconds.
+Query or set the current time in seconds. update=False moves the time but holds the pose (animation keeps evaluating at the time it held), so keys set next copy that pose to the new time.
 
 **Objects:** seconds
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `update` | `u` | bool | `True` | False holds the current pose while the time moves. |
 
 Not undoable.
 
@@ -2639,6 +2663,27 @@ Create a NURBS curve through edit points. Returns its name.
 | `degree` | `d` | int | `3` | Degree (1 to 7). |
 | `closed` | `c` | bool | `False` | A closed loop through the points. |
 | `name` | `n` | str |  | Name; made unique. |
+
+### curveModifier
+
+Add or edit a non-destructive modifier on curves (curves, plugs or nodes, default the selection's animated channels): noise, stepped or limits. A curve holds one of each type; giving a type again edits it. remove=True removes that type, or every modifier with no type. query=True returns [{curve, modifiers}].
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `typ` | str |  | noise \| stepped \| limits |
+| `remove` | `rm` | bool | `False` | Remove this type, or every modifier when no type is given. |
+| `query` | `q` | bool | `False` |  |
+| `amplitude` | `amp` | float |  | Noise: size of the wobble in the curve's units (degrees on rotations). |
+| `period` | `per` | float |  | Noise: frames per wave. |
+| `phase` | `ph` | float |  | Noise: frames the noise is shifted by. |
+| `seed` | `sd` | int |  | Noise: a different seed gives different noise. |
+| `octaves` | `oct` | int |  | Noise: layers of finer detail. |
+| `step` | `st` | float |  | Stepped: frames each value holds for. |
+| `offset` | `of` | float |  | Stepped: frame the steps start from. |
+| `min` | `mn` | float |  | Limits: lowest value. |
+| `max` | `mx` | float |  | Limits: highest value. |
 
 ### curveNetwork
 
@@ -3937,6 +3982,22 @@ Round (arc), cut (chamfer) or blend (g2) the corners of curves. Per point corner
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `replaceOriginal` | `rpo` | bool | `True` | Change the curve itself rather than making a new one. |
 | `name` | `n` | str |  | Name of a new curve. |
+
+### filterCurve
+
+Filter curves between their first and last picked key (every key when one or none is picked): Butterworth low-pass, Gaussian smoothing, Simplify to the fewest keys within a tolerance, or Resample. Returns the number of keys after.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `keys` | `k` | Any |  | Exact keys: [{curve: curve or plug name, times: [seconds], valuePivot, valueScale, valueOffset}], the last three overriding the call's for that channel. Without it, every key of the objects in time. |
+| `time` | `t` | Any |  | Seconds or (start, end): the keys of the objects to use when keys is not given. |
+| `filter` | `f` | str | `'butterworth'` | butterworth: low-pass every frame (a key per frame). gaussian: smooth the keys' values, same keys. simplify: the fewest keys within tolerance. resample: a key every step frames. |
+| `cutoff` | `co` | float | `7.0` | Hz: Butterworth keeps motion slower than this. |
+| `width` | `w` | float | `1.0` | Frames: Gaussian smoothing width. |
+| `tolerance` | `tol` | float | `0.05` | Simplify: largest change allowed, in the curve's units (degrees for rotations). |
+| `step` | `st` | float | `1.0` | Resample: frames between keys. |
 
 ### findComponents
 
@@ -5460,6 +5521,7 @@ Query or set tangents of keys (all, or those in time). Setting an angle makes th
 | `inWeight` | `iw` | float |  | Handle length, 1 = a third of the segment. |
 | `outWeight` | `ow` | float |  | Handle length, 1 = a third of the segment. |
 | `weightedTangents` | `wt` | bool |  | Make the curves weighted or not. |
+| `lock` | `l` | bool |  | True unifies each key's in and out handles (they move together), False breaks them. |
 
 ### laplacianDeform
 
@@ -6069,7 +6131,7 @@ Draw the scene offscreen several times like captureView and return the median GP
 | `isolate` |  | bool | `False` | Only the selected objects. |
 | `frameSelection` | `fs` | bool | `False` | Frame the selected objects or components instead of everything shown. |
 | `grid` |  | bool | `True` | Ground grid in perspective views. |
-| `showSelection` |  | bool | `True` | Tint selected components. |
+| `showSelection` |  | bool | `True` | Tint selected components, and outline selected terrains drawn from their heights. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `frames` |  | int | `20` | Frames to draw; the result is their median. |
@@ -6916,6 +6978,14 @@ Bevel the selected edges (vertex or face selections convert to their edges).
 | `clamp` |  | bool | `True` | Keep widths from overlapping. |
 | `smoothingAngle` |  | float | `30.0` | New edges sharper than this are hard. |
 
+### polyBevelWeight
+
+Set the bevel weight of the selected edges, read by Auto Bevel in weight mode (it bevels edges above its weightThreshold).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | `v` | float | `1.0` | Bevel weight, 0 to 1. |
+
 ### polyBoolean
 
 Union, difference or intersection of meshes (Manifold: robust, watertight output), with the seam cleaned up: slivers welded, the n-gons along the cut split into quads that carry on the edge loops, an optional rounded fillet, and weighted normals. The first object keeps the result; the others are deleted unless keepCutters=True.
@@ -7093,6 +7163,14 @@ Conform the selected components onto another mesh or a curve. loop: each selecte
 ### polyConnect
 
 Connect selected vertices that share a face with new edges, or the midpoints of selected edges across their faces.
+
+### polyCrease
+
+Set the subdivision crease of the selected edges. Each subdivision level spends 1 of it, so 1 is sharp for one level and smooth after, and 10 stays sharp. 0 removes the crease.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | `v` | float | `10.0` | Crease: levels the edge stays sharp for. |
 
 ### polyCube
 
@@ -10572,6 +10650,56 @@ Add a tension deformer: measures stretch and compression against the current sha
 | `colorSet` |  | str | `'tension'` | Colour set to write; empty for none. |
 | `name` |  | str |  | Name for the deformer. |
 
+### terrainDisplay
+
+How the viewport shows terrains: drawn from their heights (the heightfield draw: level of detail for 8K to 16K grids, paint layers) or as their mesh, and the terrain display options, which only the heightfield draw shows: a mask over the surface in a colour ramp, height contour lines and flow arrows down the slopes. A display option switches terrains to the heightfield draw while it is on. Returns the settings and, per terrain, its grid and masks.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `draw` |  | str |  | heightfield or mesh: the /viewport/heightfieldDraw pref. |
+| `overlay` | `ov` | str |  | A mask to show over the surface (flow, wear, deposit, a paint layer...); empty for none. |
+| `overlayRamp` |  | str |  | Colour ramp of the overlay: turbo (data) or grey. |
+| `overlayOpacity` |  | float |  | How strongly the overlay covers the shading. |
+| `contours` | `c` | float |  | Contour line interval in cm; 0 for none. |
+| `contourMajor` |  | int |  | Every this many contour lines is drawn bolder. |
+| `flowArrows` | `fa` | bool |  | Arrows down the slopes, stronger where the flow mask is. |
+| `arrowSpacing` |  | float |  | Rough spacing of the flow arrows in pixels. |
+| `quadPixels` | `qp` | float |  | Level of detail of the heightfield draw: how many pixels the finest grid quads span. Lower is finer and slower; 4 by default. |
+
+Not undoable.
+
+```python
+terrainDisplay(draw='heightfield')
+```
+
+```python
+terrainDisplay(overlay='flow', contours=1000, contourMajor=5)
+```
+
+```python
+terrainDisplay(flowArrows=True, overlay='')
+```
+
+### terrainDisplayLayers
+
+The paint layers a terrain shows in the viewport's heightfield draw: each paints its colour, roughness and maps over the terrain's material where its mask's weights (0 to 1) lie. A layer is {name, mask (default name), color ('#rrggbb' or [r, g, b] 0 to 1), roughness, baseColor (image file), normal (image file, DirectX), tiling (cm per repeat of the maps, seen from above)}. Without layers, the list is returned with each mask's coverage. Stored on the terrain's mesh as the terrainLayers attribute (JSON), which layer rules may write directly.
+
+**Objects:** The terrain: its mesh or its geometry-nodes modifier; the selection when none.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layers` | `l` | Any |  | The layers, replacing the ones there: a list of {name, mask, color, roughness, baseColor, normal, tiling}. |
+| `clear` |  | bool | `False` | Remove every layer. |
+
+```python
+terrainDisplayLayers('Terrain', layers=[{'name': 'rock', 'mask': 'wear', 'color': '#7a7068', 'roughness': 0.9},
+    {'name': 'sand', 'mask': 'deposit', 'color': [0.76, 0.66, 0.48], 'baseColor': 'textures/sand.png', 'tiling': 300}])
+```
+
+```python
+terrainDisplayLayers('Terrain')
+```
+
 ### texAddAnchor
 
 Put an anchor on a layer: a name for the composite right after it, which masks (kind anchor) and generator inputs (anchor:<name>.<channel>) of layers above read. Returns the name.
@@ -11255,6 +11383,25 @@ Move low-poly meshes onto a high-poly one (an imported sculpt): the same cage fi
 Set the source mesh of transferAttributes modifiers: connects its mesh and world matrix, and refreshes the target's stored world matrix (run it again after moving the target).
 
 **Objects:** modifiers..., source
+
+### transformKeys
+
+Move and scale keys in time and value about a pivot, optionally with neighbouring keys following the value change (falloff). Moved keys replace keys already at their new time. Returns the number of keys moved.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `keys` | `k` | Any |  | Exact keys: [{curve: curve or plug name, times: [seconds], valuePivot, valueScale, valueOffset}], the last three overriding the call's for that channel. Without it, every key of the objects in time. |
+| `time` | `t` | Any |  | Seconds or (start, end): the keys of the objects to use when keys is not given. |
+| `timeOffset` | `to` | float | `0.0` | Seconds added to key times. |
+| `timeScale` | `ts` | float | `1.0` | Key times scale about timePivot (negative reverses). |
+| `timePivot` | `tp` | float | `0.0` | Seconds. |
+| `valueOffset` | `vo` | float | `0.0` | Added to key values. |
+| `valueScale` | `vs` | float | `1.0` | Key values scale about valuePivot. |
+| `valuePivot` | `vp` | float | `0.0` | Value the scale is about. |
+| `falloff` | `fo` | float | `0.0` | Seconds: unpicked keys this close to a picked one follow the value change, less with distance. |
+| `snap` | `sn` | bool | `False` | Moved keys land on whole frames. |
 
 ### trimCurve
 
@@ -17000,6 +17147,199 @@ terrainAddFeature('Terrain', kind='street', id='mainStreet', path=[[-20000, 0], 
 terrainAddFeature('Terrain', kind='moat', object='CastleRing', width=1200, depth=300)
 ```
 
+### terrainAddLake
+
+Add a lake or pond to a terrain, or replace the one with the same id. at= fills the basin under that point to its spill level (or to level=); polygon= or object= (a closed curve) digs a basin inside the outline, depth below the level with the bed sloping at shoreSlope from the shore, the level being the lowest ground around it unless given, and a higher level raises a dam round it (dam=False lowers the level instead and says so); auto=True makes a lake of every basin at least minDepth deep and minArea m2. Returns its shoreline spline, level locator, every river and lake (level, spillHeight, area m2, maxDepth, volume m3), warnings and the revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `at` |  | Any |  | A point in the basin, [x, z] or [x, y, z]. Or 'region:<name>'. |
+| `polygon` | `pg` | Any |  | The lake's outline [[x, z], ...]. Or 'region:<name>'. |
+| `object` | `obj` | str |  | A closed curve outlining the lake, followed live. |
+| `auto` | `au` | bool | `False` | Every basin past minDepth and minArea becomes a lake. |
+| `level` | `lv` | float |  | Water level along the up axis, cm; default the spill level. |
+| `minDepth` | `mnd` | float | `50.0` | auto: shallowest basin, cm. |
+| `minArea` | `ma` | float | `2000.0` | auto: smallest lake, m2. |
+| `depth` | `dp` | float | `300.0` | Outlined lake: depth dug below the level, cm. |
+| `shoreSlope` | `ss` | float | `12.0` | Outlined lake: bed slope from the shore, degrees. |
+| `dam` | `dm` | bool | `True` | Outlined lake: raise a dam when the level is above the ground around it. |
+| `id` |  | str |  | Stable id; the same id again replaces it. Empty makes one. |
+| `preview` | `pv` | bool | `True` | Rebuild the flat water preview mesh <terrain>_water. |
+
+```python
+terrainAddLake('Terrain', id='tarn', at=[12000, -8000])
+```
+
+```python
+terrainAddLake('Terrain', id='millPond', polygon=[[0, 0], [3000, 0], [3000, 2000], [0, 2000]], depth=250)
+```
+
+```python
+terrainAddLake('Terrain', id='lakes', auto=True, minDepth=100)
+```
+
+### terrainAddRiver
+
+Add a river or stream to a terrain, or replace the one with the same id: along path=, along a curve (object=, drawn or imported), or auto=True for every channel whose drainage passes threshold m2. Width and depth follow the drainage area (or width=, depth=); the bed falls all the way from source to mouth (a drawn line is turned to run downhill unless keepDirection=True), the channel and banks are carved and re-eroded (reErode steps) so they settle into the ground, gravel bars build inside bends, and where the ground drops steeper than cliffAngle by waterfallHeight or more it keeps a waterfall with a plunge pool below. meander adds bends a few widths wide on flat ground. A river ending inland gets a pond. Lives in the terrain's Terrain Water Features node, so it re-applies as the terrain changes. Returns its splines (per point width, depth, bedHeight, waterLevel, flowSpeed, discharge), locators (spring, waterfall top and bottom), every river and lake, warnings, cut and fill, and the revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `pa` | list |  | The line [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). Points may be 'region:<name>'. |
+| `object` | `obj` | str |  | A curve the river follows live; each of its curves is a river. |
+| `auto` | `au` | bool | `False` | Every channel past threshold becomes a river. |
+| `threshold` | `th` | float | `1000000.0` | auto: drainage area, m2, past which a channel is a river. |
+| `minLength` | `ml` | float | `0.0` | auto: leave out springs shorter than this, cm. |
+| `upstreamArea` | `ua` | float | `0.0` | Drawn: catchment above its first point, m2, for a river entering from off the map. |
+| `width` | `w` | float | `0.0` | Fixed width, cm; 0 follows drainage. |
+| `depth` | `dp` | float | `0.0` | Fixed depth, cm; 0 follows drainage. |
+| `widthScale` | `ws` | float | `1.0` | Scales the width drainage gives. |
+| `depthScale` | `ds` | float | `1.0` | Scales the depth drainage gives. |
+| `minWidth` | `mw` | float | `150.0` | Narrowest, cm. |
+| `minDepth` | `md` | float | `40.0` | Shallowest, cm. |
+| `meander` | `me` | float | `0.0` | Bend amplitude in widths; 0 is as drawn. |
+| `meanderLength` | `mle` | float | `14.0` | Bend wavelength in widths. |
+| `seed` | `sd` | int | `0` | Meander seed. |
+| `bankAngle` | `ba` | float | `30.0` | Bank slope from the water's edge, degrees. |
+| `bankWidth` | `bw` | float | `0.0` | How far out banks are cut, cm; 0 is four widths. |
+| `reErode` | `re` | int | `6` | Erosion steps around the channel; 0 is off. |
+| `gravelBars` | `gb` | bool | `True` | Gravel bars inside bends. |
+| `waterfalls` | `wf` | bool | `True` | Keep waterfalls with plunge pools where it crosses a cliff. |
+| `waterfallHeight` | `wh` | float | `300.0` | Smallest drop that is a waterfall, cm. |
+| `cliffAngle` | `ca` | float | `55.0` | Ground steeper than this along the river is a cliff, degrees. |
+| `plungeDepth` | `pd` | float | `0.4` | Plunge pool depth as a fraction of the drop. |
+| `flowSpeed` | `fs` | float | `0.0` | Fixed flow speed, m/s; 0 works it out from depth and slope. |
+| `keepDirection` | `kd` | bool | `False` | Keep a drawn line's direction even uphill. |
+| `id` |  | str |  | Stable id; the same id again replaces it. Empty makes one. |
+| `preview` | `pv` | bool | `True` | Rebuild the flat water preview mesh <terrain>_water. |
+
+```python
+terrainAddRiver('Terrain', id='main', auto=True, threshold=2e6)
+```
+
+```python
+terrainAddRiver('Terrain', id='mill', path=[[-20000, 0], [0, 4000], [20000, 0]], meander=1.5)
+```
+
+```python
+terrainAddRiver('Terrain', id='creek', object='CreekCurve', width=300, depth=60)
+```
+
+### terrainAddRoad
+
+Lay a road, path, track, rail line or runway into a terrain along path= or a curve (object=, live: editing the curve re-lays it).
+
+The plan is rounded into curves of the design radius; the longitudinal profile is a chain of grades no steeper than maxGrade joined by vertical curves of at least minVerticalRadius, fitted to the smoothed ground and passing through keys=; curves bank toward their inside as designSpeed asks, capped at maxBank and ramped in. Across its width the surface is one banked plane. Cuttings and embankments slope at cutAngle and fillAngle; slopes taller than wallHeight become retaining walls; fill deeper than bridgeHeight becomes a bridge span and cut deeper than tunnelDepth a tunnel span (left to the volume; returned as tunnels with axis, radius and portals). A road meeting an earlier one in its layer joins it at grade, matching its cross fall, with kerb returns at the corners. Writes masks roadSurface, roadVerge, roadDirtEdge, roadWear and erosionProtect.
+
+Profiles: rural, highway, urban, lane, path, track, rail, runway; any field can be set by flag or settings=. Returns length, maxGrade and maxBank (percent), the radii built, cut and fill, the centreline with grade and bank, spans, bridges (deck, pillars), tunnels, walls, guardrails, props, junctions, kerb returns, warnings and the revision.
+
+**Objects:** terrain mesh or its modifier [curve]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `pa` | list |  | The line [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). Points may be 'region:<name>'. |
+| `object` | `obj` | str |  | A curve the road follows live (or give it as the second positional). |
+| `id` |  | str |  | Stable id; the same id again replaces that road. Empty makes one. |
+| `kind` | `k` | str | `'road'` | road, path, track, rail or runway: sets the design defaults. |
+| `profile` | `pr` | str |  | Cross-section preset; empty takes the kind's (road: rural). One of ``, `rural`, `highway`, `urban`, `lane`, `path`, `track`, `rail`, `runway`. |
+| `layer` | `ly` | str | `'Roads'` | Roads layer (a Terrain Roads node). |
+| `stage` | `sg` | str | `'final'` | final: after erosion, before the stamps; base: before erosion, which then leaves the road alone (erosionProtect). |
+| `keys` | `ky` | list |  | Heights the road must pass through: [[x, y, z], ...] world points (z up on a Z-up scene). |
+| `width` | `w` | float |  | Carriageway width, cm (split over the lanes). |
+| `lanes` | `ln` | int |  | Lanes. |
+| `laneWidth` | `lw` | float |  | Lane width, cm. |
+| `shoulder` | `sh` | float |  | Paved shoulder each side, cm. |
+| `kerbHeight` | `kh` | float |  | Kerb height, cm; 0 is none. |
+| `sidewalk` | `sw` | float |  | Sidewalk each side behind the kerb, cm. |
+| `verge` | `vg` | float |  | Level verge each side, cm. |
+| `ditchWidth` | `dw` | float |  | Ditch in cuttings, cm; 0 is none. |
+| `ditchDepth` | `dd` | float |  | Ditch depth, cm. |
+| `surface` | `su` | str |  | asphalt, concrete, gravel, dirt or ballast. |
+| `designSpeed` | `ds` | float |  | km/h: sets curve radius and banking. |
+| `maxGrade` | `mg` | float |  | Steepest grade, percent. |
+| `minVerticalRadius` | `vr` | float |  | Smallest crest or sag radius, cm. |
+| `maxBank` | `mb` | float |  | Largest superelevation, percent. |
+| `minCurveRadius` | `cr` | float |  | Smallest horizontal curve radius, cm; default from designSpeed. |
+| `cutAngle` | `ca` | float |  | Cutting slope, degrees. |
+| `fillAngle` | `fa` | float |  | Embankment slope, degrees. |
+| `wallHeight` | `wh` | float |  | Slopes taller than this become retaining walls, cm; 0 never. |
+| `bridgeHeight` | `bh` | float |  | Fill deeper than this becomes a bridge, cm; 0 never. |
+| `tunnelDepth` | `td` | float |  | Cut deeper than this becomes a tunnel, cm; 0 never. |
+| `smooth` | `sm` | bool | `True` | Round the path's corners into curves. |
+| `masks` | `mk` | list |  | Extra masks over the paved surface; default paved for roads and runways. |
+| `settings` | `set` | Any |  | Any other profile or design field: {kerbReturn: 600, poleSpacing: 3000, ...}. |
+| `build` | `b` | bool | `False` | Also build its meshes (terrainRoadBuild). |
+| `detail` | `dt` | bool | `False` | Return every station, not a sample of them. |
+
+```python
+r = terrainAddRoad('Terrain', id='passRoad', path=[[-40000, 0], [0, 8000], [40000, 2000]], maxGrade=7)
+r['maxGrade'], r['spans']
+```
+
+```python
+terrainAddRoad('Terrain', 'TrackCurve', kind='track', id='farmTrack')
+```
+
+```python
+terrainAddRoad('Terrain', kind='runway', id='strip', path=[[0, 0], [250000, 0]], build=True)
+```
+
+### terrainAddRoundabout
+
+Lay a roundabout into a terrain's roads layer: a level ring road around a raised central island, its cross fall running away from the island. Roads in the layer that reach the ring are cut back to its centreline (one running through becomes two approaches) and laid after it, so each joins at grade with kerb returns and a splitter island between its entry and exit lanes. Writes the roadIsland mask besides the road masks. Returns the ring as terrainAddRoad does, with its islands and the approach ids.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `at` |  | list |  | Centre [x, z] or [x, y, z] in world space (x, y on a Z-up scene). |
+| `radius` | `r` | float | `2500.0` | Radius of the ring's centreline, cm. |
+| `id` |  | str |  | Stable id; the same id again replaces that roundabout. Empty makes one. |
+| `layer` | `ly` | str | `'Roads'` | Roads layer (a Terrain Roads node). |
+| `roads` | `rd` | list |  | Ids of the roads to join to it; default every road with a path reaching the ring. |
+| `profile` | `pr` | str | `'urban'` | Cross-section preset of the ring. One of `rural`, `highway`, `urban`, `lane`, `path`, `track`, `rail`, `runway`. |
+| `lanes` | `ln` | int | `1` | Circulating lanes. |
+| `laneWidth` | `lw` | float | `500.0` | Circulating lane width, cm. |
+| `kerbHeight` | `kh` | float |  | Kerb height, cm; also how high the islands stand. |
+| `crossFall` | `cf` | float | `2.0` | Cross fall away from the island, percent. |
+| `height` | `ht` | float |  | Ring height along the up axis, cm; default the mean ground under it. |
+| `detail` | `dt` | bool | `False` | Return every station, not a sample of them. |
+
+```python
+terrainAddRoad('Terrain', id='main', path=[[-40000, 0], [40000, 0]])
+terrainAddRoad('Terrain', id='side', path=[[0, -30000], [0, 0]])
+r = terrainAddRoundabout('Terrain', at=[0, 0], radius=2500)
+r['approaches'], r['islands']
+```
+
+### terrainArch
+
+Raise a natural arch between two feet on the ground: a rock band height cm high at its top, thickness cm thick and width cm wide, thicker at the feet, roughened by noise. carve also opens the rock under it, so an arch drawn through a rock fin or a ridge gets its hole. Returns as terrainCave does.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `from` | `fr` | Any |  | First foot: [x, z] on the ground (x, y on a Z-up scene) or [x, y, z]. Or 'region:<name>'. |
+| `to` |  | Any |  | Second foot. Or 'region:<name>'. |
+| `height` | `h` | float | `1500.0` | Height of the arch's top over its feet, cm. |
+| `thickness` | `th` | float | `250.0` | Thickness of the band in the arch's plane, cm. |
+| `width` | `w` | float | `400.0` | Width across the arch, cm. |
+| `carve` | `cr` | bool | `True` | Open the rock under the arch. |
+| `id` |  | str |  | Stable id; the same id again replaces that edit. Empty makes one. |
+| `material` | `mat` | str | `'rock'` | Material name its surfaces get (a face material on the pieces). |
+| `noise` | `nz` | float | `0.15` | Surface roughness, a fraction of its size. |
+| `noiseSize` | `ns` | float | `400.0` | Size of the bumps, cm. |
+| `blend` | `bl` | float | `0.0` | Width of a smooth join with what is there, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives another shape. |
+
+```python
+terrainArch('Terrain', **{'from': [-1500, 0], 'to': [1500, 0]}, height=1800, thickness=300)
+```
+
 ### terrainBake
 
 Collapse a terrain's node graph into a file: the heightfield, masks and placement are written to a .lilahf next to the scene (<scene>_terrain/, else the workspace's terrain/ folder), and the terrain's group is replaced by a Read Heightfield node loading it, its path stored relative to the workspace (else the scene). Stamps and sculpt strokes are baked in with the rest. Edits made afterwards start from the baked result. Returns the file, the stored path and terrainInfo's stats.
@@ -17012,6 +17352,34 @@ Collapse a terrain's node graph into a file: the heightfield, masks and placemen
 
 ```python
 terrainBake('Terrain')['file']
+```
+
+### terrainBiomes
+
+Work out climate and biomes over a terrain: temperature (colder with height at lapseRate per 100 m, warmer on slopes facing the sun), moisture (rain, less in the lee of ranges along the wind, more on windward slopes and where water gathers), and a weight mask biome_<name> per biome, summing to 1 everywhere. Biomes fit by ranges over temperature (C), moisture, height, slope or any mask, follow a painted mask (paint=), or an imported landcover mask (ESA WorldCover classes by default). Layer rules and ground cover read the biomes by name.
+
+Adds a Terrain Biomes node to the terrain's group (before Terrain Layers), or updates it. Returns each biome's coverage (mean weight), area in m2 and where it dominates, the temperature and moisture ranges, and any inputs the rules named that the terrain lacks.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `biomes` | `b` | Any |  | [{name, when: {temperature: [lo, hi], moisture: [lo, hi], height, slope, <mask>}, paint}], or default. |
+| `climate` | `cl` | Any |  | {seaLevel, temperature (C at sea level), lapseRate, aspectEffect, sunAzimuth, rain, windAzimuth, rainShadow, shadowDistance, orographic, groundWater}; keys left out keep their values. |
+| `sharpness` | `sh` | float |  | How hard biome edges are (default 4). |
+| `landcover` | `lc` | Any |  | {mask, scale (255), weight, classes: {biome: [codes]}}: an imported landcover mask. |
+| `reset` |  | bool | `False` | Start from the defaults instead of the terrain's current spec. |
+
+```python
+terrainBiomes('Terrain')['biomes']
+```
+
+```python
+terrainBiomes('Terrain', climate={'temperature': 8, 'windAzimuth': 270, 'rainShadow': 0.8})
+```
+
+```python
+terrainBiomes('Terrain', biomes=[{'name': 'tundra', 'when': {'temperature': [None, 2]}}, {'name': 'taiga', 'when': {'temperature': [2, 12]}}])
 ```
 
 ### terrainBuildable
@@ -17037,9 +17405,43 @@ r = terrainBuildable('Terrain', minArea=5000, maxSlope=10)['regions']
 r[0]['area'], r[0]['centroid']
 ```
 
+### terrainCave
+
+Carve a cave into a terrain along a path: a tunnel of radius cm that wanders and swells with noise, branches splitting off it, and chambers at their ends. Ground points ([x, z]) sit below cm under the ground, the ends only endBelow so the cave opens there; world points ([x, y, z]) are used as they are.
+
+The terrain's split then keeps what the heightfield can hold in its heights and turns the cave into mesh pieces: under solid ground the landscape stays on top, where the cave opens the ground gets a hole and the piece fills it, its edge sitting on the ground. Returns the edit's id and bounds, the split (pieces, holes, seam figures; see terrainSplit) and the revision. The same id again replaces the cave.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | list |  | The cave's line: [[x, y, z], ...] world points, or [[x, z], ...] on the ground (x, y on a Z-up scene). Points may be 'region:<name>'. |
+| `curve` | `cv` | str |  | The cave's line from a curve object (its first curve, world space). |
+| `radius` | `r` | float | `300.0` | Tunnel radius, cm. |
+| `below` | `bw` | float |  | Ground points: depth of the line under the ground, cm. Default three radii. |
+| `endBelow` | `eb` | float |  | Ground points: depth of the first and last point, cm. Default a third of the radius, so the cave opens. |
+| `branches` | `br` | int | `0` | Side passages. |
+| `branchLength` | `bln` | float | `2000.0` | Length of a side passage, cm. |
+| `chambers` | `ch` | int | `0` | Wider chambers, at the passages' ends first. |
+| `chamberRadius` | `chr` | float | `600.0` | Chamber radius, cm. |
+| `id` |  | str |  | Stable id; the same id again replaces that edit. Empty makes one. |
+| `material` | `mat` | str | `'cave'` | Material name its surfaces get (a face material on the pieces). |
+| `noise` | `nz` | float | `0.25` | Surface roughness, a fraction of its size. |
+| `noiseSize` | `ns` | float | `400.0` | Size of the bumps, cm. |
+| `blend` | `bl` | float | `0.0` | Width of a smooth join with what is there, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives another shape. |
+
+```python
+terrainCave('Terrain', path=[[-3000, 0], [0, 500], [2500, 2000]], radius=350, branches=2, chambers=1)['volume']['pieces']
+```
+
+```python
+terrainCave('Terrain', curve='CaveLine', radius=250, noise=0.4, seed=3)
+```
+
 ### terrainCheck
 
-What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water. Returns ok and the issues, each with its type, what it is about, where and a message.
+What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water, volume splits whose seams crack (seamTolerance cm), whose holes no mesh fills, or with places no mesh covers, roads (terrainAddRoad) steeper or more banked than their design or over water with no bridge or culvert, rivers rising downstream, and lakes below their rim with no outlet or above it with no dam. Returns ok and the issues, each with its type, what it is about, where and a message.
 
 **Objects:** terrain mesh or its modifier
 
@@ -17050,6 +17452,7 @@ What is wrong with a terrain and what sits on it: pads moving more than cutFillL
 | `maxGrade` | `mg` | float | `12.0` | Steepest street, percent. |
 | `floodTolerance` | `ft` | float | `0.5` | Flood risk counted as flooding. |
 | `floatTolerance` | `flt` | float | `10.0` | Gap under a building counted as floating, cm. |
+| `seamTolerance` | `stl` | float | `1.0` | Gap between a volume piece and the ground at a seam counted as a crack, cm. |
 | `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
 | `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
 | `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
@@ -17059,6 +17462,32 @@ Not undoable.
 ```python
 c = terrainCheck('Terrain', buildings=['House1', 'House2'])
 c['ok'], c['issues']
+```
+
+### terrainConstrain
+
+Draw a constraint erosion keeps: a ridge raised by height and held, a valley lowered and held, a cliff stepping height down from the left to the right side of the curve, a river height deep whose bed only falls along the curve (draw it downstream), or flat ground inside a closed curve. width is the full width across, cm. Follows a curve live or a path; the same id replaces. Added to a Terrain Constraints node before Erode Terrain. Returns terrainInfo's stats, the constraint list and the share of the terrain each kind covers.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'ridge'` | What it holds. One of `ridge`, `valley`, `cliff`, `river`, `flat`. |
+| `curve` | `cv` | str |  | A curve it follows live. |
+| `path` | `pa` | list |  | A line [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). Points may be 'region:<name>'. |
+| `height` | `h` | float | `5000.0` | Rise, depth or drop, cm. |
+| `width` | `w` | float | `6000.0` | Full width across, cm. |
+| `strength` | `s` | float | `1.0` | 0 to 1: how firmly erosion is held. |
+| `id` |  | str |  | Stable id; the same id replaces. |
+| `remove` | `rm` | str |  | Remove the constraint with this id instead. |
+| `clear` | `cl` | bool | `False` | Remove every constraint. |
+
+```python
+terrainConstrain('Terrain', kind='ridge', curve='NorthRidge', height=8000, width=12000)
+```
+
+```python
+terrainConstrain('Terrain', kind='river', path=[[-40000, -30000], [0, 0], [45000, 20000]], height=600, width=3000)
 ```
 
 ### terrainContours
@@ -17142,6 +17571,8 @@ The size, resolution and noise settings become keyable inputs on the modifier, s
 | `erosionStrength` | `es` | float | `0.0005` | How fast rivers cut. |
 | `uplift` | `u` | float | `0.0` | Rise per erosion step, cm. |
 | `talusAngle` | `ta` | float | `38.0` | Slopes steeper than this shed scree, degrees. |
+| `age` | `ag` | float | `0.0` | Erode preset age, 0 to 1: macro form, debris, scree, rills and deposition; 0 is off. |
+| `erosionPreset` | `ep` | str | `'natural'` | Erode preset for age. One of `natural`, `alpine`, `desert`, `hills`. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
 
 ```python
@@ -17179,38 +17610,78 @@ Erode a terrain made by terrainCreate: rivers carve drainage-consistent valleys,
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `iterations` | `i` | int | `80` | Erosion steps; 0 turns it off. |
+| `iterations` | `i` | int |  | Erosion steps; 0 turns it off. Default 80; with preset= or age= only the preset changes. |
 | `strength` | `s` | float |  | How fast rivers cut. |
 | `uplift` | `u` | float |  | Rise per step, cm. |
 | `talusAngle` | `ta` | float |  | Slopes steeper than this shed scree, degrees. |
 | `device` | `d` | str |  | cpu (exact, the same bytes everywhere), gpu, or auto (gpu when there is one). |
+| `preset` | `p` | str |  | Erode preset (natural, alpine, desert, hills): macro form, amplify, debris and scree, rills, deposition. |
+| `age` | `ag` | float |  | Preset age, 0 to 1: 0 turns the preset off, 1 is very old. |
+| `seed` | `sd` | int |  | Preset seed. |
+| `hardnessMask` | `hm` | str |  | Preset: mask of hard rock (1), eroding slower with steeper scree. |
 
 ```python
 terrainErode('Terrain', iterations=120)['masks']['flow']
+```
+
+```python
+terrainErode('Terrain', preset='alpine', age=0.6)['preset']['stepsMs']
 ```
 
 ### terrainExport
 
 Write a terrain to files for an engine or another tool.
 
-target='unreal' resamples to a landscape size Unreal accepts and writes <name>.r16 (16-bit heights laid out for Landscape import), <name>.png, one 8-bit <name>_<layer>.raw weightmap per paint layer and <name>.json with the section size, sections per component, component counts, actor location, rotation and scale (Unreal axes, cm) to import it with, and the layers (mask, layer name, file). target='files' writes <name>.exr (heights in cm), <name>.png and <name>.r16 (16-bit over the height range), a PNG per mask and <name>.json; a rotated terrain (or any on a Z-up scene) is written in its own space with its world matrix. Returns the settings and files.
+target='unreal' resamples to a landscape size Unreal accepts and writes <name>.r16 (16-bit heights laid out for Landscape import), <name>.png, one 8-bit <name>_<layer>.raw weightmap per paint layer and <name>.json with the section size, sections per component, component counts, actor location, rotation and scale (Unreal axes, cm) to import it with, and the layers (mask, layer name, file); the holes mask goes to <name>_visibility.raw instead. target='files' writes <name>.exr (heights in cm), <name>.png and <name>.r16 (16-bit over the height range), a PNG per mask and <name>.json; a rotated terrain (or any on a Z-up scene) is written in its own space with its world matrix; tileSize= tiles it (_x<N>_y<M>, one height range shared by all) and splats=True packs the masks into RGBA PNGs. target='unity' writes edge-matched 2^n+1 RAW tiles, splatmaps and LilaTerrainImporter.cs; target='godot' writes Terrain3D regions (EXR heights, layer weights) and a GDScript importer, or glTF tiles with mode='mesh'; target='mesh' writes LOD'd, seam-safe mesh tiles with collision as FBX, glTF or USD. Volume pieces (see terrainSplit) are written as <name>_<piece>.fbx with their LODs, in world space about each piece's centre, listed under volume. Returns the settings and files.
 
 **Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `target` | `t` | str | `'unreal'` | unreal or files. |
+| `target` | `t` | str | `'unreal'` | unreal, files, unity, godot or mesh. |
 | `folder` | `f` | str |  | Output folder; defaults to the bake folder's export/. |
 | `name` | `n` | str |  | File name stem; defaults to the terrain's name. |
 | `pad` | `p` | bool | `False` | unreal: keep the cell size and grow the landscape past the terrain, instead of resampling. |
 | `minScaleZ` | `sz` | float | `1.0` | unreal: smallest Z scale (100 is Unreal's default). |
-| `layers` | `ly` | Any |  | unreal: masks to send as paint layers, a list, or {mask: layer name}; default every mask. |
+| `layers` | `ly` | Any |  | unreal, unity, godot, files splats: masks to send as paint layers, a list, or {mask: layer name}; default every mask. |
+| `tileSize` | `ts` | int | `0` | files: samples per tile side, 0 writes one set; mesh: samples per tile (257). |
+| `sharedEdges` | `se` | bool | `False` | files: neighbouring tiles repeat their common edge; off, they abut as Unreal's tiled import reads them. |
+| `splats` | `sp` | bool | `False` | files: also write the masks packed four to an RGBA PNG (<name>_splat<k>.png). |
+| `resolution` | `res` | int | `0` | unity: heightmap resolution per tile, 2^n + 1 from 33 to 4097; 0 keeps the terrain's detail. |
+| `maxResolution` | `mres` | int | `4097` | unity: largest tile resolution picked when resolution is 0; bigger terrains become more tiles. |
+| `baseLayer` | `bl` | bool | `True` | unity, godot: a Base layer first takes the weight the masks leave below 1. |
+| `regionSize` | `rgs` | int | `0` | godot: Terrain3D region size, 64 to 2048; 0 picks from 256 up to fit its region map. |
+| `mode` | `md` | str | `'terrain3d'` | godot: terrain3d (regions for the Terrain3D addon) or mesh (glTF tiles). |
+| `format` | `fmt` | str |  | mesh: fbx, gltf, glb, usd, usda, usdc or usdz, comma separated for several; default fbx (glb for godot). |
+| `lods` | `lod` | int | `3` | mesh: levels per tile, LOD0 at full resolution. |
+| `lodRatio` | `lr` | float | `0.25` | mesh: triangles each level keeps of the one before. |
+| `skirt` | `sk` | float | `0.0` | mesh: depth of a skirt hung from every tile edge, cm; 0 for none. |
+| `collision` | `col` | bool | `True` | mesh: write a reduced collision mesh per tile. |
+| `collisionRatio` | `cr` | float | `0.1` | mesh: triangles the collision mesh keeps of LOD0. |
+| `perTile` | `pt` | bool | `True` | mesh: one file per tile; off writes every tile into one file. |
 
 Not undoable.
 
 ```python
 s = terrainExport('Terrain', target='unreal')
 s['resolution'], s['scale'], s['files']['height']
+```
+
+### terrainExportWater
+
+Write a terrain's water to <name>_water.json: splines with per point width, depth, bedHeight, waterLevel, flowSpeed, discharge and flowDirection, and locators for lake and sea levels, springs and waterfall tops and bottoms, in world space, cm. Any water system can be driven from it. terrainExport writes it too.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str |  | Output folder; defaults to the bake folder's export/. |
+| `name` | `n` | str |  | File name stem; defaults to the terrain's name. |
+
+Not undoable.
+
+```python
+terrainExportWater('Terrain', folder='export')['file']
 ```
 
 ### terrainField
@@ -17234,6 +17705,51 @@ Not undoable.
 terrainField('Terrain', field='floodRisk', resolution=64)['grid']['values']
 ```
 
+### terrainGeoref
+
+Where a terrain from real data is on the earth: its projection, the latitude and longitude of its origin, the area it covers [west, south, east, north], and conversions: latLon= gives world points on the ground, points= gives latitude and longitude.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `latLon` | `ll` | list |  | [[latitude, longitude], ...] to world points. |
+| `points` | `p` | list |  | World points [[x, z] or [x, y, z], ...] to latitude and longitude. |
+| `origin` | `o` | list |  | [latitude, longitude] of the centre, for terrains not from real data. |
+
+Not undoable.
+
+```python
+terrainGeoref('Terrain', latLon=[[45.9763, 7.6586]])['points']
+```
+
+### terrainGroundCover
+
+Scatter ground cover over a terrain by rules: rocks on scree (the deposit mask), trees by moisture or in the forest biome, grass on the grass layer, debris below cliffs, or your own. Each rule is {name, items, density (per m2 where it fits fully), footprint (cm kept clear; default the item's size across), when: {input: [min, max], biome: name(s), layer: name(s)}, scale: [min, max], align (0 upright, 1 on the normal), turn (degrees), sink (cm), solid (later rules keep clear of it), minFit}. Pieces go where they fit, kept with probability equal to the fit, and never inside another piece's footprint.
+
+items= maps each item name to a mesh; an item no mesh stands for gets a hidden placeholder (said in the result). The scatter is live: a new mesh <terrain>_GroundCover whose geometry nodes (Terrain Ground Cover) follow the terrain and the item meshes; settle=True drops the pieces with Set Dressing's physics. Send it to Unreal as foliage-style instances with unrealPlaceInstances(<mesh>, mode='hism'), or sendToUnreal=True. Returns the mesh, group and per rule the pieces placed, per hectare, those blocked by footprints, and the thinning when maxCount was reached.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `rules` | `r` | Any |  | The rules; 'default' (the default) for rocks, trees, debris and grass. |
+| `items` | `it` | Any |  | {item name: mesh} for the rules' items. |
+| `seed` | `sd` | int | `1` | Another seed gives another scatter. |
+| `density` | `d` | float | `1.0` | Multiplies every rule's density. |
+| `maxCount` | `mc` | int | `200000` | Most pieces; past it every rule thins by the same factor. |
+| `settle` | `st` | bool | `False` | Drop the pieces with physics (Set Dressing's Settle Instances). |
+| `sendToUnreal` | `ue` | bool | `False` | Then send it to Unreal as HISM instances. |
+| `name` | `n` | str |  | The ground cover mesh; defaults to <terrain>_GroundCover. |
+
+```python
+terrainGroundCover('Terrain')['rules']
+```
+
+```python
+terrainGroundCover('Terrain', rules=[{'name': 'pines', 'items': ['pine'], 'density': 0.02, 'when': {'biome': 'forest', 'slope': [0, 30]}}], items={'pine': 'SM_Pine'})
+```
+
 ### terrainImport
 
 Make a terrain from a file. Elevation data (GeoTIFF DEM tiles, SRTM .hgt, .asc, .xyz, Terrarium .png with mode='elevation') is read at its real size, heights in cm from sea level, north toward -Z. A painted image is read by mode: guide (default) keeps its big shapes and erodes in natural detail, height is literal, uplift grows ranges where it is bright, mask puts it in a mask on flat ground; it spans size along X.
@@ -17244,7 +17760,7 @@ The file and erosion settings become inputs on the modifier, like terrainCreate'
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `mode` | `m` | str |  | elevation, guide, height, uplift or mask; empty picks elevation for DEM files, else guide. |
+| `mode` | `m` | str |  | elevation, guide, height, uplift, mask or sketch (colour strokes); empty picks elevation for DEM files, else guide. |
 | `size` | `sz` | float | `100000.0` | Images: width along X, cm. |
 | `low` | `lo` | float | `0.0` | Images: height of black, cm. |
 | `high` | `hi` | float | `50000.0` | Images: height of white, cm. |
@@ -17268,6 +17784,114 @@ terrainImport('paint/island.png', size=400000, high=60000)
 terrainImport('paint/ranges.psd', mode='uplift', erosion=0.8)
 ```
 
+### terrainImportDem
+
+Make a terrain from real elevation: fetched by area (bbox in degrees) or place name, or a local DEM file. Sources: copernicus (GLO-30 DSM, 30 m, AWS open data), terrarium (AWS Terrain Tiles, any spacing) and opentopography (COP30, SRTMGL1, NASADEM, AW3D30 ... with your API key). Tiles are cached in the workspace's terrain/dem_cache; the merged area is written to terrain/dem as a GeoTIFF and the source's attribution to terrain/ATTRIBUTION.txt. Place names are looked up once on OpenStreetMap Nominatim and cached.
+
+projection utm (default) or enu reprojects to metres; local flattens degrees. Copernicus measures tree and roof tops: bareEarth smooths them toward the ground. amplify refines coarse data with erosion. Returns terrainInfo's stats, the georeference (for terrainImportOsm and terrainGeoref), what was fetched and any notes.
+
+**Objects:** a local elevation file (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bbox` | `bb` | list |  | [west, south, east, north], degrees. |
+| `place` | `pl` | str |  | A place name, looked up on Nominatim. |
+| `size` | `sz` | list | `[1000000.0, 1000000.0]` | With place: [width, depth] around it, cm; [0, 0] takes the place's own bounds. |
+| `source` | `src` | str | `'copernicus'` | Where elevation comes from. One of `copernicus`, `terrarium`, `opentopography`. |
+| `dataset` | `ds` | str | `'COP30'` | OpenTopography dataset (COP30, COP90, SRTMGL1, NASADEM, AW3D30). |
+| `apiKey` | `key` | str |  | OpenTopography API key (free at opentopography.org). |
+| `saveKey` | `sk` | bool | `False` | Remember apiKey in the preferences. |
+| `spacing` | `sp` | float | `3000.0` | Terrarium: finest sample spacing wanted, cm (picks the tile zoom). |
+| `projection` | `pr` | str | `'utm'` | utm, enu (tangent plane, earth's curvature kept) or local. |
+| `zone` | `z` | int | `0` | UTM zone; 0 picks the area's. |
+| `cellSize` | `cs` | float | `0.0` | Grid spacing, cm; 0 keeps the data's own. |
+| `exaggeration` | `ex` | float | `1.0` | Multiplies heights. |
+| `fromLowest` | `fl` | bool | `False` | Lowest point at 0 instead of sea level. |
+| `center` | `c` | tuple[float, float, float] | `[0.0, 0.0, 0.0]` | Centre. |
+| `bareEarth` | `be` | bool | `False` | Smooth trees and buildings out of a surface model. |
+| `bareEarthRadius` | `ber` | float | `6000.0` | Widest object removed, cm. |
+| `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
+| `bareEarthMask` | `bem` | str |  | Only where this mask is. |
+| `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
+| `offline` | `off` | bool | `False` | Use cached tiles only. |
+| `name` | `n` | str | `'Terrain'` | Name of the mesh. |
+
+```python
+terrainImportDem(bbox=[7.60, 45.94, 7.72, 46.02], cellSize=3000)
+```
+
+```python
+terrainImportDem(place='Matterhorn', size=[1200000, 1200000], bareEarth=True, amplify=4)
+```
+
+```python
+terrainImportDem(bbox=[-122.2, 46.15, -122.1, 46.25], source='opentopography', dataset='SRTMGL1', apiKey='...', saveKey=True)
+```
+
+```python
+terrainImportDem('dem/N46E007.hgt', projection='utm')
+```
+
+### terrainImportLandCover
+
+Put ESA WorldCover land cover (10 m, 2021) on a terrain: the class codes into a mask (worldcover by default; code / 255, what terrainBiomes(landcover={'mask': 'worldcover'}) reads) and the same landcover_<class> masks terrainImportOsm writes, through a Read Land Cover node in the terrain's group. Fetches the terrain's area from WorldCover's cloud-optimised tiles on AWS, downloading only the parts over it, and keeps it in the workspace's terrain/landcover; or reads a local WorldCover GeoTIFF (degrees or UTM). Writes the CC BY 4.0 attribution to terrain/ATTRIBUTION.txt.
+
+Classes: 10 forest, 20 scrub, 30 grassland, 40 farmland, 50 urban, 60 rock (bare or sparse), 70 glacier (snow and ice), 80 water, 90 and 95 wetland (95 mangroves), 100 grassland (moss and lichen). The terrain must come from real elevation, or give origin= [latitude, longitude] of its centre. Returns the share of the terrain per class and the share without data.
+
+**Objects:** a local WorldCover GeoTIFF (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `terrain` | `t` | str |  | The terrain. |
+| `origin` | `o` | list |  | [latitude, longitude] of the terrain's centre, for terrains not from real data. |
+| `source` | `src` | str | `'worldcover'` | Where land cover comes from. One of `worldcover`. |
+| `mask` | `m` | str | `'worldcover'` | Mask for the class codes. |
+| `classes` | `cl` | bool | `True` | Also write the landcover_<class> masks. |
+| `offline` | `off` | bool | `False` | Use an area fetched before only. |
+
+```python
+terrainImportLandCover(terrain='Terrain')
+```
+
+```python
+terrainImportLandCover('ESA_WorldCover_10m_2021_v200_N45E006_Map.tif', terrain='Terrain')
+```
+
+### terrainImportOsm
+
+Put OpenStreetMap data on a terrain: roads, paths, rivers, streams, lakes and coastline become curves draped on the ground (one curve per kind under a group, or one per feature with perFeature=True), each with attributes terrainFeature and osmFeatures (OSM id, name, class and width in cm per spline); land cover becomes masks landcover_<class> through an OSM Land Cover node in the terrain's group. Reads .osm XML, Overpass .json and .osm.pbf, or fetch=True asks the Overpass API for the terrain's area. Writes the ODbL attribution to the workspace's terrain/ATTRIBUTION.txt.
+
+The terrain must come from real elevation (terrainImportDem, or terrainImport of a DEM file), or give origin= [latitude, longitude] of its centre. Returns feature counts and lengths (cm) by kind, curves made, land cover fractions and how many features lay outside.
+
+**Objects:** OSM file (.osm, .json, .osm.pbf)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `terrain` | `t` | str |  | The terrain. |
+| `origin` | `o` | list |  | [latitude, longitude] of the terrain's centre, for terrains not from real data. |
+| `fetch` | `f` | bool | `False` | Download the terrain's area from the Overpass API. |
+| `kinds` | `k` | list |  | Feature kinds to bring in (road, path, river, stream, lake, coastline); default all. |
+| `curves` | `cv` | bool | `True` | Make curves for the features. |
+| `perFeature` | `pf` | bool | `False` | One curve per feature instead of one per kind. |
+| `landcover` | `lc` | bool | `True` | Land cover into masks. |
+| `lift` | `lf` | float | `0.0` | Raise the curves above the ground, cm. |
+| `step` | `st` | float | `0.0` | Point spacing along the draped curves, cm; 0 is two terrain cells. |
+| `name` | `n` | str |  | Name of the group; default <terrain>_OSM. |
+
+```python
+terrainImportOsm('osm/zermatt.osm', terrain='Terrain')
+```
+
+```python
+terrainImportOsm(terrain='Terrain', fetch=True, kinds=['road', 'river'])
+```
+
+```python
+terrainImportOsm('city.osm.pbf', terrain='Island', origin=[60.39, 5.32])
+```
+
 ### terrainInfo
 
 What a terrain is: resolution, cell size, the area it covers in world X and Z (min, max, center, size), its height range and each mask's min, max and mean. Lengths are cm.
@@ -17280,6 +17904,179 @@ Not undoable.
 terrainInfo('Terrain')['heightRange']
 ```
 
+### terrainLandform
+
+Add an erosion or shaping step to a terrain, or change or remove one.
+
+process= picks it: analytic (stream power at an age), amplify (more samples keeping the drainage), debris (debris flow scars and cones), thermal (scree, with a talus angle per material mask), hydraulic (droplet rills), deposition (fans, valley and lake fill), snow, filter (the erosion filter: instant gullies), terrace, strata, fold, warp, ridgeSharpen, cliff, preset (the Erode chain). settings= sets the node's inputs by name (lengths and heights in the terrain's own units, cm). The step goes after erosion, before stamps and final sculpting (stage='base' puts it before Erode Terrain; after= right after a named node). Calling again with the same id changes it. Returns terrainInfo's stats (masks with coverage), the node and the evaluation time.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `process` | `p` | str |  | The step. One of `analytic`, `amplify`, `debris`, `thermal`, `hydraulic`, `deposition`, `snow`, `filter`, `terrace`, `strata`, `fold`, `warp`, `ridgeSharpen`, `cliff`, `preset`. |
+| `id` | `i` | str |  | Node name; default from the process (Debris, Snow, ...). |
+| `settings` | `s` | Any |  | {input: value} for the node, e.g. {'age': 0.6} or {'step': 1500}. |
+| `device` | `d` | str |  | filter, thermal and preset: cpu (exact), gpu or auto. |
+| `stage` | `sg` | str | `'final'` | final (after erosion) or base (before it). |
+| `after` | `af` | str |  | Put it right after this node of the group. |
+| `remove` | `rm` | bool | `False` | Remove the node named id (or the process's default name). |
+
+```python
+terrainLandform('Terrain', process='debris', settings={'strength': 1.5})
+```
+
+```python
+terrainLandform('Terrain', process='filter', settings={'scale': 3000, 'strength': 0.15}, device='auto')
+```
+
+```python
+terrainLandform('Terrain', process='thermal', settings={'talusAngle': 34, 'materialMask': 'strata', 'materialAngle': 65})
+```
+
+```python
+terrainLandform('Terrain', process='snow', settings={'autoSnowline': False, 'snowline': 30000})['masks']['snow']
+```
+
+```python
+terrainLandform('Terrain', id='Debris', remove=True)
+```
+
+### terrainLiveLink
+
+Re-run a terrain whenever its source file (painted image, DEM, OSM) is saved, so you can keep painting in Krita or Photoshop and see the terrain follow. The app checks the files once a second. Returns the files watched.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool | `True` | Watch (True) or stop (False). |
+
+```python
+terrainLiveLink('Terrain')
+```
+
+```python
+terrainLiveLink('Terrain', on=False)
+```
+
+### terrainMap
+
+Write a top-down map of a terrain as a PNG, -Z (north) at the top: tinted by height (green low to white high), lit from the north-west, water blue and roads dark. For a look at the shape without a viewport. Returns the file, its size in pixels and the revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | PNG to write; default <temp>/lila_terrain_map/<terrain>.png. |
+| `resolution` | `r` | int | `512` | Width in pixels. |
+| `shade` | `sh` | float | `0.8` | 0 to 1: how much hill shading. |
+| `water` | `wa` | bool | `True` | Draw water from the water, sea, riverBed and lakeBed masks. |
+| `roads` | `ro` | bool | `True` | Draw roads from the roadSurface mask. |
+| `label` | `lb` | str |  | Text in the top-left corner. |
+
+Not undoable.
+
+```python
+terrainMap('Terrain', file='maps/terrain.png', resolution=1024)['file']
+```
+
+### terrainMaskImages
+
+Write a terrain's masks (layer and biome weights, flow, wear, deposit, moisture, painted ones...) as grey images, to read in texture graphs (an Image node) or another tool. layout='uv' lays them over the terrain mesh's uv set 0, as its texture sets read them; 'map' puts the -Z edge at the top. Returns {files: {mask: file}, resolution, layout}.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `masks` | `m` | list |  | Masks to write; default every one. |
+| `folder` | `f` | str |  | Where; defaults to the bake folder's masks/. |
+| `layout` | `lo` | str | `'uv'` | uv or map. |
+| `resolution` | `r` | int | `0` | Pixels along the longer side; 0 is one per sample. |
+| `bits` | `b` | int | `16` | 8 or 16. |
+
+Not undoable.
+
+```python
+terrainMaskImages('Terrain', masks=['layer_rock', 'flow'])['files']
+```
+
+### terrainMaterialPreview
+
+Show a terrain's material layers in the viewport through its own material: a texture set on the terrain whose layer stack has one layer per terrain layer (its library material, tiled to its real size, or its colour), each masked by its weight so the stack mixes them exactly as the weights do. Rebuilt on every call; the masks are images in the bake folder, so run it again after changing the terrain or its rules. Tiling is capped at resolution/32 repeats so a texel stays visible (said in the result when it was). Returns the material, texture set and its layers.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `resolution` | `r` | int | `2048` | Texture set size. |
+| `materials` | `m` | bool | `True` | Library materials; False draws every layer in its colour. |
+
+```python
+terrainMaterialPreview('Terrain')['layers']
+```
+
+```python
+terrainMaterialPreview('Terrain', materials=False, resolution=1024)
+```
+
+### terrainMaterialRules
+
+Set a terrain's material layers: grass, rock, dirt, sand, snow, gravel, road, riverbed or your own, each placed by rules over masks and derived fields, with noise to break up its edges. Layers go bottom first; the first is the base and takes whatever the others leave, and each layer above covers its rule's share of what is left under the ones above it, so the weights (masks layer_<name>) always sum to 1.
+
+A layer is {name, material (a library id; Meadowlight's by default for the usual names), color ([r, g, b] linear, else the material's mean colour), roughness, tileSize (cm), opacity, when: {input: [min, max] or {range, fade, invert}, biome: name(s)}, noise: {amount, scale (cm)}}. Inputs: height (cm), slope and aspect (degrees), curvature, nearCliff, temperature (C), moisture, flow, wear, deposit, lakes, wet and every other mask, painted ones included. With no layers it uses defaults fitted to the terrain (sand only with seaLevel=).
+
+Adds a Terrain Layers node at the end of the terrain's group, or updates it. Returns each layer's coverage (mean weight, the share of the terrain), area in m2, where it dominates, its material and colour, the largest error of the weight sum, and any inputs the rules named that the terrain lacks (those ranges read 0). The layers also become the heightfield draw's paint layers (terrainDisplayLayers), each layer_<name> in its colour, returned as displayLayers.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layers` | `l` | Any |  | The layers, bottom first; 'default' for the defaults. |
+| `set` | `s` | Any |  | One layer to add or replace by name, keeping the others (new ones go on top). |
+| `remove` | `rm` | list |  | Layer names to drop. |
+| `seed` | `sd` | int |  | Moves the edge noise. |
+| `seaLevel` | `sea` | float |  | Defaults: height of the sea, cm, for a sand layer at the shore. |
+| `query` | `q` | bool | `False` | Change nothing; return the current layers and coverage. |
+
+```python
+terrainMaterialRules('Terrain')['layers']
+```
+
+```python
+terrainMaterialRules('Terrain', set={'name': 'moss', 'when': {'moisture': [0.7, 1], 'slope': [0, 25]}, 'noise': 0.3})
+```
+
+```python
+terrainMaterialRules('Terrain', layers=[{'name': 'grass'}, {'name': 'rock', 'when': {'slope': [35, 90]}}, {'name': 'snow', 'when': {'height': {'above': 180000, 'fade': 3000}}}])
+```
+
+### terrainOverhang
+
+Undercut a cliff along a line: rock is cut into the hill (whichever side rises) depth cm deep from the ground up to height cm, deeper in soft strata than in the hard bands between them, roughened by noise, closing toward its top and ends, so the hill above overhangs. lip adds a shelf jutting out over the cut. Returns as terrainCave does.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | list |  | The cliff's foot: [[x, y, z], ...] world points, or [[x, z], ...] on the ground (x, y on a Z-up scene). Points may be 'region:<name>'. |
+| `curve` | `cv` | str |  | The cliff's foot from a curve object (its first curve, world space). |
+| `depth` | `dp` | float | `400.0` | How far it cuts in, cm. |
+| `height` | `h` | float | `600.0` | How high the cut runs above the ground, cm. |
+| `strata` | `sa` | float | `150.0` | Thickness of the rock bands, cm. |
+| `hardness` | `hd` | float | `0.35` | How deep a hard band cuts, as a fraction of a soft one. |
+| `lip` | `lp` | float | `0.0` | A shelf this far out over the cut, cm. |
+| `id` |  | str |  | Stable id; the same id again replaces that edit. Empty makes one. |
+| `material` | `mat` | str | `'cliff'` | Material name its surfaces get (a face material on the pieces). |
+| `noise` | `nz` | float | `0.3` | Surface roughness, a fraction of its size. |
+| `noiseSize` | `ns` | float | `400.0` | Size of the bumps, cm. |
+| `blend` | `bl` | float | `0.0` | Width of a smooth join with what is there, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives another shape. |
+
+```python
+terrainOverhang('Terrain', path=[[-2000, 1500], [2000, 1500]], depth=500, height=800, lip=200)
+```
+
 ### terrainProfile
 
 A profile along a path every step cm: distance, height, the terrain's slope (deg), grade along the path and cross-slope across it (percent), any fields= read there, and the water it crosses (rivers with their id, width and water level; lakes and sea).
@@ -17288,7 +18085,7 @@ A profile along a path every step cm: distance, height, the terrain's slope (deg
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `path` | `pa` | list |  | Polyline [[x, z] or [x, y, z], ...]. |
+| `path` | `pa` | list |  | Polyline [[x, z] or [x, y, z], ...]. Points may be 'region:<name>'. |
 | `step` | `st` | float | `0.0` | Spacing, cm; 0 is the cell size. |
 | `fields` | `fl` | list |  | Fields to read along it. |
 | `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
@@ -17300,6 +18097,42 @@ Not undoable.
 ```python
 p = terrainProfile('Terrain', path=[[-20000, 0], [20000, 0]], step=500)
 max(abs(s['grade']) for s in p['samples']), p['water']
+```
+
+### terrainQuery
+
+Find places on a terrain in words: regions where predicates hold over its fields and masks, or a named shortcut, returned as world-space polygons with area, centroid, a point inside, lowest and highest points and height and slope stats, largest first. store= keeps the result as a named region (mask region_<name>, kept in a Terrain Regions node) that other terrain commands take as 'region:<name>' (or 'region:<name>/<k>' for its k-th part) wherever they take a point, path point or polygon.
+
+where keys: x and z (ground coordinates, cm; x and y on a Z-up scene), height (cm along the up axis), relativeHeight (0 lowest to 1 highest), slope and aspect (degrees; aspect also 'north', 'southwest', ... as a 90 degree sector of the downhill direction), curvature (per m, positive on ridges), flow (0 to 1), distanceToWater and distanceToRoads (cm), water, region (inside a stored region), every terrainField field (hand, prominence, buildability, ...) and every mask. A value is [min, max] (None for open), a number (at least), or {above, below}.
+
+named: highestPeak, lowestPoint, passes, valleyFloor, ridges, flatAreas, steepSlopes, cliffs, northSlopes, southSlopes, eastSlopes, westSlopes, highGround, lowGround, nearWater, rivers, lakes. highestPeak, lowestPoint and passes are points among the samples where holds (passes: saddles ranked by how high the ridge rises either side). list=True lists stored regions; remove=<name> drops one.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `where` | `w` | Any |  | {field or mask: [min, max]}, all must hold. |
+| `named` | `nm` | str |  | A shortcut: highestPeak, lowestPoint, passes, valleyFloor, ridges, flatAreas, steepSlopes, cliffs, northSlopes, southSlopes, eastSlopes, westSlopes, highGround, lowGround, nearWater, rivers, lakes. |
+| `minArea` | `ma` | float | `0.0` | Leave out regions smaller than this, m2. |
+| `maxRegions` | `mr` | int | `8` | Most regions (or points) returned, largest first. |
+| `store` | `st` | str |  | Keep the result as this named region (mask region_<name>). |
+| `pick` | `pk` | int | `-1` | store: keep only the region with this index; -1 keeps all. |
+| `list` | `ls` | bool | `False` | List the stored regions. |
+| `remove` | `rm` | str |  | Drop the stored region of this name. |
+| `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Sea level along the up axis, cm, for water and distanceToWater. |
+
+```python
+terrainQuery('Terrain', named='valleyFloor', minArea=20000, store='valley')['regions'][0]['polygon']
+```
+
+```python
+terrainQuery('Terrain', where={'aspect': 'north', 'height': [150000, None]})
+```
+
+```python
+terrainQuery('Terrain', named='passes', maxRegions=3, store='pass', pick=0)
+terrainAddRoad('Terrain', id='passRoad', path=['region:valley', 'region:pass', [40000, 0]])
 ```
 
 ### terrainRaycast
@@ -17328,7 +18161,7 @@ Statistics of fields over a footprint polygon: min, max, mean and the 10th, 50th
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `polygon` | `pg` | list |  | Footprint [[x, z] or [x, y, z], ...]. |
+| `polygon` | `pg` | Any |  | Footprint [[x, z] or [x, y, z], ...]. Or 'region:<name>'. |
 | `fields` | `fl` | list | `['height', 'slope']` | Fields to summarise. |
 | `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
 | `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
@@ -17341,21 +18174,102 @@ s = terrainRegionStats('Terrain', polygon=[[0, 0], [2000, 0], [2000, 1500], [0, 
 s['fields']['height']['max'] - s['fields']['height']['min']
 ```
 
-### terrainRoute
+### terrainReload
 
-The cheapest way from start to end over the terrain's cost field (see terrainCostField), never steeper than maxGrade percent where any way allows: switchbacks appear by themselves on steep ground. Returns the points on the surface (world space), length, cost, the steepest grade along it, withinGrade (false when nothing kept within maxGrade and the gentlest way was taken) and the revision; curve=True also makes a poly curve along it.
+Re-read a terrain's source files (painted image, DEM, OSM, .lilahf) now. Returns terrainInfo's stats and the files.
+
+**Objects:** terrain mesh or its modifier
+
+```python
+terrainReload('Terrain')
+```
+
+### terrainRoadBuild
+
+Build a terrain's roads as meshes, each under a group <id>_Road made again on every call: the surface swept along the banked centreline with the road's cross-section (extrude), bridge decks swept likewise with pillars by arrayAlongCurve, tunnel portal arches, retaining walls, junction corner patches, guardrails bent along their runs, raised islands, and markers, edge lights, poles and masts from the Set Dressing library (props=). The meshes are made from the road as it is now: call again after the terrain or the road changes. Returns the nodes made per road.
 
 **Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `start` | `s` | list |  | [x, z] or [x, y, z]. |
-| `end` | `e` | list |  | [x, z] or [x, y, z]. |
+| `ids` | `i` | list |  | Road ids; empty builds every road. |
+| `layer` | `ly` | str |  | Only this roads layer. |
+| `props` | `pp` | Any | `'library'` | library: Set Dressing assets Road/Delineator, Road/StreetLight, Road/EdgeLight and Road/CatenaryMast; boxes: plain stand-ins; or {kind: asset id} for marker, pole, edgeLight and mast (the rest from the library). |
+
+```python
+terrainRoadBuild('Terrain', ids=['passRoad'])[0]['surface']
+```
+
+### terrainRoadExport
+
+Write a terrain's roads to a JSON file: per road its settings, stats, spans, bridges, tunnels, walls, junctions and props, and its curve as points with world position, Unreal position (cm, Unreal axes), distance along, grade and bank (percent), curvature, width and span (ground, bridge, tunnel, junction). terrainExport writes it next to the heights. Returns the file and the road count.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Output .json; default <folder>/<name>_roads.json. |
+| `folder` | `fd` | str |  | Folder for the default file name. |
+| `name` | `n` | str | `'Terrain'` | Stem for the default file name. |
+| `spacing` | `sp` | float | `500.0` | Distance between curve points, cm. |
+| `ifAny` | `ia` | bool | `False` | Write nothing (and return roads 0) when the terrain has no roads. |
+
+Not undoable.
+
+```python
+terrainRoadExport('Terrain', file='C:/out/roads.json')['roads']
+```
+
+### terrainRoadRemove
+
+Remove roads from a terrain by id, or every road in a layer with all=True. Returns the ids removed.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` | `i` | list |  | Road ids. |
+| `layer` | `ly` | str | `'Roads'` | Roads layer. |
+| `all` | `a` | bool | `False` | Every road in the layer. |
+
+```python
+terrainRoadRemove('Terrain', ids=['passRoad'])
+```
+
+### terrainRoads
+
+The roads on a terrain, by layer: each road's kind and what it built on the last evaluation (as terrainAddRoad returns), and the terrain revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `detail` | `dt` | bool | `False` | Every station, not a sample of them. |
+
+Not undoable.
+
+```python
+terrainRoads('Terrain')['layers']['Roads'][0]['maxGrade']
+```
+
+### terrainRoute
+
+The cheapest way from start to end over the terrain's cost field (see terrainCostField), never steeper than maxGrade percent where any way allows: switchbacks appear by themselves on steep ground. Returns the points on the surface (world space), length, cost, the steepest grade along it, withinGrade (false when nothing kept within maxGrade and the gentlest way was taken) and the revision; curve=True also makes a poly curve along it, and road='road' (or path, track, rail, runway) lays a road along it in one call, returned as road.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | Any |  | [x, z] or [x, y, z]. Or 'region:<name>'. |
+| `end` | `e` | Any |  | [x, z] or [x, y, z]. Or 'region:<name>'. |
 | `weights` | `w` | Any |  | As terrainCostField's. |
 | `maxGrade` | `mg` | float | `10.0` | Steepest grade allowed, percent; 0 for no limit. |
 | `resolution` | `r` | int | `1024` | Search grid samples along the longer side. |
 | `curve` | `cv` | bool | `False` | Also make a curve along the route. |
 | `name` | `n` | str | `'Route'` | Name of that curve. |
+| `road` | `rd` | str |  | Also lay a road of this kind along it (road, path, track, rail, runway), as terrainAddRoad does. |
+| `roadId` | `rid` | str |  | That road's id. |
+| `roadSettings` | `rs` | Any |  | More terrainAddRoad flags for that road: {profile: 'lane', width: 600, build: True}. |
 
 ```python
 r = terrainRoute('Terrain', start=[-40000, 0], end=[40000, 5000], maxGrade=8, weights={'water': 100})
@@ -17372,7 +18286,7 @@ points= reads each point; path= walks the polyline every step cm and adds the di
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `points` | `p` | list |  | [[x, z] or [x, y, z], ...]; [x, y] on a Z-up scene. |
+| `points` | `p` | list |  | [[x, z] or [x, y, z], ...]; [x, y] on a Z-up scene. Points may be 'region:<name>'. |
 | `path` | `pa` | list |  | Polyline of points like points= to profile. |
 | `step` | `st` | float | `0.0` | Spacing along path, cm; 0 uses the terrain's cell size. |
 | `masks` | `m` | list |  | Mask names to read. |
@@ -17392,17 +18306,36 @@ profile = terrainSample('Terrain', path=[[-40000, 0], [40000, 0]], step=500)
 max(abs(s['grade']) for s in profile)
 ```
 
-### terrainSculpt
+### terrainSatmap
 
-Sculpt a terrain by command: raise, lower, smooth, flatten or noise, in dabs at points=, along a path= polyline or along a curve object, each dab radius cm wide with a smooth falloff.
-
-Raise, lower and noise move the ground by strength cm at the centre; smooth and flatten go strength (0 to 1) of the way. Flatten levels to height (along the up axis) or the mean under the stroke. stage='base' sculpts before erosion, which then shapes it; stage='final' after erosion, before the stamps. Strokes are kept in a Terrain Sculpt node and replay on every evaluation, so they save with the scene and undo like any edit. clear=True drops the stage's strokes. Returns the stroke count, height range and revision.
+Bake a terrain's colour from its material layers: each sample the layers' colours mixed by their weights (a layer's colour is its rule's, else its material's mean, else a default for its name), as an sRGB PNG for distant views, minimaps and far LODs. shade= multiplies in soft light from the sun direction. Returns the file and each layer's colour and where it came from.
 
 **Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `op` | `o` | str | `'raise'` | raise, lower, smooth, flatten or noise. |
+| `file` | `f` | str |  | PNG to write; defaults to <bake folder>/<terrain>_satmap.png. |
+| `resolution` | `r` | int | `0` | Pixels along the longer side; 0 is one per sample. |
+| `layout` | `lo` | str | `'map'` | map (-Z edge at the top) or uv (over the mesh's uv set 0). |
+| `shade` | `sh` | float | `0.0` | 0 to 1: how much hillshade to multiply in. |
+
+Not undoable.
+
+```python
+terrainSatmap('Terrain', resolution=2048, shade=0.5)['file']
+```
+
+### terrainSculpt
+
+Sculpt a terrain by command: raise, lower, smooth, flatten, noise, ramp, terrace, stamp, erode, uplift, relax or mask, in dabs at points=, along a path= polyline or along a curve object, each dab radius cm wide with a smooth falloff (or falloff=, alpha=), weighted per point by pressure= and mirrored by mirror=.
+
+Raise, lower, noise and stamp move the ground by strength cm at the centre; the rest go strength (0 to 1) of the way. Flatten levels to height (along the up axis), the plane under the stroke (plane=True) or the mean under it. Ramp runs from the first point to the last. Terrace steps every step cm. Stamp lays a library shape or image. Erode runs erosion under the brush; uplift paints the uplift mask Erode Terrain lifts by (base stage); relax evens out bumps; mask paints any mask toward value. stage='base' sculpts before erosion, which then shapes it; stage='final' after erosion, before the stamps. Strokes are kept in a Terrain Sculpt node and replay on every evaluation, so they save with the scene and undo like any edit. clear=True drops the stage's strokes. Returns the stroke count, height range and revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `op` | `o` | str | `'raise'` | The brush. One of `raise`, `lower`, `smooth`, `flatten`, `noise`, `ramp`, `terrace`, `stamp`, `erode`, `uplift`, `relax`, `mask`, `patch`. |
 | `points` | `p` | list |  | Dab centres [[x, z] or [x, y, z], ...]. |
 | `path` | `pa` | list |  | A polyline the stroke runs along. |
 | `curve` | `cv` | str |  | A curve object the stroke runs along. |
@@ -17412,6 +18345,21 @@ Raise, lower and noise move the ground by strength cm at the centre; smooth and 
 | `height` | `h` | float |  | Flatten: target height along the up axis, cm; default the mean under the stroke. |
 | `noiseSize` | `ns` | float | `1000.0` | Noise: feature size, cm. |
 | `seed` | `sd` | int | `0` | Noise: seed. |
+| `pressure` | `pr` | list |  | Weight per point, 0 to 1 (pen pressure). |
+| `falloff` | `fo` | str |  | Brush falloff shape: smooth, sphere, root, sharp, linear, constant, bell, or a soft select preset. |
+| `mirror` | `mi` | str |  | Mirror across the terrain's centre along its own x, z or both. One of `off`, `x`, `z`, `xz`. |
+| `plane` | `pl` | bool |  | Flatten: level to the plane fitted under the stroke. |
+| `endHeight` | `eh` | float |  | Ramp: height at the last point along the up axis, cm; default the ground there (height= sets the first). |
+| `step` | `stp` | float |  | Terrace: step height, cm (default 1000). |
+| `sharpness` | `sh` | float |  | Terrace: 0 soft to 1 sheer risers (default 0.8). |
+| `stamp` | `stm` | str |  | Stamp: a library stamp (peak, crater, dune, rocks, mesa, ridge, volcano) or an image file. |
+| `angle` | `an` | float |  | Stamp and alpha: turn, degrees. |
+| `blend` | `bl` | str |  | Stamp: add (default), raise (never below the stamp) or lower. |
+| `alpha` | `al` | str |  | A stamp or image (alpha:// or a file) shaping the brush tip. |
+| `mask` | `mk` | str |  | Mask and uplift brushes: the mask to paint (default paint, uplift). |
+| `value` | `va` | float |  | Mask and uplift brushes: value painted toward, 0 to 1 (default 1). |
+| `iterations` | `it` | int |  | Erode and relax: steps (default 10 and 4). |
+| `patch` | `pt` | Any |  | Patch: the block of height changes terrainSculptRegion bakes. |
 | `stage` | `sg` | str | `'base'` | base (before erosion) or final (after it). |
 | `clear` | `cl` | bool | `False` | Remove every stroke of this stage instead of adding one. |
 | `replaceLast` | `rl` | bool | `False` | Replace the stage's last stroke instead of adding one (a stroke growing as it is drawn). |
@@ -17425,13 +18373,92 @@ terrainSculpt('Terrain', op='raise', points=[[0, 0]], radius=30000, strength=800
 terrainSculpt('Terrain', op='flatten', curve='RoadLine', radius=1200, strength=1, stage='final')
 ```
 
+```python
+terrainSculpt('Terrain', op='stamp', stamp='crater', points=[[0, 0]], radius=8000, strength=3000, stage='final')
+```
+
+### terrainSculptRegion
+
+Sculpt part of a terrain with the mesh sculpt brushes.
+
+Copies the patch around center= (size= cm square) to a mesh, <terrain>_region, hides the terrain and enters sculpt mode on it (direct). Sculpt with any brush, then finish=True (or Exit Sculpt in the app) bakes it back: the change in height goes into a patch stroke in the terrain's sculpt layer (stage final by default, so after erosion), faded at the patch rim, and the proxy is deleted. Where the sculpt folds under itself (an overhang a heightfield can't hold) the cells are listed in the result's overhangs, and the hollow under them is carved from the terrain's volume (a hidden <terrain>_overhangHollow mesh stamped with mode subtract, listed as overhangVolume) so the overhang becomes a volume piece; keepOverhangs=False only lists them. cancel=True drops the proxy without baking. Returns the proxy and patch size, or on finish terrainInfo's stats with changedSamples, largestChange and overhangs.
+
+**Objects:** terrain mesh (or the region proxy, for finish and cancel)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `center` | `c` | list |  | Middle of the patch: [x, z] or [x, y, z]. |
+| `size` | `sz` | float | `20000.0` | Width of the square patch, cm. |
+| `resolution` | `r` | int | `256` | Most samples along a side of the proxy; denser terrains are skipped through. |
+| `stage` | `sg` | str | `'final'` | Where the bake goes: final (after erosion) or base (before it). |
+| `enter` | `e` | bool | `True` | Enter sculpt mode on the proxy. |
+| `finish` | `f` | bool | `False` | Bake the proxy back into the terrain. |
+| `cancel` | `cn` | bool | `False` | Drop the proxy without baking. |
+| `keep` | `k` | bool | `False` | finish: keep the proxy mesh. |
+| `keepOverhangs` | `ko` | bool | `True` | finish: carve the hollow under each overhang into the terrain's volume, so it survives as a mesh piece. |
+
+```python
+r = terrainSculptRegion('Terrain', center=[12000, -4000], size=15000)
+# sculpt r['mesh'] with any brush, then:
+terrainSculptRegion('Terrain', finish=True)['overhangs']
+```
+
+### terrainSeaLevel
+
+Set a terrain's sea level (ground below it and joined to the edge is sea) and its shore settings: shoreWidth cm of shore mask round lakes and sea, beaches where that shore is no steeper than beachSlope degrees and at most beachHeight cm above the water. drainPits fills basins no water holds so every sample drains (on by default). off=True removes the sea. Returns the sea's shoreline and level locator, every river and lake, and the revision.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `level` | `lv` | float |  | Sea level along the up axis, cm. |
+| `off` | `of` | bool | `False` | No sea. |
+| `shoreWidth` | `sw` | float | `1500.0` | Shore band, cm. |
+| `beachSlope` | `bs` | float | `10.0` | Steepest beach, degrees. |
+| `beachHeight` | `bh` | float | `300.0` | Highest beach above the water, cm. |
+| `drainPits` | `dpt` | bool | `True` | Fill basins no water holds. |
+| `preview` | `pv` | bool | `True` | Rebuild the flat water preview mesh <terrain>_water. |
+
+```python
+terrainSeaLevel('Terrain', level=0, beachSlope=8)
+```
+
+### terrainSendRoadsToUnreal
+
+Send a terrain's roads to the connected Unreal editor as landscape splines on its landscape (the one terrainSendToUnreal made, or landscape=): a control point every spacing cm with the road's width, bank (roll) and side falloff, segments carrying segmentMesh as spline meshes, paintLayer as the layer they paint, and raise/lower for whether they deform the landscape (off by default: Lila's heights already hold the road). kind='meshTerrain' sends them to the Mesh Terrain terrainSendToUnreal(kind='meshTerrain') made instead, as Mesh Partition spline modifiers (needs the LilaLinkMeshTerrain plugin): a plateau of the road's half width, the falloff beyond, paintLayer as the channel they write. Sending again replaces them. Returns what LilaLink made.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'landscape'` | landscape: landscape splines; meshTerrain: Mesh Partition spline modifiers. |
+| `landscape` | `ls` | str |  | Landscape label in Unreal; default the terrain's name, as terrainSendToUnreal names it. |
+| `segmentMesh` | `sm` | str |  | Static mesh asset each segment carries, such as /Game/Roads/SM_Road. |
+| `meshForwardAxis` | `mfa` | str | `'x'` | The segment mesh's forward axis. One of `x`, `y`, `z`. |
+| `scaleToWidth` | `stw` | bool | `True` | Scale the segment mesh to the road's width. |
+| `paintLayer` | `pl` | str |  | Landscape paint layer the splines paint; empty paints none. |
+| `raise` | `r` | bool | `False` | Splines raise the landscape to the road. |
+| `lower` | `l` | bool | `False` | Splines lower the landscape to the road. |
+| `falloff` | `fo` | float | `500.0` | Side and end falloff, cm. |
+| `spacing` | `sp` | float | `2000.0` | Distance between control points, cm. |
+| `ifAny` | `ia` | bool | `False` | Do nothing (and return roads 0) when the terrain has no roads. |
+| `timeout` | `to` | float | `120.0` | Seconds to wait for Unreal. |
+
+Not undoable.
+
+```python
+terrainSendRoadsToUnreal('Terrain', segmentMesh='/Game/Roads/SM_RoadSegment', paintLayer='Road')
+```
+
 ### terrainSendToUnreal
 
 Send a terrain to the connected Unreal editor as a Landscape, or update the one it sent before.
 
 Writes the terrain as terrainExport(target='unreal') does, into the link's cache, then has LilaLink build a landscape of that size and layout at the matching place and scale. Lila's heights go to an edit layer named Lila, so sculpting and splines on other layers in Unreal survive later sends; a terrain whose size or layout changed is rebuilt. The landscape takes the terrain's rotation, and Z-up scenes map straight across.
 
-Masks go as paint layers (weightmaps on the Lila edit layer), each with a layer info asset next to the landscape's material. Without material=, LilaLink generates one on MF_LilaLandscapeLayer (a function to drop into your own landscape materials, one call per layer) sampling each layer; with material=, that material is used and needs the same layer names. gridSize sets the World Partition grid in a partitioned level. Returns the landscape, its layers and the export settings.
+Masks go as paint layers (weightmaps on the Lila edit layer), each with a layer info asset next to the landscape's material. Without material=, LilaLink generates one on MF_LilaLandscapeLayer (a function to drop into your own landscape materials, one call per layer) sampling each layer; with material=, that material is used and needs the same layer names. Material layers (terrainMaterialRules) go as weight-blended paint layers named after the layer (Grass, Rock) and, without material=, get a generated material built on MF_LilaTerrainLayer (one call per layer, with the layer's colour, tile size and roughness); rvt=True adds a runtime virtual texture and its volume so meshes can blend into the ground. gridSize sets the World Partition grid in a partitioned level. Landscapes over 8193 x 8193 vertices (or regions='on') are written region by region. kind='meshTerrain' sends it as UE 5.8's experimental Mesh Terrain instead (LilaLinkMeshTerrain plugin). Roads laid with terrainAddRoad go along as landscape splines (terrainSendRoadsToUnreal) unless roads=False.
+
+A terrain with a volume split (caves, overhangs, arches) sends its pieces as static meshes placed where they belong, and its holes onto the landscape's visibility layer. Returns the landscape, its layers, the volume pieces, the export settings and terrainMaterial (what was made for the material layers).
 
 **Objects:** terrain mesh or its modifier
 
@@ -17442,12 +18469,37 @@ Masks go as paint layers (weightmaps on the Lila edit layer), each with a layer 
 | `layers` | `ly` | Any |  | Masks to send as paint layers, a list, or {mask: layer name}; default every mask. |
 | `gridSize` | `g` | int | `0` | World Partition grid size in components; 0 leaves it. |
 | `pad` | `p` | bool | `False` | Keep the cell size and grow the landscape past the terrain, instead of resampling. |
+| `water` | `wa` | bool | `True` | Send the terrain's rivers, lakes and sea as spline and locator actors too (terrainSendWaterToUnreal). |
+| `roads` | `rd` | bool | `True` | Also send the terrain's roads as landscape splines. |
+| `volumeMaterial` | `vm` | str |  | Material for the volume pieces; empty generates one on MF_LilaTerrainVolume. |
+| `rvt` |  | bool | `False` | Material layers: also write a runtime virtual texture, so meshes can blend into the ground. |
 | `timeout` | `to` | float | `300.0` | Seconds to wait for Unreal. |
+| `kind` | `k` | str | `'landscape'` | landscape, or meshTerrain for UE 5.8's experimental Mesh Terrain (needs the LilaLinkMeshTerrain plugin). |
+| `regions` | `rg` | str | `'auto'` | landscape: write the heights region by region (bounded memory for huge maps); auto does above 8193 x 8193 vertices. One of `auto`, `on`, `off`. |
+| `regionComponents` | `rc` | int | `0` | landscape regions: components per region side; 0 uses gridSize, else 16. |
+| `sectionQuads` | `sq` | int | `256` | meshTerrain: quads per Mesh Partition section side (at most 4096 sections). |
+| `saveAndUnload` | `su` | bool | `False` | meshTerrain in a World Partition level: save and unload sections as they are made (huge maps); placement is then left at the origin. |
 
 Not undoable.
 
 ```python
 terrainSendToUnreal('Terrain', material='/Game/Terrain/M_Landscape')
+```
+
+### terrainSendWaterToUnreal
+
+Send a terrain's water to the connected Unreal editor as plain actors: a spline actor per river and shoreline (a USplineComponent with a LilaWaterData component holding per point width, depth, water level, bed height, flow speed and direction) and a locator actor per lake level, sea level, spring and waterfall top and bottom. Never Water plugin bodies, so any water system can be driven from them. Keyed by the terrain's linkId: sending again updates them in place and removes what is gone. terrainSendToUnreal sends them too.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `timeout` | `to` | float | `120.0` | Seconds to wait for Unreal. |
+
+Not undoable.
+
+```python
+terrainSendWaterToUnreal('Terrain')
 ```
 
 ### terrainSites
@@ -17471,6 +18523,99 @@ Not undoable.
 terrainSites('Terrain', kind='castle', count=3)['sites'][0]['position']
 ```
 
+### terrainSpec
+
+Build a whole terrain from one JSON spec, or read a terrain back as one.
+
+spec= (or preset= with overrides=) runs the terrain commands in order: source (noise, flat, image or dem), constraints, sculpt, erosion, landforms, water (sea, rivers, lakes), regions (terrainQuery, stored by name for 'region:<name>' references), roads, stamps, volume, biomes, materials, ground cover, check, export. Each step is that command's flags; lila://schema/terrain-spec lists them. Returns ok (every step ran and terrainCheck passed), the terrain, each step's command, result (big lists counted), warnings, error and time, the check, the exports and the final stats with the revision. A failed step stops the build unless stopOnError=False.
+
+With a terrain and no spec it returns a spec that rebuilds it: the spec it was built from while the terrain is unchanged since, else its node group, inputs and placement (from: graph). list=True lists the presets; build=False returns the preset or spec without building.
+
+**Objects:** [terrain mesh or its modifier, to read back]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `s` | Any |  | The spec, a dict (see lila://schema/terrain-spec). |
+| `preset` | `p` | str |  | Start from a saved spec: alpineValley, mesaDesert, coastalCliffs, rollingFarmland, volcanicIsland. |
+| `overrides` | `o` | Any |  | Merged over the preset or spec key by key: {'seed': 4, 'resolution': 257, 'erosion': {'age': 0.8}}. |
+| `replace` | `r` | bool | `False` | Delete a node with the spec's name (and its water and ground cover) first. |
+| `build` | `b` | bool | `True` | False returns the merged spec without building. |
+| `stopOnError` | `soe` | bool | `True` | Stop at the first failed step. |
+| `full` | `fu` | bool | `False` | Return every step's result whole instead of with big lists counted. |
+| `list` | `ls` | bool | `False` | List the presets with their descriptions. |
+
+```python
+r = terrainSpec(preset='alpineValley', overrides={'seed': 3, 'resolution': 257})
+r['ok'], r['stats'], [s['step'] for s in r['steps']]
+```
+
+```python
+terrainSpec(spec={'name': 'Hills', 'size': [200000, 200000], 'resolution': 513, 'seed': 2,
+    'source': {'type': 'noise', 'amplitude': 20000, 'ridged': 0.3},
+    'erosion': {'preset': 'hills', 'age': 0.5},
+    'regions': [{'name': 'valley', 'named': 'valleyFloor', 'minArea': 50000, 'pick': 0}],
+    'water': {'lakes': [{'id': 'pond', 'at': 'region:valley'}]},
+    'materials': True, 'export': {'target': 'unreal'}})
+```
+
+```python
+s = terrainSpec('Hills')['spec']
+s['seed'] = 5
+terrainSpec(spec=s, replace=True)
+```
+
+### terrainSplit
+
+Set how a terrain's volume is split and list the pieces.
+
+split on (default, for heightfield engines): what the heightfield can hold goes into its heights; every connected place it can't (caves, overhangs, arches) becomes a mesh piece. Where the ground still covers a cave from above (at least minRoof of rock) the landscape stays and the piece lies under it; where the cave opens, the holes mask takes out those cells (margin samples past the opening) and the piece fills them exactly, its edge on the ground's heights and normals, and a skirt dropping skirt cm below it. split off keeps the heights as they were and meshes every changed place.
+
+Returns voxelSize, bricks, heightChanged, heightError (most the heightfield misses of the volume, cm), openCells, buriedCells, holeCells, unmeshedColumns (0: every region became a mesh), seamLength, seamUncovered and seamGap (cracks: 0 is none), and each piece: name, region, chunk, faces, LOD faces, bounds, centre, hole and buried cells and materials.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `split` | `s` | bool |  | Split for heightfield engines (on), or mesh every changed place (off). |
+| `voxelSize` | `vs` | float |  | Voxel edge, cm; 0 picks a third of the smallest feature. Rounded to a whole fraction of the cell. |
+| `minRoof` | `mr` | float |  | Rock over a cave the landscape stays on, cm. |
+| `maxHeightError` | `mhe` | float |  | Mesh places the heightfield's cells miss the shape by more than this, cm; 0 is off. |
+| `margin` | `mg` | int |  | Hole samples past each opening. |
+| `skirt` | `sk` | float |  | Mesh edges drop this far below the ground, cm. |
+| `lods` | `ld` | int |  | Levels of detail per piece. |
+| `chunkSize` | `cs` | float |  | Pieces wider than this are cut into chunks, cm; 0 keeps them whole. |
+| `uvScale` | `uv` | float |  | Triplanar texture repeat, cm. |
+| `maxVoxels` | `mv` | float |  | Most voxels; past it the voxel grows, with a warning. |
+
+```python
+s = terrainSplit('Terrain', lods=3)
+[(p['name'], p['faces']) for p in s['volume']['pieces']]
+```
+
+```python
+terrainSplit('Terrain', split=False)
+```
+
+### terrainStampLibrary
+
+The terrain brushes and the stamp library (procedural peaks, craters, dunes, rocks, mesas, ridges, volcanoes). With folder=, writes each stamp as a 16-bit PNG (mid grey is no change) for other tools or previews. Returns brushes, stamps and the files written.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str |  | Where to write the stamp images. |
+| `size` | `sz` | int | `256` | Image size, pixels. |
+| `seed` | `sd` | int | `0` | Seed for the stamps' detail. |
+
+Not undoable.
+
+```python
+terrainStampLibrary()['stamps']
+```
+
+```python
+terrainStampLibrary(folder='stamps', size=512)['files']
+```
+
 ### terrainStampPad
 
 Stamp a building pad into a terrain: flatten (cut and fill to one level), carve (cut only), raise (fill only), blend, terraced (steps down the slope), plinth (no grading: the building gets a raised base) or stilts (no grading: piles).
@@ -17481,7 +18626,7 @@ The footprint is a polygon or follows a mesh (its faces seen from above) or clos
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `footprint` | `fp` | list |  | Polygon [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). |
+| `footprint` | `fp` | Any |  | Polygon [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). Or 'region:<name>'. |
 | `object` | `obj` | str |  | A mesh (its faces seen from above) or closed curve the stamp follows live. |
 | `id` |  | str |  | Stable id; stamping an id again replaces that stamp. Empty makes one. |
 | `layer` | `ly` | str | `'Stamps'` | Stamp layer (a Terrain Stamps node after erosion); the city uses City. |
@@ -17540,7 +18685,7 @@ Stamp a plaza, park or yard into a terrain: graded to a level (or falling at gra
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `footprint` | `fp` | list |  | Polygon [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). |
+| `footprint` | `fp` | Any |  | Polygon [[x, z] or [x, y, z], ...] in world space (x, y on a Z-up scene). Or 'region:<name>'. |
 | `object` | `obj` | str |  | A mesh (its faces seen from above) or closed curve the stamp follows live. |
 | `id` |  | str |  | Stable id; stamping an id again replaces that stamp. Empty makes one. |
 | `layer` | `ly` | str | `'Stamps'` | Stamp layer (a Terrain Stamps node after erosion); the city uses City. |
@@ -17595,6 +18740,79 @@ Not undoable.
 terrainStamps('Terrain')['layers']['City']
 ```
 
+### terrainStroke
+
+A brush stroke on a terrain: terrainSculpt with the brush named by brush= (raise, lower, smooth, flatten, noise, ramp, terrace, stamp, erode, uplift, relax, mask). Every flag is terrainSculpt's; the Sculpt Terrain tool records its strokes this way, so a stroke replays exactly from its call. Returns terrainSculpt's result.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `brush` | `b` | str | `'raise'` | The brush. One of `raise`, `lower`, `smooth`, `flatten`, `noise`, `ramp`, `terrace`, `stamp`, `erode`, `uplift`, `relax`, `mask`, `patch`. |
+| `points` | `p` | list |  | Dab centres [[x, z] or [x, y, z], ...]. Points may be 'region:<name>'. |
+| `path` | `pa` | list |  | A polyline the stroke runs along. Points may be 'region:<name>'. |
+| `curve` | `cv` | str |  | A curve object the stroke runs along. |
+| `radius` | `r` | float | `2000.0` | Dab radius, cm. |
+| `strength` | `s` | float | `100.0` | cm for raise, lower and noise; 0 to 1 for smooth and flatten. |
+| `spacing` | `sp` | float | `0.0` | Between dabs along a path, cm; 0 is a quarter of the radius. |
+| `height` | `h` | float |  | Flatten: target height along the up axis, cm; default the mean under the stroke. |
+| `noiseSize` | `ns` | float | `1000.0` | Noise: feature size, cm. |
+| `seed` | `sd` | int | `0` | Noise: seed. |
+| `pressure` | `pr` | list |  | Weight per point, 0 to 1 (pen pressure). |
+| `falloff` | `fo` | str |  | Brush falloff shape: smooth, sphere, root, sharp, linear, constant, bell, or a soft select preset. |
+| `mirror` | `mi` | str |  | Mirror across the terrain's centre along its own x, z or both. One of `off`, `x`, `z`, `xz`. |
+| `plane` | `pl` | bool |  | Flatten: level to the plane fitted under the stroke. |
+| `endHeight` | `eh` | float |  | Ramp: height at the last point along the up axis, cm; default the ground there (height= sets the first). |
+| `step` | `stp` | float |  | Terrace: step height, cm (default 1000). |
+| `sharpness` | `sh` | float |  | Terrace: 0 soft to 1 sheer risers (default 0.8). |
+| `stamp` | `stm` | str |  | Stamp: a library stamp (peak, crater, dune, rocks, mesa, ridge, volcano) or an image file. |
+| `angle` | `an` | float |  | Stamp and alpha: turn, degrees. |
+| `blend` | `bl` | str |  | Stamp: add (default), raise (never below the stamp) or lower. |
+| `alpha` | `al` | str |  | A stamp or image (alpha:// or a file) shaping the brush tip. |
+| `mask` | `mk` | str |  | Mask and uplift brushes: the mask to paint (default paint, uplift). |
+| `value` | `va` | float |  | Mask and uplift brushes: value painted toward, 0 to 1 (default 1). |
+| `iterations` | `it` | int |  | Erode and relax: steps (default 10 and 4). |
+| `patch` | `pt` | Any |  | Patch: the block of height changes terrainSculptRegion bakes. |
+| `stage` | `sg` | str | `'base'` | base (before erosion) or final (after it). |
+| `clear` | `cl` | bool | `False` | Remove every stroke of this stage instead of adding one. |
+| `replaceLast` | `rl` | bool | `False` | Replace the stage's last stroke instead of adding one (a stroke growing as it is drawn). |
+| `removeLast` | `rm` | bool | `False` | Remove the stage's last stroke instead of adding one. |
+
+```python
+terrainStroke('Terrain', brush='raise', path=[[-20000, 0], [20000, 0]], radius=5000, strength=800, pressure=[0.2, 1.0])
+```
+
+```python
+terrainStroke('Terrain', brush='ramp', points=[[0, 0], [30000, 0]], radius=2500, height=1000, endHeight=6000, strength=1, stage='final')
+```
+
+```python
+terrainStroke('Terrain', brush='mask', mask='rock', points=[[5000, 5000]], radius=8000, strength=1, value=1)
+```
+
+### terrainTiles
+
+Cut a terrain into mesh tiles in the scene, for use in Lila (ruins on a hill, set dressing) or to export yourself.
+
+Each tile is an LOD group (<name>_x<N>_y<M>, levels _LOD0 at full resolution down by lodRatio) with a reduced <tile>_collision mesh beside it, all under one group, in world space. Every level keeps its border vertices, so neighbouring tiles meet at any mix of levels without a crack; skirt hangs a strip down from each edge too. uv set 0 spans the whole terrain and masks are point attributes. terrainExport(target='mesh') writes the same tiles to FBX, glTF or USD without keeping them. Returns the group, each tile's nodes and triangle counts.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tileSize` | `ts` | int | `257` | Samples per tile side; neighbours share their edge row. |
+| `lods` | `lod` | int | `3` | Levels per tile, LOD0 at full resolution. |
+| `lodRatio` | `lr` | float | `0.25` | Triangles each level keeps of the one before. |
+| `skirt` | `sk` | float | `0.0` | Depth of a skirt hung from every tile edge, cm; 0 for none. |
+| `collision` | `col` | bool | `True` | Make a reduced collision mesh per tile. |
+| `collisionRatio` | `cr` | float | `0.1` | Triangles the collision mesh keeps of LOD0. |
+| `name` | `n` | str |  | Group name and the tiles' stem; defaults to <terrain>_tiles. |
+
+```python
+t = terrainTiles('Terrain', tileSize=129, lods=3, skirt=200)
+t['tiles'], t['trianglesPerLod']
+```
+
 ### terrainToMesh
 
 A plain mesh copy of the terrain as it is now, in world space: quads facing up, every step-th sample, uv set 0 over the whole terrain, masks as point attributes. The terrain is left alone. Returns the new mesh, its point and face counts.
@@ -17608,6 +18826,103 @@ A plain mesh copy of the terrain as it is now, in world space: quads facing up, 
 
 ```python
 terrainToMesh('Terrain', step=4)
+```
+
+### terrainTunnel
+
+Bore a road tunnel along a path at road level: a flat floor on the path and a round roof radius cm high at the middle, opened a radius past each end so the portals are clear. Ground points sit on the ground; world points are the road surface. fromStamp='layer/id' takes the tunnel spans of a street or tunnel stamp (see terrainAddFeature) with a radius from its width; fromRoad='id' (or 'layer/id') bores every tunnel span of a road laid with terrainAddRoad, at its radius. Returns as terrainCave does.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | list |  | The road's line: [[x, y, z], ...] world points, or [[x, z], ...] on the ground (x, y on a Z-up scene). Points may be 'region:<name>'. |
+| `curve` | `cv` | str |  | The road's line from a curve object (its first curve, world space). |
+| `radius` | `r` | float | `400.0` | Half the tunnel's width at the springline, cm. |
+| `fromStamp` | `fs` | str |  | A line stamp as layer/id, such as Stamps/street1, whose tunnel spans to bore. |
+| `fromRoad` | `fr` | str |  | A road's id, or layer/id, whose tunnel spans to bore. |
+| `id` |  | str |  | Stable id; the same id again replaces that edit. Empty makes one. |
+| `material` | `mat` | str | `'tunnel'` | Material name its surfaces get (a face material on the pieces). |
+| `noise` | `nz` | float | `0.0` | Surface roughness, a fraction of its size. |
+| `noiseSize` | `ns` | float | `400.0` | Size of the bumps, cm. |
+| `blend` | `bl` | float | `0.0` | Width of a smooth join with what is there, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives another shape. |
+
+```python
+terrainTunnel('Terrain', path=[[-4000, 0], [4000, 0]], radius=450)
+```
+
+```python
+terrainTunnel('Terrain', fromStamp='Stamps/street1')
+```
+
+### terrainVolume
+
+A terrain's volume edits (their settings, in its own space) and the split's state, as terrainSplit returns it.
+
+**Objects:** terrain mesh or its modifier
+
+Not undoable.
+
+```python
+terrainVolume('Terrain')['volume']['pieceCount']
+```
+
+### terrainVolumeRemove
+
+Remove volume edits from a terrain by id (all of them when ids is empty). Returns the removed ids and the split.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` | `i` | list |  | Ids to remove; empty removes every edit. |
+
+```python
+terrainVolumeRemove('Terrain', ids=['cave1'])
+```
+
+### terrainVolumeStamp
+
+Add or carve a shape in a terrain's volume: a closed mesh (live: moving it moves the stamp; a library rock, a boulder, a cut), or a sphere, box or capsule. mode='add' piles it on, 'subtract' carves it out. Returns as terrainCave does.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `object` | `obj` | str |  | A closed mesh to stamp, followed live. |
+| `shape` | `sh` | str | `'mesh'` | mesh (object=), sphere, box or capsule (path=). |
+| `mode` | `m` | str | `'add'` | add or subtract. |
+| `center` | `c` | Any |  | Sphere and box centre: [x, y, z], or [x, z] on the ground. Or 'region:<name>'. |
+| `size` | `sz` | tuple[float, float, float] | `[500.0, 500.0, 500.0]` | Box size, cm (x, up, z in the terrain's space). |
+| `radius` | `r` | float | `300.0` | Sphere and capsule radius, cm. |
+| `path` | `p` | list |  | Capsule line: [[x, y, z], ...] or ground [[x, z], ...]. |
+| `id` |  | str |  | Stable id; the same id again replaces that edit. Empty makes one. |
+| `material` | `mat` | str | `'rock'` | Material name its surfaces get (a face material on the pieces). |
+| `noise` | `nz` | float | `0.0` | Surface roughness, a fraction of its size. |
+| `noiseSize` | `ns` | float | `400.0` | Size of the bumps, cm. |
+| `blend` | `bl` | float | `0.0` | Width of a smooth join with what is there, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives another shape. |
+
+```python
+terrainVolumeStamp('Terrain', object='Boulder', mode='add')
+```
+
+```python
+terrainVolumeStamp('Terrain', shape='sphere', center=[0, 0], radius=800, mode='subtract')
+```
+
+### terrainWater
+
+A terrain's authored water: the river and lake specs, and what they made in world space (cm): splines (rivers with per point width, depth, bedHeight, waterLevel, flowSpeed, discharge and flowDirection; lake and sea shorelines) and locators (lakeLevel, seaLevel, spring, waterfallTop, waterfallBottom), with counts, volumes and warnings. For the water the ground itself implies, see terrainWaterInfo.
+
+**Objects:** terrain mesh or its modifier
+
+Not undoable.
+
+```python
+w = terrainWater('Terrain')
+[(s['id'], len(s['points'])) for s in w['water']['splines']]
 ```
 
 ### terrainWaterInfo
@@ -17627,6 +18942,67 @@ Not undoable.
 ```python
 w = terrainWaterInfo('Terrain', seaLevel=0)
 [r['id'] for r in w['rivers'] if r['navigable']], w['bridgeSites'][:3]
+```
+
+### terrainWaterPreview
+
+Rebuild the flat preview of a terrain's water, the mesh <terrain>_water: lake and sea cells at their level and a ribbon along each river at its water level. Water commands rebuild it themselves; this is for after other edits.
+
+**Objects:** terrain mesh or its modifier
+
+```python
+terrainWaterPreview('Terrain')
+```
+
+### terrainWaterRemove
+
+Remove rivers and lakes from a terrain by id, or all=True to drop its water node altogether. Returns what was removed and what is left.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` |  | list |  | River and lake ids. |
+| `all` | `al` | bool | `False` | Remove all the water, sea included. |
+| `preview` | `pv` | bool | `True` | Rebuild the flat water preview mesh. |
+
+```python
+terrainWaterRemove('Terrain', ids=['mill'])
+```
+
+### terrainWedge
+
+Try variants of a terrain spec side by side: each variant is the spec with the vary settings changed, built in its own lilabatch process (several at once, headless), mapped from above (terrainMap) and laid out in a labelled contact sheet PNG. vary is {key: [values]} with dotted keys for nested settings ('erosion.age', 'erosion.preset', 'source.ridged'); each variant takes the next value of every key (count variants), or grid=True builds every combination. Without vary, count seeds from the spec's.
+
+Returns the sheet, mode (parallel, or inProcess with a note saying why when lilabatch can't be run or parallel=False), and per variant its settings, ok, revision, stats, check, map image, time and any error; the same goes to <folder>/<name>_wedge.json. Nothing is added to the scene. Build the one you like with terrainSpec(spec=..., overrides=variant['vary']).
+
+**Objects:** [terrain built from a spec, to wedge its spec]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `s` | Any |  | The spec to vary. |
+| `preset` | `p` | str |  | Start from a terrainSpec preset. |
+| `overrides` | `o` | Any |  | Merged over the spec before varying. |
+| `vary` | `v` | Any |  | {key: [values]}: {'seed': [1, 2, 3], 'erosion.age': [0.3, 0.6]}. |
+| `count` | `c` | int | `4` | Variants when not grid. |
+| `grid` | `g` | bool | `False` | Every combination of the vary values. |
+| `resolution` | `r` | int |  | Build every variant at this resolution (257 is quick). |
+| `parallel` | `pl` | bool | `True` | Build in lilabatch processes; False builds here one after another. |
+| `workers` | `w` | int |  | Processes at once; default half the cores, at most 8. |
+| `tile` | `t` | int | `256` | Map size per variant in the sheet, pixels. |
+| `timeout` | `to` | float | `900.0` | Seconds a variant may take before its process is ended. |
+| `folder` | `f` | str |  | Where the maps, logs and json go; default <temp>/lila_terrain_wedge/<name>. |
+| `file` | `fi` | str |  | The sheet's path; default <folder>/<name>_wedge.png. |
+
+Not undoable.
+
+```python
+w = terrainWedge(preset='alpineValley', vary={'seed': [1, 2, 3, 4]}, resolution=257)
+w['sheet'], [v['stats']['heightRange'] for v in w['variants']]
+```
+
+```python
+terrainWedge(spec=s, vary={'erosion.age': [0.2, 0.5, 0.8], 'erosion.preset': ['natural', 'alpine']}, grid=True)
 ```
 
 ## TrimSheets extension
