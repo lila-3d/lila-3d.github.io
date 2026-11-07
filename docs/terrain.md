@@ -51,11 +51,13 @@ Caves, tunnels, overhangs and arches become mesh pieces over holes in the terrai
 
 - **Unity:** put `LilaTerrainImporter.cs` in an Editor folder, then **Tools > Lila > Import Terrain...** and pick the export's json. Assign textures to the created Terrain Layers.
 - **Godot:** needs Terrain3D 1.0 or later in the project. Copy the export folder into the project, open the scene, open `<name>_terrain3d.gd` and choose **File > Run**, then save the scene.
-- **Unreal Mesh Terrain:** copy `ue/LilaLinkMeshTerrain` next to LilaLink, enable it, and send with `kind='meshTerrain'`. Masks arrive as Mesh Partition channels, up to 24, with material layers named after the layer (`Grass`). Material layers get a generated material built on `MF_LilaMeshTerrainChannel`, which reads a channel by the index the send returns in `channelIndices`; drop it into your own material the same way. Roads go as spline modifiers with `terrainSendRoadsToUnreal('Terrain', kind='meshTerrain', paintLayer='Gravel')`, `paintLayer` being the channel they write.
+- **Unreal Mesh Terrain:** copy `ue/LilaLinkMeshTerrain` next to LilaLink, enable it, and send with `kind='meshTerrain'`. Masks arrive as Mesh Partition channels, up to 24, with material layers named after the layer (`Grass`). Material layers get a generated material built on `MF_LilaMeshTerrainChannel`, which reads a channel by the index the send returns in `channelIndices`; drop it into your own material the same way, with the index in a Constant. Roads go as spline modifiers with `terrainSendRoadsToUnreal('Terrain', kind='meshTerrain', paintLayer='Gravel')`, `paintLayer` being the channel they write.
 
 ## Troubleshooting
 
 **Unreal shows the landscape but no holes over caves.** Your own landscape material needs a Landscape Visibility Mask on Opacity Mask, with the blend mode set to Masked. Without one Unreal drops the holes entirely, collision included. The generated material has one.
+
+**Line traces in the editor still hit the holes.** The editor keeps a hole-less copy of the landscape collision on the Visibility channel, for sculpting. Traces on other channels, and in Play, pass through.
 
 **Unreal shows no paint layers.** Rebuild LilaLink from Lila's `ue/LilaLink`. With your own `material=`, its Landscape Layer Sample names must match the layer names in the send's result.
 
@@ -68,6 +70,8 @@ Caves, tunnels, overhangs and arches become mesh pieces over holes in the terrai
 **Road props are boxes.** **Build Road Meshes** stands Set Dressing library props (Road/StreetLight, Road/Delineator and the rest) and falls back to boxes when the Set Dressing extension isn't loaded or an asset is missing; the log says which.
 
 **Mesh Terrain is missing a layer or the cave holes.** Mesh Terrain has no holes, and takes 24 channels at most. The send's `warnings` and `leftOut` name every mask that didn't go.
+
+**Mesh Terrain shows no layer colours with your own material.** Give `MF_LilaMeshTerrainChannel` its index in a Constant. Mesh Partition resolves the channel when the shader compiles, so a parameter reads nothing.
 
 **Layers or ground cover look stale.** The preview and the ground cover are snapshots. Run **Preview Terrain Layers** again after changes.
 
