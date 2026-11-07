@@ -1344,6 +1344,25 @@ Convexity from a normal map: above 0.5 on ridges, below in creases.
 | --- | --- | --- | --- |
 | `intensity` |  | `1` |  |
 
+### Height Normal Rebuild
+
+Type `heightNormalRebuild`.
+
+The normal a material with Normals From Height shows (Unreal's MF_LilaHeightNormal): the height's own normals with the detail of the normal laid on them. Where the height is steep and the normal is well off it (a wall a bake missed), the height wins; elsewhere the normal comes through as it is. depth is the cm from height 0 to 1, sizeU and sizeV the world size of the UV square, fade the slope in degrees where the height takes over (0 keeps the normal).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `normal` | color | input | `[0.5, 0.5, 1, 1]` |  |
+| `height` | gray | input | `0.5` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `depth` |  | `5` |  |
+| `sizeU` |  | `100` |  |
+| `sizeV` |  | `100` |  |
+| `fade` |  | `45` |  |
+
 ### Height to Normal
 
 Type `heightToNormal`.
