@@ -63,6 +63,7 @@
     - [Texture node reference](nodes/texture-nodes.md)
 - <span class="nav-label">Animation and effects</span>
   - [Animation](animation.md)
+    - [Graph Editor](graph-editor.md)
   - [Retargeting](retargeting.md)
   - [Creature rigging](creature-rigging.md)
   - [Rigid bind](rigid-bind.md)
