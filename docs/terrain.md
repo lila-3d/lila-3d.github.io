@@ -51,11 +51,11 @@ Caves, tunnels, overhangs and arches become mesh pieces over holes in the terrai
 
 - **Unity:** put `LilaTerrainImporter.cs` in an Editor folder, then **Tools > Lila > Import Terrain...** and pick the export's json. Assign textures to the created Terrain Layers.
 - **Godot:** needs Terrain3D 1.0 or later in the project. Copy the export folder into the project, open the scene, open `<name>_terrain3d.gd` and choose **File > Run**, then save the scene.
-- **Unreal Mesh Terrain:** copy `ue/LilaLinkMeshTerrain` next to LilaLink, enable it, and send with `kind='meshTerrain'`. Masks arrive as Mesh Partition channels, up to 24; read them in the material with Mesh Partition Channel Sample. Roads go as spline modifiers with `terrainSendRoadsToUnreal('Terrain', kind='meshTerrain')`.
+- **Unreal Mesh Terrain:** copy `ue/LilaLinkMeshTerrain` next to LilaLink, enable it, and send with `kind='meshTerrain'`. Masks arrive as Mesh Partition channels, up to 24, with material layers named after the layer (`Grass`). Material layers get a generated material built on `MF_LilaMeshTerrainChannel`, which reads a channel by the index the send returns in `channelIndices`; drop it into your own material the same way. Roads go as spline modifiers with `terrainSendRoadsToUnreal('Terrain', kind='meshTerrain', paintLayer='Gravel')`, `paintLayer` being the channel they write.
 
 ## Troubleshooting
 
-**Unreal shows the landscape but no holes over caves.** Your own landscape material needs a Landscape Visibility Mask on Opacity Mask, with the blend mode set to Masked. Without it the holes cut collision only. The generated material has one.
+**Unreal shows the landscape but no holes over caves.** Your own landscape material needs a Landscape Visibility Mask on Opacity Mask, with the blend mode set to Masked. Without one Unreal drops the holes entirely, collision included. The generated material has one.
 
 **Unreal shows no paint layers.** Rebuild LilaLink from Lila's `ue/LilaLink`. With your own `material=`, its Landscape Layer Sample names must match the layer names in the send's result.
 
