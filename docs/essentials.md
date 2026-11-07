@@ -374,6 +374,14 @@ Drag image files from Explorer or Lila's file browser into the Material Editor.
 
 Pasted paths can keep the quotes from Windows' **Copy as path**; Lila removes them.
 
+## Texture colour space
+
+Each texture's row in the Material Editor has a colour space next to wrap and filter. **Auto** reads base colour and emissive maps as sRGB and every other map as linear. Set **sRGB** or **Linear** when a file was saved the other way: a mask painted in sRGB, or a base colour stored linear. EXR and HDR files are always linear.
+
+A file with an embedded colour profile other than sRGB, such as Adobe RGB or Display P3, is converted to sRGB as it loads. Unreal, glTF, USD and MaterialX exports carry the setting: glTF fixes each slot's encoding, so a map stored the other way is re-encoded as it's written.
+
+If a colour texture looks washed out or too saturated compared with Photoshop, the file was probably saved in Adobe RGB with its profile stripped. Photoshop marks such a file's colour space as uncalibrated, and no app can tell what it was. In Photoshop, use **Edit > Convert to Profile > sRGB** and save it with the profile embedded.
+
 ## Command palette
 
 Press **Ctrl+\`** to open the command palette. Type part of any menu item or command name and press **Enter** to run the top match, or **Up**/**Down** to pick another. Type Python and it runs instead; there's nothing to import, commands are available by name. **Shift+Enter** always runs the text as Python.
