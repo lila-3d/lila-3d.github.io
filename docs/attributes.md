@@ -8,9 +8,12 @@ Add, edit and organise attributes and components on any node. Attributes can be 
 2. Type a name (`health:max`) and press Enter: pick the type, default, range and heading, then Enter again. Or pick a component, or an object under **Copy from** to copy its added attributes.
 3. The attribute appears under its heading in **Extra Attributes**.
 
-- **Edit**: double-click the label, or hover the row and click the pencil. Renaming keeps connections, keys and drivers; changing the type converts the value and drops its connections.
-- **Move**: drag a row's grip onto another row to put it before that one, or onto a heading to move it there. Drag a heading onto another to reorder components.
+- **Edit**: double-click the label, or hover the row and click the pencil at the label's left end. Renaming keeps connections, keys and drivers; changing the type converts the value and drops its connections.
+- **Move**: drag a row's grip (left of the pencil) onto another row to put it before that one, or onto a heading to move it there. Drag a heading onto another to reorder components.
 - **Search**: the field at the top matches nice, long and short names and docs; sections with no match hide.
+- **Numbers**: drag a number field left or right to change it (Shift faster, Ctrl finer), or click it to type. A field with a range shows the value as a fill, and a drag across the field covers the range.
+- **Label width**: drag the right end of any label to move every label's edge; double-click there to go back to automatic.
+- **Fold** a heading with its chevron; it stays folded on every object.
 - **Right-click a heading** to save it as a component (yours, or the studio library), choose how it goes to Unreal, or remove it.
 
 ```python
