@@ -4516,6 +4516,63 @@ Available when the Terrain extension is loaded.
 
 ### Terrain
 
+#### Amplify Terrain
+
+Refines coarse data (30 m DEMs) to game scale: each doubling of resolution adds slope-scaled detail and erodes at the finer cell, keeping the original shape, so real places gain gullies and ridgelets. Factor 4 turns 30 m cells into 7.5 m. Seconds per million samples.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `factor` | int | input | `4` | Samples per original sample along a side: 2, 4 or 8. Range 1 to 16. |
+| `detail` | float | input | `0.5` | Strength of the new detail. At least 0. |
+| `iterations` | int | input | `15` | Erosion steps per doubling. Range 0 to 500. |
+| `seed` | int | input | `0` | Seed for the detail. |
+| `heightfield` | geometry | output |  |  |
+
+#### Amplify Terrain
+
+Type `TerrainAmplify`.
+
+More samples over the same area, keeping the drainage: the heights upsampled smoothly, detail added where the ground slopes, then eroded at the new scale so the detail runs along the valleys.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `factor` | int | input | `2` | Samples per input cell along each side. Range 1 to 8. |
+| `detail` | float | input | `0.35` | Detail height, as a fraction of the drop over one input cell. At least 0. |
+| `age` | float | input | `0.06` | Age of the fine erosion. Range 0 to 4. |
+| `seed` | int | input | `0` | Random seed. |
+| `heightfield` | geometry | output |  |  |
+
+#### Analytic Erosion
+
+Type `TerrainAnalyticErosion`.
+
+Stream-power erosion solved for an age instead of stepped: valleys cut back from the edge as age grows, toward the steady state where uplift and erosion balance. Every valley drains. One drainage pass, so it is fast at any age. Keeps the height range. Writes flow, lakes, wear and deposit.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `age` | float | input | `0.5` | 0 is the input, 1 the steady state almost everywhere. Range 0 to 4. |
+| `strength` | float | input | `1` | Erodibility; the hardness mask slows it. At least 0. |
+| `areaExponent` | float | input | `0.5` | How much bigger rivers cut faster (0.3 to 0.7). Range 0.1 to 1. |
+| `hardnessMask` | string | input |  | Mask of hard rock (1) that erodes slower. |
+| `upliftMask` | string | input |  | Mask scaling the uplift that builds ranges; empty is uniform. |
+| `keepRange` | bool | input | `true` | Rescale to the input's height range. |
+| `heightfield` | geometry | output |  |  |
+
+#### Bare Earth
+
+Surface models (Copernicus GLO-30, SRTM) measure the tops of trees and roofs. This takes down what stands up from the ground around it, up to radius wide and maxHeight tall, and smooths it into the ground; taller or wider shapes stay. Limit it to a mask such as landcover_forest. Writes mask bareEarth.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `radius` | float | input | `6000` | Widest object removed, cm. At least 0. |
+| `maxHeight` | float | input | `4000` | Tallest object removed, cm. At least 0. |
+| `mask` | string | input |  | Only where this mask is; empty is everywhere. |
+| `heightfield` | geometry | output |  |  |
+
 #### Blend Heightfields
 
 Combines B into A on A's grid: B is read bilinearly at each of A's samples and combined by blend, its masks too. Where B doesn't reach, A is left alone.
@@ -4547,6 +4604,74 @@ Outlines of contiguous buildable land (see terrainBuildable) as closed curves, w
 | `seaLevel` | float | input | `0` | Sea level, cm. |
 | `regions` | geometry | output |  |  |
 
+#### Cliff
+
+Type `TerrainCliff`.
+
+Ground steeper than the threshold becomes sheer rock bands. Writes cliff.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `threshold` | float | input | `35` | Slope where cliffs start, degrees. Range 1 to 89. |
+| `step` | float | input | `1500` | Rock band height, cm. At least 1. |
+| `strength` | float | input | `0.8` | 0 to 1. Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed. |
+| `heightfield` | geometry | output |  |  |
+
+#### Debris Flow
+
+Type `TerrainDebrisFlow`.
+
+Steep gullies with small catchments scour and their material runs out, settling as cones where the ground eases. Writes wear, deposit and talus.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `strength` | float | input | `1` | How much is scoured. At least 0. |
+| `scourAngle` | float | input | `32` | Steeper than this scours, degrees. Range 1 to 89. |
+| `settleAngle` | float | input | `14` | Gentler than this, the flow settles, degrees. Range 0.5 to 89. |
+| `maxArea` | float | input | `2000000` | Catchments larger than this are rivers, m2. At least 1. |
+| `iterations` | int | input | `3` | Passes. Range 1 to 50. |
+| `heightfield` | geometry | output |  |  |
+
+#### Deposition
+
+Type `TerrainDeposition`.
+
+Material weathered off slopes rides the drainage and settles where the flow slows: fans at valley mouths, filled valley floors and lakes. Writes sediment (depth laid down), deposit and wear.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `supply` | float | input | `40` | Weathered off a slope of 1 per pass, cm. At least 0. |
+| `transport` | float | input | `2` | How much the flow carries. At least 0. |
+| `areaExponent` | float | input | `0.5` | How much more big rivers carry. Range 0.1 to 1. |
+| `depositRate` | float | input | `0.35` | Share of the excess dropped per sample. Range 0 to 1. |
+| `fillLakes` | bool | input | `true` | Fill lakes with what reaches them. |
+| `hardnessMask` | string | input |  | Mask of hard rock (1) that weathers slower. |
+| `iterations` | int | input | `2` | Passes. Range 1 to 50. |
+| `heightfield` | geometry | output |  |  |
+
+#### Erode Preset
+
+Type `TerrainErodePreset`.
+
+The whole erosion chain as one age: macro form (analytic stream power at low resolution), amplified back keeping its drainage, debris flow and scree, rills, then deposition (and snow on alpine). Age 0 leaves the ground alone. Writes flow, lakes, wear, deposit, sediment, wet and talus (and snow).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `preset` | string | input | `natural` | natural, alpine, desert or hills. |
+| `age` | float | input | `0.5` | 0 is off, 1 is very old. Range 0 to 2. |
+| `seed` | int | input | `0` | Random seed. |
+| `hardnessMask` | string | input |  | Mask of hard rock (1). |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `device` | `cpu`, `gpu`, `auto` | `cpu` | Where it runs: cpu is exact and the same everywhere. |
+
 #### Erode Terrain
 
 Rivers cut valleys: stream-power erosion on the drainage network, with optional uplift building the land as it wears, and slopes over the talus angle shedding downhill. Every valley drains to the edge, which stays put. Writes masks flow (drainage), wear (removed), deposit (laid down) and lakes. Iterations is age: more is older and more carved. Lengths are cm. Device gpu runs it on the graphics card (in the app), within float tolerance of cpu, which is exact and the same everywhere; auto takes the GPU when there is one.
@@ -4570,6 +4695,28 @@ Rivers cut valleys: stream-power erosion on the drainage network, with optional 
 | --- | --- | --- | --- |
 | `device` | `cpu`, `gpu`, `auto` | `cpu` | Where it runs. |
 
+#### Erosion Filter
+
+Type `TerrainErosionFilter`.
+
+Eroded-looking gullies per sample, without simulating: branching channels down every slope, deepest where it is steepest. Instant and the same across tiles, for previews, distant terrain and endless worlds. Writes wear.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `scale` | float | input | `4000` | Spacing of the largest gullies, cm. At least 1. |
+| `octaves` | int | input | `4` | Levels of branching. Range 1 to 10. |
+| `strength` | float | input | `0.12` | Gully depth as a fraction of their spacing. At least 0. |
+| `lacunarity` | float | input | `2` | Spacing ratio between levels. Range 1.1 to 4. |
+| `gain` | float | input | `0.5` | Depth ratio between levels. Range 0 to 1. |
+| `slopeFull` | float | input | `0.6` | Slope (rise over run) where gullies reach full depth. At least 0.01. |
+| `seed` | int | input | `0` | Random seed. |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `device` | `cpu`, `gpu`, `auto` | `cpu` | Where it runs: cpu is exact and the same everywhere. |
+
 #### Evaluate Texture Graph
 
 Type `TerrainTextureGraph`.
@@ -4591,6 +4738,22 @@ Runs a texture graph (a .lilamat from texExportGraph) over the heightfield, one 
 | --- | --- | --- | --- |
 | `blend` | `replace`, `add`, `subtract`, `multiply`, `max`, `min` | `replace` | How the new value combines with the one there. |
 | `backend` | `auto`, `cpu`, `gpu` | `auto` | Where the graph runs. |
+
+#### Fold
+
+Type `TerrainFold`.
+
+Buckles the ground into parallel ridges with bent crests.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `wavelength` | float | input | `30000` | Ridge spacing, cm. At least 1. |
+| `amplitude` | float | input | `3000` | Height, cm. |
+| `direction` | float | input | `0` | Degrees from +X toward +Z the folds run across. |
+| `bend` | float | input | `0.3` | Crest bend, as a fraction of the wavelength. At least 0. |
+| `seed` | int | input | `0` | Random seed. |
+| `heightfield` | geometry | output |  |  |
 
 #### Heightfield Flow
 
@@ -4646,9 +4809,30 @@ Turns the heightfield into a grid of quads facing up, keeping every step-th samp
 | `uvs` | bool | input | `true` | Add uv set 0. |
 | `geometry` | geometry | output |  |  |
 
+#### Hydraulic Erosion
+
+Type `TerrainHydraulic`.
+
+Rills from many water drops: each runs downhill, picks up material where it speeds up and drops it where it slows. Writes wet (where water ran), wear and deposit.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `density` | float | input | `0.2` | Drops per sample. Range 0 to 10. |
+| `maxSteps` | int | input | `64` | Longest run of a drop, in samples. Range 1 to 120. |
+| `inertia` | float | input | `0.1` | How much a drop keeps its direction, 0 to 1. Range 0 to 0.99. |
+| `capacity` | float | input | `6` | How much a drop can carry. At least 0. |
+| `erodeRate` | float | input | `0.3` | How fast it picks up, 0 to 1. Range 0 to 1. |
+| `depositRate` | float | input | `0.25` | How fast it drops, 0 to 1. Range 0 to 1. |
+| `evaporation` | float | input | `0.02` | Water lost per step, 0 to 1. Range 0 to 1. |
+| `radius` | int | input | `2` | Erosion footprint, samples. Range 1 to 4. |
+| `strength` | float | input | `1` | Scales what drops cut and lay down. At least 0. |
+| `seed` | int | input | `0` | Random seed. |
+| `heightfield` | geometry | output |  |  |
+
 #### Import Terrain Image
 
-Turns a painted height image (png, psd, tif, exr, tga from Photoshop, Krita or GIMP) into terrain. Mode guide keeps the painting's big shapes and lets erosion add natural detail; height takes it literally; uplift reads brightness as how fast the land rises, so ranges grow where it is bright and rivers carve them; mask leaves flat ground and puts the image in a mask. The image is width wide along X, its top row on the -Z edge. Erosion is slow on big grids: seconds at 1K.
+Turns a painted height image (png, psd, tif, exr, tga from Photoshop, Krita or GIMP) into terrain. Mode guide keeps the painting's big shapes and lets erosion add natural detail; height takes it literally; uplift reads brightness as how fast the land rises, so ranges grow where it is bright and rivers carve them; mask leaves flat ground and puts the image in a mask; sketch reads red strokes as ridges, green as valleys, blue as rivers and yellow as flat ground over a grey base, and erosion keeps them. The image is width wide along X, its top row on the -Z edge. Erosion is slow on big grids: seconds at 1K.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4667,7 +4851,7 @@ Turns a painted height image (png, psd, tif, exr, tga from Photoshop, Krita or G
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `mode` | `height`, `guide`, `uplift`, `mask` | `guide` | How brightness is read. |
+| `mode` | `height`, `guide`, `uplift`, `mask`, `sketch` | `guide` | How brightness is read. |
 
 #### Mesh to Heightfield
 
@@ -4686,9 +4870,22 @@ Bakes the highest surface of a mesh, seen from above, into a heightfield coverin
 | `fillLowest` | bool | input | `true` | Fill with the mesh's lowest point instead. |
 | `heightfield` | geometry | output |  |  |
 
+#### OSM Land Cover
+
+Type `OsmLandcover`.
+
+OpenStreetMap land cover (.osm, Overpass .json or .osm.pbf) as masks landcover_forest, landcover_grassland, landcover_farmland, landcover_scrub, landcover_rock, landcover_sand, landcover_urban, landcover_wetland, landcover_water and landcover_glacier, placed by the georeference terrainImportOsm stored. Re-read when the file changes.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `file` | string | input |  | OSM file; relative paths are under the workspace. |
+| `georef` | string | input |  | Where the heightfield is on the earth (JSON, from terrainGeoref). |
+| `heightfield` | geometry | output |  |  |
+
 #### Read Elevation Data
 
-Loads real-world elevation: GeoTIFF (DEM tiles such as Copernicus GLO-30, national lidar), SRTM .hgt, ESRI ASCII grid (.asc), XYZ points, or Terrarium and Terrain-RGB PNG map tiles. Heights become cm, centred on center with north toward -Z; data in degrees is flattened around its middle. Voids are filled from the data around them and marked in the mask voids. Data without spacing (PNG tiles, bare XYZ) uses spacing.
+Loads real-world elevation: GeoTIFF (DEM tiles such as Copernicus GLO-30, national lidar), SRTM .hgt, ESRI ASCII grid (.asc), XYZ points, or Terrarium and Terrain-RGB PNG map tiles. Heights become cm, centred on center with north toward -Z; data in degrees is flattened around its middle. Voids are filled from the data around them and marked in the mask voids. Data without spacing (PNG tiles, bare XYZ) uses spacing. Projection utm or enu reprojects data in degrees to UTM metres or a tangent plane at its centre (with the earth's curvature).
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4699,11 +4896,13 @@ Loads real-world elevation: GeoTIFF (DEM tiles such as Copernicus GLO-30, nation
 | `exaggeration` | float | input | `1` | Multiplies heights. At least 0. |
 | `fromLowest` | bool | input | `false` | Lowest point at 0 instead of sea level. |
 | `fillVoids` | bool | input | `true` | Fill voids; off leaves them at 0. |
+| `zone` | int | input | `0` | UTM zone; 0 picks the data's. Range 0 to 60. |
 | `heightfield` | geometry | output |  |  |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `format` | `auto`, `geotiff`, `hgt`, `asc`, `xyz`, `terrarium`, `terrainrgb` | `auto` | File type; auto goes by extension, and .png is Terrarium. |
+| `projection` | `local`, `utm`, `enu` | `local` | local flattens degrees around the middle; utm and enu reproject. |
 
 #### Read Heightfield
 
@@ -4719,6 +4918,19 @@ Loads a heightfield file. A .lilahf (what terrainBake writes) comes back exactly
 | `center` | vector | input | `[0, 0, 0]` | Images: centre. |
 | `heightfield` | geometry | output |  |  |
 
+#### Read Land Cover
+
+ESA WorldCover class codes from a GeoTIFF (degrees or UTM) onto the heightfield by nearest sample: a mask of the codes (code / 255, what terrainBiomes' landcover reads) and the landcover_<class> masks OSM Land Cover writes. Only the part of the file over the terrain is read. terrainImportLandCover sets it up.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `file` | string | input |  | Land cover GeoTIFF; relative paths are under the workspace. |
+| `georef` | string | input |  | Where the heightfield is on the earth (JSON, from terrainGeoref). |
+| `mask` | string | input | `worldcover` | Mask for the class codes. |
+| `classes` | bool | input | `true` | Also write the landcover_<class> masks. |
+| `heightfield` | geometry | output |  |  |
+
 #### Resample Heightfield
 
 The same area at another resolution (samples along the longer side), masks included, read bilinearly.
@@ -4729,6 +4941,19 @@ The same area at another resolution (samples along the longer side), masks inclu
 | --- | --- | --- | --- | --- |
 | `heightfield` | geometry | input |  |  |
 | `resolution` | int | input | `1025` | Samples along the longer side. Range 2 to 16385. |
+| `heightfield` | geometry | output |  |  |
+
+#### Ridge Sharpen
+
+Type `TerrainRidgeSharpen`.
+
+Pushes up ground that stands above its surroundings, so crests read sharp.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `amount` | float | input | `0.6` | How much. At least 0. |
+| `radius` | float | input | `3000` | Surroundings radius, cm. At least 1. |
 | `heightfield` | geometry | output |  |  |
 
 #### Sample Heightfield
@@ -4779,6 +5004,84 @@ Writes a named mask (made when missing) from a field, combined by blend. Masks r
 | --- | --- | --- | --- |
 | `blend` | `replace`, `add`, `subtract`, `multiply`, `max`, `min` | `replace` | How the new value combines with the one there. |
 
+#### Snow
+
+Type `TerrainSnow`.
+
+Snow above the snowline on slopes that hold it, deeper in hollows, sliding off steep ground. Writes snow; Add Depth also raises the ground by it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `autoSnowline` | bool | input | `true` | Snowline at the 60th percentile height. |
+| `snowline` | float | input | `0` | Height where snow starts, cm. |
+| `band` | float | input | `0` | Height from no cover to full, cm; 0 is a tenth of the relief. At least 0. |
+| `maxSlope` | float | input | `48` | Steepest slope that holds snow, degrees. Range 1 to 89. |
+| `hollows` | float | input | `0.5` | Extra snow in hollows, 0 to 1. Range 0 to 1. |
+| `depth` | float | input | `200` | Depth at full cover, cm. At least 1. |
+| `addDepth` | bool | input | `false` | Raise the ground by the snow. |
+| `slide` | int | input | `8` | Slide steps. Range 0 to 200. |
+| `heightfield` | geometry | output |  |  |
+
+#### Strata
+
+Type `TerrainStrata`.
+
+Rock layers tilted across the terrain: hard bands stand out as benches, and the strata mask (1 hard) feeds erosion's hardness.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `thickness` | float | input | `1500` | Layer thickness, cm. At least 1. |
+| `dip` | float | input | `5` | Tilt, degrees. Range -80 to 80. |
+| `dipDirection` | float | input | `0` | Tilt direction, degrees from +X toward +Z. |
+| `strength` | float | input | `0.3` | How far hard bands stand out, as a fraction of the thickness. At least 0. |
+| `noise` | float | input | `0.3` | Waviness, as a fraction of the thickness. At least 0. |
+| `seed` | int | input | `0` | Random seed. |
+| `heightfield` | geometry | output |  |  |
+
+#### Terrace
+
+Type `TerrainTerrace`.
+
+Steps the ground into flat treads and risers every step cm.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `step` | float | input | `2000` | Step height, cm. At least 1. |
+| `sharpness` | float | input | `0.8` | 0 soft to 1 sheer risers. Range 0 to 1. |
+| `offset` | float | input | `0` | Height of a tread, cm. |
+| `mask` | string | input |  | Mask scaling it; empty is everywhere. |
+| `strength` | float | input | `1` | 0 to 1. Range 0 to 1. |
+| `heightfield` | geometry | output |  |  |
+
+#### Terrain Biomes
+
+Climate and biomes over the heightfield. Writes temperature (0 to 1 over -30 to 40 C: colder with height, warmer on slopes facing the sun), moisture (rain, less in the lee of ranges, more on windward slopes and where water gathers) and biome_<name> per biome, the biome weights summing to 1 everywhere. Biomes fit by temperature (C), moisture, height and slope, or follow a painted mask or an imported landcover mask. terrainBiomes writes the spec.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `biomes` |  |  | The spec, JSON: {climate, biomes: [{name, when, paint}], sharpness, landcover}; empty uses the defaults. |
+
+#### Terrain Constraints
+
+Drawn ridges, valleys, cliffs, rivers and flat ground shape the heightfield and are held while Erode Terrain runs, so erosion carves around them instead of through them. Each follows a path or a curve through an Object Info node in this group (moving the curve moves it). Rivers are drawn downstream: their bed only falls along the curve. terrainConstrain writes the list; put this before Erode Terrain.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `constraints` |  | `[]` | The constraints, a JSON list in the heightfield's own space (see terrainConstrain). |
+
 #### Terrain Field
 
 Writes an analysis field into a mask of the heightfield: slope, aspect, curvature, roughness, flow, flowDir, basinId, streamOrder, wet, hand, floodRisk, distanceToWater, nearestWaterId, waterDepth, rockHardness, soilDepth, excavationCost, slopeClass, buildability, prominence, viewshedScore, solar or windExposure (see terrainField). Sample Heightfield reads it back per point.
@@ -4795,6 +5098,36 @@ Writes an analysis field into a mask of the heightfield: slope, aspect, curvatur
 | --- | --- | --- | --- |
 | `field` | `height`, `slope`, `aspect`, `curvature`, `roughness`, `flow`, `flowDir`, `basinId`, `streamOrder`, `wet`, `hand`, `floodRisk`, `distanceToWater`, `nearestWaterId`, `waterDepth`, `rockHardness`, `soilDepth`, `excavationCost`, `slopeClass`, `buildability`, `prominence`, `viewshedScore`, `solar`, `windExposure` | `buildability` | Which field. |
 | `mask` |  |  | Mask to write; empty is the field's name. |
+
+#### Terrain Ground Cover
+
+Scatters items over a terrain by rules: each rule's items go where its ranges, biomes and layers fit, as densely as it asks, kept clear of each other by their footprints (the item's size across, or the rule's footprint). The terrain comes from the Object Info node named in terrain, each item from the Object Info node Item_<name>. Outputs instances with rule, item, fit and random attributes, ready for Settle Instances and for unrealPlaceInstances (HISM). terrainGroundCover builds the group.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seed` | int | input | `0` | Another seed gives another scatter. |
+| `density` | float | input | `1` | Multiplies every rule's density. At least 0. |
+| `instances` | geometry | output |  | The pieces, as instances. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `rules` |  |  | The rules, JSON: {seed, maxCount, rules: [{name, items, density, footprint, when, scale, align, turn, sink, solid}]}. |
+| `terrain` |  | `Terrain` | The Object Info node reading the terrain. |
+
+#### Terrain Layers
+
+Material layers over the heightfield from rules: each layer (grass, rock, dirt, sand, snow, gravel, road, riverbed or your own) lies where its ranges over masks and derived fields hold (height, slope, aspect, curvature, nearCliff, flow, wear, deposit, wet, temperature, moisture, any painted mask) and in the biomes it names, with noise to break up its edges. Writes layer_<name> per layer; the first layer is the base and the weights sum to 1 everywhere. Put it last, after erosion and stamps. terrainMaterialRules writes the rules.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `seed` | int | input | `0` | Moves the edge noise. |
+| `material` | string | input |  | Material the terrain's mesh is drawn with; terrainMaterialPreview sets it. |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `rules` |  |  | The rules, JSON: {seed, layers: [{name, material, color, when, noise, ...}]}, bottom first; empty uses the defaults. |
 
 #### Terrain Noise
 
@@ -4819,6 +5152,32 @@ Fractal noise over world X and Z, from 0 to amplitude, combined into the heightf
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `blend` | `replace`, `add`, `subtract`, `multiply`, `max`, `min` | `add` | How the new value combines with the one there. |
+
+#### Terrain Regions
+
+Named regions found by terrainQuery (valley floor, a pass, north slopes...), each written to a mask region_<name> (1 inside its outlines). Commands take 'region:<name>' wherever they take a point, path or polygon.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `regions` |  | `{}` | The regions, JSON: {name: {rings: [[[x, z], ...]], point: [x, z], query}} in the heightfield's own space. |
+
+#### Terrain Roads
+
+Roads, paths, tracks, rail lines and runways laid into the heightfield in order: graded with vertical curves, banked into curves, cut and filled at their talus angles with retaining walls, bridge and tunnel spans left open, joined at junctions, and painted into the masks roadSurface, roadVerge, roadDirtEdge, roadWear and erosionProtect. A road follows a path or a curve through an Object Info node in this group. terrainAddRoad writes the list.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `roads` |  | `[]` | The roads, a JSON list in the heightfield's own space (see terrainAddRoad). |
 
 #### Terrain Sculpt
 
@@ -4864,6 +5223,20 @@ Footprint stamps: building pads and plazas, parks and yards flattened, carved, r
 | --- | --- | --- | --- |
 | `stamps` |  | `[]` | The stamps, a JSON list in the heightfield's own space (see terrainStampPad). |
 
+#### Terrain Volume
+
+Caves, tunnels, overhangs, arches and mesh stamps added to or carved from the ground as a sparse signed distance field, then split: what the heightfield can hold goes into its heights, every connected place it can't becomes a mesh piece (with LODs, triplanar uvs and material ids), with a holes mask under the pieces the ground opens for. Mesh edges drop below the ground by a skirt and sit exactly on it at the seam. terrainCave, terrainTunnel, terrainOverhang, terrainArch and terrainVolumeStamp write the list; terrainSplit sets the split. Keep it last.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `ops` |  | `[]` | The edits, a JSON list in the heightfield's own space (see terrainCave). |
+| `settings` |  | `{}` | Split settings, a JSON object (see terrainSplit). |
+
 #### Terrain Water
 
 The water on a heightfield as geometry: rivers as curves with width, depth, waterLevel, bedHeight, discharge and flowSpeed per point and streamOrder per curve; lake and sea shorelines as closed curves with waterLevel; and the sites (springs, fords, bridge sites, confluences, rapids, waterfalls) as points with a score. See terrainWaterInfo.
@@ -4878,9 +5251,24 @@ The water on a heightfield as geometry: rivers as curves with width, depth, wate
 | `shorelines` | geometry | output |  |  |
 | `sites` | geometry | output |  |  |
 
+#### Terrain Water Features
+
+Rivers, lakes and sea level on a heightfield. Rivers are carved with a bed that falls all the way to their mouth, sized by their drainage, with banks re-eroded into the ground, gravel bars inside bends and waterfalls with plunge pools at cliffs; lakes stand at their spill level or a set level; basins no water holds are filled so everything drains. Writes the masks riverBed, riverBank, gravelBar, waterfall, lakeBed, sea, water, shore and beach. terrainAddRiver, terrainAddLake and terrainSeaLevel write its lists; put it after Erode Terrain.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `rivers` |  | `[]` | The rivers, a JSON list in the heightfield's own space (see terrainAddRiver). |
+| `lakes` |  | `[]` | The lakes, a JSON list in the heightfield's own space (see terrainAddLake). |
+| `settings` |  | `{}` | Sea level, shore and beach settings, a JSON object (see terrainSeaLevel). |
+
 #### Thermal Erosion
 
-Slopes steeper than the talus angle shed material downhill until they settle: scree below cliffs, softened crests.
+Slopes steeper than the talus angle shed material downhill until they settle: scree below cliffs, softened crests. Where Material Mask is set, its angle takes over (hard rock stands steeper, sand slumps lower). Writes talus (where scree landed).
 
 ![Thermal Erosion](../images/nodes/ThermalErosion.webp)
 
@@ -4889,6 +5277,26 @@ Slopes steeper than the talus angle shed material downhill until they settle: sc
 | `heightfield` | geometry | input |  |  |
 | `talusAngle` | float | input | `38` | Steepest stable slope, degrees. Range 1 to 89. |
 | `iterations` | int | input | `20` | Steps. Range 0 to 10000. |
+| `materialMask` | string | input |  | Mask of a material with its own talus angle (such as a hardness mask). |
+| `materialAngle` | float | input | `60` | The material's talus angle, degrees. Range 1 to 89. |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `device` | `cpu`, `gpu`, `auto` | `cpu` | Where it runs: cpu is exact and the same everywhere. |
+
+#### Warp Terrain
+
+Type `TerrainWarp`.
+
+Pulls heights and masks sideways by noise, so straight features meander.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `amount` | float | input | `2000` | How far, cm. At least 0. |
+| `featureSize` | float | input | `15000` | Size of the swirls, cm. At least 1. |
+| `seed` | int | input | `0` | Random seed. |
 | `heightfield` | geometry | output |  |  |
 
 ## TrimSheets extension
