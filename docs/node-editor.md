@@ -8,6 +8,9 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 
 | Key | Does |
 | --- | --- |
+| **W** | Pick the selection up to follow the cursor. Tap **W** and click, press **Enter** or tap **W** again to place it; or hold **W** and let go. **Esc** or right-click puts it back. **X** / **Y** lock an axis, **Shift** snaps to the grid |
+| **R** | Spread or tighten the gaps between the selected nodes from their centre without resizing them, placed like **W**; nodes never pack closer than a small gap. **X** / **Y** scale one axis, **Shift** steps in tenths |
+| **E** | Turn the zip tie under the cursor, placed like **W**; away from a tie, press one and drag to turn it. 15 degree steps, **Ctrl** turns freely |
 | **T** (hold) + drag across wires | Zip-tie them |
 | **L** (hold) / **Shift+L** | Light up everything upstream and downstream of the selection |
 | **M** | Mute the selection |
