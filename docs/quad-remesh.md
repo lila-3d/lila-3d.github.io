@@ -8,20 +8,20 @@ Rebuild any mesh (a sculpt, a scan, a boolean result) as flowing, evenly sized q
 
 1. Select the mesh.
 2. **Topology > Quad Remesh** with the option box (Shift-click the menu item, or click its square).
-3. Pick a **Preset** for what the mesh is for, or set **Target Faces**.
+3. Pick a **Preset** for what the mesh is for, or set **Target Faces**. **Symmetry**, right under it, is X by default.
 4. Click **Apply**. The source stays, hidden; the new mesh is `<source>_remesh`.
 
 ```python
-quadRemesh("Body", preset="gameCharacter", symmetry="x")
+quadRemesh("Body", preset="gameCharacter")
 ```
 
 To stop it, press **Esc** and confirm with **Abort** on the progress card; the scene stays as it was.
 
 ## Troubleshooting
 
-**Far more faces than Target Faces.** The status line says when it went finer. Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count, and parts thinner than a face fold, so it retries finer. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
+**Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. With **Method** Field, parts thinner than a face fold, so it retries finer and the status line says so. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
 
-**The status line warns that the **Seamless** layout didn't come out clean.** The result used another layout, named in the warning, with more poles or flow that turns at patch corners. Change **Target Faces** a little or lower **Edges Around Thin Parts**, then apply again.
+**The status line says this is the Field layout.** The patches didn't fit this shape (a ring with no poles, like a smooth torus) or came out with flaws, so it used Field, with more poles. Change **Target Faces** a little and apply again.
 
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance**. Lower it if poles crowd onto flat areas nearby.
 
@@ -29,7 +29,9 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 **The two sides don't match.** Set **Symmetry** to the mirror axis; the mesh has to be symmetric about the origin.
 
-**Method Grid gave flowing loops instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles.
+**The status line says the mesh isn't symmetric.** The result mirrors one half over the other. Set **Symmetry** to Off for meshes that aren't symmetric about their origin, like props and posed characters.
+
+**Method Grid gave patches instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles.
 
 ## Options
 
@@ -68,11 +70,11 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 
 | Option | Default | What it does |
 | --- | --- | --- |
-| Method | Field | Field: quads follow the shape, creases and guides, with poles where the flow turns. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
+| Symmetry | X | Remeshes one half and mirrors it, exactly symmetric. Off for meshes that aren't symmetric about their origin. |
+| Method | Patches | Patches: lines from the poles cut the surface into patches filled with even grids, so loops run unbroken between poles and the symmetry line is one loop. Field: each point placed from the flow nearby, with more poles and broken loops. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
 | Use Hard Edges | on | Lays an edge loop along edges marked hard. |
 | Sharp Angle | 40 | Also follows creases sharper than this; negative turns it off. |
 | Joint Pole Avoidance | 30 | Keeps poles out of joints, armpits and finger webs, onto flatter parts nearby; 0 off. |
-| Symmetry | off | Remeshes one half and mirrors it, exactly symmetric. |
 | Pure Quads | on | All quads; off allows a few triangles and five-sided faces. |
 | Relax Iterations | 6 | Smoothing passes that even out the faces on the surface. |
 
