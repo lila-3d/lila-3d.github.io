@@ -9133,7 +9133,7 @@ Enter sculpt mode on a mesh: builds a high-resolution copy of its cage to sculpt
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mode` |  | str | `'subdivide'` | subdivide, remesh or direct. |
-| `levels` |  | int | `2` | Subdivision levels to start with, 1 to 6. |
+| `levels` |  | int | `0` | Subdivision levels to start with, 0 to 6: 0 sculpts the cage until sculptAddLevel adds some. |
 | `resolution` |  | int | `192` | Voxels along the longest side, for mode='remesh'. |
 | `resume` |  | bool | `True` | Continue from the mesh's kept high poly when it has one. |
 
@@ -12000,7 +12000,7 @@ Automatic uvs: seams, low-stretch unwrap and pack, in one step.
 | `distortionBound` |  | float | `0.05` | optcuts: stretch (symmetric Dirichlet excess, all islands) to get under. |
 | `seamWeight` |  | float | `0.5` | optcuts: price of seam length against stretch; higher keeps seams shorter. |
 | `useViews` |  | bool | `True` | Keep seams out of sight of the seam views (uvSeamView). |
-| `views` |  | list |  | Cameras or locators seams hide from; every seam view in the scene when not given. |
+| `views` |  | list |  | Cameras, locators or planes seams hide from; every seam view in the scene when not given. A plane (any mesh) sees along its normal, like an orthographic camera. |
 | `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
 | `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
 | `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
@@ -12039,7 +12039,7 @@ Place seams for game assets on the selected faces: hard edges, then cuts that op
 | `distortionBound` |  | float | `0.05` | optcuts: stretch (symmetric Dirichlet excess, all islands) to get under. |
 | `seamWeight` |  | float | `0.5` | optcuts: price of seam length against stretch; higher keeps seams shorter. |
 | `useViews` |  | bool | `True` | Keep seams out of sight of the seam views (uvSeamView). |
-| `views` |  | list |  | Cameras or locators seams hide from; every seam view in the scene when not given. |
+| `views` |  | list |  | Cameras, locators or planes seams hide from; every seam view in the scene when not given. A plane (any mesh) sees along its normal, like an orthographic camera. |
 
 ### uvBff
 
@@ -12078,6 +12078,42 @@ Delete the uvs of the selected faces, leaving the faces: their uvs collapse to 0
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+
+### uvHose
+
+Uvs for pipes, hoses, cables and rings: each tube is cut once along its least seen side and straightened into a strip, runs longer than maxAspect are cut across where least seen, and ends and rims are projected flat. Faces that are neither get auto seams. Works from the quad topology, so any swept tube qualifies.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+| `maxAspect` |  | float | `8.0` | Longest strip as a multiple of its circumference; 0 never cuts across. |
+| `maxLength` |  | float | `0.0` | Longest strip in cm; replaces maxAspect when set. |
+| `visibility` |  | bool | `True` | Hide cuts where they are least visible: occluded, concave and downward facing. |
+| `keepSeams` |  | bool | `False` | Keep the seams already there. |
+| `useViews` |  | bool | `True` | Keep seams out of sight of the views. |
+| `views` |  | list |  | Cameras, locators or planes seams hide from; every seam view in the scene when not given. A plane (any mesh) sees along its normal, like an orthographic camera. |
+| `pack` |  | bool | `True` | Pack the islands into 0-1 afterwards. |
+| `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
+| `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
+| `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
+| `paddingMips` |  | int | `0` | Padding and margin survive this many mip levels: both are multiplied by 2^paddingMips. |
+| `rotateStep` |  | int | `90` | Rotation step to try, degrees: 0 none, 90 quarter turns, smaller for more. |
+| `angles` |  | list |  | Exact angles to try, degrees (replaces rotateStep), e.g. [0, 90, 45]. |
+| `freeRotation` |  | bool | `False` | Any angle: each island also tries its three best-fitting angles (smallest bounding box) and their quarter turns. |
+| `flip` |  | bool | `False` | Also try islands mirrored (the texture then reads mirrored on them). |
+| `orient` |  | bool | `True` | Turn islands to their smallest bounding rectangle first. |
+| `scaleMode` |  | str | `'normalize'` | normalize: even texel density across islands and objects (world space). keep: islands keep their relative uv sizes. lock: islands keep their exact uv size and are only moved and turned. |
+| `normalize` |  | bool | `True` | Same as scaleMode=normalize when on, keep when off. |
+| `stack` |  | bool | `False` | Islands with the same shape (within stackTolerance) share one spot. |
+| `stackMirrored` |  | bool | `True` | Mirror-image islands stack too (the mirrored halves of a symmetric model). |
+| `stackTolerance` |  | float | `0.002` | Largest vertex mismatch for two islands to stack, as a fraction of the island's size. |
+| `tilesU` |  | int | `1` | UDIM tiles across. |
+| `tilesV` |  | int | `1` | UDIM tiles up. |
+| `region` |  | list |  | Pack into [uMin, vMin, uMax, vMax] of each tile instead of all of it. |
+| `texelsPerUnit` |  | float | `0.0` | Pack at this density (px/cm) instead of filling the tiles; overflow spills into further tiles. |
+| `effort` |  | int | `1` | Search effort 0-3: island orders tried per scale (1, 3, 6, 12). Higher packs denser, slower. |
+| `timeLimit` |  | float | `0.0` | Stop refining after this many seconds (0 never); results can then vary between runs. |
+| `workingResolution` |  | int | `0` | Search raster cells across a tile; 0 uses the resolution up to 4096. |
 
 ### uvLayout
 
@@ -17829,7 +17865,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |

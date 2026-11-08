@@ -350,6 +350,19 @@ Fits the selected edge loops, vertices, or the border of a face region to a circ
 
 To keep seams out of sight, such as away from a first person camera or a character's face, use **UV > Add Seam View**. It drops a locator where the camera is; move it and run Auto UV again. Its **Seam View** attribute sets how hard seams avoid it, and a negative value draws them towards it instead. Add as many as you need.
 
+## Hose UVs
+
+Select pipes, hoses, cables or rings and click **Hose** in the UV Editor's **Project** section (or **UV > Hose UVs**). Each tube becomes one straight strip with its seam along the least seen side, round ends become circles, and ring fittings get one cut across and one along. It reads the quad topology, so anything swept from a curve qualifies, whatever tool made it.
+
+To say where the object is seen from, open the options and pick **Views**: a camera, a seam view locator or a plane (any mesh, seen along its normal like an orthographic camera). Seams along the tubes and cuts across long runs both move out of their sight. With none picked, every seam view in the scene counts.
+
+- **Max Aspect** cuts runs longer than this many times their circumference, where least seen. 0 never cuts.
+- **Max Length** cuts by length in cm instead.
+
+Faces that are neither tube nor flat end, such as triangulated tubes or junction blobs, get Auto UV seams; the log says how many.
+
+<!-- todo image -->
+
 ## Transfer UVs to a similar piece
 
 Select the UV'd piece, then the other, and run **Transfer Attributes** (Shift+RMB) with **Sample Space** set to **Guided**. The second piece gets the same seams and islands, laid out where the first one's are.
