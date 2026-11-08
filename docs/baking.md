@@ -14,9 +14,9 @@ Low and High add the meshes under the selection too; Shift+click adds only the s
 
 ## Troubleshooting
 
-**Red patches in the Live preview, or flat spots in the normal map.** Rays started inside the high or missed it. Press **Estimate** on the Group tab's Cage row, then check again. **Paint** fixes what remains by hand.
+**Red patches in the Live preview, or flat spots in the normal map.** Rays started inside the high or missed it. Press **Auto Paint** on the Group tab's Cage row, then check again. **Paint** fixes what remains by hand.
 
-**The cage looks spiky or blown out after painting.** Press **Reset** on the Cage row to clear the painted offsets, then **Estimate** again.
+**The cage looks spiky or blown out after painting.** Press **Reset Paint** on the Cage row to clear the painted offsets, then **Auto Paint** again.
 
 **One mesh darkens another's AO (hair on a body, a strap on a dress).** Select the meshes that shouldn't occlude, pick the Low row they shouldn't darken (or the group row for every low), and press **Unlink Selected**. Shift+click also stops them projecting onto that low.
 

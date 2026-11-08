@@ -779,6 +779,19 @@ Wire a bake project's last outputs into the materials of the lows they were bake
 | `create` | `cr` | bool | `True` | Create materials for slots that have none. |
 | `channels` | `ch` | Any |  | Override which material channel a map goes to: {"height": "roughness"}. |
 
+### bakeAutoPaintCage
+
+Auto paint a bake group's cage in one step: paints bakeOffset on its lows so every texel's ray starts just outside the high and meets it, and sets the group's frontal and rear distances (an editable cage moves to the result). Checks itself by tracing the lows as a bake would, growing the cage where rays still miss. One undo step. A low whose modifiers change its points gets the result painted on its base points (listed in mapped) and its coverage measured again through the stack. Returns the miss rates before and after.
+
+**Objects:** group (or its low; default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `resolution` | `res` | int | `512` | Texels per side of the coverage check. |
+| `iterations` | `it` | int | `4` | Coverage passes that may grow the cage. |
+| `margin` | `mg` | float | `0.004` | Gap kept between cage and high, as a fraction of each low's bounds diagonal. |
+| `apply` | `ap` | bool | `True` | Write the result; False only reports it. |
+
 ### bakeCage
 
 A bake group's editable cage. create=True duplicates the low pushed out by the auto cage (frontal x cageOffset x the painted bakeOffset) as a mesh the group then uses; edit its points freely, its topology must stay the low's. fromPaint=True moves an existing cage to the auto cage as painted now. reset=True goes back to the auto cage (delete=True also removes the cage mesh). With no flag, reports the cage and whether it matches the low.
@@ -827,19 +840,6 @@ Bake what the stack adds on top of linear skinning into corrective morph targets
 Turn curves' symmetry copies into curves of their own and switch symmetry off, so each side can be edited apart. Returns the new curves.
 
 **Objects:** curves (default: the selected curves)
-
-### bakeEstimateCage
-
-Estimate a bake group's cage in one step: paints bakeOffset on its lows so every texel's ray starts just outside the high and meets it, and sets the group's frontal and rear distances (an editable cage moves to the result). Checks itself by tracing the lows as a bake would, growing the cage where rays still miss. One undo step. A low whose modifiers change its points gets the result painted on its base points (listed in mapped) and its coverage measured again through the stack. Returns the miss rates before and after.
-
-**Objects:** group (or its low; default the selection)
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `resolution` | `res` | int | `512` | Texels per side of the coverage check. |
-| `iterations` | `it` | int | `4` | Coverage passes that may grow the cage. |
-| `margin` | `mg` | float | `0.004` | Gap kept between cage and high, as a fraction of each low's bounds diagonal. |
-| `apply` | `ap` | bool | `True` | Write the result; False only reports it. |
 
 ### bakeForTarget
 
