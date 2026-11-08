@@ -36,7 +36,7 @@ setAttr(s + ".graph", """{"version": 1, "output": "interp",
                   {"from": "scalp", "to": "interp", "input": "scalp"}]}""")
 ```
 
-Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads the head's earlier frames. Simulate steps from its start frame as you play, and scrubbing back shows the frames it already stepped.
+Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads the head's earlier frames. Simulate steps from its start frame, including frames you jump past, and scrubbing back shows the frames it already stepped.
 
 ## Troubleshooting
 
@@ -45,8 +45,6 @@ Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads
 **No strands and no warning.** `inMesh` isn't connected or the mesh has no faces.
 
 **Strands don't scale with the head.** Sizes in the graph are scene units. Scale the lengths and densities in the graph to match.
-
-**Simulated hair looks different after jumping ahead.** Simulate steps over the skipped frames in one go. Go back to its start frame and play forward.
 
 **Hair doesn't move with the scene.** `useSceneTime` is off, so the graph holds at `time`.
 
