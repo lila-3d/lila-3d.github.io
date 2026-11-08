@@ -264,6 +264,26 @@ body:not(.in-api) .sidebar-nav a[href="#/python/"] + ul { display: none; }
 .search .clear-button path { stroke: var(--quiet); stroke-width: 1.75; stroke-linecap: round; }
 .search .clear-button:hover path { stroke: var(--text); }
 
+.search .search-hint {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  min-width: 20px;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--quiet);
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.search input:focus ~ .search-hint,
+.search input:not(:placeholder-shown) ~ .search-hint { display: none; }
+
 /* Search results grouped by page, reference areas folded (search-scope.js). */
 .search .search-page {
   padding: 12px 0 6px;

@@ -85,6 +85,21 @@
 
   function plugin(hook) {
     hook.mounted(function () {
+      var input = document.querySelector('.search input');
+      if (input) {
+        var hint = document.createElement('kbd');
+        hint.className = 'search-hint';
+        hint.textContent = '/';
+        hint.title = 'Press / to search';
+        input.insertAdjacentElement('afterend', hint);
+        input.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          e.preventDefault();
+          input.value = '';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.blur();
+        });
+      }
       var panel = document.querySelector('.search .results-panel');
       if (!panel) return;
       // Docsify rewrites the panel on every keystroke; disconnect while regrouping so our own edits don't re-trigger it.
@@ -94,6 +109,16 @@
         observer.observe(panel, { childList: true });
       });
       observer.observe(panel, { childList: true });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+      var t = e.target;
+      if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+      var input = document.querySelector('.search input');
+      if (!input) return;
+      e.preventDefault();
+      input.focus();
+      input.select();
     });
   }
 
