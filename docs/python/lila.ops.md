@@ -1940,6 +1940,12 @@ Delete every recovered scene kept for File > Recovered Scenes. Returns how many 
 
 Not undoable.
 
+### clearSceneTemplate
+
+Remove your New Scene template, so new scenes start from the studio's or workspace's template, or empty. Not undoable.
+
+Not undoable.
+
 ### clearSimCache
 
 Throw away simulation caches, so the next simulate starts from the start frame.
@@ -8762,6 +8768,12 @@ Save the scene. With no path, saves to the current file. .lila is binary, .lilaa
 
 Not undoable.
 
+### saveSceneTemplate
+
+Save the scene as the New Scene template: File > New and launch start from a copy of it, untitled. Later changes to this scene do not change the template. Not undoable.
+
+Not undoable.
+
 ### scAdd
 
 Mark new files for add. Returns {files, warnings}.
@@ -8971,6 +8983,12 @@ Create, edit, query or remove a Python script stored in the scene file. With no 
 | `rename` | `rn` | str |  | A new name for the script. |
 | `remove` | `rm` | bool | `False` | Delete the script. |
 | `query` | `q` | bool | `False` |  |
+
+### sceneTemplate
+
+The New Scene template's path, or None when new scenes start empty.
+
+Not undoable.
 
 ### sceneVersions
 
