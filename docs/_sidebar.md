@@ -86,6 +86,8 @@
 - <span class="nav-label">Extensions</span>
   - [Masonry](masonry.md)
   - [Terrain](terrain.md)
+  - [Cliffs](terrain-cliffs.md)
+  - [Seamwork](seamwork.md)
   - [Settlement](settlement.md)
   - [Stagehand](stagehand.md)
   - [Tailor](tailor.md)

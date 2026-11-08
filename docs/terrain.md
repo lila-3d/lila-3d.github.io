@@ -45,6 +45,10 @@ terrainTunnel('Terrain', fromRoad='pass')
 
 Caves, tunnels, overhangs and arches become mesh pieces over holes in the terrain, with seams that match the ground. A road's tunnel spans are bored with `fromRoad`.
 
+### Cliffs
+
+Steep slopes become layered rock cliff meshes with **Level > Cliffs**, and paint layers stop stretching on them. See [Cliffs](terrain-cliffs.md); for rubble and blends where walls meet the ground, see [Seamwork](seamwork.md).
+
 ### Other engines and files
 
 `terrainExport` writes `target='unity'` (RAW tiles, splatmaps and an importer script), `target='godot'` (Terrain3D regions and an importer script), `target='mesh'` (LOD tiles with collision as FBX, glTF or USD) or `target='files'` (EXR, 16-bit PNG and R16 tiles). **Level > Terrain > Terrain Tiles** makes the LOD tiles in the scene.

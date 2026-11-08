@@ -7747,7 +7747,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
-| `method` |  | str | `'patches'` | patches: lines from the poles cut the surface into patches filled with even grids, so loops run unbroken; field: each point placed from the flow nearby, quicker but with broken loops; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
+| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles, for characters, props and anything edited by hand; field: each point follows the flow near it, loops wander and poles scatter, for rough surfaces like scans and rocks; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
@@ -8470,7 +8470,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
-| `method` |  | str | `'patches'` | patches: lines from the poles cut the surface into patches filled with even grids, so loops run unbroken; field: each point placed from the flow nearby, quicker but with broken loops; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
+| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles, for characters, props and anything edited by hand; field: each point follows the flow near it, loops wander and poles scatter, for rough surfaces like scans and rocks; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
@@ -9513,7 +9513,7 @@ Set where and how a bake project writes: folder, file name template (tokens {pro
 | `format` | `f` | str |  | png, exr, tga, tif or psd (one layered file per texture set, a layer per map). One of `png`, `exr`, `tga`, `tif`, `tiff`, `psd`. |
 | `bits` | `b` | int |  | 8 or 16 (PNG, PSD); 8, 16 or 32 float (TIFF); 16 half or 32 float (EXR). |
 | `dither` | `di` | bool |  | Triangular dither when writing 8 bit (never on ID or island maps). |
-| `compression` | `cmp` | str |  | TIFF: deflate or none. |
+| `compression` | `cmp` | str |  | deflate or none: TIFF deflates, TGA run-length encodes. |
 | `compressionLevel` | `cl` | int |  | Deflate level for PNG, EXR and TIFF: 1 fastest (default 2) to 9 smallest. |
 | `udimNaming` | `un` | str |  | How {udim} reads: 1001, uv (u1_v1) or uv0 (u0_v0). |
 | `sidecar` | `sc` | bool |  | Write <texture>.json beside each texture (map, colour space, decode data). |
