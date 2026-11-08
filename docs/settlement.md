@@ -166,6 +166,8 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 
 **A command says Terrain, Masonry, Stagehand or Seamwork commands are not available.** Load that extension.
 
+**`settlementSendToUnreal` warns that placements were not sent.** The project has no static mesh at the paths in `missingAssets`. Name your own with `settlementFurniture(mesh, engineAssets={"lantern": "/Game/Props/SM_Lamp"}, store=True)` and send again.
+
 **`settlementSendToUnreal` asks for the LilaLinkSettlement plugin.** Copy `ue/LilaLinkSettlement` next to LilaLink in the project's Plugins folder and enable it.
 
 **`settlementRoadProfileFromUnreal` lists `unknown` slots.** Their names don't say lane, median, parking, sidewalk or verge; they were counted as verge. Rename the slots, or edit the profile under `roadProfiles` in the **edits** input.
