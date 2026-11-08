@@ -12008,6 +12008,7 @@ Automatic uvs: seams, low-stretch unwrap and pack, in one step.
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
 | `iterations` |  | int | `12` | SLIM iterations. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 | `hardAngle` |  | float | `60.0` | Edges sharper than this always get a seam, degrees. |
 | `useHardEdges` |  | bool | `True` | Edges marked hard always get a seam. |
 | `keepSeams` |  | bool | `False` | Keep the seams already there. |
@@ -12070,6 +12071,7 @@ Boundary First Flattening of the selected faces' islands: conformal, with the bo
 | `cones` |  | int | `0` | Cone points placed automatically (free boundary only); each adds a short seam. |
 | `exactLengths` |  | bool | `False` | free boundary: bend rather than stretch to close it, so its lengths are exact. |
 | `pack` |  | bool | `False` | Pack the islands into 0-1 afterwards. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 
 ### uvCut
 
@@ -12111,6 +12113,7 @@ Uvs for pipes, hoses, cables and rings: each tube is cut once along its least se
 | `useViews` |  | bool | `True` | Keep seams out of sight of the views. |
 | `views` |  | list |  | Cameras, locators or planes seams hide from; every seam view in the scene when not given. A plane (any mesh) sees along its normal, like an orthographic camera. |
 | `pack` |  | bool | `True` | Pack the islands into 0-1 afterwards. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 | `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
 | `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
 | `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
@@ -12141,6 +12144,7 @@ UV report for the selection: islands, overlapping and folded faces, distortion a
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
 | `resolution` |  | int | `1024` | Texture size for the density, px. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 
 Not undoable.
 
@@ -12175,6 +12179,7 @@ Relax the selected faces' uv islands with the live solver (ARAP with a stretch/c
 | `iterations` |  | int | `200` | Most local/global iterations; it stops once settled. |
 | `flatten` |  | bool | `False` | Solve from scratch first (LSCM/SLIM), keeping size and placement. |
 | `pins` |  | bool | `True` | Respect pinned uvs (uvPin). |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 | `balance` |  | float | `0.0` | Stretch against compression, -1..1: positive tolerates stretch and fixes compression, negative the reverse. |
 | `boundarySmooth` |  | float | `0.0` | Pull of the borders towards a smooth outline, 0..1. |
 | `slim` |  | int | `0` | SLIM iterations once settled, for a fold-free low-distortion finish. |
@@ -12192,6 +12197,7 @@ Split the selected uv islands that cannot flatten below threshold along short, h
 | `mode` |  | str | `'blend'` | conformal keeps angles, authalic keeps areas, blend mixes them by mix, isometric is SLIM (symmetric Dirichlet). |
 | `mix` |  | float | `0.5` | Blend only: 0 keeps angles, 1 keeps areas. |
 | `iterations` |  | int | `20` | Solver iterations. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 
 ### uvOptimize
 
@@ -12204,6 +12210,7 @@ Optimise the selected uv islands from where they are: conformal (keep angles), a
 | `mix` |  | float | `0.5` | Blend only: 0 keeps angles, 1 keeps areas. |
 | `iterations` |  | int | `20` | Solver iterations. |
 | `pins` |  | bool | `True` | Respect pinned uvs (corner attribute uvPin). |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 
 ### uvOrient
 
@@ -12221,6 +12228,7 @@ Pack the uv islands of the selected faces (or whole meshes) into 0-1 with paddin
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 | `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
 | `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
 | `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
@@ -12383,6 +12391,7 @@ Texel density of the selection in px/cm for a texture size. With density=, scale
 | `density` |  | float |  | Set to this many px/cm. |
 | `worldSpace` |  | bool | `True` | Measure world size, with the mesh's scale. |
 | `trims` |  | str | `'skip'` | Trim-mapped faces: skip keeps them on their trims, rescale scales them off. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 
 ### uvTransform
 
@@ -12418,6 +12427,7 @@ Unwrap the selected faces' islands along their seams (LSCM, refined with SLIM fo
 | `pins` |  | bool | `True` | Respect pinned uvs (corner attribute uvPin). |
 | `pack` |  | bool | `False` | Pack the unwrapped islands into 0-1. |
 | `openIslands` |  | bool | `False` | Cut closed or holed islands open where they cannot unfold, instead of stopping. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 | `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
 | `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
 | `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |

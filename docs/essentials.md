@@ -363,6 +363,14 @@ Faces that are neither tube nor flat end, such as triangulated tubes or junction
 
 <!-- todo image -->
 
+## UVs under modifiers
+
+On a mesh whose modifiers move its surface, such as **Auto Bevel** or **Subdivision**, Unwrap, Relax, Optimize, Pack, Texel Density and the UV Editor's distortion display all work on the mesh as it exports. The UV Editor still shows and edits the base mesh's UVs. Changing a modifier later (bevel width, subdivision levels) doesn't touch the UVs; run Relax again, and bake lint points you there when it finds the result collapsed.
+
+UVs that stay squeezed afterwards sit at island corners, where subdivision keeps the corner's UV fixed.
+
+In scripts, `finalMesh=False` makes a UV command work on the base mesh alone: `uvOptimize(finalMesh=False)`.
+
 ## Transfer UVs to a similar piece
 
 Select the UV'd piece, then the other, and run **Transfer Attributes** (Shift+RMB) with **Sample Space** set to **Guided**. The second piece gets the same seams and islands, laid out where the first one's are.
