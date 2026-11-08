@@ -2,6 +2,8 @@
 
 Stylized hair drawn as locks on a head, styled with sliders, settled onto the scalp and joined into one mesh for retopology.
 
+For realistic hair and fur grown as thousands of strands, use [Groom strands](groom-strands.md) instead.
+
 ![A character with drawn locks split, settled on the head and falling over the face](images/hair/hair.png)
 
 ## Get it working

@@ -2,6 +2,8 @@
 
 Realistic hair and fur: thousands of strands grown over a head and shaped by your guide curves, through a groom graph of scatter, interpolate, clump, curl, noise and the rest.
 
+For stylized locks that become one mesh for retopology, use [Hair](hair.md) instead.
+
 > **Experimental:** groom strands are subject to change and may lose data between versions. Feedback is welcome.
 
 <!-- Image: strands grown on a head from a few guide curves. -->
@@ -34,6 +36,8 @@ setAttr(s + ".graph", """{"version": 1, "output": "interp",
                   {"from": "scalp", "to": "interp", "input": "scalp"}]}""")
 ```
 
+Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads the head's earlier frames. Simulate steps from its start frame as you play, and scrubbing back shows the frames it already stepped.
+
 ## Troubleshooting
 
 **No strands, and `warning` names a node or says the graph can't load.** The graph JSON has an unknown node type, a bad connection or a typo. Fix the text; nothing grows until it loads.
@@ -42,6 +46,10 @@ setAttr(s + ".graph", """{"version": 1, "output": "interp",
 
 **Strands don't scale with the head.** Sizes in the graph are scene units. Scale the lengths and densities in the graph to match.
 
+**Simulated hair looks different after jumping ahead.** Simulate steps over the skipped frames in one go. Go back to its start frame and play forward.
+
+**Hair doesn't move with the scene.** `useSceneTime` is off, so the graph holds at `time`.
+
 **Strands start in the wrong place.** Guides are rooted at their first point on the nearest spot of the head. Draw each guide from its root outward.
 
 ## Options
@@ -49,6 +57,8 @@ setAttr(s + ".graph", """{"version": 1, "output": "interp",
 | Attribute | What it is |
 | --- | --- |
 | `graph` | The groom graph as JSON; empty grows the default hair. |
+| `useSceneTime` | On by default: the graph runs at the scene's time. Off: it runs at `time`. |
+| `time` | Seconds the graph runs at while `useSceneTime` is off. Key it to retime the motion. |
 | `outCurve` | The strands in world space, with a `width` per point and an `id` per strand. |
 | `strandCount` | How many strands grew. |
 | `warning` | What went wrong in the last evaluation. |
