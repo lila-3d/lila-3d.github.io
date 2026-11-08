@@ -104,6 +104,6 @@ Caves, tunnels, overhangs and arches become mesh pieces over holes in the terrai
 | `terrainStampPad(mode=)` | `flatten` | Building pads: `carve`, `raise`, `terraced`, `plinth`, `stilts`. Pads follow a mesh or closed curve live with `object=`. |
 | `terrainImportDem(source=)` | `copernicus` | `terrarium` (AWS Terrain Tiles) or `opentopography` with your own `apiKey=`. |
 
-**Display > Terrain** shows mask overlays, contour lines and flow arrows on terrains. They draw through the heightfield draw, which stays on while any of them is on.
+**Display > Terrain** shows mask overlays, contour lines and flow arrows on terrains. Terrains draw from their heights by default; turn off **Display > Terrain > Heightfield Draw** to draw them as meshes, which keeps the heightfield draw on only while an overlay is on.
 
 > **Note:** On a Z-up scene the terrain lies on XY and points are `[x, y]`. Terrain commands also work on rotated terrains, and the Landscape takes the rotation.
