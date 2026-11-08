@@ -7583,6 +7583,8 @@ Catmull-Clark subdivide whole meshes (crease-aware).
 | --- | --- | --- | --- | --- |
 | `levels` |  | int | `1` | Subdivision levels. |
 | `keepHardEdges` |  | bool | `False` | Keep normals split along hard edges; off smooths the shading across them. |
+| `uvs` |  | str | `'fitSurface'` | Island interior uvs: fitSurface spreads them evenly over the smoothed surface; blend smooths them like the points. |
+| `uvCorners` |  | str | `'keep'` | Island corner uvs: keep or smooth. |
 
 ### polyTargetWeld
 

@@ -2127,6 +2127,11 @@ Catmull-Clark subdivision. Edge "crease" attributes keep edges sharp.
 | `level` | int | input | `1` | Range 0 to 6. |
 | `mesh` | geometry | output |  |  |
 
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `uvs` | `fitSurface`, `blend` | `fitSurface` | Island interior uvs: spread evenly over the smoothed surface, or smoothed like the points. |
+| `uvCorners` | `keep`, `smooth` | `keep` | Island corner uvs: kept where the input has them, or smoothed with the border. |
+
 ### Triangulate
 
 Splits the selected faces into triangles.
