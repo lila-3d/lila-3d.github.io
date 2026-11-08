@@ -4388,7 +4388,7 @@ Lays out a settlement inside an outline: arterial roads routed over the ground f
 | `site` | geometry | input |  | Outline (the largest closed curve or loose-edge loop), fixed streets (open lines) and points (the first is the centre, the rest attractors main roads run to). Loose edges with int attribute road are main roads arriving from outside; with int attribute water they are rivers, float attribute width their width; loops with int attribute exclude are exclusions. |
 | `ground` | geometry | input |  | Mesh the settlement stands on. Empty for flat ground at the site's height. |
 | `profile` | string | input | `medievalTown` | Style: hamlet, streetVillage, medievalTown, usTown, manhattan, europeanCity, modernCity, scifiMegacity. |
-| `pattern` | string | input |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid. |
+| `pattern` | string | input |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid, none, tensor, contour, osm, example. |
 | `overrides` | string | input |  | JSON object of profile fields to change, such as {"maxFloors": 6}. |
 | `size` | float | input | `40000` | Side of the square used when the site has no outline. At least 100. |
 | `growth` | float | input | `1` | 0 to 1: how far the settlement has grown. Range 0 to 1. |
@@ -4405,6 +4405,7 @@ Lays out a settlement inside an outline: arterial roads routed over the ground f
 | `showStreets` | bool | input | `true` | Include streets in geometry. |
 | `showLots` | bool | input | `true` | Include lot outlines in geometry. |
 | `showBuildings` | bool | input | `true` | Include building envelopes in geometry. |
+| `generators` | string | input |  | Tensor fields, eras, districts, walls, imported streets and levels as JSON (settlementCreate's generator flags write it). |
 | `geometry` | geometry | output |  | What the show inputs select, joined. |
 | `streets` | geometry | output |  | Street ribbons and centreline curves. |
 | `lots` | geometry | output |  | Lot outlines as loose edges and closed curves. |

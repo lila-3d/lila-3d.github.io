@@ -2891,7 +2891,7 @@ Not undoable.
 
 ### deleteComponents
 
-Delete the selected vertices, edges or faces (with whatever depends on them).
+Delete the selected vertices or faces (with whatever depends on them), or dissolve the selected edges, joining their faces.
 
 ### deleteCurvePoints
 
@@ -15605,6 +15605,78 @@ Adds a street the way it is drawn: its points are kept, and generated streets fi
 settlementAddStreet('Settlement', points=[[-20000, 0], [0, 5000], [20000, 0]], profile='avenue')
 ```
 
+### settlementBlocks
+
+A settlement's blocks: stable id, type (perimeter, courtyard, open, row, superblock, park, plaza, market, churchyard, field), lot method, area, centre, courtyards and why special blocks are what they are, with counts of block types, lot methods, uses and the lot area distribution.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str |  | Only blocks of this type. One of `perimeter`, `courtyard`, `open`, `row`, `superblock`, `park`, `plaza`, `market`, `churchyard`, `field`. |
+| `limit` | `l` | int | `0` | At most this many; 0 for all. |
+
+Not undoable.
+
+```python
+settlementBlocks('Settlement', type='courtyard')['blocks'][0]['blockId']
+```
+
+### settlementBuildings
+
+Choose how buildings are made, for the whole settlement or (polygon=) a district, kept in the edits, and build them. outline: footprint curves and envelope volumes only. massing: greybox blocks with tiers and roofs in the settlement's buildings output. library: Stagehand library assets fitted to each lot by footprint, era and use tags, turned to face the street (lots nothing fits are listed). masonry: Masonry stone buildings, landmark lots only unless landmarksOnly=False. unreal: envelopes go as PCG data with settlementSendToUnreal (send=True sends now). contacts=True adds Seamwork contact skirts, strips or scatter where placed buildings meet the ground. Placed objects are grouped under <settlement>_<route> and replaced when the route is built again.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `route` | `r` | str | `'outline'` | How buildings are made. One of `outline`, `massing`, `library`, `masonry`, `unreal`. |
+| `polygon` | `pg` | list |  | A district, [[x, z], ...]: the route applies to lots whose centre is inside. |
+| `name` | `n` | str |  | The district's name; the same name replaces its route. |
+| `build` | `bd` | bool | `True` | Place the library or Masonry buildings now. |
+| `tags` | `tg` | list |  | Library tags every asset must have (default ['building']). |
+| `collection` | `co` | str |  | Only assets in this library collection. |
+| `assetFront` | `af` | str | `'+z'` | The axis library assets face along. One of `+z`, `-z`, `+x`, `-x`. |
+| `fit` | `ft` | float | `1.05` | How much larger than the footprint an asset may be (1 is exact). |
+| `landmarksOnly` | `lo` | bool | `True` | Masonry: only landmark lots. |
+| `limit` | `l` | int | `12` | Masonry: at most this many buildings. |
+| `contacts` | `ct` | bool | `False` | Seamwork contacts at the base of placed buildings. |
+| `contactKinds` | `ck` | list | `['skirt']` | skirt (seamSkirt), decal (seamDecal), scatter (seamScatter). |
+| `send` | `sd` | bool | `False` | unreal: send to Unreal now through settlementSendToUnreal. |
+
+```python
+settlementBuildings('Settlement', route='massing')
+```
+
+```python
+settlementBuildings('Settlement', route='library', tags=['medieval', 'house'], contacts=True)
+```
+
+```python
+settlementBuildings('Settlement', route='masonry', polygon=[[-5000, -5000], [5000, -5000], [5000, 5000], [-5000, 5000]], name='old_town')
+```
+
+### settlementCheck
+
+Runs the settlement's verification checks and lists what fails, each with its check, severity, id (lot:<id>, street:<id>, junction:<n>, mode:<vehicles|people>) and where: frontage (a built lot with no street), overlap (lots sharing ground), grade (a street steeper than its class allows, bridges excepted), water (a street through water without a bridge), envelope (outside its lot's setbacks), foundation (a building's base above the ground under it), lanes (a mode's lane graph not strongly connected), phases (signal phases letting crossing approaches go together). report=True also lists them in the Validation panel on the settlement's mesh. Returns ok, counts per check, the issues, warnings (checks that could not run) and the plan state.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `report` | `rp` | bool | `False` | Also report the issues in the Validation panel (replacing this check's earlier ones). |
+
+Not undoable.
+
+```python
+c = settlementCheck('Town')
+c['ok'], c['counts']
+```
+
+```python
+settlementCheck('Town', report=True)
+```
+
 ### settlementCreate
 
 Lay out a settlement: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile, blocks between them, lots along the streets and a building envelope on each lot (footprint, floors, height, roof: the space a building may fill; buildings are made elsewhere).
@@ -15627,8 +15699,9 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `exclude` | `xo` | list |  | Objects kept clear: meshes by their footprint seen from above, curves (closed: their inside; open: a corridor along them). |
 | `exclusionMargin` | `xm` | float | `0.0` | Clearance around exclusions, cm. |
 | `name` | `n` | str | `'Settlement'` | Name of the mesh made to hold the site. |
+| `terrainWater` | `tw` | bool | `True` | On a Terrain ground with no water of its own: the terrain's rivers crossing the outline become the settlement's water. |
 | `profile` | `pf` | str | `'medievalTown'` | Style. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
-| `pattern` | `pt` | str |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid. |
+| `pattern` | `pt` | str |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid, none, tensor, contour, osm, example. |
 | `overrides` | `ov` | str |  | JSON object of profile fields to change. |
 | `growth` | `gr` | float | `1.0` | How far the settlement has grown, 0 to 1. |
 | `seed` | `s` | int | `1` | Random seed. |
@@ -15644,6 +15717,18 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `showStreets` | `ss` | bool | `True` | Show street ribbons. |
 | `showLots` | `sl` | bool | `True` | Show lot outlines. |
 | `showBuildings` | `sb` | bool | `True` | Show building envelopes. |
+| `generators` | `gen` | str |  | Tensor fields, eras, districts, walls, imported streets and levels as JSON. |
+| `tensor` | `tn` | Any |  | Tensor field for pattern tensor: {fields: [{kind: grid\|radial\|boundary\|height, angle, center, weight, decay, lines, follow: outline\|water}], paint: [{points, radius, angle, weight}], mask, majorSpacing, minorSpacing}. |
+| `eras` | `er` | Any |  | Eras in order, each {name, profile, pattern, overrides, growth, inner, outer, polygon, walls, demolishWalls, ring, axes, highwayRing, highwaySpurs}; or a preset: walledTown, medievalToModern, gridToSprawl. |
+| `walls` | `wl` | Any |  | Walls round the core: True, or {radius, polygon, contour, thickness, height, towerSpacing, starFort, bastions, moat, moatGap}. |
+| `districts` | `di` | list |  | Districts, each {name, polygon, profile, pattern, overrides, growth, era, seed, eras}: their own generator inside the polygon. |
+| `osm` | `os` | list |  | Imported streets: curves made by terrainImportOsm (by name), or {points, class} with an OSM highway value or a street class. |
+| `osmFile` | `of` | str |  | OSM file (.osm, .json, .osm.pbf) read through terrainImportOsm onto the ground. |
+| `osmOrigin` | `oo` | list |  | [latitude, longitude] of the ground's centre, for osmFile on a terrain not from real data. |
+| `example` | `eg` | Any |  | Grow like another street network: a settlement by name, or {orientation, degree, blockAreaMedianM2, meanSegment} (settlementGenerators statistics), or {streets}. |
+| `contourStreets` | `cst` | bool | `False` | Streets along the ground's contours from terrainContourStreets (the ground must be a Terrain). |
+| `contourSpacing` | `csp` | float | `3000.0` | Between contour streets across the slope, cm. |
+| `levels` | `lv` | Any |  | Levels above the ground: {decks: [{name, polygon, height, pattern, ramps}], elevated: [{points, height, class, ramps}], skybridgeSpan, skybridgeHeight, airHeights, airSpacing, megablock}. |
 
 ```python
 settlementCreate(profile='medievalTown', size=60000)
@@ -15658,6 +15743,14 @@ town = settlementCreate(outline=[[-40000, -30000], [45000, -25000], [38000, 3500
                         attractors=[[0, 0], [40000, 0]], ground='Terrain', profile='europeanCity')
 setAttr(town['modifier'] + '.overrides', '{"maxFloors": 9}')
 settlementInfo(town['mesh'])['checks']
+```
+
+```python
+settlementCreate(profile='medievalTown', size=200000, eras='medievalToModern')
+```
+
+```python
+settlementCreate(profile='modernCity', size=150000, tensor={'fields': [{'kind': 'grid', 'angle': 20}, {'kind': 'boundary', 'follow': 'water', 'weight': 2}]}, water=[[[-80000, 0], [80000, 20000]]])
 ```
 
 ### settlementDelete
@@ -15676,7 +15769,7 @@ settlementDelete('Settlement', ids=[4, 5])
 
 ### settlementEditStreet
 
-Changes a street or route added by settlementAddStreet or settlementRoute: its points (or stops), class, road profile, width, mode or name; or a generated street by its stable id (settlementStreets lists them): its class, profile or width, kept through re-runs. Only the flags given change. Returns the outcome as settlementRoute does.
+Changes a street or route added by settlementAddStreet or settlementRoute: its points (or stops), class, road profile, width, mode or name; or a generated street by its stable id (settlementStreets lists them): its class, profile, width or name (the name holds along the whole street through its junctions), kept through re-runs. Only the flags given change. Returns the outcome as settlementRoute does.
 
 **Objects:** settlement mesh or its modifier
 
@@ -15694,15 +15787,73 @@ Changes a street or route added by settlementAddStreet or settlementRoute: its p
 settlementEditStreet('Settlement', id=3, profile='highway', streetClass='arterial')
 ```
 
+### settlementEnvelopes
+
+Building envelopes in the published envelope schema: footprint and sides (street, party, open) with the lot across each party wall, setbacks, tiers, floors and heights, roof kind, ridge and height, entrances on the street, ground-floor use, corner treatment, foundation depth and its source (terrainRegionStats or the ground sampled under the footprint), landmark, era, wealth and building route. Filter by lot, use or landmarks.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lot` | `lt` | Any |  | Only these lot ids. |
+| `use` | `u` | str |  | Only this use. One of `residential`, `commercial`, `civic`, `plaza`, `open`, `market`, `religious`, `industrial`, `port`, `farm`, `park`, `cemetery`. |
+| `landmarks` | `lm` | bool | `False` | Only landmark envelopes. |
+| `limit` | `l` | int | `200` | At most this many; 0 for all. |
+
+Not undoable.
+
+```python
+e = settlementEnvelopes('Settlement', landmarks=True)['envelopes'][0]
+e['roof'], e['entrances'], e['foundationDepth']
+```
+
+### settlementEras
+
+A settlement's eras in order: name, profile, pattern, roof, street km, lots and envelopes laid in each era, walls built in it; and its districts. Every street, lot and envelope carries its era (settlementExport writes it on streets, lots and envelopes). Changes nothing.
+
+**Objects:** settlement mesh or its modifier
+
+Not undoable.
+
+```python
+[e['name'] for e in settlementEras('Settlement')['eras']]
+```
+
+### settlementExplain
+
+Why a part of a settlement is where it is, as reasons an agent can read: id='centre' (the market square, its ground and water, the site it was chosen as), 'site' (every siting term with its value, weight and why, for settlements placed by settlementRegion), a street id or 'street:<id>' (its class and the rule that laid it: main road to a gate or attractor, routed by terrainRoute or Settlement's own router, grown or grid street, lane through a large block; bridges; its steepest grade against the class's limit), 'lot:<id>' and 'landmark:<id>' (why it has its use, its envelope), 'block:<id>'. Changes nothing.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` | `i` | str | `'centre'` | centre, site, a street id, street:<id>, lot:<id>, landmark:<id> or block:<id>. |
+
+Not undoable.
+
+```python
+settlementExplain('Town', id='centre')['reasons']
+```
+
+```python
+s = settlementStreets('Town')['streets'][0]['id']
+settlementExplain('Town', id=str(s))
+```
+
 ### settlementExport
 
-Writes a settlement's layout as JSON (format lila.settlement): street nodes and edges with class, width and era; blocks; lots with outline, use, frontages and the street class each side faces; building envelopes with footprint, side kinds (street, party, open), floors, floor height, base, ground and top heights, roof and facing. 2D points are [x, z] in cm, heights world Y. This is what building generators (Unreal PCG, Masonry, library placement) read. Returns the path and counts.
+Writes a settlement as files. format='json' (lila.settlement): street nodes and edges with class, width and era, blocks, lots, envelopes, 2D points [x, z] in cm, heights world Y; what building generators read. 'geojson': a FeatureCollection with a layer property per feature (street, junction, block, lot, envelope, lane, placement) and their fields, metres, x east and -z north. 'usd': USD text with Scopes Streets and Lanes (BasisCurves), Junctions (Xforms), Blocks, Lots and Envelopes (Meshes) and Placements (Xforms), fields as lila: attributes, Y up, cm. 'dxf': a plan with layers Streets, Paths, Water, Blocks, Lots, Buildings and Lanes, Z up, in unit. 'unity' and 'godot': path is a folder that gets the engine JSON (engine space, metres), the streets and massing as FBX and the importer script (Unity: an Editor script, Tools > Lila > Import Settlement; Godot: an EditorScript run from the Script Editor). The format follows the path's extension when not given. Returns the files and counts.
 
 **Objects:** mesh or its settlement modifier (default the selection)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `path` | `p` | str |  | File to write (.json). |
+| `path` | `p` | str |  | File to write; a folder for unity and godot. |
+| `format` | `fm` | str |  | File format (default from the extension: .geojson, .usda, .usd, .dxf, else json). One of ``, `json`, `geojson`, `usd`, `dxf`, `unity`, `godot`. |
+| `unit` | `u` | str | `'m'` | dxf: the drawing unit. One of `mm`, `cm`, `m`, `in`, `ft`. |
+| `dxfVersion` | `dv` | str | `'2000'` | dxf: 2000, or r12 for older CAD and CNC software. |
+| `meshes` | `me` | bool | `True` | unity and godot: write the streets and massing as FBX next to the JSON. |
+| `placements` | `pl` | Any |  | Extra placements, a list or its JSON text: [{id, asset, position: [x, y, z], rotation: [x, y, z, w], scale, tags}], cm. |
 
 Not undoable.
 
@@ -15710,23 +15861,127 @@ Not undoable.
 settlementExport('Settlement', path='C:/work/town.json')
 ```
 
-### settlementGrade
+```python
+settlementExport('Settlement', path='C:/work/town.geojson')
+```
 
-Shapes a Terrain under the settlement in its City stamp layer: streets as strips graded along the road (pieces of at most segment), lots as building pads (padMode), squares as flat paved regions, each keyed by the settlement and the part's stable id, so grading again replaces them and removes the stamps of parts that are gone. Paths on the walkable mesh are left alone. Needs the Terrain extension. Returns the stamps made per kind, those removed, the terrain revision and any errors.
+```python
+settlementExport('Settlement', path='C:/work/town.usda')
+```
+
+```python
+settlementExport('Settlement', path='C:/work/town_plan.dxf', unit='m')
+```
+
+```python
+settlementExport('Settlement', path='C:/work/UnityTown', format='unity')
+```
+
+### settlementFoundations
+
+Measure each envelope's foundation on a Terrain with terrainRegionStats (the lowest and highest ground under its footprint) and keep the numbers in the settlement's edits by lot id, so envelopes take their base and foundation depth from them. terrain= defaults to the settlement's ground. clear=True drops them, going back to the ground sampled under each footprint.
 
 **Objects:** settlement mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `terrain` | `tr` | str |  | The terrain mesh to shape (default the settlement's ground). |
-| `segment` | `sg` | float | `5000.0` | Longest street piece graded as one strip, cm. |
-| `streets` | `st` | bool | `True` | Streets as road features. |
+| `terrain` | `t` | str |  | The Terrain mesh; default the settlement's ground. |
+| `clear` | `cl` | bool | `False` | Drop the measured foundations. |
+
+```python
+settlementFoundations('Settlement', terrain='Terrain')
+```
+
+### settlementFurniture
+
+Places street furniture: along every road from its road profile's set (lamps, street trees, benches, bins, hydrants; lanterns in medieval styles), signals on each approach of signalised junctions, stop and yield signs by junction control, a street-name sign at each junction, and squares furnished (medieval: a well, market stalls and carts; modern: benches, trees, and bollards along the main streets). Every placement has a stable id that survives unrelated edits.
+
+Sets are data: sets= replaces a profile's rules, {profile: [{kind, spacing, where, sides, minWidth}]} with where kerb, back, verge, median or edge and sides both, alternate, right or left. realize=True places a Set Dressing library asset for each kind in assets= (lamp defaults to Road/StreetLight) through its place command; kinds without an asset are listed in missingAssets. store=True keeps sets= with the settlement and engineAssets= names the engine asset per kind (default /Game/Settlement/Furniture/SM_<Kind>): the layout's placements, which exports and Send to Unreal read, use both. Returns counts by kind and by profile, the sets used and the placements.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sets` | `st` | Any |  | Furniture rules per road profile, over the built-in ones. |
+| `kinds` | `k` | list |  | Only these kinds. |
+| `realize` | `rz` | bool | `False` | Place library assets in the scene (needs the Set Dressing extension). |
+| `assets` | `as` | Any |  | {kind: library asset id} for realize. |
+| `limit` | `lm` | int | `2000` | Most placements returned in the list (counts cover all). |
+| `store` | `sr` | bool | `False` | Keep sets= with the settlement, so its placements (exports, Send to Unreal) use them. |
+| `engineAssets` | `ea` | Any |  | {kind: engine asset path} the settlement's placements use, kept with it. |
+
+```python
+f = settlementFurniture('Settlement')
+f['byKind']['lamp'], f['byProfile']['avenue']
+```
+
+```python
+settlementFurniture('Settlement', sets={'street': [{'kind': 'lamp', 'spacing': 2500, 'sides': 'both'}]}, kinds=['lamp'])
+```
+
+```python
+settlementFurniture('Settlement', realize=True, assets={'bench': 'Street/Bench'})
+```
+
+### settlementGenerators
+
+Reads or changes a settlement's generator settings: tensor fields, eras, districts, walls, imported OSM streets, example statistics, contour streets and levels (the same flags as settlementCreate), stored in its generators input. Only the flags given change; clear=True starts over. Returns the generator settings, eras (name, profile, pattern, street km, lots, envelopes, walls), districts, walls (standing, demolished, gates, towers), levels, ramps, air lanes, megablocks, the street statistics (orientation histogram, degrees, block size: what example= reads), the profile's metric targets and whether they are met, and warnings for fallbacks taken.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tensor` | `tn` | Any |  | Tensor field for pattern tensor: {fields: [{kind: grid\|radial\|boundary\|height, angle, center, weight, decay, lines, follow: outline\|water}], paint: [{points, radius, angle, weight}], mask, majorSpacing, minorSpacing}. |
+| `eras` | `er` | Any |  | Eras in order, each {name, profile, pattern, overrides, growth, inner, outer, polygon, walls, demolishWalls, ring, axes, highwayRing, highwaySpurs}; or a preset: walledTown, medievalToModern, gridToSprawl. |
+| `walls` | `wl` | Any |  | Walls round the core: True, or {radius, polygon, contour, thickness, height, towerSpacing, starFort, bastions, moat, moatGap}. |
+| `districts` | `di` | list |  | Districts, each {name, polygon, profile, pattern, overrides, growth, era, seed, eras}: their own generator inside the polygon. |
+| `osm` | `os` | list |  | Imported streets: curves made by terrainImportOsm (by name), or {points, class} with an OSM highway value or a street class. |
+| `osmFile` | `of` | str |  | OSM file (.osm, .json, .osm.pbf) read through terrainImportOsm onto the ground. |
+| `osmOrigin` | `oo` | list |  | [latitude, longitude] of the ground's centre, for osmFile on a terrain not from real data. |
+| `example` | `eg` | Any |  | Grow like another street network: a settlement by name, or {orientation, degree, blockAreaMedianM2, meanSegment} (settlementGenerators statistics), or {streets}. |
+| `contourStreets` | `cst` | bool | `False` | Streets along the ground's contours from terrainContourStreets (the ground must be a Terrain). |
+| `contourSpacing` | `csp` | float | `3000.0` | Between contour streets across the slope, cm. |
+| `levels` | `lv` | Any |  | Levels above the ground: {decks: [{name, polygon, height, pattern, ramps}], elevated: [{points, height, class, ramps}], skybridgeSpan, skybridgeHeight, airHeights, airSpacing, megablock}. |
+| `clear` | `cl` | bool | `False` | Remove every generator setting first. |
+| `pattern` | `pt` | str |  | Set the pattern too (organic, grid, radial, linear, organicGrid, none, tensor, contour, osm, example). |
+
+```python
+settlementGenerators('Settlement', eras='medievalToModern')['eras']
+```
+
+```python
+settlementGenerators('Settlement', pattern='tensor', tensor={'fields': [{'kind': 'grid', 'angle': 30}, {'kind': 'radial', 'center': [0, 0], 'decay': 30000}]})
+```
+
+```python
+settlementGenerators('Settlement')['targets']['ok']
+```
+
+### settlementGrade
+
+Shapes a Terrain under the settlement through the terrain contract. Streets go as terrain roads (terrainAddRoad, in roadLayer): cross-section from their road profile (lanes, lane width, sidewalk, kerb), the class's steepest grade, banking from the design speed, cut and fill, and bridge or tunnel spans where their edges are flagged (or an arterial crosses water); junctions where three or more main roads meet become roundabouts (terrainAddRoundabout). Lots become building pads (padMode), squares flat paved region stamps, and water the settlement builds goes in too: canals and moats as carved channels, quays down both banks (terrainStampQuay), rivers as terrain rivers (terrainAddRiver). Everything is keyed by the settlement and the part's stable id: grading again sends only what changed and removes what is gone. With replan, a pinned plan first catches up with terrain changes (settlementReplan). Grading pins the plan at the graded terrain, so the settlement no longer moves when the ground under it changes until it is re-planned. Needs the Terrain extension. Returns counts per kind (made and sent), what was unchanged and removed, the plan state, the revision and any errors.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `terrain` | `tr` | str |  | The terrain to shape (default the settlement's ground). |
+| `streets` | `st` | bool | `True` | Streets as terrain roads. |
 | `lots` | `lt` | bool | `True` | Lots as building pads (the envelope's footprint where there is one). |
 | `plazas` | `pz` | bool | `True` | Squares as region stamps. |
+| `water` | `wa` | bool | `True` | Canals, moats, quays and rivers the settlement builds. |
+| `roundabouts` | `ra` | str | `'arterial'` | Junctions made roundabouts: where three or more main roads meet, or none. One of `arterial`, `none`. |
+| `roadLayer` | `rl` | str | `'CityRoads'` | Terrain roads layer the streets go in. |
+| `replan` | `rp` | bool | `True` | Re-plan the regions the terrain changed in first. |
 | `padMode` | `pm` | str | `'flatten'` | How pads meet the slope. One of `flatten`, `carve`, `raise`, `blend`, `plinth`, `terraced`, `stilts`. |
 
 ```python
 settlementGrade('Settlement', terrain='Terrain', padMode='terraced')
+```
+
+```python
+g = settlementGrade('Settlement')
+g['streetsSent'], g['unchanged'], g['removed']
 ```
 
 ### settlementInfo
@@ -15743,6 +15998,87 @@ Not undoable.
 settlementInfo('Settlement')['metrics']['orientationOrder']
 ```
 
+### settlementLandUse
+
+Land use: what each use covers and the rules behind it, or (lot= or at= with use=) set a lot's use by its stable id, kept in the edits. Uses come from rules: street access (integration and betweenness), distance to the centre and the water, flood ground and slope (parks), the prevailing wind and the river's flow (industry downwind and downstream), fields outside pre-modern towns, a market facing the square, commerce on the most central streets and residential wealth tiers by land value. clear=True drops the lot's use override.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lot` | `lt` | Any |  | Lot id, or a list of them. |
+| `at` |  | list |  | Or the lot under this point, [x, z]. |
+| `use` | `u` | str |  | The use to give them. One of `residential`, `commercial`, `civic`, `plaza`, `open`, `market`, `religious`, `industrial`, `port`, `farm`, `park`, `cemetery`. |
+| `clear` | `cl` | bool | `False` | Drop their use overrides. |
+
+```python
+settlementLandUse('Settlement')['uses']
+```
+
+```python
+settlementLandUse('Settlement', at=[2400, 600], use='industrial')
+```
+
+### settlementLanes
+
+The lane graph a traffic system reads: lanes per road per direction, pedestrian lanes on sidewalks and footpaths, links for the movements junctions allow (through, left, right, U-turns at dead ends, corners, crosswalks, unmarked crossings) with each signalised movement's phase, and bus and tram routes. checks: per mode the strongly connected components, lanes that cannot reach an exit and exits that cannot be reached, conflicting greens (protected movements of one phase that cross or merge), unphased approaches and unreachable transit routes; ok when all are empty. Changes nothing.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `busRoutes` | `br` | int | `-1` | Bus routes (each out and back); -1 from the style: none in medieval ones, else one per two districts, at most 4. |
+| `tramRoutes` | `tr` | int | `-1` | Tram routes on the arterials' inner lanes; -1: one in cities with arterials. |
+| `busStopSpacing` | `bs` | float | `40000.0` | cm between bus stops. |
+| `tramStopSpacing` | `ts` | float | `60000.0` | cm between tram stops. |
+| `lanes` | `ln` | bool | `False` | Also every lane (points, mode, direction, street) and link (movement, phase). |
+
+Not undoable.
+
+```python
+c = settlementLanes('Settlement')['checks']
+c['ok'], c['modes']['vehicle']['components']
+```
+
+### settlementLevels
+
+A settlement's networks above the ground: each level (deck, elevated road, skybridges) with its layer, height, street count and junctions from its own road network; ramps between levels and the ground; air-traffic lanes (altitudes, nodes, one-way links, whether every node reaches every other); megablock footprints. Streets on different layers never meet except through ramps. curves=True makes a curve per kind (deck, elevated, ramp, skybridge, air) with every line at its height.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curves` | `cv` | bool | `False` | Make curves for the lines above the ground. |
+| `name` | `n` | str | `'Levels'` | Prefix of the curves made. |
+
+```python
+settlementCreate(profile='scifiMegacity', size=200000, levels={'decks': [{'polygon': [[-30000, -30000], [30000, -30000], [30000, 30000], [-30000, 30000]], 'height': 4000}], 'airHeights': [20000, 40000], 'megablock': 20000})
+settlementLevels('Settlement')['air']['connected']
+```
+
+### settlementLots
+
+A settlement's lots: stable id, block, use, residential wealth tier, area, street sides, corner, street access (0 to 1, integration and betweenness of the streets it faces), landmark name and the reasons it is there, building route. Filter by use, block or landmarks only. stats holds the lot area distribution and use counts.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `use` | `u` | str |  | Only lots of this use. One of `residential`, `commercial`, `civic`, `plaza`, `open`, `market`, `religious`, `industrial`, `port`, `farm`, `park`, `cemetery`. |
+| `block` | `b` | Any |  | Only lots in this block (its id). |
+| `landmarks` | `lm` | bool | `False` | Only landmark lots. |
+| `limit` | `l` | int | `500` | At most this many; 0 for all. |
+
+Not undoable.
+
+```python
+settlementLots('Settlement', landmarks=True)
+```
+
+```python
+settlementLots('Settlement', use='commercial', limit=20)
+```
+
 ### settlementMetrics
 
 Street measures comparable with real cities: street length and density, orientation entropy and order (Boeing 2019), intersections, dead-end ratio, degree histogram, block areas. Changes nothing.
@@ -15753,6 +16089,45 @@ Not undoable.
 
 ```python
 settlementMetrics('Settlement')['deadEndRatio']
+```
+
+### settlementNames
+
+Street and district names. Every street through its junctions has one name from the naming culture (oldEnglish, latin, french, spanish, usGrid with numbered streets and avenues, sector codes), stable by the ids of the streets in it; districts are the quarters between arterials. culture= sets the settlement's culture (default from its style); district= with name= renames a district. Street names change with settlementEditStreet(name=). Names save with the scene and go out in settlementExport. Returns the culture, every street's name by stable id and the districts.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `culture` | `cu` | str |  | Naming culture; empty for the style's. One of `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, ``. |
+| `district` | `d` | int |  | A district's id, with name=. |
+| `name` | `n` | str |  | The district's new name; empty gives it back to the culture. |
+
+```python
+settlementNames('Settlement', culture='french')['streets'][0]['name']
+```
+
+```python
+d = settlementNames('Settlement')['districts'][0]['id']
+settlementNames('Settlement', district=d, name='Old Town')
+```
+
+### settlementPlaceLandmark
+
+Reserve a lot as a landmark under a name (a footprint to fill from the library or Masonry), by stable id or the lot under at=, kept in the edits; use= changes its use too. remove=True takes the name off again. Generated landmarks (market_square, church, town_hall, castle or temple on high ground, axis_end_N, park_N, cemetery) carry the reasons they are where they are; settlementLots(landmarks=True) lists them all.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lot` | `lt` | Any |  | Lot id. |
+| `at` |  | list |  | Or the lot under this point, [x, z]. |
+| `name` | `n` | str |  | Landmark name, such as guild_hall. |
+| `use` | `u` | str |  | Its use. One of `residential`, `commercial`, `civic`, `plaza`, `open`, `market`, `religious`, `industrial`, `port`, `farm`, `park`, `cemetery`. |
+| `remove` | `rm` | bool | `False` | Take the landmark name off. |
+
+```python
+settlementPlaceLandmark('Settlement', at=[300, 4200], name='guild_hall', use='civic')
 ```
 
 ### settlementProfiles
@@ -15767,7 +16142,7 @@ settlementProfiles()['manhattan']['maxFloors']
 
 ### settlementRegion
 
-Settles a whole map: cities on the best sites (flat, by a river but out of its flood, near confluences), towns between them and villages filling in, spaced as central places; roads routed between neighbours over the ground, bridging rivers where they must; then each settlement laid out with settlementCreate, its main roads continuing the regional ones. Makes a Region mesh holding the roads and rivers as lines, plus one settlement mesh per place. Returns each settlement (name, tier, profile, centre, radius, site score and reasons, lots, buildings, checks), the road count and the bridges.
+Settles a whole map: cities on the best sites (scored as settlementSuggest scores them, for kind=), towns between them and villages filling in, spaced as central places; roads routed between neighbours over the ground, bridging rivers where they must; then each settlement laid out with settlementCreate, its main roads continuing the regional ones. Makes a Region mesh holding the roads and rivers as lines, plus one settlement mesh per place. On a Terrain ground the sites come from its analysis, the roads from terrainRoute and, with no water= given, the rivers from terrainWaterInfo; each settlement keeps its site record for settlementExplain id='site'. Returns each settlement (name, tier, profile, centre, radius, site score and reasons, lots, buildings, checks), the road count, the bridges, which ground was used and roadNotes (pairs the terrain router could not join).
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -15787,9 +16162,61 @@ Settles a whole map: cities on the best sites (flat, by a river but out of its f
 | `villageRadius` | `vr` | float | `15000.0` | Largest village radius, cm. |
 | `seed` | `s` | int | `1` | Random seed. |
 | `name` | `n` | str | `'Region'` | Name of the mesh holding the roads and rivers. |
+| `kind` | `k` | str |  | Kind of place the sites are scored for (settlementSuggest); empty for town. One of ``, `town`, `market`, `port`, `mining`, `fort`, `farming`, `mill`. |
+| `rules` | `ru` | Any |  | Term weights over the kind's: {water: 0.6, defense: 0.3, ...}. |
+| `riverArea` | `ra` | float |  | Terrain: drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Terrain: sea level along the up axis, cm. |
 
 ```python
 settlementRegion(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], cities=1, towns=2, villages=6)
+```
+
+### settlementReplan
+
+Brings a settlement on a Terrain up to the terrain under it. The first time (or with full=True, or after the settlement's own inputs changed) it routes its main roads with terrainRoute and pins the plan. After that it asks terrainDirtyRegions what changed since the plan's revision and re-plans only there: blocks touching a changed region are laid out again (with new ids), every other block keeps its id, lots and envelopes exactly, and main roads crossing a changed region are routed again. Returns the mode (full, dirty or unchanged) and why, the regions, blocks kept, dropped and new, street edges removed and added, the routes and the revision.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `terrain` | `tr` | str |  | The terrain (default the settlement's ground). |
+| `routes` | `ro` | bool | `True` | Route main roads with terrainRoute. |
+| `full` | `fu` | bool | `False` | Plan everything afresh. |
+
+```python
+settlementReplan('Town')
+```
+
+```python
+terrainSculpt('Terrain', op='raise', points=[[12000, 3000]], radius=3000, strength=800)
+settlementReplan('Town')['keptBlocks']
+```
+
+### settlementRoadMesh
+
+Builds a settlement's roads as meshes under a group <settlement>_Streetscape, made again on every call: <name>_Roads (carriageways swept along every road with its cross-section at the street's width, and a patch over each junction with rounded corners), <name>_Sidewalks (sidewalks raised by curb, kerb faces, medians, verges, and curb returns round each corner where both roads have a sidewalk) and <name>_Markings (crosswalk stripes at signalised and stop junctions). Medieval styles get cobble and packed earth edge to edge with a gutter down the middle and no kerbs or markings. Face attributes part, surface, line and junction.
+
+On a Terrain, streets already laid as terrain roads with ids <settlement>/street/<street id> are built by terrainRoadBuild instead (builder says which was used, and why). Returns the meshes, areas in m2 (roads, junctions, sidewalks, curb returns, markings), counts, and crosswalk decal placements.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curb` | `cb` | float | `15.0` | Height of sidewalks and medians above the road, cm. |
+| `gutter` | `gt` | float | `8.0` | How far the middle of a kerbless street dips, cm. |
+| `segment` | `sg` | float | `500.0` | Longest step between cross-sections, cm. |
+| `markings` | `mk` | str | `'both'` | Crosswalks as mesh stripes, decal placements (returned), both or none. One of `both`, `mesh`, `decals`, `none`. |
+| `surface` | `sf` | str | `'auto'` | Paving for every road; auto from the style and class. One of `auto`, `asphalt`, `cobble`, `earth`, `paving`. |
+| `builder` | `bd` | str | `'auto'` | auto: terrainRoadBuild for streets laid as terrain roads, the rest here; own: all here. |
+| `name` | `n` | str |  | Base name of the meshes (default the settlement's). |
+
+```python
+r = settlementRoadMesh('Settlement')
+r['areaM2']['roads'], r['curbReturns']
+```
+
+```python
+settlementRoadMesh('Village', surface='cobble', markings='none')
 ```
 
 ### settlementRoadProfileFromUnreal
@@ -15861,7 +16288,7 @@ settlementRoute('Settlement', start=[-90000, 0], via=[[0, 60000]], end=[90000, 0
 
 ### settlementSendToUnreal
 
-Sends a settlement to the connected Unreal editor, updating what it sent before. Roads go as landscape splines (roads='landscape', joined at junctions, shaping the landscape), as spline actors (roads='splines', with spline meshes of roadMesh along them), as ribbon meshes cut into cells (roads='meshes') or not at all; paths on the walkable mesh always go as a spline actor. pcg=True writes a PCG data asset (Load PCG Data Asset reads it) with pins Lots (polygons, attributes id, use, area, frontages, corner, frontClass, seed), Envelopes (footprint polygons with MaxHeight, Floors, FloorHeight, Base, Ground, Use, Roof, Era, Style, Seed), EnvelopePoints (one point per envelope, bounds the footprint and height, the same attributes) and Roads (splines with class, profile, width, lanes). zoneGraph=True writes ZoneGraph shapes: a spline per road with a lane profile made from its cross-section (tags Vehicle, Pedestrian), a polygon per junction, then rebuilds the ZoneGraph. Returns what Unreal made.
+Sends a settlement to the connected Unreal editor and keeps it in sync: each send compares what it would make with what the last send to that project made (a manifest keyed by stable ids: streets, lots, envelopes, junctions, placements) and sends only the objects whose contents changed, removing those that are gone. Everything spatial is cut into World Partition cells of side cell, one actor per cell, so the level streams it. Roads go as landscape splines (roads='landscape', joined at junctions, shaping the landscape), as spline actors (roads='splines', with spline meshes of roadMesh along them), as ribbon meshes per cell (roads='meshes') or not at all; paths on the walkable mesh go as a spline actor. massing=True sends each cell's envelopes as a static mesh. pcg=True writes PCG data: per cell (partition=True) a data asset and a cell actor whose PCG component runs pcgGraph with the asset as its SettlementData parameter, else one data asset for the whole settlement. Pins: Lots (polygons: Key, Use, Area, Frontages, Corner, FrontClass, Seed), Envelopes (footprints: MaxHeight, Floors, FloorHeight, Base, Ground, Use, Roof, Era, Style, Seed), EnvelopePoints, Roads (splines: Key, Class, Profile, Width, Lanes), Intersections and ParkingSpots. zoneGraph=True writes ZoneGraph lane shapes and rebuilds the ZoneGraph. The settlement's placements (library buildings, furniture, and the placements flag) go as HISM instances per cell and asset. dryRun=True only returns the cells and the diff. Returns the diff, what Unreal made and removed, and any errors.
 
 **Objects:** settlement mesh or its modifier
 
@@ -15871,15 +16298,30 @@ Sends a settlement to the connected Unreal editor, updating what it sent before.
 | `roadMesh` | `rm` | str |  | Static mesh asset laid along road splines, such as /Game/Roads/SM_Road. |
 | `landscape` | `ls` | str |  | roads='landscape': the landscape's label (default the first one). |
 | `deformTerrain` | `dt` | bool | `True` | roads='landscape': the splines shape the landscape. |
-| `cell` | `ce` | float | `51200.0` | roads='meshes': side of the cells ribbons are cut into, cm. |
-| `pcg` | `pc` | bool | `True` | Lots, envelopes and roads as a PCG data asset. |
+| `cell` | `ce` | float | `12800.0` | World Partition cell side, cm: road meshes, massing, PCG data and placements are cut by it. |
+| `massing` | `ma` | bool | `True` | Envelopes as a static mesh per cell. |
+| `pcg` | `pc` | bool | `True` | Lots, envelopes and roads as PCG data. |
+| `partition` | `pt` | bool | `True` | PCG data per cell (a data asset and a cell actor each); off for one asset. |
+| `pcgGraph` | `pg` | str |  | PCG graph each cell actor runs; it reads the cell's data asset from its SettlementData parameter. |
 | `zoneGraph` | `zg` | bool | `True` | Lanes as ZoneGraph shapes, for Mass traffic and crowds. |
+| `placeMode` | `pm` | str | `'hism'` | How placements go. One of `hism`, `ism`, `actors`. |
+| `placements` | `pl` | Any |  | Extra placements, a list or its JSON text: [{id, asset, position: [x, y, z], rotation: [x, y, z, w], scale, tags}], cm. |
+| `resend` | `rs` | bool | `False` | Send everything, ignoring what the last send made (after the level was reset). |
+| `dryRun` | `dr` | bool | `False` | Return the cells and the diff without sending. |
 | `folder` | `f` | str | `'/Game/Lila/Settlement'` | Content folder for assets. |
 
 Not undoable.
 
 ```python
 settlementSendToUnreal('Settlement', roads='landscape', pcg=True, zoneGraph=True)
+```
+
+```python
+settlementSendToUnreal('Settlement', roads='meshes', cell=12800, pcgGraph='/Game/PCG/PCG_Buildings')
+```
+
+```python
+settlementSendToUnreal('Settlement', dryRun=True)['diff']
 ```
 
 ### settlementStreets
@@ -15901,25 +16343,61 @@ main = settlementStreets('Settlement', near=[1200, -800], streetClass='arterial'
 settlementEditStreet('Settlement', id=main, profile='highway')
 ```
 
+### settlementSubdivide
+
+Set a block's type or lot method by its stable id (or the block under at=), kept in the settlement's edits so it holds across re-runs while the block's streets stay. Methods: frontage, obb (recursive oriented-box splits), skeleton (straight-skeleton strips off each street), burgage (narrow deep plots behind the main street), voronoi (irregular cells), strips (farm strips), whole (one lot). Every method leaves each lot on a street; lots that would reach none join a neighbour. clear=True drops the block's override. Returns the blocks as rebuilt.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `block` | `b` | Any |  | Block id, or a list of them (settlementBlocks lists them). |
+| `at` |  | list |  | Or the block under this point, [x, z]. |
+| `type` | `t` | str |  | Block type. One of `perimeter`, `courtyard`, `open`, `row`, `superblock`, `park`, `plaza`, `market`, `churchyard`, `field`. |
+| `method` | `m` | str |  | Lot method. One of `frontage`, `obb`, `skeleton`, `burgage`, `voronoi`, `strips`, `whole`. |
+| `clear` | `cl` | bool | `False` | Drop the override instead. |
+
+```python
+b = settlementBlocks('Settlement')['blocks'][0]['blockId']
+settlementSubdivide('Settlement', block=b, type='courtyard', method='skeleton')
+```
+
+```python
+settlementSubdivide('Settlement', at=[1200, -800], method='voronoi')
+```
+
 ### settlementSuggest
 
-Where settlements would go: the best sites inside an outline, best first, each with its score and the reasons behind it (flat: ground flatness, gradePercent, water: closeness to a river while out of the flood margin, bankDistanceM, confluence: where rivers meet, floodplain, edge: distance from the outline). No two sites closer than spacing. Changes nothing.
+Where settlements would go: the best sites inside an outline, best first, no two closer than spacing. Each site has its position, score and reasons: reasons.terms scores every siting term (flat, water, trade, defense, resource, climate, flood) with its value, weight, contribution and why ("ford on river 2, 340 m away"), from the kind's preset (town, market, port, mining, fort, farming, mill) and any rules= weights. On a Terrain ground the terms come from the terrain's analysis (terrainSample fields, terrainWaterInfo crossings and harbours, terrainSites resources, terrainBuildable land, terrainRegionStats over the best sites); on a mesh or flat ground from its slope, height and the water= lines given. ground says which was used. Changes nothing.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `outline` | `o` | list |  | Region outline, [[x, z], ...] in cm. Omit for the ground's extent, else a square of size. |
 | `size` | `sz` | float | `400000.0` | Side of the square used without an outline or ground, cm. |
-| `ground` | `gd` | str |  | Ground mesh (world space). Empty for flat ground. |
-| `water` | `wa` | list |  | Rivers as centrelines: a list of polylines. |
+| `ground` | `gd` | str |  | Ground mesh or Terrain (world space). Empty for flat ground. |
+| `water` | `wa` | list |  | Rivers as centrelines: a list of polylines (a Terrain brings its own). |
 | `waterWidth` | `ww` | float | `2000.0` | Width of the rivers, cm. |
 | `count` | `c` | int | `5` | How many sites. |
 | `spacing` | `sp` | float | `0.0` | Least distance between sites, cm; 0 picks one from the area and count. |
+| `kind` | `k` | str |  | Kind of place, setting the term weights; empty for the profile's (town). One of ``, `town`, `market`, `port`, `mining`, `fort`, `farming`, `mill`. |
+| `profile` | `pf` | str | `'medievalTown'` | Profile whose siting rules start the weights. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `rules` | `ru` | Any |  | Term weights over the kind's: {water: 0.6, defense: 0.3, ...}. |
+| `riverArea` | `ra` | float |  | Terrain: drainage area, m2, past which water is a river. |
+| `seaLevel` | `sea` | float |  | Terrain: sea level along the up axis, cm. |
 | `seed` | `s` | int | `1` | Breaks ties between equal sites. |
 
 Not undoable.
 
 ```python
-settlementSuggest(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], count=3)
+settlementSuggest(ground='Terrain', kind='market', count=3)
+```
+
+```python
+settlementSuggest(ground='Terrain', kind='fort', rules={'defense': 0.9})[0]['reasons']['terms']['defense']
+```
+
+```python
+settlementSuggest(ground='Hills', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], count=3)
 ```
 
 ### settlementSurfaces
@@ -15935,6 +16413,54 @@ Sets what a settlement stands and walks on: ground (the mesh its streets and lot
 
 ```python
 settlementSurfaces('Settlement', ground='Terrain', walkable='Temple')
+```
+
+### settlementTransit
+
+Bus and tram routes through the lane graph: buses along arterials and collectors, trams on the arterials' inner lanes, each between two districts across the centre, out and back, with stops by spacing named by their street. Each route says whether it is reachable (every lane leads to the next, and its far end leads back to the start) and notes any fallback (a bus route that had to use minor streets). Changes nothing.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `busRoutes` | `br` | int | `-1` | Bus routes (each out and back); -1 from the style: none in medieval ones, else one per two districts, at most 4. |
+| `tramRoutes` | `tr` | int | `-1` | Tram routes on the arterials' inner lanes; -1: one in cities with arterials. |
+| `busStopSpacing` | `bs` | float | `40000.0` | cm between bus stops. |
+| `tramStopSpacing` | `ts` | float | `60000.0` | cm between tram stops. |
+| `lanes` | `ln` | bool | `False` | Also every lane (points, mode, direction, street) and link (movement, phase). |
+
+Not undoable.
+
+```python
+t = settlementTransit('Settlement', busRoutes=2, tramRoutes=1)
+[(r['name'], len(r['stops'])) for r in t['routes']]
+```
+
+### settlementWalls
+
+A settlement's fortifications: each wall line (points [x, y, z] on the ground, era, the era it was demolished in or -1, thickness, height, star fort), its gates (point, distance along the wall, road width and class) and towers (point, gate or bastion). curves=True makes a closed curve per standing wall; masonry=True builds each standing wall with Masonry's masonryWall (gates cut as arched openings, towers as round walls with towers=True). Returns the walls and what was made.
+
+**Objects:** settlement mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curves` | `cv` | bool | `False` | Make a closed curve per standing wall. |
+| `masonry` | `ms` | bool | `False` | Build the standing walls with masonryWall (needs the Masonry extension). |
+| `towers` | `tw` | bool | `False` | With masonry: a round wall per tower. |
+| `height` | `h` | float |  | Wall height for Masonry, cm; default the wall's. |
+| `thickness` | `th` | float |  | Wall thickness for Masonry, cm; default the wall's. |
+| `gateHeight` | `gh` | float | `500.0` | Height of the gate openings, cm. |
+| `masonryFlags` | `mf` | Any |  | More masonryWall flags for every wall and tower, such as {'stoneLength': 60, 'bond': 'flemish'}. |
+| `name` | `n` | str | `'Wall'` | Name of the curves and walls made. |
+
+```python
+settlementCreate(profile='medievalTown', size=80000, walls={'moat': 1200, 'towerSpacing': 3000})
+w = settlementWalls('Settlement', curves=True)['walls'][0]
+len(w['gates'])
+```
+
+```python
+settlementWalls('Settlement', masonry=True, height=1000, thickness=250)
 ```
 
 ## Stagehand extension
@@ -18350,7 +18876,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
@@ -18962,7 +19488,7 @@ terrainSeaLevel('Terrain', level=0, beachSlope=8)
 
 ### terrainSendCliffs
 
-Send a terrain's cliffs (and extra= meshes, such as contact skirts or strips) to Unreal cut on the World Partition grid (cellSize cm, lines at whole multiples from the origin): tiles share their border vertices exactly, every LOD and the collision are reduced with their borders kept so neighbours meet at any LOD, each tile's pivot is its centre so its actor lands in its own cell, Nanite per tile (nanite: auto turns it on past naniteTriangles), and without Nanite the collision comes from the last LOD. Tiles go one at a time through LilaLink with progress, and only tiles whose content changed are sent again; an interrupted send carries on where it stopped. hlodLayer= puts every actor on that HLOD layer. Tiles get MI_<terrain>_Cliffs (MF_LilaTerrainVolume). dryRun=True plans the tiles (and writes their FBX to folder= when given) without Unreal. Returns the tiles, sent, skipped, failed, stale and assets.
+Send a terrain's cliffs (and extra= meshes, such as contact skirts or strips) to Unreal cut on the World Partition grid (cellSize cm, lines at whole multiples from the origin): tiles share their border vertices exactly, every LOD and the collision are reduced with their borders kept so neighbours meet at any LOD, each tile's pivot is its centre so its actor lands in its own cell, Nanite per tile (nanite: auto turns it on past naniteTriangles), and without Nanite the collision comes from the last LOD. Tiles go one at a time through LilaLink with progress; only tiles whose content changed, or whose asset or actor Unreal lost, are sent again (a lost actor is placed again without reimporting); an interrupted send carries on where it stopped. hlodLayer= puts every actor on that HLOD layer. Tiles get MI_<terrain>_Cliffs (MF_LilaTerrainVolume). dryRun=True plans the tiles (and writes their FBX to folder= when given) without Unreal. Returns the tiles, sent, skipped, restored, replaced, failed, stale and assets.
 
 **Objects:** terrain mesh or its modifier
 
@@ -19107,7 +19633,7 @@ terrainSites('Terrain', kind='castle', count=3)['sites'][0]['position']
 
 Build a whole terrain from one JSON spec, or read a terrain back as one.
 
-spec= (or preset= with overrides=) runs the terrain commands in order: source (noise, flat, image or dem), constraints, sculpt, erosion, landforms, water (sea, rivers, lakes), regions (terrainQuery, stored by name for 'region:<name>' references), roads, stamps, volume, biomes, materials, ground cover, check, export. Each step is that command's flags; lila://schema/terrain-spec lists them. Returns ok (every step ran and terrainCheck passed), the terrain, each step's command, result (big lists counted), warnings, error and time, the check, the exports and the final stats with the revision. A failed step stops the build unless stopOnError=False.
+spec= (or preset= with overrides=) runs the terrain commands in order: source (noise, flat, image or dem), constraints, sculpt, erosion, landforms, water (sea, rivers, lakes), regions (terrainQuery, stored by name for 'region:<name>' references), roads, stamps, volume, biomes, materials, ground cover, keys other extensions add (seams, with Seamwork), check, export. Each step is that command's flags; lila://schema/terrain-spec lists them. Returns ok (every step ran and terrainCheck passed), the terrain, each step's command, result (big lists counted), warnings, error and time, the check, the exports and the final stats with the revision. A failed step stops the build unless stopOnError=False.
 
 With a terrain and no spec it returns a spec that rebuilds it: the spec it was built from while the terrain is unchanged since, else its node group, inputs and placement (from: graph). list=True lists the presets; build=False returns the preset or spec without building.
 
