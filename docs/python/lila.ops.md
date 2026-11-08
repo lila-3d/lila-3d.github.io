@@ -7749,7 +7749,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
-| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles, for characters, props and anything edited by hand; field: each point follows the flow near it, loops wander and poles scatter, for rough surfaces like scans and rocks; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
+| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
@@ -8472,7 +8472,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
-| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles, for characters, props and anything edited by hand; field: each point follows the flow near it, loops wander and poles scatter, for rough surfaces like scans and rocks; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
+| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
@@ -9111,7 +9111,7 @@ Subdivide the sculpt once more and sculpt the new level (from a lower level, the
 
 ### sculptCancel
 
-Leave sculpt mode without changing the mesh, discarding the sculpt (a kept <mesh>_high stays as it was).
+Leave sculpt mode without changing the mesh or its stored levels, discarding this session's sculpting.
 
 ### sculptColor
 
@@ -9130,42 +9130,41 @@ Start a corrective: pose the rig, then this copies the mesh as it looks now into
 
 ### sculptDeleteHigher
 
-Delete the levels above the one being sculpted, and their detail; at level 0, every level. Returns {level, levels, points, faces}.
+Delete the levels above the one being sculpted, and their detail. Returns {level, levels, points, faces}.
 
-### sculptDuplicateLowPoly
+### sculptDeleteLevels
 
-Without leaving sculpt mode, duplicate the mesh as the low poly sculptExit would leave with this method at this level, next to it. The copy keeps the mesh's materials, transform and modifiers. Returns its name.
+Remove the sculpt levels stored on meshes, leaving each at the level it is at. Returns the meshes that had levels.
+
+**Objects:** meshes...
+
+### sculptDeleteLower
+
+Delete the levels below the one being sculpted: it becomes level 0, the mesh's new topology on exit. The levels above keep their detail. Returns {level, levels, points, faces}.
+
+### sculptDuplicate
+
+Copy the mesh at a sculpt level as a new mesh beside it in the outliner, with its materials, transform and modifiers but no levels of its own. Without hide, the copy is selected and sculpt mode ends; with hide, the copy is hidden and sculpting carries on. Returns {mesh, level}.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `method` |  | str | `'closest'` | closest, normal or fit. |
-| `level` |  | int | `0` | 0 keeps the mesh's topology; higher subdivides it that many times. |
-| `name` |  | str |  | Name for the copy; default <mesh>_low<level>. |
+| `level` |  | int | `-1` | The level to copy; -1 for the one being sculpted. |
+| `hide` |  | bool | `False` | Hide the copy and stay in sculpt mode. |
+| `name` |  | str |  | Name for the copy; default <mesh>_level<N>. |
 
 ### sculptEnter
 
-Enter sculpt mode on a mesh: builds a high-resolution copy of its cage to sculpt on, outside the scene. mode='subdivide' gives Catmull-Clark levels to step between (sculptLevel) and fits back exactly on exit; 'remesh' sculpts a uniform voxel remesh; 'direct' sculpts the mesh itself. Resumes from the high poly a previous exit kept (<mesh>_high). Returns {mesh, mode, level, levels, points, faces}.
+Enter sculpt mode on a mesh: strokes sculpt the mesh itself. Levels stored by an earlier sculptExit come back, at the level the mesh is at; edits made to the mesh since that keep its topology carry into them. levels adds that many subdivision levels to a mesh without any. Returns {mesh, level, levels, points, faces}.
 
 **Objects:** mesh
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `mode` |  | str | `'subdivide'` | subdivide, remesh or direct. |
-| `levels` |  | int | `0` | Subdivision levels to start with, 0 to 6: 0 sculpts the cage until sculptAddLevel adds some. |
-| `resolution` |  | int | `192` | Voxels along the longest side, for mode='remesh'. |
-| `resume` |  | bool | `True` | Continue from the mesh's kept high poly when it has one. |
+| `levels` |  | int | `0` | Subdivision levels to add to a mesh without stored levels, 0 to 6. |
 
 ### sculptExit
 
-Leave sculpt mode, moving the mesh (the low poly) onto the sculpt. method='closest' moves each point to the nearest spot on the sculpt and 'normal' along its normal onto it: a game mesh to bake onto. 'fit' solves for the cage whose subdivision best matches the sculpt, its points off the surface: a mesh to subdivide again. The fit is to the finest level from any level. Only positions change: UVs and other attributes stay, except that polypaint lands on the mesh's polypaint color set. high keeps the sculpt as the hidden child <mesh>_high to bake from, at the finest level, highLevel levels below it, or level highLevel; the next sculptEnter gets every level back from it, less the levels lowLevel moved into the low poly. Returns {mesh, maxMove, high: {mesh, level, levels} or null}.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `method` |  | str | `'closest'` | closest, normal or fit. |
-| `high` |  | str | `'highest'` | Which level <mesh>_high keeps: highest, belowHighest, level, or none to keep nothing. |
-| `highLevel` |  | int | `1` | Levels below the highest (belowHighest), or the level (level). |
-| `lowLevel` |  | int | `0` | The level the low poly comes out at: 0 keeps the mesh's topology, higher subdivides it that many times (its UVs with it). |
-| `iterations` |  | int | `3` | Project-and-fit rounds for remeshed proxies. |
+Leave sculpt mode. The mesh stays at the level being sculpted, and every level is stored on it for the next sculptEnter (sculptDeleteLevels removes them). Polypaint lands on the mesh's polypaint color set. Returns {mesh, level, levels}.
 
 ### sculptLevel
 
@@ -9186,9 +9185,21 @@ Change the sculpt mask (masked points resist every brush) or the freeze layer (f
 | `layer` |  | str | `'mask'` | mask or freeze. |
 | `iterations` |  | int | `2` | Blur passes. |
 
+### sculptReconstruct
+
+Rebuild a level below level 0 from a mesh that was subdivided elsewhere: the new cage is the mesh before that subdivision, its UVs and materials taken from the fine mesh. Level 0 must be all quads laid out the way a subdivision lays them out. Sculpting carries on at the same level, one number higher. Returns {level, levels, points, faces}.
+
+### sculptRemesh
+
+Replace the sculpt with an even voxel remesh of its finest level, free of the mesh's topology, as level 0 with no levels above. Polypaint carries over; UVs, the mask and freeze don't. Returns {level, levels, points, faces}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `resolution` |  | int | `192` | Voxels along the longest side. |
+
 ### sculptState
 
-The open sculpt session: {active, mesh, mode, level, levels, points, faces, symmetry, masked, frozen, painted}.
+The open sculpt session: {active, mesh, level, levels, points, faces, symmetry, masked, frozen, painted}.
 
 Not undoable.
 
@@ -9442,7 +9453,7 @@ Not undoable.
 
 ### selectPathBetween
 
-Select the components between two of a mesh's vertices, edges or faces: the shorter way along a loop or ring they share, else the shortest path across the surface. Neighbours (vertices on one edge, edges along a loop or across a quad, faces sharing an edge) select the whole loop or ring through both instead. Adds to the selection unless replace or deselect. Returns the ids in order.
+Select the components between two of a mesh's vertices, edges or faces: the shorter way along a loop or ring they share, else the shortest path across the surface. Neighbours (vertices on one edge, edges along a loop or across a quad, faces sharing an edge) select the whole loop or ring through both instead, unless deselecting. Adds to the selection unless replace or deselect. Returns the ids in order.
 
 **Objects:** mesh
 
@@ -12269,7 +12280,7 @@ Pin the uvs of the selected components so the live solver, unwrap and relax keep
 
 ### uvProject
 
-Project uvs onto the selected faces: planar, box, cylindrical, spherical or camera (matrix=object to clip, 16 numbers). The frame is fitted to the faces unless given; returns the frame used.
+Project uvs onto the selected faces: planar, box, cylindrical, spherical or camera (matrix=object to clip, 16 numbers). Camera uses camera=, else the active view, unless matrix= is given. The frame is fitted to the faces unless given; returns the frame used.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -12291,7 +12302,8 @@ Project uvs onto the selected faces: planar, box, cylindrical, spherical or came
 | `viewDir` |  | tuple[float, float, float] |  | World direction the camera looks along, for the seam; the UI passes the active view's. |
 | `normalize` |  | bool | `True` | Fit into 0-1 keeping proportions. |
 | `keepSeams` |  | bool | `False` | Keep the seams already cut inside the faces; off joins the faces into the projection's islands. |
-| `matrix` |  | list |  | Camera projection, column major, for type=camera. |
+| `camera` |  | str |  | Camera node to project through, for type=camera; the active view when not given. UVs span its resolution gate. |
+| `matrix` |  | list |  | Object to clip, column major, for type=camera; overrides camera. |
 | `pack` |  | bool | `False` | Pack the resulting islands afterwards. |
 
 ### uvSeamView
@@ -19446,7 +19458,7 @@ terrainSculpt('Terrain', op='stamp', stamp='crater', points=[[0, 0]], radius=800
 
 Sculpt part of a terrain with the mesh sculpt brushes.
 
-Copies the patch around center= (size= cm square) to a mesh, <terrain>_region, hides the terrain and enters sculpt mode on it (direct). Sculpt with any brush, then finish=True (or Exit Sculpt in the app) bakes it back: the change in height goes into a patch stroke in the terrain's sculpt layer (stage final by default, so after erosion), faded at the patch rim, and the proxy is deleted. Where the sculpt folds under itself (an overhang a heightfield can't hold) the cells are listed in the result's overhangs, and the hollow under them is carved from the terrain's volume (a hidden <terrain>_overhangHollow mesh stamped with mode subtract, listed as overhangVolume) so the overhang becomes a volume piece; keepOverhangs=False only lists them. cancel=True drops the proxy without baking. Returns the proxy and patch size, or on finish terrainInfo's stats with changedSamples, largestChange and overhangs.
+Copies the patch around center= (size= cm square) to a mesh, <terrain>_region, hides the terrain and enters sculpt mode on it. Sculpt with any brush, then finish=True (or Exit Sculpt in the app) bakes it back: the change in height goes into a patch stroke in the terrain's sculpt layer (stage final by default, so after erosion), faded at the patch rim, and the proxy is deleted. Where the sculpt folds under itself (an overhang a heightfield can't hold) the cells are listed in the result's overhangs, and the hollow under them is carved from the terrain's volume (a hidden <terrain>_overhangHollow mesh stamped with mode subtract, listed as overhangVolume) so the overhang becomes a volume piece; keepOverhangs=False only lists them. cancel=True drops the proxy without baking. Returns the proxy and patch size, or on finish terrainInfo's stats with changedSamples, largestChange and overhangs.
 
 **Objects:** terrain mesh (or the region proxy, for finish and cancel)
 
