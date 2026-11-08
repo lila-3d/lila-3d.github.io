@@ -4,11 +4,12 @@ Sculpt any mesh at high resolution and come out with a game-ready low poly (same
 
 ## Get it working
 
-1. Select a mesh and pick **Sculpt > Sculpt**. Lila builds a subdivided copy to sculpt on and opens the Sculpt panel. The mesh itself is untouched until you exit.
-2. Pick a brush in the panel and drag on the mesh.
-3. Pick **Sculpt > Exit Sculpt**. You get:
+1. Select a mesh and pick **Sculpt > Sculpt**. Lila opens the Sculpt panel on a copy of the mesh at level 0, its own points. The mesh itself is untouched until you exit.
+2. Press Ctrl+D (**Add** on the **Level** row) for each subdivision level you want to sculpt detail on.
+3. Pick a brush in the panel and drag on the mesh.
+4. Pick **Sculpt > Exit Sculpt**. You get:
     - `<mesh>`, the low poly, moved onto the sculpt.
-    - `<mesh>_high`, the sculpt at its highest level, as a hidden child of the low poly.
+    - `<mesh>_high`, the sculpt at its highest level, as a hidden child of the low poly. Without levels the mesh is the sculpt, so there is no `<mesh>_high`.
 
 **Sculpt > Cancel Sculpt** leaves without changing the mesh.
 
@@ -77,6 +78,8 @@ Paint color onto a sculpt and bake it into the low poly's base color texture.
 
 **Sculpting again starts from scratch.** The mesh's topology changed since the last exit, or `<mesh>_high` was renamed, moved or deleted. Lila only resumes from the `<mesh>_high` directly under the mesh, with matching topology.
 
+**The sculpt is gone after exit, only the low poly is left.** The detail is in the hidden `<mesh>_high` under the mesh. Sculpt the mesh again to get it back, or show `<mesh>_high` in the Outliner.
+
 **I want to start over instead of resuming.** Delete `<mesh>_high`, then sculpt.
 
 **Auto Group by Name doesn't pair the mesh with its high.** The high must be named `<mesh>_high` for the mesh's current name. Rename one, or add the pair by hand.
@@ -90,7 +93,7 @@ Paint color onto a sculpt and bake it into the low poly's base color texture.
 | Option | What it does |
 | --- | --- |
 | **Sculpt on** | **Subdivision levels** keeps the mesh's layout, gives you levels, and fits back exactly. **Voxel remesh** gives even detail anywhere, fitted back by projection. **Mesh itself** sculpts the mesh's own points. |
-| **Levels** | How many subdivision levels to start with. Greyed out when the mesh resumes a kept sculpt. |
+| **Levels** | How many subdivision levels to start with; 0 by default. Greyed out when the mesh resumes a kept sculpt. |
 | **Symmetry line** | The red line along the mesh's mirror plane. |
 | **Shared** | Which brush settings follow you from brush to brush: **Radius**, **Strength**, **Stroke**. |
 | **Display** | The preview material, the wireframe and its opacity. The mesh's own material comes back on exit. |
