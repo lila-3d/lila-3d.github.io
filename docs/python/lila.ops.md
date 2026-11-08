@@ -830,7 +830,7 @@ Turn curves' symmetry copies into curves of their own and switch symmetry off, s
 
 ### bakeEstimateCage
 
-Estimate a bake group's cage in one step: paints bakeOffset on its lows so every texel's ray starts just outside the high and meets it, and sets the group's frontal and rear distances (an editable cage moves to the result). Checks itself by tracing the lows as a bake would, growing the cage where rays still miss. One undo step. Returns the miss rates before and after.
+Estimate a bake group's cage in one step: paints bakeOffset on its lows so every texel's ray starts just outside the high and meets it, and sets the group's frontal and rear distances (an editable cage moves to the result). Checks itself by tracing the lows as a bake would, growing the cage where rays still miss. One undo step. A low whose modifiers change its points gets the result painted on its base points (listed in mapped) and its coverage measured again through the stack. Returns the miss rates before and after.
 
 **Objects:** group (or its low; default the selection)
 
