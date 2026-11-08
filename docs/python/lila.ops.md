@@ -7628,6 +7628,21 @@ Triangulate the selected faces (the whole mesh in object mode), deterministicall
 
 Drop the stored split normals of the selected meshes, so shading comes from the hard and soft edges again.
 
+### polyUVSet
+
+Delete, copy or reorder a mesh's uv sets, or query them. Meshes without uvSet are skipped. Sets stay numbered uv0, uv1, ... with no gaps: deleting or moving one renumbers the sets after it. Returns {sets} for the last mesh, and for copy {created}: each mesh's new set, which differs between meshes with different set counts.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `delete` |  | bool | `False` | Remove uvSet. |
+| `copy` |  | bool | `False` | Copy uvSet into newUvSet (made or overwritten); a new set at the end when empty. |
+| `query` |  | bool | `False` | Only report the sets. |
+| `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+| `newUvSet` |  | str |  | copy: the set to write. |
+| `moveTo` |  | int | `-1` | Move uvSet to this position (0 is the set textures and exporters use first). |
+
 ### polyWeightedNormals
 
 Face-weighted normals on the selected faces (whole meshes in object mode): each smooth fan takes the normal of its biggest faces, so chamfered or bevelled low poly shades its large faces flat and only the chamfers bend. Written as locked split normals, which export to FBX. polyUnlockNormals goes back to computed ones.
