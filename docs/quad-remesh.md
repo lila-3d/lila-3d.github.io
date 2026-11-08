@@ -71,7 +71,7 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 | Option | Default | What it does |
 | --- | --- | --- |
 | Symmetry | X | Remeshes one half and mirrors it, exactly symmetric. Off for meshes that aren't symmetric about their origin. |
-| Method | Patches | Patches: lines from the poles cut the surface into patches filled with even grids, so loops run unbroken between poles and the symmetry line is one loop. Field: each point placed from the flow nearby, with more poles and broken loops. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
+| Method | Patches | Patches: loops run unbroken between a few poles and the symmetry line is one loop; use it for characters, props and anything you deform, bake or edit by hand. Field: loops wander and poles scatter; for rough surfaces nobody edits by hand, like scans and rocks. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
 | Use Hard Edges | on | Lays an edge loop along edges marked hard. |
 | Sharp Angle | 40 | Also follows creases sharper than this; negative turns it off. |
 | Joint Pole Avoidance | 30 | Keeps poles out of joints, armpits and finger webs, onto flatter parts nearby; 0 off. |
