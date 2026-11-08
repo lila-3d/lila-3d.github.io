@@ -409,13 +409,14 @@ Apply a target profile or saved preset to a project without grouping or baking: 
 
 ### applyLayout
 
-Arrange the window's panels, viewports and shelf as the named layout. UI only.
+Arrange the window's panels, viewports and shelf as the named layout, as it was last left. reset=True applies its saved or built-in arrangement instead. UI only.
 
 **Objects:** name
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `name` | `n` | str |  | Layout name |
+| `reset` | `r` | bool | `False` | Apply the saved or built-in arrangement, dropping how it was last left |
 
 Not undoable.
 
@@ -9112,7 +9113,7 @@ Start a corrective: pose the rig, then this copies the mesh as it looks now into
 
 ### sculptDeleteHigher
 
-Delete the levels above the one being sculpted, and their detail. Returns {level, levels, points, faces}.
+Delete the levels above the one being sculpted, and their detail; at level 0, every level. Returns {level, levels, points, faces}.
 
 ### sculptDuplicateLowPoly
 
@@ -17865,7 +17866,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
