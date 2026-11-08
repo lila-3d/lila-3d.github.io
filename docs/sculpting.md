@@ -1,19 +1,15 @@
 # Sculpting
 
-Sculpt any mesh at high resolution and come out with a game-ready low poly (same topology and UVs) and the high poly to bake from.
+Sculpt any mesh directly, with subdivision levels that stay on the mesh between sessions, like a ZBrush subtool.
 
 ## Get it working
 
-1. Select a mesh and pick **Sculpt > Sculpt**. Lila opens the Sculpt panel on a copy of the mesh at level 0, its own points. The mesh itself is untouched until you exit.
-2. Press Ctrl+D (**Add** on the **Level** row) for each subdivision level you want to sculpt detail on.
+1. Select a mesh and pick **Sculpt > Sculpt**. The Sculpt panel opens and you sculpt the mesh itself, at level 0.
+2. Press Ctrl+D (**Add Level** in the panel) for each subdivision level you want to sculpt detail on.
 3. Pick a brush in the panel and drag on the mesh.
-4. Pick **Sculpt > Exit Sculpt**. You get:
-    - `<mesh>`, the low poly, moved onto the sculpt.
-    - `<mesh>_high`, the sculpt at its highest level, as a hidden child of the low poly. Without levels the mesh is the sculpt, so there is no `<mesh>_high`.
+4. Pick **Sculpt > Exit Sculpt**. The mesh stays at the level you were sculpting, and keeps every level.
 
-**Sculpt > Cancel Sculpt** leaves without changing the mesh.
-
-To sculpt again later, select the mesh and pick **Sculpt > Sculpt**. Every level comes back from `<mesh>_high`, and you land on the level you left from.
+To sculpt again, select the mesh and pick **Sculpt > Sculpt**: every level comes back, on the level you left from. **Sculpt > Cancel Sculpt** leaves without changing the mesh.
 
 | Key | Does |
 | --- | --- |
@@ -24,10 +20,9 @@ To sculpt again later, select the mesh and pick **Sculpt > Sculpt**. Every level
 | Shift while stroking | Smooths for that stroke |
 | F or B held + drag | Brush radius (F tapped still frames the selection) |
 | M or Shift+F held + drag | Brush strength |
-| Shift+F tapped | The wireframe on or off (the sculpt's, or the preview's while previewing) |
-| Shift+V | Preview the low poly Exit would leave; again to sculpt on |
+| Shift+F tapped | The wireframe on or off |
 | `[` `]` | Radius smaller, larger |
-| Esc | Leaves the tool; the sculpt stays open until Exit Sculpt |
+| Esc | Leaves the tool; sculpt mode stays open until Exit Sculpt |
 
 The level keys work while the sculpt tool is active. Each stroke and each level change is one undo step. Tumbling orbits round your last stroke.
 
@@ -35,56 +30,41 @@ To make your own brushes, presets and alphas, see [Brushes, presets and alphas](
 
 ## Subdivision levels
 
-Level 0 is the mesh's own points and each level above has four times the faces, like ZBrush's subdivision levels. Block out broad forms on a low level and detail on a high one: when you step down and reshape, the finer detail follows the change when you step back up. The panel's **Level** row shows where you are and has the same steps as the keys, plus **Delete Higher** to drop the levels above the current one.
+Level 0 is the mesh's cage and each level above has four times the faces. Block out broad forms on a low level and detail on a high one: when you step down and reshape, the finer detail follows when you step back up.
 
-## Pick what Exit makes
+- **Delete Higher** drops the levels above the current one.
+- **Delete Lower** makes the current level the new level 0.
+- **Reconstruct** rebuilds a level below level 0 from a mesh that was already subdivided, so you can block out forms on it. It needs all quads, laid out the way a subdivision lays them out.
+- **Sculpt > Voxel Remesh** (in the panel's **...** menu) replaces the sculpt with an even remesh, for when the topology is in the way. UVs and levels go; polypaint stays.
 
-**Low poly** decides what happens to the mesh you entered with:
+Moving points outside sculpt mode keeps the levels: the detail follows the moved shape. An edit that changes the mesh's topology, like an extrude, asks whether to undo it or delete the levels.
 
-| Pick | You get | Use it for |
-| --- | --- | --- |
-| **Game mesh** | Each point moved to the nearest spot on the sculpt, so the low poly lies on it | A game asset you bake normals onto (the default) |
-| **Game mesh, along normals** | Each point moved straight in or out along its normal onto the sculpt | The same, when **Game mesh** slides points sideways into a crease |
-| **Subdivision cage** | Points placed so that subdividing the low poly gives the sculpt back; they float off the surface | A mesh you subdivide afterwards, not one you bake |
+## Low and high poly
 
-The **Level** beside **Low poly** sets the topology it comes out at: 0 keeps the mesh's own, each level above subdivides it once more, UVs included. The kept high poly then has that many levels fewer the next time you sculpt.
+Keep your low poly as its own mesh: duplicate it and sculpt the copy. While sculpting:
 
-To check before you commit, press **Preview** in the panel (**Sculpt > Preview Low Poly**, Shift+V): the view shows only the low poly Exit would leave. Shift+F shows its wireframe. Change **Low poly** to compare, then **Preview** again to sculpt on.
+- **Duplicate** copies the mesh at the current level beside it in the Outliner as `<mesh>_level<N>`, selects the copy and exits.
+- **Duplicate and Hide** makes the same copy hidden and keeps you sculpting, for saving a level to bake from without losing your place.
 
-To keep a low poly without leaving sculpt mode, press the copy button at the end of the **Low poly** row (**Sculpt > Duplicate Low Poly**). It makes `<mesh>_low<level>` beside the mesh, at that row's choice and level; do it as often as you like, at different levels. **Show cage** draws the same low poly as lines over the sculpt while you work.
-
-**High poly** decides which level `<mesh>_high` keeps: **Highest level**, **Below highest** (a lighter high poly, the number of levels below the highest beside it), a specific **Level**, or **Don't keep**. Whichever level it keeps, every level comes back the next time you sculpt; **Don't keep** loses the sculpt.
-
-## Bake the low and high poly
-
-1. Exit with **Low poly** on **Game mesh**.
-2. In **Bake > Baker**, pick **Auto Group by Name**. A mesh and its `_high` pair up as low and high.
+To bake, name the high poly `<low>_high` and pick **Auto Group by Name** in **Bake > Baker**. To move a low poly onto a sculpt, select the sculpt, then the low poly, and pick **Sculpt > Transfer Shape (High to Low)**.
 
 ## Polypaint
 
-Paint color onto a sculpt and bake it into the low poly's base color texture.
-
-1. Pick the **Paint** brush, or tick **Paint while sculpting** to color as you shape. The mask shields points from paint.
-2. Exit. The low poly gets a `polypaint` color set, and `<mesh>_high` keeps the full-detail paint.
-3. In the baker, set the Base Colour map's **Source** to `vertexColor`.
+1. Pick the **Paint** brush, or tick **Paint While Sculpting** to color as you shape. The mask shields points from paint.
+2. Exit. The mesh gets a `polypaint` color set at its current level.
+3. To bake it, set the Base Colour map's **Source** to `vertexColor` in the baker.
 
 ## Troubleshooting
 
 **Sculpt does nothing and the log says `select a mesh`.** Nothing selected is a mesh. Select the mesh itself, not its group.
 
-**The low poly floats outside the sculpt after exit.** **Low poly** was on **Subdivision cage**. Undo, pick **Game mesh**, and exit again.
+**Sculpting again starts at level 0 with no levels.** The mesh's topology changed since you exited and you kept the edit, so the levels were removed. Undo back past that edit to get them.
 
-**D does nothing.** Levels need **Sculpt on** set to **Subdivision levels** when you enter; a voxel remesh or the mesh itself has no levels.
+**Reconstruct says the mesh isn't a subdivided mesh.** It has triangles, n-gons, or quads that don't follow a subdivision's pattern. Reconstruct only works on meshes made by subdividing.
 
-**Sculpting again starts from scratch.** The mesh's topology changed since the last exit, or `<mesh>_high` was renamed, moved or deleted. Lila only resumes from the `<mesh>_high` directly under the mesh, with matching topology.
+**The sculpt draws in clay instead of its material.** **Display > Material** is set to a preview material. Pick **Mesh Material**.
 
-**The sculpt is gone after exit, only the low poly is left.** The detail is in the hidden `<mesh>_high` under the mesh. Sculpt the mesh again to get it back, or show `<mesh>_high` in the Outliner.
-
-**I want to start over instead of resuming.** Delete `<mesh>_high`, then sculpt.
-
-**Auto Group by Name doesn't pair the mesh with its high.** The high must be named `<mesh>_high` for the mesh's current name. Rename one, or add the pair by hand.
-
-**The baked base color is flat gray.** The high has no color set: check that **High poly** wasn't **Don't keep** when you exited, and that `<mesh>_high` is the group's high.
+**Auto Group by Name doesn't pair the low and high poly.** The high must be named `<low>_high` for the low poly's current name.
 
 **Undo jumps the view.** Undoing a stroke puts the tumble point back where it was before a large move. Turn it off in **Preferences > Viewport > Brushes**.
 
@@ -92,8 +72,7 @@ Paint color onto a sculpt and bake it into the low poly's base color texture.
 
 | Option | What it does |
 | --- | --- |
-| **Sculpt on** | **Subdivision levels** keeps the mesh's layout, gives you levels, and fits back exactly. **Voxel remesh** gives even detail anywhere, fitted back by projection. **Mesh itself** sculpts the mesh's own points. |
-| **Levels** | How many subdivision levels to start with; 0 by default. Greyed out when the mesh resumes a kept sculpt. |
-| **Symmetry line** | The red line along the mesh's mirror plane. |
+| **Symmetry Line** | The red line along the mesh's mirror plane. |
 | **Shared** | Which brush settings follow you from brush to brush: **Radius**, **Strength**, **Stroke**. |
-| **Display** | The preview material, the wireframe and its opacity. The mesh's own material comes back on exit. |
+| **Display > Material** | **Mesh Material** draws the mesh's own materials; the others are preview materials for sculpting. |
+| **Sculpt > Delete Sculpt Levels** | Removes the stored levels from the selected meshes, leaving each at its current level. |
