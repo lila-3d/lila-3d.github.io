@@ -19,9 +19,9 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 ## Troubleshooting
 
-**Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. With **Method** Field, parts thinner than a face fold, so it retries finer and the status line says so. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
+**Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
 
-**The status line says this is the Field layout.** The patches came out with flaws on this shape, so it used Field, with more poles. Change **Target Faces** a little and apply again.
+**The status line says each point is placed from the flow near it instead.** The patches came out with flaws on this shape, so it used a looser layout with more poles. Change **Target Faces** a little and apply again.
 
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance**. Lower it if poles crowd onto flat areas nearby.
 
@@ -30,8 +30,6 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 **The two sides don't match.** Set **Symmetry** to the mirror axis; the mesh has to be symmetric about the origin.
 
 **The status line says the mesh isn't symmetric.** The result mirrors one half over the other. Set **Symmetry** to Off for meshes that aren't symmetric about their origin, like props and posed characters.
-
-**A strip of thin quads along a round hard edge (a boolean hole, a cylinder meeting a flat face).** Set **Method** to Field for that mesh.
 
 **Method Grid gave patches instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles.
 
@@ -73,7 +71,7 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 | Option | Default | What it does |
 | --- | --- | --- |
 | Symmetry | X | Remeshes one half and mirrors it, exactly symmetric. Off for meshes that aren't symmetric about their origin. |
-| Method | Patches | Patches: loops run unbroken between a few poles and the symmetry line is one loop; use it for characters, props and anything you deform, bake or edit by hand. Field: loops wander and poles scatter; for rough surfaces nobody edits by hand, like scans and rocks. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
+| Method | Patches | Patches: loops run unbroken between a few poles and the symmetry line is one loop; use it for characters, props and anything you deform, bake or edit by hand. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
 | Use Hard Edges | on | Lays an edge loop along edges marked hard. |
 | Sharp Angle | 40 | Also follows creases sharper than this; negative turns it off. |
 | Joint Pole Avoidance | 30 | Keeps poles out of joints, armpits and finger webs, onto flatter parts nearby; 0 off. |
