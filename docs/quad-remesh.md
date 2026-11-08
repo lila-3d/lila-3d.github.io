@@ -31,6 +31,8 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 **The status line says the mesh isn't symmetric.** The result mirrors one half over the other. Set **Symmetry** to Off for meshes that aren't symmetric about their origin, like props and posed characters.
 
+**A strip of thin quads along a round hard edge (a boolean hole, a cylinder meeting a flat face).** Set **Method** to Field for that mesh.
+
 **Method Grid gave patches instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles.
 
 ## Options
