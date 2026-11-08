@@ -39,7 +39,7 @@ To keep a deliberate overlap out, select it and pick **Level > Contacts > Ignore
 
 The skirt is a mesh over the join, one per object. Its borders lie exactly on the wall and the ground and copy their normals, so it disappears at its edges. Each vertex carries `side` (0 at the wall, 1 at the ground) and the terrain's colour.
 
-`method='auto'` sweeps a fillet along joins that turn less than 25 degrees (columns, rocks, straight walls) and uses a boolean union with a fillet for the rest, such as wall footprints with corners. The result lists the method used on each contact, and why.
+`method='auto'` sweeps a fillet along joins that turn less than 25 degrees (columns, rocks, straight walls) and uses a boolean union with a fillet for the rest, such as wall footprints with corners. A union skirt rounds each outer wall corner, as if a ball rolled round it. The result lists the method used on each contact, and why.
 
 ## Unreal
 
@@ -59,6 +59,7 @@ Rebuild LilaLink from Lila's `ue/LilaLink` once. For PCG data, also copy `ue/Lil
 - To match the contact mask to Lila's field: `field='color'` with channel `r` is `ContactChannel` 0; `field='uv'` with `uvSet=2` is `ContactFromUV` 1.
 - Each contact arrives as a spline actor under `Lila/Contacts/<name>`, with tags such as `lila.kind:ground`, `lila.a:Wall` and `lila.angle:90.00`.
 - The PCG asset `/Game/LilaLink/Contacts/PCG_<name>` has a Points pin (rotated into the join, with every contact attribute) and a Splines pin. Load it with a Load Data Asset node in your PCG graph to spawn along contacts.
+- `terrainSendToUnreal` sends the terrain's `contact` mask as its own paint layer, `contact`, for your landscape material or PCG to read.
 - Each object gets a blend ID in custom primitive data, so a project already using a screen-space mesh blending tool needs no setup; the result names the slot.
 
 ### Decal strips
@@ -90,7 +91,7 @@ Strips are meshes by default and work in every renderer. `decals='dbuffer'` send
 | Option | Command | What it does |
 | --- | --- | --- |
 | `width`, `falloff`, `noise` | Find Contacts | Blend band width in cm, its falloff and world-space noise. Each mesh can override them on its contact field modifier, and painted vertex alpha hides the blend. |
-| `crease` | Find Contacts | Also find concave corners that touch without crossing (rock stacks, wall corners). |
+| `crease` | Find Contacts | Also find concave corners that touch without crossing (rock stacks, wall corners). Traced on the GPU with the Baker's ambient occlusion; batch runs trace on the CPU and say so. |
 | `terrainWidth` | Find Contacts | Width of the terrain's `contact` mask (100 cm). |
 | `preset`, `items`, `density`, `side`, `settle` | Scatter Along Contacts | What to place, how much, which side, and whether Stagehand settles it. |
 | `side`, `blend`, `tile` | Contact Strips | Ground, wall or both; masked or translucent; cm per texture repeat. |
@@ -101,3 +102,5 @@ Strips are meshes by default and work in every renderer. `decals='dbuffer'` send
 ```python
 scatterProximity('Rocks', rules=[{'kind': 'repel', 'target': 'Wall', 'radius': 150}])
 ```
+
+In a terrain spec, `seams` finds and covers contacts once the terrain is built: `seams: {objects: ['Wall', 'Rock_01'], skirt: {width: 40}, decal: true, scatter: {preset: 'rubble'}}`, or `seams: true` for every visible mesh.

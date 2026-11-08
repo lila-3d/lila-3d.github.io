@@ -38,13 +38,13 @@ The face looks to the right of the curve's direction; `flip=True` turns it. Prof
 
 ## Your own rock kit
 
-**Level > Cliffs > Cliff Kit** fits your rock and cliff pieces along a region's foot instead of generating a mesh: each piece faces out, scales to the cliff's height and overlaps its neighbours. Floating and over-buried pieces are dropped and smaller pieces fill the gaps. Model kit pieces standing on their base with their face toward +Z.
+**Level > Cliffs > Cliff Kit** fits your rock and cliff pieces along a region's foot instead of generating a mesh: each piece faces out, scales to the cliff's height and overlaps its neighbours. Floating and over-buried pieces are dropped and smaller pieces fill the gaps. With Stagehand loaded, its physics measures how deep each piece's back sits in the hill and drops pieces past `maxPenetration` of their depth; without it, the pieces' sample points decide and the result says so. Model kit pieces standing on their base with their face toward +Z.
 
 ```python
 terrainCliffKit('Terrain', region='cliff_1', kit=['Rock_A', 'Rock_B'], saveAssembly='GraniteKit')
 ```
 
-`send='hism'` sends the result as instances; `send='assembly'` sends a Nanite Assembly (UE 5.7 or later, with `r.Nanite.AllowAssemblies=1`).
+`send='hism'` sends the result as instances; `send='assembly'` sends the pieces with Nanite and one Nanite Assembly placing them all, as a single actor (UE 5.7 or later, with `r.Nanite.AllowAssemblies=1`). **Send Cliffs** sends every kit the same way (`kitAs`).
 
 ## Scree, ledge plants and debris
 
@@ -57,7 +57,7 @@ terrainCliffKit('Terrain', region='cliff_1', kit=['Rock_A', 'Rock_B'], saveAssem
 Rebuild LilaLink from Lila's `ue/LilaLink` once. Then:
 
 - **Send Cliffs** cuts the cliffs on the World Partition grid (12800 cm cells by default, matching Unreal's grid origin). Tiles share their border vertices exactly, every LOD included, and each actor's pivot is its tile's centre, so it lands in its own cell.
-- Only changed tiles are re-sent. A stopped or cancelled send carries on next time, and tiles that no longer exist are removed in Unreal.
+- Only changed tiles are re-sent, plus any whose asset or actor Unreal lost (an editor closed without saving, a deleted actor); a lost actor is placed again without reimporting. A stopped or cancelled send carries on next time, and tiles that no longer exist are removed in Unreal.
 - Tiles turn on Nanite past a triangle count. Without Nanite they get LODs and collision from the last LOD.
 - `terrainSendToUnreal('Terrain', cliffs=True)` sends the landscape, then the cliffs. `extra=[...]` tiles other meshes with them, such as contact skirts and strips from Seamwork.
 - Tiles get `MI_<terrain>_Cliffs`, built on `MF_LilaTerrainVolume`. Drop that function into your own rock material for triplanar rock with cavity darkening; it also outputs the cliff's Strata, Openness, UpFacing and ScatterZones masks from vertex colour.
