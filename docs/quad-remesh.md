@@ -21,7 +21,7 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 **Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. With **Method** Field, parts thinner than a face fold, so it retries finer and the status line says so. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
 
-**The status line says this is the Field layout.** The patches didn't fit this shape (a ring with no poles, like a smooth torus) or came out with flaws, so it used Field, with more poles. Change **Target Faces** a little and apply again.
+**The status line says this is the Field layout.** The patches came out with flaws on this shape, so it used Field, with more poles. Change **Target Faces** a little and apply again.
 
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance**. Lower it if poles crowd onto flat areas nearby.
 
@@ -80,6 +80,15 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 
 ![Joint Pole Avoidance 15 (left) and 30 (right): the pole cluster at the back of each armpit clears](images/quad-remesh/joint-pole-avoidance.webp)
 
+### Guides
+
+Draw guides on the mesh with **Curves > Pencil Curve** (press S in the tool to draw on the surface), then pick them in the option box. A mesh whose edges trace the line works too.
+
+| Option | What it does |
+| --- | --- |
+| Flow Curves | The edge flow turns to follow these curves. |
+| Edge Loop Curves | An edge loop lands exactly on each curve, like a hard edge. |
+
 ### Steering from Python
 
 ```python
@@ -90,8 +99,8 @@ quadRemesh("Rock", targetFaces=2000,
 ```
 
 - `densityHandles`: faces `scale` times as long within `radius` cm, easing out to the edge. Under 1 is denser.
-- `guides` (mesh nodes) or `guidePoints` (world points): the flow turns along the curve.
-- `featureGuides` or `featureGuidePoints`: an edge loop lands on the curve, like a hard edge.
+- `guides` (curve or mesh nodes) or `guidePoints` (world points): Flow Curves.
+- `featureGuides` or `featureGuidePoints`: Edge Loop Curves.
 - `poles`, from **Topology > Retopo Poles** or `retopoPoles`: the flow turns only at these. The result's `poles` says where each one landed.
 
 ### Output
