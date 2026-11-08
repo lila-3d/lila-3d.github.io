@@ -2891,7 +2891,7 @@ Not undoable.
 
 ### deleteComponents
 
-Delete the selected vertices or faces (with whatever depends on them), or dissolve the selected edges, joining their faces.
+Delete the selected vertices or faces (with whatever depends on them), or the selected edges, joining their faces and keeping every vertex.
 
 ### deleteCurvePoints
 
