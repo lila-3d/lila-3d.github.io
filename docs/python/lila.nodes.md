@@ -403,6 +403,14 @@ uvs_array(uv_set='uv0', base=False, out=None)
 
 (C, 2) float32 numpy array of a uv set per face-vertex, in normals_array's order.
 
+### Node.selected_uvs
+
+```python
+selected_uvs()
+```
+
+uint32 numpy array of the face-vertex rows picked as uvs in the UV Editor, sorted, so uvs_array(base=True)[selected_uvs()] are their uvs. Empty when the vertices were picked in the viewport; selectComponents(mesh, uvs=rows) selects by row.
+
 ### Node.attribute_names
 
 ```python

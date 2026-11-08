@@ -2013,7 +2013,7 @@ Not undoable.
 
 ### componentSelection
 
-Selected components: {mesh: {"vertices": [...], "edges": [...], "faces": [...]}}. ordered=True gives a flat list [[mesh, kind, id], ...] in pick order instead (kind is vertex, edge or face).
+Selected components: {mesh: {"vertices": [...], "edges": [...], "faces": [...], "uvs": [...]}}, uvs (face-vertex rows, as in Node.uvs_array) only when the vertices were picked as uvs in the UV Editor. ordered=True gives a flat list [[mesh, kind, id], ...] in pick order instead (kind is vertex, edge or face).
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -7741,9 +7741,9 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'x'` | off, x, y or z: remesh half and mirror, exactly symmetric. The mesh has to be symmetric across that plane through its origin. |
-| `guides` |  | list |  | Mesh nodes whose edges are guide curves. |
+| `guides` |  | list |  | Curves, or meshes whose edges trace lines, that the edge flow turns to follow. Draw them on the mesh with Curves > Pencil Curve (S draws on the surface). |
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
-| `featureGuides` |  | list |  | Mesh nodes whose edges get an edge loop laid on them, like a hard edge. |
+| `featureGuides` |  | list |  | Curves, or meshes whose edges trace lines, that get an edge loop laid exactly on them, like a hard edge. Draw them as for guides. |
 | `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
@@ -8464,9 +8464,9 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. The mesh has to be symmetric across that plane through its origin. |
-| `guides` |  | list |  | Mesh nodes whose edges are guide curves. |
+| `guides` |  | list |  | Curves, or meshes whose edges trace lines, that the edge flow turns to follow. Draw them on the mesh with Curves > Pencil Curve (S draws on the surface). |
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
-| `featureGuides` |  | list |  | Mesh nodes whose edges get an edge loop laid on them, like a hard edge. |
+| `featureGuides` |  | list |  | Curves, or meshes whose edges trace lines, that get an edge loop laid exactly on them, like a hard edge. Draw them as for guides. |
 | `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
@@ -9261,7 +9261,7 @@ Select what a material is assigned to: whole objects when it covers every face o
 
 ### selectComponents
 
-Select vertices, edges or faces of a mesh by id. Ids may be [first, last] ranges. Without add/deselect/toggle it replaces the selection of that kind.
+Select vertices, edges, faces or uvs of a mesh by id. Ids may be [first, last] ranges. Without add/deselect/toggle it replaces the selection of that kind. uvs are face-vertex rows (Node.uvs_array's rows), each widened to its whole uv vertex; they select in vertex mode, and uv tools then move just those uvs.
 
 **Objects:** mesh
 
@@ -9270,6 +9270,8 @@ Select vertices, edges or faces of a mesh by id. Ids may be [first, last] ranges
 | `vertices` |  | list |  | Point ids. |
 | `edges` |  | list |  | Edge ids. |
 | `faces` |  | list |  | Face ids. |
+| `uvs` |  | list |  | Face-vertex rows, as in Node.uvs_array. |
+| `uvSet` |  | str |  | Set whose uv vertices the uvs widen to; empty for the current one. |
 | `add` |  | bool | `False` | Add to the selection. |
 | `deselect` |  | bool | `False` | Remove from the selection. |
 | `toggle` |  | bool | `False` | Toggle. |
