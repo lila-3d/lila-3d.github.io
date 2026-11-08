@@ -15278,6 +15278,283 @@ Unbind a template instance from its meshes; the markers stay where they are.
 
 **Objects:** instance
 
+## Seamwork extension
+
+Available when the Seamwork extension is loaded.
+
+### scatterProximity
+
+Apply proximity rules to any scattered instances: repel, shrink or tilt them near chosen objects, or remove those inside or outside a closed volume. Works on any meshes (Stagehand scatter, seamScatter, hand-placed). Returns what changed.
+
+**Objects:** instances, or groups holding them (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `rules` | `r` | list |  | Proximity rules, applied in order: [{'kind': 'repel'\|'shrink'\|'tilt'\|'cullInside'\|'cullOutside', 'target': mesh, 'radius': cm, 'strength': repel share, smallest scale or tilt degrees}]. |
+
+```python
+scatterProximity('contacts_rubble', rules=[{'kind': 'cullInside', 'target': 'Road'}, {'kind': 'shrink', 'target': 'Door', 'radius': 200}])
+```
+
+### seamCheck
+
+Check joins for problems: floating (an object with nothing under it within reach and no contact, its gap in cm) and open (a join no strip, skirt, scatter or field covers). Returns issues and ok.
+
+**Objects:** seam nodes (default every one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tol` | float | `2.0` | Gaps over this many cm count as floating. |
+| `reach` | `r` | float | `500.0` | Only look this far below an object for what it floats over, cm. |
+| `open` | `op` | bool | `True` | Report joins nothing covers. |
+
+Not undoable.
+
+```python
+r = seamCheck()
+for i in r['issues']: print(i['kind'], i.get('node', i.get('a')))
+```
+
+### seamDecal
+
+Grime, moss or wet strips along a seam node's contacts.
+
+decals='mesh' (default) makes a live strip mesh (seamStrip node) that works in every renderer, mobile forward included: masked by default (blend='translucent' for soft edges), material slot LilaSeamStrip, which M_LilaSeamStrip / MF_LilaSeamStrip render in Unreal. decals='dbuffer' sends decal actors to Unreal instead, a desktop opt-in (desktop forward and deferred, not mobile). decals='actor' sends decal actors for mobile forward and needs ForwardLevelUp's clustered decals switched on, which LilaLink's rendererInfo must report.
+
+**Objects:** seam node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `side` | `si` | str | `'ground'` | Lay the strip on the ground, up the wall, or both as a V. |
+| `width` | `w` | float | `40.0` | Width of each side, cm. |
+| `divisions` | `dv` | int | `3` | Rows across each side. |
+| `offset` | `of` | float | `0.2` | Lift off the surface, cm. |
+| `spacing` | `sp` | float | `20.0` | Rows along the contact every this many cm. |
+| `tile` | `ti` | float | `100.0` | cm of strip per texture repeat. |
+| `kinds` | `k` | list | `['ground', 'mesh']` | Contact kinds taken: ground, mesh, crease. |
+| `noise` | `no` | float | `0.3` | Edge width varies by up to this fraction with world noise. |
+| `blend` | `b` | str | `'masked'` | How strip meshes render: masked or translucent. |
+| `decals` | `dc` | str | `'mesh'` | mesh (any renderer), dbuffer (desktop decal actors) or actor (ForwardLevelUp clustered decals). |
+| `segment` | `sg` | float | `100.0` | Length of each decal actor along the contact, cm. |
+| `name` | `n` | str |  | Name of the strip mesh. |
+
+```python
+seamDecal('contacts', side='both', width=30)
+```
+
+```python
+seamDecal('contacts', decals='dbuffer')
+```
+
+### seamExport
+
+Write a seam node's contacts to a file for other engines: .json (curves with every point's facts, points, objects; Godot and Unity read it with any JSON parser) or .usda (BasisCurves and Points with primvars). Lengths in cm.
+
+**Objects:** seam node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Output path, .json or .usda. |
+
+Not undoable.
+
+```python
+seamExport('contacts', file='C:/Game/contacts.json')
+```
+
+```python
+seamExport('contacts', file='contacts.usda')
+```
+
+### seamFind
+
+Find where objects meet the ground and each other, live: a seam node with contact curves, points along them, distance fields on the meshes and a contact mask on the terrain.
+
+Exact joins come from where surfaces cross; near contacts (a wall standing on the ground) from surfaces within gap of each other; creases (rock stacks, wall corners) from short-range occlusion when crease is on. Each curve point carries both objects, both normals, the wedge angle, penetration depth, gap, how much it faces up, sky exposure and the ground layer. Objects tagged ignoreSeams (seamTag) are left out; pieces sharing a seamGroup never join each other. Returns the nodes made and stats: curve count, total length (cm) and per-object pairs.
+
+**Objects:** meshes (default the selection, or every visible mesh when nothing is selected)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `terrain` | `t` | str |  | Terrain mesh; default the first terrain in the scene. |
+| `ground` | `gr` | list |  | Meshes that act as ground (floors, slabs), besides the terrain. |
+| `findGround` | `fg` | bool | `True` | Joins with the ground. |
+| `findMesh` | `fm` | bool | `True` | Joins between objects. |
+| `nearContact` | `nc` | bool | `True` | Also surfaces within gap that don't cross. |
+| `gap` |  | float | `2.0` | Largest gap that still counts as a contact, cm. |
+| `crease` | `cr` | bool | `False` | Tight creases from short-range occlusion. |
+| `creaseRange` | `crr` | float | `20.0` | How far crease rays look, cm. |
+| `width` | `w` | float | `30.0` | Band width either side of a join, cm. |
+| `falloff` | `fo` | str | `'smooth'` | How the band fades. One of `linear`, `smooth`, `sharp`, `root`, `custom`. |
+| `noise` | `no` | float | `0.0` | Width varies by up to this fraction with world noise. |
+| `noiseScale` | `ns` | float | `150.0` | Size of the width noise, cm. |
+| `spacing` | `sp` | float | `25.0` | Points every this many cm along the joins. |
+| `field` | `fi` | str | `'color'` | Where each mesh's distance field goes: color, uv or none. |
+| `channel` | `ch` | str | `'r'` | Vertex colour channel for field=color. One of `r`, `g`, `b`, `a`. |
+| `uvSet` | `uv` | int | `2` | UV set for field=uv. |
+| `terrainMask` | `tm` | bool | `True` | Add a contact mask to the terrain for layer rules. |
+| `terrainWidth` | `tw` | float | `100.0` | How far the terrain mask reaches, cm. |
+| `live` | `lv` | bool | `True` | Keep fields and the terrain mask up to date as objects move. |
+| `name` | `n` | str | `'contacts'` | Name of the seam node. |
+
+```python
+r = seamFind(['Wall', 'Rock_01'], gap=2)
+print(r['curves'], r['length'], r['pairs'])
+```
+
+```python
+seamFind(terrain='Terrain', crease=True, field='uv', uvSet=2)
+```
+
+### seamInfo
+
+What a seam node found: stats, and each curve's kind, objects, length and value ranges (angle, depth, gap, mean exposure). points=True adds every curve point's values.
+
+**Objects:** seam node (or its curves or points object)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | bool | `False` | Include each point's values. |
+| `curve` | `c` | int |  | Only this curve index. |
+
+Not undoable.
+
+```python
+info = seamInfo('contacts')
+for c in info['curveList']: print(c['kind'], c['a'], c['b'], c['length'])
+```
+
+### seamScatter
+
+Spawn things along a seam node's contacts: rubble, gravel, grass, moss, roots, snow or leaves from a preset, or your own meshes and library assets.
+
+Each is an instance of a hidden prototype, wedged into the crease and sunk a little, in clumps that thin out away from the join. settle=True lets Stagehand settle them; check runs dressCheck after. Flags left out take the preset's values. Presets:
+- rubble: Broken stone chunks wedged along the base, a few spilling out.
+- gravel: Small stones in a band along the join.
+- grassTufts: Grass tufts where light reaches the base.
+- mossClumps: Moss hugging the crease on both surfaces, out of full sun.
+- roots: Roots running from the join out over the ground.
+- snowDrift: Soft mounds banked against the base, stretched along it.
+- leafLitter: Leaves gathered in the crease and scattered out from it.
+
+**Objects:** seam node (or its curves or points object)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str | `'rubble'` | Settings and built-in asset. One of `rubble`, `gravel`, `grassTufts`, `mossClumps`, `roots`, `snowDrift`, `leafLitter`. |
+| `items` | `it` | list |  | Meshes or Stagehand library asset ids to scatter instead of the preset's asset. |
+| `density` | `d` | float |  | Clumps per metre of contact. |
+| `clump` | `cl` | int |  | Things per clump. |
+| `clumpRadius` | `cr` | float |  | Clump size, cm. |
+| `spread` | `sp` | float |  | How far from the contact things spread, cm. |
+| `side` | `si` | str |  | Spread onto the ground, up the wall, or both. |
+| `wedge` | `w` | bool |  | Lean into the crease. |
+| `sink` | `sk` | float |  | Share of each thing's height below the surface. |
+| `scaleMin` | `smn` | float |  | Smallest scale. |
+| `scaleMax` | `smx` | float |  | Largest scale. |
+| `tilt` | `ti` | float |  | Random tilt, degrees. |
+| `kinds` | `k` | list |  | Contact kinds taken: ground, mesh, crease. |
+| `angleMin` | `amn` | float |  | Narrowest wedge taken, degrees. |
+| `angleMax` | `amx` | float |  | Widest wedge taken, degrees. |
+| `exposureMin` | `emn` | float |  | Least sky visibility taken, 0 to 1. |
+| `exposureMax` | `emx` | float |  | Most sky visibility taken, 0 to 1. |
+| `depthMax` | `dmx` | float |  | Deepest contact taken, cm; 0 takes all. |
+| `seed` | `s` | int | `0` | Variation seed. |
+| `rules` | `r` | list |  | Proximity rules, applied in order: [{'kind': 'repel'\|'shrink'\|'tilt'\|'cullInside'\|'cullOutside', 'target': mesh, 'radius': cm, 'strength': repel share, smallest scale or tilt degrees}]. |
+| `settle` | `st` | bool | `False` | Settle them with Stagehand physics. |
+| `check` | `ck` | bool | `True` | Run dressCheck on them after settling. |
+| `name` | `n` | str |  | Name of the group they go under. |
+
+```python
+seamScatter('contacts', preset='rubble', density=4, settle=True)
+```
+
+```python
+seamScatter('contacts', items=['Rock_A', 'Rock_B'], spread=60, rules=[{'kind': 'repel', 'target': 'Door', 'radius': 150}])
+```
+
+### seamSend
+
+Send a seam node's contacts to Unreal through LilaLink: the contact materials (MF_LilaContactMask, MF_LilaSeamStrip, MF_LilaSkirtBlend and their materials), each contact as a spline actor tagged with its facts (lila.kind:ground, lila.a:Wall, lila.angle:90.00 ...), the points and splines as a PCG data asset for a PCG graph to spawn along, and each object's contactBlendId in custom primitive data for screen-space blenders. Returns what was sent.
+
+**Objects:** seam node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `materials` | `m` | bool | `True` | Build the contact material functions and materials. |
+| `splines` | `sp` | bool | `True` | A spline actor per contact. |
+| `pcg` | `pc` | bool | `True` | Points and splines as PCG data (needs the LilaLinkPCG plugin). |
+| `pcgAsset` | `pa` | str |  | PCG data asset path; default /Game/LilaLink/Contacts/PCG_<seam>. |
+| `folder` | `fo` | str | `'Lila/Contacts'` | Outliner folder for the spline actors. |
+| `blendIds` | `bi` | bool | `True` | Give each object a contactBlendId in custom primitive data. |
+
+```python
+seamSend('contacts')
+```
+
+```python
+seamSend('contacts', splines=False, pcgAsset='/Game/Env/PCG_WallBases')
+```
+
+### seamSkirt
+
+Contact skirts: a blend mesh bridging each object and the ground, the alternative to screen-space mesh blending that works in mobile forward too.
+
+Each skirt is a live seamSkirt node and its mesh, one per object. method='auto' sweeps a fillet profile along contacts that run straight (turning less than straightAngle) and builds the rest by a boolean union with a fillet cut back to the band; the method used per contact and why is in the result. Borders lie on the source surfaces with their normals; point attr side runs 0 (wall) to 1 (ground), also in vertex alpha, with the terrain colour baked into vertex RGB. Each skirt mesh is mapped for Unreal (non-Nanite LODs, complex-as-simple collision, Nanite when its object's mapping has it) with material slot LilaSkirtBlend (M_LilaSkirtBlend / MF_LilaSkirtBlend).
+
+**Objects:** seam node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `width` | `w` | float | `40.0` | How far the skirt reaches up the wall and over the ground, cm. |
+| `radius` | `r` | float | `0.0` | Fillet radius, cm; 0 follows width. |
+| `method` | `m` | str | `'auto'` | auto, union or sweep. |
+| `segments` | `sg` | int | `6` | Rows across the fillet. |
+| `spacing` | `sp` | float | `15.0` | Rows along swept contacts every this many cm. |
+| `straightAngle` | `sa` | float | `25.0` | Auto sweeps contacts turning no more than this, degrees. |
+| `perObject` | `po` | bool | `True` | One skirt per object (for export); off makes one for all. |
+| `map` | `mp` | bool | `True` | Map each skirt for Unreal under /Game/LilaLink/Contacts. |
+
+```python
+r = seamSkirt('contacts', width=40)
+for s in r['skirts']: print(s['object'], s['stats']['curves'])
+```
+
+```python
+seamSkirt('contacts', method='sweep', radius=15)
+```
+
+### seamTag
+
+Tag meshes for joins: ignore (never joined, for intended overlaps), ground (acts as ground, like a floor slab) or group (pieces sharing a non-zero group never join each other). Takes effect the next time seamFind runs.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ignore` | `ig` | bool |  | Never join these. |
+| `ground` | `gr` | bool |  | These act as ground. |
+| `group` | `g` | int |  | Join group; 0 is the mesh's own. |
+
+```python
+seamTag(['Rock_Cluster_01', 'Rock_Cluster_02'], group=3)
+```
+
+```python
+seamTag('Floor', ground=True)
+```
+
+### seamUpdate
+
+Write every seam node's fields into its meshes and its contact mask into the terrain now. The app does this by itself as things move; scripts and batch runs call it after moving objects.
+
+**Objects:** seam nodes (default every one)
+
+```python
+move(0, 0, 100, 'Rock_01', relative=True)
+seamUpdate()
+```
+
 ## Settlement extension
 
 Available when the Settlement extension is loaded.
@@ -17511,7 +17788,7 @@ terrainCave('Terrain', curve='CaveLine', radius=250, noise=0.4, seed=3)
 
 ### terrainCheck
 
-What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water, volume splits whose seams crack (seamTolerance cm), whose holes no mesh fills, or with places no mesh covers, roads (terrainAddRoad) steeper or more banked than their design or over water with no bridge or culvert, rivers rising downstream, and lakes below their rim with no outlet or above it with no dam. Returns ok and the issues, each with its type, what it is about, where and a message.
+What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water, volume splits whose seams crack (seamTolerance cm), whose holes no mesh fills, or with places no mesh covers, roads (terrainAddRoad) steeper or more banked than their design or over water with no bridge or culvert, rivers rising downstream, lakes below their rim with no outlet or above it with no dam, cliff pieces floating above the ground (floatingCliff), cracks where a cliff meets the terrain (cliffCrack) and cliff tiles over triangleBudget in a World Partition cell (tileOverBudget). Returns ok and the issues, each with its type, what it is about, where and a message.
 
 **Objects:** terrain mesh or its modifier
 
@@ -17523,6 +17800,9 @@ What is wrong with a terrain and what sits on it: pads moving more than cutFillL
 | `floodTolerance` | `ft` | float | `0.5` | Flood risk counted as flooding. |
 | `floatTolerance` | `flt` | float | `10.0` | Gap under a building counted as floating, cm. |
 | `seamTolerance` | `stl` | float | `1.0` | Gap between a volume piece and the ground at a seam counted as a crack, cm. |
+| `cliffTolerance` | `ctl` | float | `5.0` | Gap under a cliff's foot (floating) or over its top or seam (crack), cm. |
+| `triangleBudget` | `tb` | float | `400000.0` | Most cliff triangles in one World Partition cell. |
+| `cellSize` | `cs` | float | `12800.0` | World Partition cell size for the triangle budget, cm. |
 | `riverArea` | `ra` | float | `250000.0` | Drainage area, m2, past which water is a river. |
 | `seaLevel` | `sea` | float |  | Sea level along the up axis, cm; ground below it joined to the edge is sea. Default no sea. |
 | `floodReturn` | `fr` | str | `'rare'` | Flood size for floodRisk: frequent, rare or extreme. |
@@ -17532,6 +17812,183 @@ Not undoable.
 ```python
 c = terrainCheck('Terrain', buildings=['House1', 'House2'])
 c['ok'], c['issues']
+```
+
+### terrainCliffExtrude
+
+Raise a cliff wall along a curve on a terrain, selected mesh edges (edges={mesh, ids}) or a region's outline (region=): from the ground up height cm, with a profile (vertical, battered: leaning back by batter, overhang: leaning out, stepped: steps terraces, or profileCurve= drawn in its XY plane, X out and Y up), the same strata, ledges and noise as terrainCliffMesh, and its masks. The face looks to the right of the curve's direction (flip=True turns it). With stamp=True the terrain is raised to a plateau behind the wall (plateau cm wide) and cut down to its base in front (cut cm). Live: edit the curve and the wall and terrain follow. Returns the wall mesh, its group and the ground edit.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | `cv` | str |  | The curve the wall follows. |
+| `edges` | `ed` | Any |  | Mesh edges to follow: {mesh, ids} (made into a live curve). |
+| `region` | `r` | str |  | A region whose outline the wall follows ('cliff_1'). |
+| `height` | `ht` | float | `1500.0` | Wall height, cm. |
+| `profile` | `pf` | str | `'vertical'` | Cross-section. One of `vertical`, `battered`, `overhang`, `stepped`. |
+| `profileCurve` | `pc` | str |  | A curve for the cross-section, in its XY plane: X out from the face, Y up. |
+| `batter` | `bt` | float | `0.2` | Battered and stepped: how far the top sits back (overhang: out), as a fraction of height. |
+| `steps` | `stp` | int | `3` | Stepped: terraces. |
+| `sink` | `snk` | float | `150.0` | How far the wall's foot goes below the ground, cm. |
+| `detail` | `dt` | float | `4.0` | Mesh edges per heightfield cell. |
+| `flip` | `fl` | bool | `False` | Face the other side of the curve. |
+| `stamp` | `sm` | bool | `True` | Raise a plateau behind the wall and cut the base in front. |
+| `plateau` | `pl` | float | `1500.0` | Width of the plateau behind, cm. |
+| `cut` | `ct` | float | `600.0` | Width of the cut in front, cm. |
+| `falloff` | `fo` | float | `800.0` | Blend back to the ground past plateau and cut, cm. |
+| `name` | `n` | str |  | The wall mesh; defaults to <curve>_cliff. |
+| `depth` | `dp` | float | `150.0` | How far the face is pushed in before the shape brings it back out, cm: the deepest cut. |
+| `strataHeight` | `sh` | float | `250.0` | Thickness of a rock layer, cm. |
+| `strataJitter` | `sj` | float | `0.35` | How much layer thickness varies, 0 to 1. |
+| `strataDip` | `sdp` | float | `0.0` | Tilt of the layers toward the face, degrees. |
+| `undercut` | `uc` | float | `0.55` | How deep the bottom of each layer is cut back, 0 to 1 of depth. |
+| `ledges` | `le` | float | `0.3` | How often a layer stands out over the next, leaving a ledge, 0 to 1. |
+| `noise` | `nz` | float | `0.3` | Surface roughness, 0 to 1. |
+| `noiseSize` | `ns` | float | `300.0` | Size of the bumps, cm. |
+| `overhang` | `oh` | float | `0.0` | 0 an even face, 1 the top leaning out over a deeply cut base. |
+| `rock` | `rk` | float | `0.0` | How much the rock height map shapes the face, 0 to 1. |
+| `rockMap` | `rm` | str |  | A rock height map: an image (red channel) or a texture graph (.lilamat, its height channel), projected from three sides. |
+| `rockSize` | `rs` | float | `400.0` | Rock map repeat, cm. |
+| `uvScale` | `uv` | float | `400.0` | uv0 repeat, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives other layers and bumps. |
+
+```python
+terrainCliffExtrude('Terrain', curve='Escarpment', height=2500, profile='battered', strataHeight=350)
+```
+
+```python
+terrainCliffExtrude('Terrain', region='cliff_2', height=1200, profile='stepped', steps=4)
+```
+
+### terrainCliffKit
+
+Dress a cliff region with your own kit pieces instead of a generated mesh: each piece faces out from the cliff, scaled to its height (jittered), overlapped (overlap under 1) and turned up to rotate degrees to hide repeats, its base sunk by sink of its height. Pieces floating more than floatTolerance cm above the ground or buried past maxPenetration are dropped, and gaps wider than gap cm get smaller pieces. Kit pieces stand on their base with their face toward +Z. Live: a mesh <terrain>_<region>_Kit of instances (piece, filler) that follows the terrain and the pieces. saveAssembly= keeps the kit as a named assembly, assembly= reuses one. send='hism' sends it as HISM instances, send='assembly' as a Nanite Assembly (UE 5.7+, r.Nanite.AllowAssemblies=1). Returns placed, fillers, rejectedFloating, rejectedPenetrating and coverage (of the region's outline).
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `region` | `r` | str |  | The cliff region ('cliff_1' or 'region:cliff_1'). |
+| `kit` | `k` | Any |  | Kit meshes, or a group holding them. |
+| `assembly` | `as` | str |  | Use a saved assembly's pieces. |
+| `saveAssembly` | `sa` | str |  | Save these pieces as a named assembly. |
+| `overlap` | `ov` | float | `0.8` | Spacing as a fraction of a piece's width; under 1 overlaps. |
+| `rotate` | `ro` | float | `15.0` | Random turn either way, degrees. |
+| `scaleJitter` | `sj` | float | `0.2` | Scale variation, 0 to 1. |
+| `sink` | `sk` | float | `0.1` | Base sunk into the ground, as a fraction of a piece's height. |
+| `floatTolerance` | `ft` | float | `25.0` | A piece this far above the ground is floating, cm. |
+| `maxPenetration` | `mp` | float | `0.6` | Most of a piece that may be inside the ground, 0 to 1. |
+| `gap` | `gp` | float | `150.0` | Gaps wider than this get smaller pieces, cm. |
+| `seed` | `sd` | int | `1` | Another seed gives another arrangement. |
+| `send` | `se` | str | `'none'` | Send it to Unreal: none, hism or assembly. |
+| `name` | `n` | str |  | The kit mesh; defaults to <terrain>_<region>_Kit. |
+
+```python
+terrainCliffKit('Terrain', region='cliff_1', kit=['Rock_A', 'Rock_B', 'Rock_C'], overlap=0.7)
+```
+
+```python
+terrainCliffKit('Terrain', region='cliff_2', kit='CliffKit', saveAssembly='granite', send='hism')
+```
+
+### terrainCliffMesh
+
+Build cliff meshes from terrain regions (terrainCliffs) or from a blockout mesh: the face at detail edges per heightfield cell, pushed in by depth, then shaped back out by rock layers (each cut back at its base by undercut, some standing out over the next as ledges), noise, overhang and a rock height map, never past where the terrain or blockout was. The masks go into the mesh's vertex colour (R strata, G 1 - cavity, B up-facing, A scatter zones) and as point attributes (strata, cavity, upFacing, ledge, scatter, talus) for materials, PCG and scatterProps(mask=); uv0 is projected along the cliff's facing, one island per layer.
+
+mode='proud' (default) keeps the landscape whole: the ground behind the cliff is set back (recess) so the mesh stands in front, the bottom edge sinks baseSink below the ground and the top tucks lipSink under the plateau. mode='inset' opens holes under the cliff (the holes mask, sent as the landscape's visibility layer) and the mesh fills them exactly, its edge on the ground's heights and normals with a skirt below. Either way the terrain gains masks cliff, cliffTalus (the band below each cliff; ground cover's scree preset reads it) and cliffTop. Meshes are <terrain>_<region> under <terrain>_Cliffs; building again replaces them. lowPoly=True adds a reduced copy with normal and AO maps baked from the full cliff. Returns per cliff the mesh, vertices, triangles, layers, deepestCut, baseClearance (proud: the highest bottom vertex relative to the ground, negative is buried) and hidden (the part of a proud cliff the ground still covers).
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `region` | `r` | Any | `'all'` | Region(s) to build: 'cliff_1' (or 'region:cliff_1'), a list, or 'all'. |
+| `blockout` | `bo` | str |  | Build from this mesh instead of a region: any blockout, refined and shaped along its normals. |
+| `mode` | `m` | str | `'proud'` | proud: the cliff stands on the terrain, its base sunk below the ground and its top tucked under the plateau, the ground set back behind it. inset: holes under the cliff and the mesh fills them, its edge on the ground's heights and normals. |
+| `detail` | `dt` | float | `4.0` | Mesh edges per heightfield cell. |
+| `margin` | `mg` | int | `1` | Samples beyond the region the mesh covers. |
+| `blend` | `bl` | float | `300.0` | Width of the band where the shape fades onto the ground at the mesh's edge, cm. |
+| `baseSink` | `bs` | float | `150.0` | Proud: how far the bottom edge sinks below the ground, cm. |
+| `lipSink` | `ls` | float | `15.0` | Proud: how far the top edge tucks under the plateau, cm. |
+| `recess` | `rc` | float | `1.2` | Proud: the ground behind the cliff is set back this many times depth. |
+| `skirt` | `sk` | float | `200.0` | Inset: how far a skirt drops below the ground at the edge, cm. |
+| `talusWidth` | `tw` | float | `800.0` | Band below the cliff written to the cliffTalus mask for scree, cm. |
+| `maxTriangles` | `mt` | int | `4000000` | Most triangles per cliff; past it the detail drops, with a warning. |
+| `lowPoly` | `lp` | bool | `False` | Also make <cliff>_low, reduced, with a normal and AO map baked from the full cliff (for non-Nanite targets). |
+| `lowPolyRatio` | `lpr` | float | `0.05` | Triangles the low poly keeps. |
+| `bakeResolution` | `br` | int | `2048` | Low poly map size. |
+| `name` | `n` | str |  | Blockout: the cliff mesh's name; defaults to <blockout>_cliff. |
+| `depth` | `dp` | float | `150.0` | How far the face is pushed in before the shape brings it back out, cm: the deepest cut. |
+| `strataHeight` | `sh` | float | `250.0` | Thickness of a rock layer, cm. |
+| `strataJitter` | `sj` | float | `0.35` | How much layer thickness varies, 0 to 1. |
+| `strataDip` | `sdp` | float | `0.0` | Tilt of the layers toward the face, degrees. |
+| `undercut` | `uc` | float | `0.55` | How deep the bottom of each layer is cut back, 0 to 1 of depth. |
+| `ledges` | `le` | float | `0.3` | How often a layer stands out over the next, leaving a ledge, 0 to 1. |
+| `noise` | `nz` | float | `0.3` | Surface roughness, 0 to 1. |
+| `noiseSize` | `ns` | float | `300.0` | Size of the bumps, cm. |
+| `overhang` | `oh` | float | `0.0` | 0 an even face, 1 the top leaning out over a deeply cut base. |
+| `rock` | `rk` | float | `0.0` | How much the rock height map shapes the face, 0 to 1. |
+| `rockMap` | `rm` | str |  | A rock height map: an image (red channel) or a texture graph (.lilamat, its height channel), projected from three sides. |
+| `rockSize` | `rs` | float | `400.0` | Rock map repeat, cm. |
+| `uvScale` | `uv` | float | `400.0` | uv0 repeat, cm. |
+| `seed` | `sd` | int | `0` | Another seed gives other layers and bumps. |
+
+```python
+terrainCliffs('Terrain')
+terrainCliffMesh('Terrain', region='cliff_1', depth=200, strataHeight=300, ledges=0.5)
+```
+
+```python
+terrainCliffMesh('Terrain', region='all', mode='inset')
+```
+
+```python
+terrainCliffMesh('Terrain', blockout='CliffBlock', depth=120)
+```
+
+### terrainCliffs
+
+Find the cliffs on a terrain: regions steeper than slope degrees, at least minArea m2 and minHeight cm from foot to top, with patches closer than mergeDistance joined. Named cliff_1, cliff_2, ... largest first and stored as regions, so every terrain command takes 'region:cliff_1' and material rules read the mask region_cliff_1. Each has its facing (outward, downhill), bearing (0 facing -Z, 90 facing +X, like the aspect field), strata direction (strataDip tilts it toward the face), height range, area and slope. mesh=True builds every cliff mesh at once (terrainCliffMesh). list=True lists the stored cliffs and what was built from them.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `slope` | `sl` | float | `50.0` | Steepest slope that is still ground, degrees. |
+| `minArea` | `ma` | float | `40.0` | Smallest cliff face, m2. |
+| `minHeight` | `mh` | float | `400.0` | Smallest drop from foot to top, cm. |
+| `mergeDistance` | `md` | float | `400.0` | Steep patches closer than this are one cliff, cm. |
+| `maxRegions` | `mr` | int | `64` | Most cliffs, largest first. |
+| `strataDip` | `sdp` | float | `0.0` | Tilt of the rock layers toward each face, degrees. |
+| `store` | `st` | bool | `True` | Keep them as regions cliff_1, ... (replacing the last set). |
+| `mesh` | `me` | bool | `False` | Also build every cliff's mesh with terrainCliffMesh's defaults. |
+| `list` | `ls` | bool | `False` | List the stored cliffs and the meshes, walls and kits built from them. |
+
+```python
+c = terrainCliffs('Terrain', slope=55, minHeight=800)
+[(r['name'], r['heightCm'], r['facingDegrees']) for r in c['regions']]
+```
+
+```python
+terrainCliffs('Terrain', mesh=True)
+```
+
+### terrainCliffScatter
+
+Scatter on a terrain's cliff meshes by tiers, each tier on its own grid with a seed per grid cell (big rocks on a coarse grid, debris on a fine one, as PCG's hierarchical generation does), so editing one cliff only changes the cells it touches. A tier is {name, grid (cm), density (per m2 where its mask is 1), mask (a cliff mesh attribute: scatter, ledge, talus, upFacing, cavity), align (0 upright, 1 on the surface), scale: [min, max], items}; the default tiers put boulders on talus, rocks on scatter zones and debris on ledges. Instances carry tier, item, slope and downhill. Live: a mesh <terrain>_CliffScatter. Returns the count per tier.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tiers` | `t` | Any |  | The tiers; default boulders, rocks and debris. |
+| `items` | `it` | Any |  | {item name: mesh}. |
+| `seed` | `sd` | int | `1` | Another seed gives another scatter. |
+| `sendToUnreal` | `ue` | bool | `False` | Then send it to Unreal as HISM instances. |
+| `name` | `n` | str |  | The scatter mesh; defaults to <terrain>_CliffScatter. |
+
+```python
+terrainCliffScatter('Terrain', items={'boulder': 'SM_Boulder', 'rock': 'SM_Rock', 'debris': 'SM_Pebble'})
 ```
 
 ### terrainConstrain
@@ -17795,7 +18252,7 @@ terrainGeoref('Terrain', latLon=[[45.9763, 7.6586]])['points']
 
 ### terrainGroundCover
 
-Scatter ground cover over a terrain by rules: rocks on scree (the deposit mask), trees by moisture or in the forest biome, grass on the grass layer, debris below cliffs, or your own. Each rule is {name, items, density (per m2 where it fits fully), footprint (cm kept clear; default the item's size across), when: {input: [min, max], biome: name(s), layer: name(s)}, scale: [min, max], align (0 upright, 1 on the normal), turn (degrees), sink (cm), solid (later rules keep clear of it), minFit}. Pieces go where they fit, kept with probability equal to the fit, and never inside another piece's footprint.
+Scatter ground cover over a terrain by rules: rocks on scree (the deposit mask), trees by moisture or in the forest biome, grass on the grass layer, debris below cliffs, or your own. Each rule is {name, items, density (per m2 where it fits fully), footprint (cm kept clear; default the item's size across), when: {input: [min, max], biome: name(s), layer: name(s)}, scale: [min, max], align (0 upright, 1 on the normal), turn (degrees), sink (cm), solid (later rules keep clear of it), minFit, faceDownhill (turn +Z downhill)}, or a slope band preset by name: scree (the cliffTalus band below cliffs), ledgePlants (flat spots near cliffs) or hangingRoots (cliff tops, facing downhill), also as {preset, ...overrides}. Instances carry rule, item, fit, random, slope and downhill. Pieces go where they fit, kept with probability equal to the fit, and never inside another piece's footprint.
 
 items= maps each item name to a mesh; an item no mesh stands for gets a hidden placeholder (said in the result). The scatter is live: a new mesh <terrain>_GroundCover whose geometry nodes (Terrain Ground Cover) follow the terrain and the item meshes; settle=True drops the pieces with Set Dressing's physics. Send it to Unreal as foliage-style instances with unrealPlaceInstances(<mesh>, mode='hism'), or sendToUnreal=True. Returns the mesh, group and per rule the pieces placed, per hectare, those blocked by footprints, and the thinning when maxCount was reached.
 
@@ -17803,7 +18260,7 @@ items= maps each item name to a mesh; an item no mesh stands for gets a hidden p
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `rules` | `r` | Any |  | The rules; 'default' (the default) for rocks, trees, debris and grass. |
+| `rules` | `r` | Any |  | The rules (or preset names: scree, ledgePlants, hangingRoots); 'default' (the default) for rocks, trees, debris and grass. |
 | `items` | `it` | Any |  | {item name: mesh} for the rules' items. |
 | `seed` | `sd` | int | `1` | Another seed gives another scatter. |
 | `density` | `d` | float | `1.0` | Multiplies every rule's density. |
@@ -17883,7 +18340,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
@@ -18493,6 +18950,43 @@ Set a terrain's sea level (ground below it and joined to the edge is sea) and it
 terrainSeaLevel('Terrain', level=0, beachSlope=8)
 ```
 
+### terrainSendCliffs
+
+Send a terrain's cliffs (and extra= meshes, such as contact skirts or strips) to Unreal cut on the World Partition grid (cellSize cm, lines at whole multiples from the origin): tiles share their border vertices exactly, every LOD and the collision are reduced with their borders kept so neighbours meet at any LOD, each tile's pivot is its centre so its actor lands in its own cell, Nanite per tile (nanite: auto turns it on past naniteTriangles), and without Nanite the collision comes from the last LOD. Tiles go one at a time through LilaLink with progress, and only tiles whose content changed are sent again; an interrupted send carries on where it stopped. hlodLayer= puts every actor on that HLOD layer. Tiles get MI_<terrain>_Cliffs (MF_LilaTerrainVolume). dryRun=True plans the tiles (and writes their FBX to folder= when given) without Unreal. Returns the tiles, sent, skipped, failed, stale and assets.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `cellSize` | `cs` | float | `12800.0` | World Partition cell size, cm. |
+| `lods` | `ld` | int | `3` | Levels per tile. |
+| `lodRatio` | `lr` | float | `0.35` | Triangles each level keeps of the one before. |
+| `collisionRatio` | `cr` | float | `0.1` | Triangles the collision keeps (Nanite tiles). |
+| `nanite` | `na` | str | `'auto'` | Nanite per tile: on, off or auto. |
+| `naniteTriangles` | `nt` | int | `50000` | auto: Nanite for tiles over this many triangles. |
+| `hlodLayer` | `hl` | str |  | HLOD layer asset path for every tile's actor. |
+| `extra` | `ex` | list |  | More meshes to tile and send (contact skirts, strips). |
+| `only` | `on` | list |  | Send only these cliffs, by name. |
+| `kitAs` | `ka` | str | `'assembly'` | Kits: assembly (a Nanite Assembly) or hism. |
+| `contentFolder` | `cf` | str |  | Where the tile assets go in Unreal; defaults to /Game/LilaLink/Landscapes/<terrain>/Cliffs. |
+| `material` | `mat` | bool | `True` | Give the tiles MI_<terrain>_Cliffs. |
+| `force` | `fc` | bool | `False` | Send every tile, changed or not. |
+| `collectEvery` | `ce` | int | `8` | Ask Unreal to collect garbage after this many tiles. |
+| `stopAfter` | `sa` | int | `-1` | Stop after this many tiles (a resumable partial send); -1 sends all. |
+| `dryRun` | `dr` | bool | `False` | Plan the tiles without Unreal. |
+| `folder` | `fo` | str |  | dryRun: write the tile FBX files here. |
+
+Not undoable.
+
+```python
+terrainSendCliffs('Terrain', cellSize=12800, hlodLayer='/Game/HLOD/HLOD_Cliffs')
+```
+
+```python
+t = terrainSendCliffs('Terrain', dryRun=True)
+[(x['name'], x['triangles'], x['nanite']) for x in t['tiles']]
+```
+
 ### terrainSendRoadsToUnreal
 
 Send a terrain's roads to the connected Unreal editor as landscape splines on its landscape (the one terrainSendToUnreal made, or landscape=): a control point every spacing cm with the road's width, bank (roll) and side falloff, segments carrying segmentMesh as spline meshes, paintLayer as the layer they paint, and raise/lower for whether they deform the landscape (off by default: Lila's heights already hold the road). kind='meshTerrain' sends them to the Mesh Terrain terrainSendToUnreal(kind='meshTerrain') made instead, as Mesh Partition spline modifiers (needs the LilaLinkMeshTerrain plugin): a plateau of the road's half width, the falloff beyond, paintLayer as the channel they write. Sending again replaces them. Returns what LilaLink made.
@@ -18543,6 +19037,8 @@ A terrain with a volume split (caves, overhangs, arches) sends its pieces as sta
 | `roads` | `rd` | bool | `True` | Also send the terrain's roads as landscape splines. |
 | `volumeMaterial` | `vm` | str |  | Material for the volume pieces; empty generates one on MF_LilaTerrainVolume. |
 | `rvt` |  | bool | `False` | Material layers: also write a runtime virtual texture, so meshes can blend into the ground. |
+| `cliffs` | `cl` | bool | `False` | Also send the terrain's cliffs as World Partition tiles (terrainSendCliffs). |
+| `cliffFlags` | `clf` | Any |  | terrainSendCliffs flags for cliffs=True, such as {'cellSize': 12800, 'hlodLayer': ...}. |
 | `timeout` | `to` | float | `300.0` | Seconds to wait for Unreal. |
 | `kind` | `k` | str | `'landscape'` | landscape, or meshTerrain for UE 5.8's experimental Mesh Terrain (needs the LilaLinkMeshTerrain plugin). |
 | `regions` | `rg` | str | `'auto'` | landscape: write the heights region by region (bounded memory for huge maps); auto does above 8193 x 8193 vertices. One of `auto`, `on`, `off`. |
@@ -18554,6 +19050,10 @@ Not undoable.
 
 ```python
 terrainSendToUnreal('Terrain', material='/Game/Terrain/M_Landscape')
+```
+
+```python
+terrainSendToUnreal('Terrain', cliffs=True, cliffFlags={'cellSize': 12800})
 ```
 
 ### terrainSendWaterToUnreal

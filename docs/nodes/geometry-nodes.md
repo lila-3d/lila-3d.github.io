@@ -4299,6 +4299,78 @@ A float grid from an OpenVDB file (.vdb, from Houdini, Blender or EmberGen) as a
 | `grid` | string | input |  | Grid name, such as density; empty reads the first float grid. |
 | `volume` | geometry | output |  |  |
 
+## Seamwork extension
+
+Available when the Seamwork extension is loaded.
+
+### Instances
+
+#### Distribute Along Seam
+
+Instances along contact points: wedged into the crease along the bisector of both surfaces and sunk by part of their height, in clumps that thin out away from the join.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | geometry | input |  |  |
+| `instance` | geometry | input |  |  |
+| `clump` | int | input | `1` | Instances per point. Range 1 to 64. |
+| `clumpRadius` | float | input | `10` | Clump size, cm. At least 0. |
+| `spread` | float | input | `0` | How far instances spread from the join, cm, thinning out. At least 0. |
+| `wedge` | bool | input | `true` | Lean into the crease. |
+| `sink` | float | input | `0.1` | Share of each instance's height pushed below the surface. Range 0 to 1. |
+| `scaleMin` | float | input | `0.8` | Smallest scale. At least 0. |
+| `scaleMax` | float | input | `1.2` | Largest scale. At least 0. |
+| `tilt` | float | input | `10` | Random tilt, degrees. Range 0 to 90. |
+| `seed` | int | input | `0` | Variation seed. |
+| `instances` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `side` | `ground`, `wall`, `both` | `ground` | Spread onto the ground, up the wall, or both. |
+
+### Point
+
+#### Seam Points
+
+Keeps the contact points (from Object Info on a seam node's points object) that suit what will grow or gather there: by kind, wedge angle, exposure to the sky and depth, thinned to a density. Their facts stay on as point attributes.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | geometry | input |  |  |
+| `kinds` | string | input | `ground mesh crease` | Kinds kept: ground, mesh, crease. |
+| `angleMin` | float | input | `0` | Narrowest wedge kept, degrees. Range 0 to 180. |
+| `angleMax` | float | input | `180` | Widest wedge kept, degrees. Range 0 to 180. |
+| `exposureMin` | float | input | `0` | Least sky visibility kept. Range 0 to 1. |
+| `exposureMax` | float | input | `1` | Most sky visibility kept. Range 0 to 1. |
+| `depthMax` | float | input | `0` | Deepest join kept, cm; 0 keeps all. At least 0. |
+| `density` | float | input | `1` | Share of the points kept. Range 0 to 1. |
+| `seed` | int | input | `0` | Which points the density keeps. |
+| `points` | geometry | output |  |  |
+
+### Terrain
+
+#### Contact Mask
+
+Type `SeamContactMask`.
+
+A mask on the heightfield that is 1 where objects meet the ground and fades over width: dirt rings around buildings and rocks for terrain layer rules. Its seam node fills in curves and keeps them up to date.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `curves` | string | input | `[]` | Contact polylines in the heightfield's space, [[[x, y, z], ...], ...]. |
+| `width` | float | input | `100` | How far the mask reaches from a contact, cm. At least 0. |
+| `noise` | float | input | `0` | Width varies by up to this fraction with world noise. At least 0. |
+| `noiseScale` | float | input | `500` | Size of the width noise, cm. At least 1. |
+| `seed` | int | input | `0` | Noise seed. |
+| `mask` | string | input | `contact` | Name of the mask written. |
+| `source` | string | input |  | The seam node that fills in curves. |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `falloff` | `linear`, `smooth`, `sharp`, `root`, `custom` | `smooth` | How the mask fades. |
+
 ## Settlement extension
 
 Available when the Settlement extension is loaded.
@@ -5068,6 +5140,63 @@ Climate and biomes over the heightfield. Writes temperature (0 to 1 over -30 to 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `biomes` |  |  | The spec, JSON: {climate, biomes: [{name, when, paint}], sharpness, landcover}; empty uses the defaults. |
+
+#### Terrain Cliff Kit
+
+Kit pieces (rock and cliff meshes) fitted along a cliff region: facing out, scaled to its height, overlapped and turned to hide repeats, base sunk, floating and over-buried pieces dropped, gaps filled with smaller pieces. Instances carry piece and filler.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `instances` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `terrain` |  |  | The Object Info node of the terrain. |
+| `region` |  | `{}` | The region, JSON: {rings, low, high} in the terrain's own space. |
+| `pieces` |  | `[]` | Piece names, JSON list; each is an Object Info node Item_<name>. |
+| `settings` |  | `{}` | Fitting, JSON: {overlap, rotate, scaleJitter, sink, floatTolerance, maxPenetration, gap, seed}. |
+
+#### Terrain Cliff Scatter
+
+Scatter on cliff meshes by tiers, each on its own grid (big rocks coarse, debris fine) with a seed per cell, so an edit only reshuffles the cells it touches. Pieces go where a tier's mask (a cliff mesh attribute: scatter, ledge, talus, upFacing) is high. Instances carry tier, item, slope and downhill.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seed` | int | input |  |  |
+| `instances` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `tiers` |  | `[]` | Tiers, JSON: [{name, grid, density, mask, align, scale, items}]. |
+| `sources` |  | `[]` | Object Info nodes of the cliff meshes, JSON list. |
+
+#### Terrain Cliff Wall
+
+A cliff wall along a curve: from the ground at its base up to height (or the plateau a stamped terrain raised behind it), shaped by a profile, strata and noise, with the masks every cliff mesh carries. Follows the curve and the terrain live.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `curve` |  |  | The Object Info node of the curve. |
+| `terrain` |  |  | The Object Info node of the terrain; empty stands the wall on Y = 0. |
+| `settings` |  | `{}` | The wall, JSON: {height, profile, custom, batter, steps, sink, detail, cell, flip, shape: {...}}. |
+
+#### Terrain Cliffs
+
+The ground under cliff meshes: a proud cliff sets the ground back under its mesh so the mesh stands in front, an inset cliff opens holes the mesh fills, and an extruded wall raises a plateau behind it and cuts the base in front. Writes masks cliff, cliffTalus (below cliffs, for scree) and cliffTop (along their tops). terrainCliffMesh and terrainCliffExtrude write it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `cliffs` |  | `[]` | Cliffs, JSON: [{name, kind, mesh, mode, rings, depth, recess, blend, margin, talusWidth}] in the heightfield's own space. |
+| `walls` |  | `[]` | Walls, JSON: [{name, object (an Object Info node), height, plateau, cut, falloff, flip, stamp}]. |
 
 #### Terrain Constraints
 
