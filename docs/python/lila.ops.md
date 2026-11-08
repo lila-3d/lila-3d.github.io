@@ -900,7 +900,7 @@ One bake group per mesh: each given (or selected) mesh becomes the low of its ow
 
 ### bakeLint
 
-Check a bake project before baking: hard edges off UV seams, overlapping UVs (also across groups writing one texture), missing or degenerate UVs, texel density outliers, mirrored islands against tangent signs, lows with no high in range, highs outside the cage, non-planar faces whose triangulation depends on the exporter, and cage topology. bake runs it first and lists its warnings. Returns {issues: [{check, severity, group, mesh, message, data}], warnings, checks, distances: [{group, frontal, rear, frontalAuto, rearAuto, measured}]} (Auto distances are measured against the highs when highs is on).
+Check a bake project before baking: hard edges off UV seams, overlapping UVs (also across groups writing one texture), missing or collapsed UVs, islands off their mesh's texel density, mirrored islands against tangent signs, lows with no high in range, highs outside the cage and cage topology; non-planar faces whose triangulation depends on the exporter only when checks names triangulation. Problems too small to show in the map are left out. bake runs it first and lists its warnings. Returns {issues: [{check, severity, group, mesh, message, data}], warnings, checks, distances: [{group, frontal, rear, frontalAuto, rearAuto, measured}]} (Auto distances are measured against the highs when highs is on).
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
