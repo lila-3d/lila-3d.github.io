@@ -26,6 +26,10 @@ On a spline chain, **Add Bone CV** puts a point into the chain's curve at the bo
 
 Select the mesh and open **Rig > Paint Skin Weights**. The influences listed are the chains, named after their first joint; paint the joins between them like skin weights. Inside a chain there is nothing to paint.
 
+## Shape between the bones
+
+For soft shapes the curve alone doesn't give (a bicep, a calf), lay a [Soft Net](soft-net.md) along the chain with **Rig > Soft Net Limb Stations**: rings round the limb at stations along it, rails between them. The chain moves the net and the net shapes the surface.
+
 ## Unreal
 
 Run **Rig > Bake Bend Bones** as the last step before export. Each bone gets segment joints along its curve (3 by default), keyed on every frame of the playback range, and the mesh is skinned to them with weights fitted to the bend bones over the animation and random poses. The bend bones deformer is turned off, so the viewport shows what Unreal gets. Undo to go back to authoring.

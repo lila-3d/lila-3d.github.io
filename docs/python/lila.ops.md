@@ -1099,6 +1099,27 @@ Fit linear skin weights (SSDR, Dem Bones) to everything the mesh's stack does: c
 | `iterations` |  | int | `3` | Solver passes. |
 | `keep` |  | bool | `False` | Store the weights for export only and leave the scene as it is. |
 
+### bakeSoftNet
+
+Bake a skinned mesh's Soft Net for Unreal: each knot becomes a frame joint riding the surface with a control joint under it, each tangent handle a joint under its knot, keyed over the range and added to the skin as fixed bones; weights are fitted to the net's result (with up to helpers helper joints), and morph correctives keyed per frame take the residual. The net is turned off so the viewport shows what Unreal gets. Returns {joints, helpers, correctives, skinnedRmse, rmse, maxError, frameError, frames, unrealCheck}: errors in cm against the net, per frame worst, and the Unreal round-trip check.
+
+**Objects:** mesh (or its net)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | int |  | First frame (the playback start by default). |
+| `end` |  | int |  | Last frame (the playback end by default). |
+| `step` |  | int | `1` | Frames between samples. |
+| `helpers` |  | int | `4` | Helper joints solved with the weights for what knots and skin can't follow (capped per character). |
+| `correctives` |  | int | `8` | Most morph correctives for the residual. |
+| `tolerance` |  | float | `0.001` | cm of RMS residual at which correctives stop. |
+| `maxInfluences` | `mi` | int | `8` | Influences per point. |
+| `iterations` |  | int | `3` | Fit passes. |
+
+```python
+bakeSoftNet("Mochi", helpers=4, correctives=8)
+```
+
 ### bakeStatus
 
 A bake project's settings, groups and last bake result this session; with several projects and no project=, every project.
@@ -6523,6 +6544,24 @@ Mirror weights across a world plane through the origin: points on the source sid
 | `positiveToNegative` | `ptn` | bool | `True` | Copy from the + side to the - side. |
 | `tolerance` | `tol` | float | `0.1` | How far a mirrored point may be from its partner, cm. |
 
+### mirrorSoftNetKnots
+
+Copy Soft Net knots' poses to their partners across the mirror (a mirrored layout's pairs, else the knot at the reflected place), mirrored in their frames, tangent handles included. Given the net, mirrors every knot on the side fromSide picks. Returns the knots moved.
+
+**Objects:** knots, or a net
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fromSide` | `fs` | int | `1` | With a net: copy from the + (1) or - (-1) side of the mirror plane. |
+
+```python
+mirrorSoftNetKnots("SoftNet_k12_l")
+```
+
+```python
+mirrorSoftNetKnots("SoftNet_knots", fromSide=-1)
+```
+
 ### mode
 
 Switch to a mode (a bundle of layout, hotkeys, marking menus, shelf and gizmos), or with no argument return the current one. list returns every mode as {id, label, doc}.
@@ -7004,6 +7043,25 @@ Add, change, rename, remove or activate a Panel Layout line set. Each set says h
 | `depth` |  | float |  | Depth, cm; negative raises a ridge. |
 | `profile` |  | str |  | v, u, square, step or chamfer. |
 | `output` |  | str |  | geometry, sculpt, texture, decal or none. |
+
+### panelLayoutLoopSpokes
+
+Draw a closed loop on a Panel Layout with spokes running out from it across the surface, for mouths and eyes under a Soft Net: count spokes (or one every spacing), each length long, crowded toward the loop's corners as cornerBias grows. The Layout Pencil's Loop with Spokes option draws through it. Returns {layout, spokes, perimeter}.
+
+**Objects:** layout (or its mesh)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | The loop: world-space points on the surface, [[x, y, z], ...]; it closes itself. |
+| `count` | `c` | int | `8` | Spokes round the loop. |
+| `spacing` | `sp` | float | `0.0` | Distance between spokes along the loop, cm; overrides count when above 0. |
+| `length` | `ln` | float | `0.0` | Spoke length, cm; 0 is 0.6 of the loop's radius. |
+| `cornerBias` | `cb` | float | `1.0` | How strongly spokes crowd toward the loop's corners; 0 spaces them evenly. |
+| `tolerance` |  | float | `0.1` | Fit tolerance, world units. |
+
+```python
+panelLayoutLoopSpokes("Mochi_panelLayout", points=mouth, count=10, length=2.0)
+```
 
 ### panelLayoutMirror
 
@@ -10758,20 +10816,123 @@ Add a soft modification handle: moving, rotating or scaling the handle moves nea
 
 ### softNet
 
-Make a Soft Net on a mesh from its Panel Layout: the layout's lines become curves bound to the surface as it is (no cuts), every junction a knot with a control riding the surface under the net. Added on top of the stack, so it shapes the skinned mesh. Move, turn, scale or key the knot controls. Returns {softNet, knots, samples}.
+Make a Soft Net on a mesh from its Panel Layout: the layout's lines become Bezier curves bound to the surface as it is (no cuts), every junction a knot control riding the surface under the net, every line end a tangent handle under its knot. Added on top of the stack, so it shapes the skinned mesh. meshes binds garments and props to the same lines. On a mesh that has a net already it rebinds it (softNetRebind). Returns {softNet, knotsGroup, knots, tangents, samples, meshes}.
 
 **Objects:** mesh
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `layout` | `ly` | str |  | The Panel Layout whose lines make the net; default the mesh's topmost. |
-| `reach` | `r` | float | `0.0` | How far from a line the surface follows it, cm; 0 is a sixth of the mesh's size. |
-| `stiffness` | `st` | float | `1.0` | How closely the surface meets the lines. |
-| `spacing` | `sp` | float | `0.0` | Distance between line samples, cm; 0 is twice the layout's. |
-| `name` | `n` | str |  | Name for the deformer. |
+| `meshes` | `ms` | list |  | Other meshes the same lines move: garments, props. |
+| `reach` | `r` | float |  | How far from a line the surface follows it, cm; 0 is a sixth of the mesh's size. |
+| `stiffness` | `st` | float |  | How closely the surface meets the lines (default 1). |
+| `spacing` | `sp` | float |  | Distance between line samples, cm; 0 is twice the layout's. |
+| `maxDistance` | `md` | float |  | How far a garment or prop may lie from a line and still follow it, cm; 0 is half the reach. |
+| `name` | `n` | str |  | Name for the deformer and its controls. |
 
 ```python
 softNet("Mochi", reach=4.0)
+```
+
+```python
+softNet("Body", meshes=["Shirt", "Belt"])
+```
+
+### softNetKnots
+
+A Soft Net's knots: each with its junction, how many lines meet there, whether it shows by default (junctions and line ends), its partner across the mirror and its tangent handles. showAll shows or hides the knots inside lines. Returns [{knot, junction, degree, exposed, partner, tangents}].
+
+**Objects:** net (its knots group, a knot, the deformer or a mesh it binds)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `showAll` | `sa` | bool |  | Show every knot (true) or junctions and line ends only (false). |
+| `toggleShowAll` | `ts` | bool | `False` | Flip showAll. |
+
+```python
+softNetKnots("SoftNet_knots", showAll=True)
+```
+
+### softNetLimbStations
+
+Lay a limb's Soft Net lines on its mesh's Panel Layout: rings round the limb at stations along a curve, a joint chain or a bend-bone chain, and rails running its length between them, so the chain drives the net and the net drives the surface. Makes a Panel Layout when the mesh has none. Returns {layout, rings, rails}.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spine` | `sp` | str |  | The curve, joint or bend-bone chain start the limb follows. |
+| `rings` | `rg` | int | `5` | Rings round the limb. |
+| `rails` | `rl` | int | `4` | Lines along the limb. |
+| `start` |  | float | `0.05` | Where the first ring sits, as a fraction of the spine. |
+| `end` |  | float | `0.95` | Where the last ring sits, as a fraction of the spine. |
+| `twist` | `tw` | float | `0.0` | Degrees the rails start turned about the spine. |
+| `layout` | `ly` | str |  | The Panel Layout to draw on; default the mesh's topmost. |
+
+```python
+softNetLimbStations("Body", spine="upperarm_l", rings=5, rails=4)
+```
+
+### softNetPose
+
+Pose Soft Net knots in their frames on the surface (z the normal): translate, rotate and scale set on each; mirror=True also gives each knot's partner the mirrored pose. Returns the knots posed.
+
+**Objects:** knots
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `translate` | `t` | tuple[float, float, float] |  | Move in the knot's frame, cm. |
+| `rotate` | `ro` | tuple[float, float, float] |  | Turn in the knot's frame, degrees. |
+| `scale` | `s` | tuple[float, float, float] |  | Scale in the knot's frame. |
+| `mirror` | `m` | bool | `False` | Pose the partners across the mirror too. |
+
+```python
+softNetPose(["SoftNet_k3_l"], translate=[0, 0, 0.5], mirror=True)
+```
+
+### softNetRebind
+
+Bind a Soft Net again after its Panel Layout changed: knot controls (with their values and keys) stay on the junctions that are still there, knots are added for new junctions and removed with removed ones, and every bound mesh gets its samples again. Returns what softNet returns.
+
+**Objects:** net (its knots group, a knot, the deformer or a mesh it binds)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layout` | `ly` | str |  | Bind from this Panel Layout instead of the one it was made from. |
+| `meshes` | `ms` | list |  | More meshes to bind to the same lines. |
+| `spacing` | `sp` | float |  | Distance between line samples, cm; 0 is twice the layout's. |
+| `maxDistance` | `md` | float |  | How far a garment or prop may lie from a line and still follow it, cm. |
+
+```python
+softNetRebind("SoftNet_knots")
+```
+
+### softNetUnreal
+
+Send a Soft Net to Unreal one of three ways. bake (default): knot joints, fitted weights and morph correctives on the skin (bakeSoftNet), so any Unreal export carries it. live: the net runs in Unreal as a Deformer Graph over the skin, matching Lila (unrealSoftNet; knot joints are baked to drive it). cache: the deformed mesh as an Alembic or vertex animation cache, exact but fixed, for cinematics. Returns that route's result.
+
+**Objects:** mesh (or its net)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `route` |  | str | `'bake'` | How the net reaches Unreal. One of `bake`, `live`, `cache`. |
+| `start` |  | int |  | First frame (the playback start by default). |
+| `end` |  | int |  | Last frame (the playback end by default). |
+| `step` |  | int | `1` | Frames between samples. |
+| `helpers` |  | int | `4` | Helper joints solved with the weights for what knots and skin can't follow (capped per character). |
+| `correctives` |  | int | `8` | Most morph correctives for the residual. |
+| `tolerance` |  | float | `0.001` | cm of RMS residual at which correctives stop. |
+| `maxInfluences` | `mi` | int | `8` | Influences per point. |
+| `iterations` |  | int | `3` | Fit passes. |
+| `cacheFormat` |  | str | `'alembic'` | cache: Alembic or vertex animation (VAT). One of `alembic`, `vat`. |
+| `path` |  | str |  | cache: the file to write; default beside the scene. |
+
+```python
+softNetUnreal("Mochi")
+```
+
+```python
+softNetUnreal("Mochi", route="cache", cacheFormat="alembic")
 ```
 
 ### softSelectCurve
@@ -12542,6 +12703,25 @@ Send a texture set to Unreal: exports it through the Unreal preset (only tiles a
 | `wait` | `w` | bool | `False` | Block until Unreal finishes and return its reply. |
 
 Not undoable.
+
+### unrealSoftNet
+
+Run a skinned mesh's Soft Net live in Unreal: its knots and tangent handles become joints keyed over the range (export the skeleton with them, deformOnly off), and LilaLink binds every LOD of the skeletal mesh to the net's precomputed influence (each vertex takes the entries of the point at its place) under the Lila Soft Net Deformer Graph: linear skinning, then the net's offset from the knot bones. Returns {skeletalMesh, deformer, joints, unreal}.
+
+**Objects:** mesh (or its net)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` |  | int |  | First frame (the playback start by default). |
+| `end` |  | int |  | Last frame (the playback end by default). |
+| `step` |  | int | `1` | Frames between samples. |
+| `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the mesh's mapping. |
+| `deformer` | `df` | str | `'/Game/Lila/DG_LilaSoftNet'` | The Deformer Graph asset to use, made when missing. |
+| `dryRun` | `dry` | bool | `False` | Make the joints and return what would be sent, without connecting to Unreal. |
+
+```python
+unrealSoftNet("Mochi", skeletalMesh="/Game/Mochi/Mochi")
+```
 
 ### unrealStatus
 
@@ -19816,7 +19996,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |

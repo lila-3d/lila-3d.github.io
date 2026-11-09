@@ -26,6 +26,8 @@ Each of these is a modifier on the mesh, so it updates whenever you redraw a lin
 
 **Cleanup** sets how much each stroke is tidied: 0 keeps the hand-drawn wobble, 1 fits the fewest points.
 
+**Loop Spokes** (in the **Pencil** section): a stroke that closes on itself also gets spokes running out across the surface, crowded toward the loop's corners as **Corner Bias** grows. Use it to lay out a mouth or an eye for a [Soft Net](soft-net.md).
+
 ## Line sets
 
 Every line belongs to a line set, and each set has its own width, depth, profile and output:
