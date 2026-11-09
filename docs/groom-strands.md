@@ -58,7 +58,7 @@ importGroom("hair.groom", mesh="Head")
 
 ## Hair cards
 
-Run **Curves > Groom > Hair Cards Preset** to give the groom a Cards node at a hero, mid or low budget, then connect `outCards` to a mesh. **Bake Hair Cards...** writes the cards' maps (Depth, Coverage, Tangent, Attribute, Color, AO and Normal as `.tga`), the atlas layout and a preview into a folder. The cards keep their atlas cells from that bake.
+Run **Curves > Groom > Hair Cards Preset** to give the groom a Cards node at a hero, mid or low budget and a mesh showing the cards. **Bake Hair Cards...** writes the cards' maps (Depth, Coverage, Tangent, Attribute, Color, AO and Normal as `.tga`), the atlas layout and a preview into a folder. The cards keep their atlas cells from that bake.
 
 ## In geometry nodes
 
