@@ -37,6 +37,10 @@ setAttr(g["groom"] + ".graph", """{"version": 1, "output": "interp",
 
 Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads the head's earlier frames. Simulate steps from its start frame, including frames you jump past, and scrubbing back shows the frames it already stepped.
 
+## Hair look
+
+The **Hair Look** section of the groom's Attribute Editor lists the look nodes that shape the strands after they grow: Clump, Noise, Curl, Length, Cut and Width. Add one from **Add Look...**. Dragging a value shows the result live on the GPU; letting go sets it as one undo step.
+
 ## Export and import
 
 Select the groom and run **Curves > Groom > Export Groom...**. The file's extension picks the format:
