@@ -70,6 +70,8 @@ Strands keep their roots on the head in the `groomRootFace` and `groomRootUV` cu
 | `strandCount` | How many strands grew. |
 | `warning` | What went wrong in the last evaluation. |
 
+The head's color sets are maps the graph reads: paint one with **Paint Vertex Colors** and a Map node named after the set reads it: a set painted in grays is a gray map, any other a color map. A map the groom stores under the same name wins.
+
 The same head, guides and graph always grow the same strands, bit for bit, on any thread count and after saving and opening the scene.
 
 The groom graph engine comes from [GroomLab](https://github.com/thekesslereffect/groomlab) by thekesslereffect, under the Apache 2.0 license.
