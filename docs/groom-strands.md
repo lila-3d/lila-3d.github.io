@@ -54,6 +54,8 @@ importGroom("hair.groom", mesh="Head")
 
 **Curves > Groom > Import Groom...** reads a `.groom` file into a new groom on the selected mesh, or on the file's own head when none is selected.
 
+**Curves > Groom > Import Yeti...** reads the Yeti grooms of a Maya ASCII (`.ma`) file, without Maya or Yeti. Import the `.ma` first so its head meshes are in the scene. Each Yeti node becomes a groom: its groom's strands are the guides, and its Scatter, Clumping, Scraggle and Width nodes become the graph's Scatter, Clump, Noise and Width. The command's report lists what was mapped, approximated and skipped.
+
 ## In geometry nodes
 
 Each groom graph node that works on what it's handed is also a geometry node in the **Hair** category: Scatter, Interpolate, Clump, Curl, Noise and the rest. Strands and guides travel as curves, the head as a mesh. Link the head into every Hair node's `scalp` input: roots, sizes and surface distances are measured on it. Nodes that read the time have a `seconds` input; link Scene Time to animate them.
