@@ -53,6 +53,7 @@ Rebuild LilaLink from Lila's `ue/LilaLink` once. For PCG data, also copy `ue/Lil
 | `MF_LilaSeamStrip` | `M_LilaSeamStrip` (masked), `M_LilaSeamStripTranslucent` | Strip meshes (slot `LilaSeamStrip`). |
 | `MF_LilaSkirtBlend` | `M_LilaSkirtBlend` | Skirt meshes (slot `LilaSkirtBlend`). Feed the wall's material into `WallBaseColor`. |
 
+- Strip and skirt meshes sent after `seamSend` get the generated material in those slots on their own; send them again to pick it up.
 - None of them read the GBuffer, DBuffer, scene colour or depth. On mobile (ES3.1) the skirt drops its noise and the contact mask drops its depth dither; the rest is identical.
 - The skirt's ground side uses the terrain colour baked into its vertices. To blend with a Runtime Virtual Texture instead, feed an RVT sample into `GroundBaseColor`.
 - Skirts get non-Nanite LODs and collision; Nanite follows the object's own setting.

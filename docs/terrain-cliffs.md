@@ -38,13 +38,13 @@ The face looks to the right of the curve's direction; `flip=True` turns it. Prof
 
 ## Your own rock kit
 
-**Level > Cliffs > Cliff Kit** fits your rock and cliff pieces along a region's foot instead of generating a mesh: each piece faces out, scales to the cliff's height and overlaps its neighbours. Floating and over-buried pieces are dropped and smaller pieces fill the gaps. With Stagehand loaded, its physics measures how deep each piece's back sits in the hill and drops pieces past `maxPenetration` of their depth; without it, the pieces' sample points decide and the result says so. Model kit pieces standing on their base with their face toward +Z.
+**Level > Cliffs > Cliff Kit** fits your rock and cliff pieces along a region's foot instead of generating a mesh: each piece faces out, scales to the cliff's height and overlaps its neighbours. Floating and over-buried pieces are dropped and smaller pieces fill the gaps. With Stagehand loaded, its physics measures how far the hill behind each piece reaches into it and drops pieces past `maxPenetration` of their depth (0.8: a fifth of each piece stays proud); without it, the pieces' sample points decide and the result says so. Model kit pieces standing on their base with their face toward +Z.
 
 ```python
 terrainCliffKit('Terrain', region='cliff_1', kit=['Rock_A', 'Rock_B'], saveAssembly='GraniteKit')
 ```
 
-`send='hism'` sends the result as instances; `send='assembly'` sends the pieces with Nanite and one Nanite Assembly placing them all, as a single actor (UE 5.7 or later, with `r.Nanite.AllowAssemblies=1`). **Send Cliffs** sends every kit the same way (`kitAs`).
+`send='hism'` sends the result as instances; `send='assembly'` sends the pieces with Nanite and one Nanite Assembly placing them all, as a single actor (UE 5.7 or later, with `r.Nanite.AllowAssemblies=1`). **Send Cliffs** sends every kit the same way (`kitAs`); sending a kit the other way replaces what was there.
 
 ## Scree, ledge plants and debris
 
@@ -74,6 +74,8 @@ Landscape paint layers no longer stretch on steep slopes: `MF_LilaTerrainLayer` 
 
 **The kit send fails with a Nanite Assembly error.** Assemblies need UE 5.7 or later and `r.Nanite.AllowAssemblies=1`. Send with `send='hism'` otherwise.
 
+**The kit is mostly small filler pieces.** The hill swallows the full-size ones: raise `maxPenetration` toward 1, or lower `sink`.
+
 **`hlodLayer` does nothing.** The HLOD layer asset must already exist in the Unreal project.
 
 **Gaps or cracks where a cliff meets the terrain.** `terrainCheck('Terrain')` lists `cliffCrack` gaps over `cliffTolerance`, and tiles over the triangle budget as `tileOverBudget`.
@@ -88,6 +90,7 @@ Landscape paint layers no longer stretch on steep slopes: `MF_LilaTerrainLayer` 
 | `rockMap`, `rock`, `rockSize` | Cliff Mesh, Extrude Cliff | A rock height map (image or `.lilamat` height channel) displaced triplanar. |
 | `blockout` | Cliff Mesh | Build from any mesh instead of a region. |
 | `lowPoly` | Cliff Mesh | Add a reduced copy with baked normal and AO maps for non-Nanite targets. |
+| `overlap`, `sink`, `maxPenetration`, `gap` | Cliff Kit | Spacing, how deep bases sink, how far the hill may reach into a piece, and which gaps get fillers. |
 | `cellSize`, `nanite`, `naniteTriangles`, `hlodLayer` | Send Cliffs | Tile grid, Nanite threshold and HLOD layer. |
 
 Cliff meshes carry masks in vertex colour: R rock layer, G openness (1 minus cavity), B up-facing, A scatter zones. The same values are point attributes, usable as `scatterProps(mask=...)`. A closed blockout cliff stamped with `terrainVolumeStamp(object=...)` keeps them on the split pieces.
