@@ -65,9 +65,11 @@
 - <span class="nav-label">Animation and effects</span>
   - [Animation](animation.md)
     - [Graph Editor](graph-editor.md)
+    - [Strings](strings.md)
   - [Retargeting](retargeting.md)
   - [Weight painting](weight-painting.md)
   - [Creature rigging](creature-rigging.md)
+  - [Bend Bones](bend-bones.md)
   - [Rigid bind](rigid-bind.md)
   - [Destruction](destruction.md)
 - <span class="nav-label">Lighting and rendering</span>
