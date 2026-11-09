@@ -369,6 +369,8 @@ On a mesh whose modifiers move its surface, such as **Auto Bevel** or **Subdivis
 
 Subdivision's **UVs** setting, **Fit Surface** by default, spreads each island's UVs evenly over the smoothed surface so rounded bevels don't squeeze into slivers; an island corner on a straight UV edge bulges out slightly. **Blend** smooths UVs like the points and leaves slivers at island corners.
 
+If bake lint still reports collapsed triangles after Relax or Unwrap, **UV > Unwrap Exported Mesh** applies the modifiers and unwraps the result, so nothing collapses. The modifiers are gone afterwards; undo brings them back.
+
 In scripts, `finalMesh=False` makes a UV command work on the base mesh alone: `uvOptimize(finalMesh=False)`.
 
 ## Transfer UVs to a similar piece

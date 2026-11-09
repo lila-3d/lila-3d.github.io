@@ -12464,6 +12464,38 @@ Unwrap the selected faces' islands along their seams (LSCM, refined with SLIM fo
 | `timeLimit` |  | float | `0.0` | Stop refining after this many seconds (0 never); results can then vary between runs. |
 | `workingResolution` |  | int | `0` | Search raster cells across a tile; 0 uses the resolution up to 4096. |
 
+### uvUnwrapExported
+
+Apply the selected meshes' modifier stacks, then unwrap the result along its seams: the uvs are solved on the exported surface itself, so no triangle collapses. The modifiers are gone afterwards (undo brings them back).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+| `method` |  | str | `'slim'` | slim (low stretch), conformal (LSCM only) or bff (Boundary First Flattening). |
+| `iterations` |  | int | `12` | SLIM iterations. |
+| `pack` |  | bool | `False` | Pack the unwrapped islands into 0-1. |
+| `resolution` |  | int | `1024` | Target texture size, px. Padding and margin are in its texels. |
+| `padding` |  | float | `4.0` | Texels between islands, held exactly (the search never lets two islands closer). |
+| `margin` |  | float | `-1.0` | Texels from the tile (or region) border; negative is half the padding. |
+| `paddingMips` |  | int | `0` | Padding and margin survive this many mip levels: both are multiplied by 2^paddingMips. |
+| `rotateStep` |  | int | `90` | Rotation step to try, degrees: 0 none, 90 quarter turns, smaller for more. |
+| `angles` |  | list |  | Exact angles to try, degrees (replaces rotateStep), e.g. [0, 90, 45]. |
+| `freeRotation` |  | bool | `False` | Any angle: each island also tries its three best-fitting angles (smallest bounding box) and their quarter turns. |
+| `flip` |  | bool | `False` | Also try islands mirrored (the texture then reads mirrored on them). |
+| `orient` |  | bool | `True` | Turn islands to their smallest bounding rectangle first. |
+| `scaleMode` |  | str | `'normalize'` | normalize: even texel density across islands and objects (world space). keep: islands keep their relative uv sizes. lock: islands keep their exact uv size and are only moved and turned. |
+| `normalize` |  | bool | `True` | Same as scaleMode=normalize when on, keep when off. |
+| `stack` |  | bool | `False` | Islands with the same shape (within stackTolerance) share one spot. |
+| `stackMirrored` |  | bool | `True` | Mirror-image islands stack too (the mirrored halves of a symmetric model). |
+| `stackTolerance` |  | float | `0.002` | Largest vertex mismatch for two islands to stack, as a fraction of the island's size. |
+| `tilesU` |  | int | `1` | UDIM tiles across. |
+| `tilesV` |  | int | `1` | UDIM tiles up. |
+| `region` |  | list |  | Pack into [uMin, vMin, uMax, vMax] of each tile instead of all of it. |
+| `texelsPerUnit` |  | float | `0.0` | Pack at this density (px/cm) instead of filling the tiles; overflow spills into further tiles. |
+| `effort` |  | int | `1` | Search effort 0-3: island orders tried per scale (1, 3, 6, 12). Higher packs denser, slower. |
+| `timeLimit` |  | float | `0.0` | Stop refining after this many seconds (0 never); results can then vary between runs. |
+| `workingResolution` |  | int | `0` | Search raster cells across a tile; 0 uses the resolution up to 4096. |
+
 ### uvUnwrapSymmetric
 
 Symmetry-aware unwrap of the selected faces using the mesh's symmetry pairs: islands on one side are solved and mirrored onto their partners (flip lays the mirror image beside, stack shares the same uvs), islands across the plane come out exactly mirror symmetric. Seams are mirrored first so islands pair up. With radial symmetry, one wedge's faces are unwrapped and every other wedge's copies stack on them.
