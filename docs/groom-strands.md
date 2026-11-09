@@ -10,23 +10,22 @@ For stylized locks that become one mesh for retopology, use [Hair](hair.md) inst
 
 ## Get it working
 
-1. Have a head mesh and guide curves that start on its surface, such as the `HairGuides` of a groom from **Curves > Groom > New Groom**.
-2. Create a `groomStrands` node and connect the head and guides to it:
+1. Select the head mesh and run `createGroom` with `strands` on:
 
 ```python
-s = createNode("groomStrands", name="Strands")
-connectAttr("Head.outMesh", s + ".inMesh")
-connectAttr("Head.worldMatrix", s + ".meshMatrix")
-connectAttr("HairGuides.worldSpace", s + ".inCurve")
-getAttr(s + ".strandCount")
+g = createGroom("Head", count=60, length=15.0, strands=True)
+getAttr(g["groom"] + ".strandCount")
 ```
 
-3. Strands cover the head and follow the guides. With `graph` empty you get the default hair; set `graph` to your own groom graph to change the look.
+2. `HairStrands` shows strands grown over the head between the guides. Brush and style the guides as in [Hair](hair.md); the strands follow the styled locks.
+3. Set the groom's `graph` to your own groom graph to change the look. Empty gives guides into locks with strands interpolated from them.
+
+To grow from curves of your own instead of drawn guides, connect them to the groom's `inCurve`: `connectAttr("MyCurves.worldSpace", g["groom"] + ".inCurve")`. Each curve is a guide rooted at its first point.
 
 A groom graph is JSON: named nodes, connections and the output. This one scatters roots over the head and interpolates the guides between them:
 
 ```python
-setAttr(s + ".graph", """{"version": 1, "output": "interp",
+setAttr(g["groom"] + ".graph", """{"version": 1, "output": "interp",
   "nodes": [{"name": "scalp", "type": "Scalp"}, {"name": "guides", "type": "Guides"},
             {"name": "scatter", "type": "Scatter", "params": {"density": 2.0}},
             {"name": "interp", "type": "Interpolate"}],
@@ -48,7 +47,7 @@ Strands keep their roots on the head in the `groomRootFace` and `groomRootUV` cu
 
 **No strands, and `warning` names a node or says the graph can't load.** The graph JSON has an unknown node type, a bad connection or a typo. Fix the text; nothing grows until it loads.
 
-**No strands and no warning.** `inMesh` isn't connected or the mesh has no faces.
+**No strands and no warning.** Nothing reads `outStrands`: connect it to a curve, or create the groom with `strands` on. Or `inMesh` isn't connected or the head has no faces.
 
 **Strands change size when the head is resized.** With `scaleWithScalp` on, the graph's sizes follow the head's area against `scaleReference`, the area stored on the first evaluation. Set `scaleReference` to 0 to take the head's area now, or turn `scaleWithScalp` off to keep sizes in scene units.
 
@@ -60,12 +59,14 @@ Strands keep their roots on the head in the `groomRootFace` and `groomRootUV` cu
 
 | Attribute | What it is |
 | --- | --- |
-| `graph` | The groom graph as JSON; empty grows the default hair. |
+| `graph` | The groom graph as JSON; empty: the guides into locks, strands interpolated from them. |
 | `useSceneTime` | On by default: the graph runs at the scene's time. Off: it runs at `time`. |
 | `time` | Seconds the graph runs at while `useSceneTime` is off. Key it to retime the motion. |
 | `scaleWithScalp` | On by default: lengths, widths and densities scale with the head's area against `scaleReference`. |
 | `scaleReference` | The head area the graph's sizes are 1x at; 0 takes the area on the next evaluation. |
-| `outCurve` | The strands in world space, with a `width` per point and an `id` per strand. |
+| `outStrands` | The strands in world space, with a `width` per point and an `id` per strand. Grown only while something reads it. |
+| `outCards` | The graph's Cards nodes' cards as one mesh: uv set 0 their atlas cells, uv set 1 a layout of their own. |
+| `inCurve` | More guides: curves rooted on the head at their first point. |
 | `strandCount` | How many strands grew. |
 | `warning` | What went wrong in the last evaluation. |
 
