@@ -99,6 +99,12 @@ Strands keep their roots on the head in the `groomRootFace` and `groomRootUV` cu
 | `strandCount` | How many strands grew. |
 | `warning` | What went wrong in the last evaluation. |
 
+To paint a map in Groom Brushes instead, add one with `groomAddMap`, then pick **Paint**, the map's name in **Map** and **Paint On** Scalp (a value per vertex) or Texture (an image at the head's `uv0`, saved as a PNG after each stroke):
+
+```python
+groomAddMap("HairGroom", name="crown", kind="texture", file="maps/crown.png")
+```
+
 The head's color sets are maps the graph reads: paint one with **Paint Vertex Colors** and a Map node named after the set reads it: a set painted in grays is a gray map, any other a color map. A map the groom stores under the same name wins.
 
 Strands without a Width node draw at about a hair's width. Far from the camera fewer strands draw, each wider, so the groom keeps its look and stays fast.
