@@ -20,7 +20,7 @@ Low and High add the meshes under the selection too; Shift+click adds only the s
 
 **One mesh darkens another's AO (hair on a body, a strap on a dress).** Select the meshes that shouldn't occlude, pick the Low row they shouldn't darken (or the group row for every low), and press **Unlink Selected**. Shift+click also stops them projecting onto that low.
 
-**Hard edge warnings.** A hard edge that isn't on a UV seam shows as a visible split in the normal map. Split the UVs there or soften the edge.
+**Hard edge warnings.** A hard edge that isn't on a UV seam shows as a visible split in the normal map. Split the UVs there or soften the edge. With a Weighted Normals modifier, turn off its **Keep Hard Edges** instead. [UVs](uvs.md) covers this and the other UV issues lint finds.
 
 **Steep sides light like the flat top (bricks, dentils, stone joints).** A bake looking straight down never sees vertical walls, so the normal map has none. Bake **Detail Normal** with **Height**, as in Options below.
 
