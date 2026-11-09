@@ -35,7 +35,7 @@ Every line belongs to a line set, and each set has its own width, depth, profile
 | Geometry | Grooves cut into the mesh, with new edges along the profile. For low and mid poly meshes. |
 | Sculpt | Grooves sunk into the existing points. For dense sculpt meshes. |
 | Texture | Nothing on the mesh; the grooves go into the height map (see Texture maps). |
-| Decal | Strips along the lines on the `PanelLineDecal` material slot, for mesh decals in Unreal: **Unreal Panel Line Materials** in the palette's overflow menu makes `MF_LilaPanelLine` for your own material and `M_LilaPanelLine` built on it. |
+| Decal | Strips along the lines on a `LilaPanelLine` material slot, for mesh decals in Unreal. Run **Unreal Panel Line Materials** from the palette's overflow menu once: meshes you send after that get `M_LilaPanelLine` on the slot, and `MF_LilaPanelLine` is there for your own material. |
 | None | Lines that only divide panels, for plates and patterns. |
 
 New strokes go to the highlighted set. Right-click a set to rename it, change its output or remove it. With lines selected, **Width**, **Depth** and **Profile** change those lines only, and **Set** moves them to another set.
