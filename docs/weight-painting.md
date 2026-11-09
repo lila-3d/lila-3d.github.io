@@ -27,6 +27,8 @@ floodSkinWeights("Body", influence="elbow_l", receiver="upperarm_l", value=0.0, 
 
 **A warning badge on the mesh: "vertices have automatic weights".** Lila chose those weights: binding, a split with **Strict** off, normalize, prune, copy or remove influence. Turn on **Show Automatic** to dot them, or run **Rig > Select Automatic Weights**. Paint, relax or settle them, or accept them as they are with **Rig > Accept Automatic Weights**.
 
+**The proxy has holes where the coat meets the body.** Faces side-on to the bones (hems, cuff edges) and the inside are left out on purpose. Points under a hole take the nearest proxy edge.
+
 **Painting changes nothing you can see on a layered skin.** The layer's opacity is 0, it's hidden, or you're painting a layer under another that covers those vertices.
 
 ## Relax and Settle
@@ -45,6 +47,23 @@ settleSkinWeights("Body", start=0, end=60, step=5)
 ```
 
 Settle stays within `maxInfluences`, keeps locked joints and exports as plain linear weights.
+
+## Weight proxy
+
+Paint a light, single-sided stand-in instead of a heavy or thick render mesh (a coat with its lining, buttons and cuffs), then push the weights onto it. The stand-in's edge loops sit at the joints with an even number between them, so smoothing spreads cleanly.
+
+1. Select the render meshes and choose **Rig > Weight Proxy > Create Weight Proxy**. The proxy appears beside them in the outliner, bound to the same joints, with their weights.
+2. Paint the proxy. The Paint Weights palette shows which meshes it stands in for.
+3. Click **Push** in the palette (or **Rig > Weight Proxy > Push Proxy Weights**). Each render point takes the weights of the closest point on the proxy, so the outside and the lining get the same.
+
+**Pull** copies the render meshes' weights back onto the proxy. Nothing moves between them until you push or pull.
+
+```python
+createWeightProxy("Coat", "Coat_buttons", loopsPerBone=4)
+pushProxyWeights("Coat_weightProxy")
+```
+
+If the render meshes aren't skinned, give the joints: `createWeightProxy("Coat", joints=["spine_01", "upperarm_l"])`. Push binds them.
 
 ## Weight layers
 
