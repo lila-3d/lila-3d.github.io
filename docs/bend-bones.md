@@ -20,6 +20,8 @@ Each chain is one influence, so a limb binds wholly to its chain and only the jo
 
 Select a joint and run **Add Bone CV**: a CV appears halfway along the bone to its child, and on the other side's bone (`thigh_l` and `thigh_r`). Move or key it to bow the bone; nothing is rebound. **Mirror Bone CVs** moves the other side's CVs to mirror the selected ones.
 
+On a spline chain, **Add Bone CV** puts a point into the chain's curve at the bone's middle and gives it a control like the others; the curve's controls are rebuilt, so it refuses while one is keyed. On a rubber hose limb it selects the hose's bend control, which already does this job.
+
 ## Paint between chains
 
 Select the mesh and open **Rig > Paint Skin Weights**. The influences listed are the chains, named after their first joint; paint the joins between them like skin weights. Inside a chain there is nothing to paint.
@@ -32,7 +34,7 @@ Run **Rig > Bake Bend Bones** as the last step before export. Each bone gets seg
 bakeBendBones("Leg", segments=4, maxInfluences=8)
 ```
 
-The result reports the fit error (`rmse`, `maxError`, cm) and the Unreal round-trip check (`unrealCheck`), which flags any joint Unreal would move differently.
+The result reports the fit error (`rmse`, `maxError`, cm) and the Unreal round-trip check (`unrealCheck`), which flags any joint Unreal would move differently. A mesh skinned to spline chain or hose joints is already joints: **Bake Bend Bones** on it runs the Unreal check alone.
 
 ## Troubleshooting
 

@@ -57,6 +57,8 @@ stringsBreakdown("hips", weight=0.5, favour=0.5, parts={"head": 0.2})
 Run **Puppeteer > Strings > Line of Action** and draw along the body or a limb. The nearest line bends to the stroke's shape, scaled to its length and starting from where it is; contacts and pins hold. The stroke stays as a curve while the selection holds: drag it to adjust.
 
 - **L** picks the line instead of the nearest: the character's lines come from its template (Manny has body, spine, arms and legs). Add one with `stringsRules("manny", addLine=["tail", "tail_01", "tail_12"])`.
+- **Shift + drag** from one joint to another along the body uses that path for the next strokes, any joint down to any joint below it. A path that starts below the hips bends alone; nothing above it turns.
+- **Ctrl + wheel** turns the plane strokes are drawn on about the world's up, 15 degrees a step, for staging a pose away from the camera.
 - With a range selected on the time slider, the stroke poses every key in it. **T** (Travel) instead slides the body along the stroke across the range, for a path of motion.
 - Bone CVs and spline chain controls on the line move onto the stroke too, so [Bend Bones](bend-bones.md) and spline chains follow its curve.
 
