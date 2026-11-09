@@ -36,6 +36,17 @@ bakeBendBones("Leg", segments=4, maxInfluences=8)
 
 The result reports the fit error (`rmse`, `maxError`, cm) and the Unreal round-trip check (`unrealCheck`), which flags any joint Unreal would move differently. A mesh skinned to spline chain or hose joints is already joints: **Bake Bend Bones** on it runs the Unreal check alone.
 
+### Live in Unreal
+
+To bend the mesh in Unreal exactly as it bends here, rather than with the baked skin, run `unrealBendBones` after exporting the baked mesh. LilaLink binds the skeletal mesh's LOD 0 to the chains and makes the **Lila Bend Bones** Deformer Graph (`/Game/Lila/DG_LilaBendBones`) its default deformer. The baked skin stays the fallback wherever the deformer doesn't run.
+
+```python
+exportFbx("Leg.fbx", "root", "Leg", kind="skeletal", deformOnly=False)
+unrealBendBones("Leg", skeletalMesh="/Game/Characters/Leg")
+```
+
+Export with `deformOnly=False`: the bake leaves the chain joints unskinned, and the deformer needs them in Unreal. The result reports how many vertices were bound and matched a Lila point (`matched`), and how far the reference pose sits from Lila's rest (`restError`, cm).
+
 ## Troubleshooting
 
 **The bake's error is large.** Linear skinning can't hold the even inside of a tight bend or the volume of a stretch with few joints. Raise `segments` or `maxInfluences`.
@@ -43,6 +54,12 @@ The result reports the fit error (`rmse`, `maxError`, cm) and the Unreal round-t
 **"is already skinned".** Bend bones bake onto a mesh they alone deform. Unbind the skin first, or bind bend bones on a copy.
 
 **"the mesh changed since it was bound".** Its point count changed. Delete the deformer and bind again.
+
+**"has no bone named ... export the skeleton with deformOnly off".** The chain joints didn't reach Unreal. Export again with `deformOnly=False`.
+
+**unrealBendBones warns that vertices have no Lila point.** The mesh in Unreal isn't the exported bind pose mesh (it was edited, or exported in another pose). Those vertices take the nearest chains' weights. Export the mesh again in its bind pose.
+
+**Only LOD 0 bends.** Other LODs keep the baked skin.
 
 **"ends its chain, so it has no bone after it".** A bone CV goes on a bone's first joint; the last joint of a chain has no bone.
 
