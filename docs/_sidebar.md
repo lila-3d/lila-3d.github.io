@@ -65,6 +65,7 @@
   - [Animation](animation.md)
     - [Graph Editor](graph-editor.md)
   - [Retargeting](retargeting.md)
+  - [Weight painting](weight-painting.md)
   - [Creature rigging](creature-rigging.md)
   - [Rigid bind](rigid-bind.md)
   - [Destruction](destruction.md)
