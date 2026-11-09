@@ -37,6 +37,23 @@ setAttr(g["groom"] + ".graph", """{"version": 1, "output": "interp",
 
 Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads the head's earlier frames. Simulate steps from its start frame, including frames you jump past, and scrubbing back shows the frames it already stepped.
 
+## Export and import
+
+Select the groom and run **Curves > Groom > Export Groom...**. The file's extension picks the format:
+
+- `.abc`: an Unreal groom, with `groom_*` attributes and the primary guides Unreal simulates the hair on. Set **engine** to `unity` for Unity's hair package.
+- `.usd`, `.usda`, `.usdc`: USD basis curves.
+- `.groom`: a GroomLab file with the guides, graph, parts, flow, maps and the head.
+
+Set **start** and **end** to write a range of frames.
+
+```python
+exportGroom("HairGroom", path="hair.abc", start=1, end=48)
+importGroom("hair.groom", mesh="Head")
+```
+
+**Curves > Groom > Import Groom...** reads a `.groom` file into a new groom on the selected mesh, or on the file's own head when none is selected.
+
 ## In geometry nodes
 
 Each groom graph node that works on what it's handed is also a geometry node in the **Hair** category: Scatter, Interpolate, Clump, Curl, Noise and the rest. Strands and guides travel as curves, the head as a mesh. Link the head into every Hair node's `scalp` input: roots, sizes and surface distances are measured on it. Nodes that read the time have a `seconds` input; link Scene Time to animate them.
