@@ -1044,6 +1044,19 @@ The baked ID map: a flat colour per material, object or group. Reads (u, v, 0) w
 | --- | --- | --- | --- | --- |
 | `out` | color | output |  |  |
 
+### Panel Layout
+
+Type `meshPanelLayout`.
+
+The mesh's Panel Layout from the set's bake: lines (white on the panel lines), panel id (a flat colour per panel), random (a grey per panel, for varying each panel) and height (the Texture lines' grooves, 1 at the surface). Reads (u, v, 0) when the maps aren't supplied.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lines` | gray | output |  |  |
+| `panelId` | color | output |  |  |
+| `random` | gray | output |  |  |
+| `height` | gray | output |  |  |
+
 ### Thickness
 
 Type `meshThickness`.

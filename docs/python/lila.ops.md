@@ -6,6 +6,16 @@ Every command, by bare name or as `lila.ops.<name>`. Flags are keyword arguments
 
 ## Built-in commands
 
+### acceptSkinWeights
+
+Mark automatic weights as set by you, so they no longer warn. Returns how many vertices changed.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
+
 ### addAnimLayerMembers
 
 Add objects (every keyable attribute) or plugs to a layer. Returns how many attributes were added.
@@ -211,6 +221,7 @@ Kinds:
 - decimate: Reduces the triangle count while keeping the shape, silhouette, UVs and normals. Use it for LODs or to lighten scans and sculpts.
 - extrude: Extrudes faces, or grows strips off edges, kept live: the faces or edges selected when it was added follow later edits under it, and its thickness and offset stay adjustable. Without a selection it extrudes every face.
 - mirror: Adds a mirrored copy across a plane through the object's origin and welds the seam. Model one half of a symmetrical object and let this build the other.
+- panelLayout: Panel Layout: lines drawn on the mesh's surface with the Layout Pencil. Line sets render as grooves cut into the mesh (Geometry), grooves displaced into a dense mesh (Sculpt), or only feed other systems (Texture, Decal, None). Closed loops of lines bound panels that plates, texture masks and nodes read.
 - solidify: Gives a surface thickness: an inner shell offset along the normals, joined to the outer one at open borders. Use it to turn planes and open shells into solid panels.
 - splitRings: Subdivides one way, kept live: loops across the rings of the edges or faces selected when it was added, curved to the surface. Without a selection it splits the whole mesh.
 - subdivision: Smooths the mesh with Catmull-Clark subdivision. Use it to turn a low-poly cage into a smooth high-poly surface.
@@ -246,6 +257,16 @@ Add a keyable plant<Chain> attribute (0 to 1) to a skeleton's top joint. Keyed a
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `chain` | `c` | str |  | The chain: LeftLeg, RightArm, LeftLeg2 ... |
+
+### addSkinLayer
+
+Add a weight layer above the others and make it the one painted. The first layer added also makes the base from the current weights. A new layer shows nothing until painted or its mask is.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'Layer'` | Name of the layer. |
 
 ### addSpace
 
@@ -1270,6 +1291,30 @@ Compute a skinCluster's weights as bounded biharmonic weights: each joint holds 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `maxInfluences` |  | int |  | Influences kept per point. Default: the skinCluster's maxInfluences. |
+
+### bendBoneCV
+
+Add a bone CV to a bend bones bone: an extra point its curve passes through, at a fraction along the bone from joint to its child. Move or key it to reshape the bone without rebinding. Returns the CV.
+
+**Objects:** deformer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `joint` | `j` | str |  | The bone's first joint (it runs to the next joint of its chain). |
+| `at` |  | float | `0.5` | How far along the bone, 0 to 1. |
+
+### bendBones
+
+Bind a mesh to chains of joints as bend bones: it bends along the smooth curve through each chain, each chain one influence, the joins between chains blending. Binds in the current pose. Returns the deformer.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `chains` | `ch` | list |  | Chains, each a list of joints from top to end ([[thigh, calf, foot], ...]). |
+| `volume` | `v` | float | `1.0` | Thin the mesh as chains stretch to keep its volume. |
+| `evenBend` | `eb` | float | `1.0` | Spread the inside and outside of bends evenly. |
+| `name` | `n` | str |  | Name for the deformer. |
 
 ### bendCurve
 
@@ -2533,6 +2578,20 @@ Make a take for a character root or the whole scene. The first one adopts the an
 | `loop` | `l` | bool |  | Loop the take (loop keys on its curves). |
 | `folder` | `fo` | str |  | Folder path the take is filed under, '/' separated; empty for the top level. |
 
+### createWeightProxy
+
+Make a light, single-sided mesh to paint weights on in place of the render meshes (a coat with its lining, buttons and cuffs). Its edge loops sit at the joints with loopsPerBone more between each pair, it is bound to the same joints and takes their weights, and it goes beside the first mesh. Push its weights back with pushProxyWeights. Returns the proxy.
+
+**Objects:** meshes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `loopsPerBone` | `lpb` | int | `3` | Edge loops between each joint's loop and the next, at least. |
+| `edgesAround` | `ea` | int | `8` | Edges around a limb, at least; more makes the loops closer too. |
+| `resolution` | `res` | int | `128` | Voxels along the longest side when fusing the meshes; lower fills more detail. |
+| `joints` | `j` | list |  | Joints to bind to when the meshes aren't skinned. |
+| `name` | `n` | str |  | Name of the proxy. |
+
 ### curlCurve
 
 Coil curves around themselves (a helix about the curve). The whole curve is resampled so the coils are there; in vertex mode only the selected points move. Returns the curves.
@@ -3348,6 +3407,21 @@ Edit a bound skeleton without deforming its mesh. on=True puts the skeleton (of 
 | `on` |  | bool |  | Turn editing on or off; toggles when omitted. |
 | `preserve` | `pr` | str | `'worldPose'` | What leaving keeps: worldPose or channels. |
 
+### editSkinLayer
+
+Rename, enable, fade, reorder or make active a weight layer.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layer` | `l` | Any |  | Layer name or index. |
+| `name` | `n` | str |  | New name. |
+| `enabled` | `en` | bool |  | Whether it shows in the weights. |
+| `opacity` | `op` | float |  | How much it shows, 0 to 1. |
+| `active` | `ac` | bool |  | Make it the layer painting edits. |
+| `index` | `ix` | int |  | Move it to this place, 1 or above (the base stays at 0). |
+
 ### editSplineChain
 
 Change spline chains: give the chains, joints in them or their splineJoints. Returns the chains.
@@ -4072,6 +4146,12 @@ Runs an issue's fix, then runs its validator again (or drops the issue when no v
 
 Not undoable.
 
+### flattenSkinLayers
+
+Merge the weight layers into plain weights and drop them.
+
+**Objects:** mesh
+
 ### floodDeformerWeights
 
 Apply a weight to every point of a deformer's weight map (or a field's painted layer), or to points= / the selected components, as the paint tool's flood does.
@@ -4086,6 +4166,25 @@ Apply a weight to every point of a deformer's weight map (or a field's painted l
 | `points` |  | list |  | Point ids; default the selected components, else every point. |
 | `layer` |  | int |  | Work on this painted layer of the field the deformer reads (or of the field named). |
 | `mesh` |  | str |  | For a field's painted layer: the mesh it is painted on. |
+
+### floodSkinWeights
+
+Paint one influence's weight over whole vertices, as the Paint Weights tool's Flood does.
+
+The weight moved goes to (or comes from) the receiver, else the one other unlocked influence with weight at the vertex. With strict on, a vertex where more than one could take it is refused; off, it is split in proportion and marked automatic. Returns counts of painted, unchanged and refused vertices (by reason) and the refused ids.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `influence` | `inf` | str |  | The joint to paint. |
+| `receiver` | `rcv` | str |  | The joint that takes removed weight and gives added weight. |
+| `mode` | `m` | str | `'replace'` | add \| replace \| scale |
+| `value` | `val` | float | `1.0` | The weight Replace paints toward, Add adds, Scale multiplies by. |
+| `strength` | `st` | float | `1.0` | How far toward the value each vertex goes. |
+| `invert` | `inv` | bool | `False` | Add subtracts instead. |
+| `strict` | `sc` | bool |  | Refuse vertices whose weight would be split; the Strict preference when left out. |
+| `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
 ### flowAlongSurface
 
@@ -4695,7 +4794,7 @@ Put a skinned mesh's joints back where they were bound.
 
 ### groomAddStyle
 
-Adds a style modifier to a groom's stack: split, clump, curl, wave, frizz, noise, length, cut or flyaways. Every one works on locks and strands alike. Returns the new node.
+Adds a lock style to a groom's graph, between its guides and its locks: split, clump, curl, wave, frizz, noise, length, cut or flyaways. The strands follow the styled locks. Returns the new graph node's name.
 
 **Objects:** groom
 
@@ -4855,15 +4954,16 @@ One watertight mesh over a groom's locks, smooth-unioned so they join into a sin
 
 ### groomStack
 
-Lists a groom's style modifiers in order, or changes the stack: move one to a position, toggle it on or off, or remove it. Returns the stack as [{node, style, enabled}, ...].
+Lists a groom's lock styles in order, or changes them: move one to a position, toggle it on or off, remove it, or set its params. Returns the styles as [{node, style, enabled}, ...].
 
 **Objects:** groom
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `edit` | `e` | str | `'list'` | What to do. One of `list`, `move`, `toggle`, `remove`. |
-| `node` |  | str |  | The modifier to move, toggle or remove. |
+| `edit` | `e` | str | `'list'` | What to do. One of `list`, `move`, `toggle`, `remove`, `set`. |
+| `node` |  | str |  | The style to move, toggle, remove or set. |
 | `to` |  | int | `0` | move: its new position, 0 first. |
+| `params` |  | str |  | set: params as a JSON object, e.g. {"amount": 0.5}. |
 
 ### groomSurface
 
@@ -6333,6 +6433,18 @@ Add a morph deformer (morph targets) to the base mesh, the last argument, with a
 | `live` |  | bool | `False` | Keep targets connected so editing a target mesh updates the morph. |
 | `name` |  | str |  | Name for the morph. |
 
+### morphPath
+
+Set or query how a target's points travel to its shapes. interpolation linear, smooth (a curve through the in-betweens), arc (circular arcs through each point's in-betweens) or pivot (a swing about pivot=, no in-between needed); response eases the weight first, with Control Rig's easing curves. Returns {interpolation, response, pivot, shapes, fitError, capped}: shapes are the exported shape names, fitError how far arc and pivot exports stray from the path, in cm.
+
+**Objects:** target
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `interpolation` | `i` | str |  | linear \| smooth \| arc \| pivot |
+| `response` | `r` | str |  | An easing name, as the response attr lists them; linear for none. |
+| `pivot` | `p` | Any |  | A node whose position becomes the pivot, or [x, y, z] in the mesh's object space. |
+
 ### morphTargets
 
 A morph's targets in order: [{node, name, weight, sliderMin, sliderMax, live, inBetweens, driver, editing}]. driver is the plug setting the weight (a pose driver for a corrective), editing the edit mesh in edit mode, sliderMin and sliderMax the panel slider's range. Set a weight with setAttr(node + ".weight", w).
@@ -6669,6 +6781,162 @@ orientPivot()  # two verts picked: the object turns so its X aims from the first
 ```python
 orientPivot(mode='manipulator')  # pin the component manipulator's axes instead
 ```
+
+### panelLayout
+
+Add a Panel Layout to each mesh: lines drawn on its surface (Layout Pencil, or panelLayoutStroke) that render as grooves and bound panels. Returns the layout names.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mirror` |  | str | `'x'` | Mirror plane through the mesh's origin: off, x, y or z. |
+
+```python
+layout = panelLayout("Hull", mirror="x")[0]
+```
+
+### panelLayoutBakeMaps
+
+Bake a Panel Layout into textures in the mesh's UV space, for texturing in Lila, Painter or Unreal: a height map of the Texture lines' grooves, a panel ID map (a flat colour per panel) and a line mask. Returns the files written.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | str |  | Folder to write the maps into. |
+| `name` | `n` | str |  | File name prefix; default the mesh's name. |
+| `resolution` | `res` | int | `2048` | Width and height in texels. |
+| `uvSet` |  | int | `0` | UV set to bake into. |
+| `lines` |  | str | `'texture'` | Lines in the height map: texture (Texture lines) or all. |
+
+Not undoable.
+
+### panelLayoutClear
+
+Remove every line from a Panel Layout, keeping its line sets.
+
+**Objects:** layout or mesh
+
+### panelLayoutEdit
+
+Edit a Panel Layout's lines and junctions by id (ids from panelLayoutInfo). Operations: moveJunction (junction, to), bend (run, grab, to), split (run, at), corner (junction: toggles sharp corner), delete (runs and/or junctions), offset (runs, distance: parallel copies), loosen (runs: release the fit), refit (runs, cleanup).
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `operation` | `op` | str |  | What to do. One of `moveJunction`, `bend`, `split`, `corner`, `delete`, `offset`, `loosen`, `refit`. |
+| `junction` |  | int |  | A junction id. |
+| `run` |  | int |  | A run id. |
+| `runs` |  | list |  | Run ids. |
+| `junctions` |  | list |  | Junction ids. |
+| `to` |  | tuple[float, float, float] |  | World-space target. |
+| `grab` |  | tuple[float, float, float] |  | bend: the world-space point on the run being dragged. |
+| `at` |  | tuple[float, float, float] |  | split: world-space point on the run. |
+| `distance` |  | float |  | offset: world distance, positive to the left of each run. |
+| `cleanup` |  | float | `0.5` | refit: 0 to 1. |
+| `tolerance` |  | float |  | Join and pick distance in world units (cm); default 1/200 of the mesh size. |
+
+### panelLayoutInfo
+
+A Panel Layout's line sets, runs (with their mirror images), junctions, panel count and warnings. points=True adds each run's world-space polyline.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | bool | `False` | Include run polylines. |
+
+Not undoable.
+
+### panelLayoutLineSet
+
+Add, change, rename, remove or activate a Panel Layout line set. Each set says how its lines render (output) and their default width, depth and profile; new strokes go to the active set. Removing a set moves its lines to the first.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `action` |  | str | `'edit'` | add, edit, remove or activate. |
+| `set` |  | str |  | The set's name. |
+| `rename` |  | str |  | edit: a new name. |
+| `width` |  | float |  | Width, cm. |
+| `depth` |  | float |  | Depth, cm; negative raises a ridge. |
+| `profile` |  | str |  | v, u, square, step or chamfer. |
+| `output` |  | str |  | geometry, sculpt, texture, decal or none. |
+
+### panelLayoutMirror
+
+Mirror a Panel Layout's lines across a plane through the mesh's origin: lines are drawn on one side and the other side follows. side picks which side is drawn on.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` |  | str | `'x'` | off, x, y or z. |
+| `side` |  | int | `1` | 1 or -1: the side lines are drawn on. |
+
+### panelLayoutQuery
+
+Sample a Panel Layout at world-space points: the nearest line (distance, run, side) and the panel (index, key, random), as every system reading the layout sees them.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | World-space points. |
+| `reach` |  | float |  | Furthest line to report, world units; default the widest line. |
+
+Not undoable.
+
+### panelLayoutSetRuns
+
+Move runs to a line set, or give them their own width, depth or profile. clear drops their own values so they follow their set again.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `runs` |  | list |  | Run ids. |
+| `set` |  | str |  | Line set name. |
+| `width` |  | float |  | Width, cm. |
+| `depth` |  | float |  | Depth, cm; negative raises a ridge. |
+| `profile` |  | str |  | v, u, square, step or chamfer. |
+| `clear` |  | bool | `False` | Follow the set's width, depth and profile again. |
+
+### panelLayoutStroke
+
+Draw on a Panel Layout as the Layout Pencil does. draw cleans the stroke into lines (joining, trimming and crossing the lines it meets; starting on a line heading along it redraws that line), erase removes the lines it crosses, smooth relaxes the lines under it. Returns the runs made or changed.
+
+**Objects:** layout or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | The stroke: world-space points on the surface, [[x, y, z], ...]. |
+| `mode` |  | str | `'draw'` | draw, erase or smooth. |
+| `tolerance` |  | float |  | Join and pick distance in world units (cm); default 1/200 of the mesh size. |
+| `cleanup` |  | float | `0.5` | 0 keeps the drawn wobble, 1 fits the fewest points. |
+| `cornerAngle` |  | float | `50.0` | Turns sharper than this (degrees) become corners. |
+| `straight` |  | bool | `False` | Every piece between corners straight. |
+| `straightenLast` |  | bool | `False` | The last piece straight (the stroke ended with a hold). |
+| `set` |  | str |  | Line set for new lines; default the active set. |
+| `radius` |  | float |  | smooth: brush radius in world units; default 4 tolerances. |
+| `strength` |  | float | `0.5` | smooth: 0 to 1. |
+
+```python
+panelLayoutStroke("Hull", points=[[0, 10, 5], [20, 10, 5]])
+```
+
+### panelLineMaterials
+
+Make the Unreal side of panel line decal strips through LilaLink: MF_LilaPanelLine (the groove drawn from the strip's UVs, for your own materials) and M_LilaPanelLine (masked) and M_LilaPanelLineTranslucent built on it. Assign one to the PanelLineDecal material slot. Returns the asset paths.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `regenerate` |  | bool | `False` | Rebuild them even when they are up to date. |
+
+Not undoable.
 
 ### parent
 
@@ -7734,6 +8002,18 @@ Drop weights below a threshold and beyond the skin's maxInfluences, then renorma
 | `threshold` | `t` | float | `0.01` | Smallest weight kept. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
+### pullProxyWeights
+
+Copy the render meshes' weights onto their weight proxy, each proxy point from the closest render surface. Locked joints on the proxy keep theirs. Returns the points written.
+
+**Objects:** proxy
+
+### pushProxyWeights
+
+Copy a weight proxy's weights onto its render meshes: each point takes the weights of the closest point on the proxy, so a coat's outside and lining get the same. Locked joints on the render meshes keep theirs. Give the proxy or one of its meshes. Returns the points written per mesh.
+
+**Objects:** proxy
+
 ### putOnTurntable
 
 Put objects (the selection by default) on a turntable: the selected turntable, or the one other selected objects are on, else a new one under them. Returns the turntable's name.
@@ -7907,6 +8187,21 @@ Even out point spacing while keeping the form: points slide over the mesh's own 
 | `pinHard` |  | bool | `False` | Keep points on hard edges fixed. |
 | `pinSeams` |  | bool | `False` | Keep points on UV seams fixed. |
 
+### relaxSkinWeights
+
+Relax weights over the surface, edge-length weighted so dense and sparse areas spread alike.
+
+With keepAuthored, vertices whose weights are all set by you hold still and the automatic ones settle between them: paint the key areas, then relax the rest into place. Locked joints keep their weights.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `iterations` | `i` | int | `30` | Passes; more spreads further. |
+| `strength` | `st` | float | `1.0` | How far each pass moves toward the neighbours. |
+| `keepAuthored` | `ka` | bool | `True` | Hold vertices with no automatic weights still. |
+| `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
+
 ### reloadExtension
 
 Unload and load an extension again from the same package, picking up changes.
@@ -8057,6 +8352,16 @@ Remove a reference and its nodes. Clears undo.
 **Objects:** namespace
 
 Not undoable.
+
+### removeSkinLayer
+
+Remove a weight layer; the weights become the composite of the rest. Removing the last one above the base leaves plain weights.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layer` | `l` | Any |  | Layer name or index (not the base, 0). |
 
 ### removeSpace
 
@@ -9265,6 +9570,12 @@ Set or clear where a mesh click on joints lands instead of them (a twist bone se
 | `target` | `t` | str |  | Joint (or any node) a click on these selects. |
 | `clear` | `c` | bool | `False` | Remove the redirect. |
 
+### selectAutomaticWeights
+
+Select the vertices of a skinned mesh whose weights are automatic. Returns how many.
+
+**Objects:** mesh
+
 ### selectBorder
 
 Select border edges: the perimeter of selected faces, or the whole open boundary through selected edges or vertices.
@@ -9813,6 +10124,19 @@ Query or set the scene's render resolution. preset is one of 'HD 1080', 'QHD 144
 
 Not undoable.
 
+### setSkinLayerMask
+
+Set where a weight layer shows: values per point (0 hides it, 1 shows it), or one value on the given or selected vertices.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layer` | `l` | Any |  | Layer name or index (not the base, 0); the active layer when left out. |
+| `values` | `vals` | list |  | A value for every point. |
+| `value` | `val` | float | `1.0` | The value set on the vertices, without values. |
+| `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
+
 ### setSymmetry
 
 Object-space symmetry for component edits on meshes: 'off', a mirror plane 'x', 'y' or 'z', or 'radial': count wedges repeated round radialAxis (with mirror=True also mirrored within each wedge), every edit applied to all of them.
@@ -9864,6 +10188,27 @@ Set one token of a saved theme, e.g. setThemeColor('Mine', token='highlight', co
 | `color` | `c` | str |  | #rrggbb |
 
 Not undoable.
+
+### settleSkinWeights
+
+Fit weights so the skin bends into a settled shape: pinches, collapses and candy wrappers ease out.
+
+target=pose aims each vertex at a delta mush of the posed mesh (smoothed, with the rest detail put back). target=simulate relaxes the posed mesh toward its rest edge lengths, keeping folds from passing through themselves. Give start and end to fit over that frame range instead of the current pose. Locked joints keep their weights; the fit stays within maxInfluences.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `target` | `t` | str | `'pose'` | pose \| simulate |
+| `start` | `s` | int |  | First frame to fit over. |
+| `end` | `e` | int |  | Last frame to fit over. |
+| `step` | `by` | int | `1` | Frames between samples. |
+| `strength` | `st` | float | `1.0` | How far toward the fit. |
+| `regularize` | `rg` | float | `0.05` | Pull toward the current weights; higher keeps more of what is painted. |
+| `smoothIterations` | `si` | int | `10` | pose: smoothing passes of the delta mush. |
+| `simIterations` | `ni` | int | `40` | simulate: solver passes. |
+| `contact` | `ct` | bool | `True` | simulate: keep folds from passing through themselves. |
+| `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
 ### setVertexColorData
 
@@ -10107,6 +10452,14 @@ Bind a mesh to joints. Give the joints and the mesh in any order (or select them
 ### skinInfo
 
 A skinned mesh's skinCluster, influences, influence limit and weight health.
+
+**Objects:** mesh
+
+Not undoable.
+
+### skinLayers
+
+A skinned mesh's weight layers, bottom (the base) first: name, enabled, opacity, active and how many points each mask uncovers.
 
 **Objects:** mesh
 
@@ -11362,6 +11715,19 @@ Which project images the material editor's texture lists show. Globs relative to
 | `scene` | `s` | bool | `False` | Set the scene's override instead of the workspace's lists. |
 | `clear` | `c` | bool | `False` | Remove the lists at that level (with scene, the scene falls back to the workspace). |
 
+### timeRange
+
+The time slider's selected range (Shift + drag on it), which edits across frames act on, such as Strings poses. Give start and end to select, clear to drop it, falloff for the frames edits ease out over either side. Returns {active, start, end, falloff}, times in seconds.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | float |  | Seconds. |
+| `end` | `e` | float |  | Seconds. |
+| `falloff` | `fo` | float |  | Frames edits ease out over either side. |
+| `clear` | `c` | bool | `False` | Drop the selection. |
+
+Not undoable.
+
 ### timeSliderSound
 
 The sound the time slider plays and draws (Maya's Time Slider > Audio). Without sound, returns it; an empty sound plays every audio node of the active takes.
@@ -11764,7 +12130,7 @@ unrealCustomData("Boulder", data=["random", "wear", "tint"])
 
 ### unrealExpressionRig
 
-Build a Control Rig in Unreal that runs the character's expressions live: one Lila Expression node each, evaluating exactly as Lila does. Targets are bone channels, morph target weights (as curves) or attributes under the root (as curves named node_attr); inputs that aren't bones, morph weights or time become float controls. Expressions that run as Python stay in Lila. Returns {rig, animBlueprint, expressions, skipped, controls, curves, warnings, unreal}.
+Build a Control Rig in Unreal that runs the character's expressions live: one Lila Expression node each, evaluating exactly as Lila does. Targets are bone channels, morph target weights (as curves) or attributes under the root (as curves named node_attr); inputs that aren't bones, morph weights or time become float controls. Expressions that run as Python stay in Lila. Morph targets with in-betweens, a path or a response curve get a node per exported shape that turns the target's weight curve into the shape's (morphShapes), so the curve named after the target drives it as in Lila. Returns {rig, animBlueprint, expressions, morphShapes, skipped, controls, curves, warnings, unreal}.
 
 **Objects:** root
 
@@ -11773,6 +12139,7 @@ Build a Control Rig in Unreal that runs the character's expressions live: one Li
 | `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the root's skeletal mapping. |
 | `rig` | `r` | str |  | The Control Rig asset to create or update. Default: CR_<mesh>_Expressions beside the mesh. |
 | `postProcess` | `pp` | bool | `True` | Run the rig from the mesh's post-process Anim Blueprint (made as ABP_<name>_Expressions) so the expressions play wherever the mesh does, and make it the mesh's default animating rig. A post-process Anim Blueprint you made is left alone, with a warning to add a Control Rig node to it. |
+| `morphShapes` |  | bool | `True` | Drive mapped morph targets' shapes from the rig. Turn off when the mesh runs the Lila Morph Paths anim node (unrealMorphPaths) instead. |
 | `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
 
 Not undoable.
@@ -11860,6 +12227,20 @@ Every node -> Unreal asset mapping in this scene.
 
 Not undoable.
 
+### unrealMorphPaths
+
+Keep the character's morph paths on its skeletal mesh in Unreal for the Lila Morph Paths anim node: each morph target with in-betweens, a path or a response curve, as its exported shapes' weights against the curve named after the target. With postProcess, a mesh with no post-process Anim Blueprint gets ABP_<name>_MorphPaths running the node, so the curves drive the shapes wherever the mesh plays; otherwise add a Lila Morph Paths node to your Anim Blueprint. Use this or unrealExpressionRig's morph shapes, not both. Returns {skeletalMesh, paths, animBlueprint, warnings}.
+
+**Objects:** root
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the root's skeletal mapping. |
+| `postProcess` | `pp` | bool | `True` | Make a post-process Anim Blueprint running the node when the mesh has none. |
+| `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
+
+Not undoable.
+
 ### unrealPlaceInstances
 
 Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Lights among them go as light actors (point, spot, directional, rect; discs as square rect lights, domes skipped). Lighting channels map onto Unreal's three: default is channel 0, the next two channels the sent nodes use (in scene order) 1 and 2; any more are dropped, with a warning naming them, and what is left in none goes on 0. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Validators run first: a blocking issue stops the send, others come back in issues. Returns the plan, with each group's import and placement results when wait=True.
@@ -11874,6 +12255,7 @@ Send meshes to Unreal as one static mesh asset per instance source, placed in th
 | `lightingChannels` | `lc` | bool | `True` | Set the actors' and lights' Lighting Channels from Lila's channels. The plan's lightingChannels lists the channels, lights and objects, the Unreal slot of each channel and any dropped. |
 | `collision` | `col` | str | `'auto'` | Collision the assets get: auto (ucx for a source with UCX_ children or a Stagehand body's hulls, else complexAsSimple), none (the placed actors and instances don't collide either), box, convex (Unreal's auto convex decomposition), complexAsSimple (the render mesh) or ucx (the hulls only; a source's UCX_ child meshes go with it, and its other children into the asset too). |
 | `nanite` | `na` | bool | `False` | Build Nanite data for the assets. |
+| `hlodLayer` | `hl` | str |  | HLOD layer asset path for the placed actors. |
 | `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealPlaceInstances, "unreal" or "*" on what is sent stops the send; other issues come back in the result's issues. |
 | `dryRun` |  | bool | `False` | Return the plan without exporting or contacting Unreal. |
 | `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
@@ -12727,6 +13109,14 @@ Follow edits to an extension's package: once writes settle, send the extensionCh
 | `reload` |  | bool | `True` | Reload it after the event. False only sends the event, for handlers that decide. |
 | `settle` |  | int | `500` | Milliseconds the package must be quiet before the event, so one build gives one event. |
 | `off` |  | bool | `False` | Stop watching it. |
+
+Not undoable.
+
+### weightProxyInfo
+
+A weight proxy's render meshes, or a render mesh's proxy: {proxy, meshes}; null when neither.
+
+**Objects:** mesh
 
 Not undoable.
 
@@ -14563,6 +14953,99 @@ Key the joints to the simulated pose at a frame (default the current one), on th
 | --- | --- | --- | --- | --- |
 | `frame` | `f` | int |  | Frame. Default: the current one. |
 
+## Plating extension
+
+Available when the Plating extension is loaded.
+
+### fasteners
+
+Set fasteners along each mesh's Panel Layout: rivets, bolts, screws or washers on the lines, beside them, or in panel corners, seated on plates when there are some. Kept live. Returns the fasteners modifiers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` |  | str |  | rivet, hexBolt, screw or washer. |
+| `placement` |  | str |  | onLines, bothSides or corners. |
+| `size` |  | float |  | Head diameter, cm. |
+| `height` |  | float |  | Head height, cm. |
+| `spacing` |  | float |  | Distance between fasteners, cm. |
+| `inset` |  | float |  | Distance from the line or corner, cm. |
+| `set` |  | str |  | Only lines in this line set. |
+
+```python
+fasteners("Hull", kind="rivet", placement="bothSides", spacing=2.5)
+```
+
+### fastenersToInstances
+
+Turn a mesh's fasteners into instances of one fastener mesh, grouped under the mesh: they export to Unreal as one mesh placed many times (instanced static meshes). The fasteners modifier is turned off, not removed, so turning it back on and deleting the group undoes it. Returns the group.
+
+**Objects:** mesh
+
+### plates
+
+Turn each mesh's Panel Layout into plates: every panel a thick plate, split by a gap along the lines, bevelled, kept live as the layout changes. The lines that divide plates are best in a line set whose output is None. Returns the plates modifiers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `gap` |  | float |  | Gap between plates, cm. |
+| `thickness` |  | float |  | Plate thickness, cm. |
+| `elevation` |  | float |  | Base offset along the surface, cm. |
+| `bevel` |  | float |  | Top edge bevel, cm. |
+| `lipWidth` |  | float |  | Rim width, cm. |
+| `keepBase` |  | bool |  | Keep the mesh under the plates. |
+
+```python
+plates("Chestplate", gap=0.4, thickness=1.5, bevel=0.2)
+```
+
+### platesInfo
+
+A mesh's plates: how many, their settings and warnings.
+
+**Objects:** mesh
+
+Not undoable.
+
+### platesPanel
+
+Give the panel at a point its own plate values: hide it (a hole), raise or sink it (elevation), or change its thickness. clear drops its own values. Panels are found again by that point as the layout changes.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | tuple[float, float, float] |  | A world-space point inside the panel. |
+| `hidden` |  | bool |  | Leave the panel out. |
+| `elevation` |  | float |  | The panel's own elevation, cm. |
+| `thickness` |  | float |  | The panel's own thickness, cm. |
+| `pattern` |  | bool |  | Pick the panel for surface patterns that only cover picked panels. |
+| `clear` |  | bool | `False` | Drop the panel's own values. |
+
+### surfacePattern
+
+Press a pattern into the panels of each mesh's Panel Layout: hex, squares, diamond plate, slots, dots or grille, following each panel. Kept live. Returns the pattern modifiers.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pattern` |  | str |  | hex, squares, diamondPlate, slots, dots or grille. |
+| `projection` |  | str |  | panel or triplanar. |
+| `scale` |  | float |  | Cell size, cm. |
+| `depth` |  | float |  | How far it presses in, cm; negative raises. |
+| `width` |  | float |  | Line width or feature size, fraction of a cell. |
+| `rotation` |  | float |  | Degrees. |
+| `margin` |  | float |  | Fade distance from the lines, cm. |
+| `pickedOnly` |  | bool |  | Only panels picked for a pattern. |
+
+```python
+surfacePattern("Hull", pattern="hex", scale=1.5, depth=0.08)
+```
+
 ## Print extension
 
 Available when the Print extension is loaded.
@@ -15166,6 +15649,138 @@ Set the gap (frames) from a key to the next: the key's span stretches to fit and
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int |  | The key whose gap changes. |
 | `gap` | `g` | float |  | New gap, frames. |
+
+### stringsBlend
+
+Blend joints toward their pose at another time, or toward zero, in a Strings mode so holds keep. channels picks rotations, translations (toward zero: bind lengths) or both.
+
+**Objects:** joints or characters (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `time` | `t` | float |  | Seconds whose pose to blend toward; leave out for zero. |
+| `weight` | `w` | float | `1.0` | How far: 1 all the way, 0 not at all, past 1 overshoots. |
+| `channels` | `ch` | str | `'rotate'` | rotate, translate or both. |
+| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `holds` | `h` | bool | `True` | False ignores pins and locks. |
+
+### stringsBreakdown
+
+A breakdown in space: blend the character toward its previous key's pose (weight -1) or next (1), rotations in their parents' space so parts travel on arcs, and the feet in world so planted feet stay planted. Past 1 overshoots.
+
+**Objects:** joints or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `weight` | `w` | float | `0.0` | -1 the previous key's pose, 0 now, 1 the next key's. |
+| `all` | `al` | bool | `True` | The whole character; False only the given joints. |
+| `world` | `wo` | list |  | Joints that blend in world space; default the character's contacts. |
+
+### stringsFill
+
+Fill a range with inbetweens: each frame (or every step frames) between its keys becomes a key of the blend between them, rotations on arcs and feet in world, spaced by the curve. Acts on the time slider's range without one.
+
+**Objects:** joints or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
+| `step` | `st` | int | `1` | 1 every frame, 2 on twos, 3 on threes. |
+| `spacing` | `sp` | str | `'easeInOut'` | How the inbetweens are spaced. One of `linear`, `easeIn`, `easeOut`, `easeInOut`. |
+| `world` | `wo` | list |  | Joints that blend in world space; default the character's contacts. |
+
+### stringsGlue
+
+Glue things so they keep their place relative to each other through every Strings pose (two hands, a hand and a prop), or with attach make all but the last follow the last, as if parented. Lasts for the session, never saved or keyed. Returns every glue and attach.
+
+**Objects:** transforms or joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `attach` | `at` | bool | `False` | All but the last follow the last; the last is not moved by them. |
+| `remove` | `rm` | bool | `False` | Free these from glue and attach; with none given, free everything. |
+| `query` | `q` | bool | `False` | Only return the glue and attach sets. |
+
+### stringsOvershoot
+
+Push joints past their pose, along the motion from the previous key (or from), in a Strings mode so holds keep. Negative amounts pull back toward it.
+
+**Objects:** joints or characters (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amount` | `a` | float | `0.25` | Fraction of the motion since the previous key to carry on by. |
+| `from` | `f` | float |  | Seconds to measure the motion from; default the previous key. |
+| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `holds` | `h` | bool | `True` | False ignores pins and locks. |
+
+### stringsPose
+
+Pose joints as a drag does, in a Strings mode: forward (FK), backward (the body swings around what holds still), ik (the limb bends to put the joint there) or fullBody (the whole body moves). Pins and locked hands and feet hold. Give by to move, axis and angle to turn. Returns what was posed, the anchor Backward kept still, and any fallback.
+
+**Objects:** joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `by` |  | tuple[float, float, float] |  | World offset, cm. |
+| `axis` | `ax` | tuple[float, float, float] |  | World axis to turn about. |
+| `angle` | `a` | float | `0.0` | Degrees about axis. |
+| `anchors` | `an` | list |  | More joints that hold still for this pose, besides pins and locks. |
+| `holds` | `h` | bool | `True` | False ignores pins and locks. |
+| `contacts` | `ct` | bool |  | The character's contacts (feet, from its rig template) hold too; default the Contacts setting. |
+| `chainLength` | `cl` | int | `0` | ik: how many bones above the joint bend; 0 to the next branch. |
+| `stretch` | `st` | float | `1.0` | Above 1 lets bones lengthen up to this multiple when turning can't reach. |
+| `autoPose` | `ap` | bool | `False` | fullBody moves: the auto-poser places the unpinned body (UE5 Manny joint names). |
+| `range` | `r` | list |  | [start, end] seconds: pose every keyed frame in it (or every frame with dense), keying each. |
+| `frames` | `fr` | list |  | Seconds to pose at, keying each, instead of a range. |
+| `dense` | `dn` | bool | `False` | With range: every frame, not only the keyed ones. |
+| `falloff` | `fo` | float | `0.0` | With range: frames either side the pose eases out over. |
+| `relative` | `rel` | bool | `True` | Across frames: offset each frame by the drag. False brings each to where the drag put it now. |
+| `space` | `sp` | str | `'world'` | Across frames, relative: what the offset follows: world, parent, or a node (move a hand in head space). |
+
+### stringsRestoreLengths
+
+Put stretched bones back to the length they were bound at, each keeping its direction. Joints that drive no skin have no bind length and are skipped. Returns the joints restored and skipped.
+
+**Objects:** joints (default the selection)
+
+### stringsRules
+
+A character's Strings rules: its contacts (joints that hold still while you pose the rest, its feet) and its limbs (what bends together when IK or a hold reaches). They come from its rig template or rig elements; contacts and addChain set them on this character instead, reset goes back. Returns the rules and where each came from.
+
+**Objects:** character or one of its joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `contacts` | `ct` | list |  | Joints that hold by default, replacing the inherited ones. |
+| `addChain` | `ac` | list |  | [top joint, end joint]: a limb from top down to end, replacing limbs it overlaps. |
+| `reset` | `rs` | bool | `False` | Forget this character's own rules first. |
+
+### stringsSmooth
+
+Smooth whole poses over a range of frames: each frame's rotations average with their neighbours' (and the top joint's translation), then pins, locks and contacts go back where they were on that frame. Keys every frame in the range. Acts on the time slider's range without one.
+
+**Objects:** joints or characters (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
+| `strength` | `s` | float | `0.5` | 0 leaves the poses, 1 takes the average. |
+| `radius` | `rad` | int | `2` | Frames either side averaged. |
+| `holds` | `h` | bool | `True` | False lets pins, locks and contacts move with the smoothing. |
+
+### stringsZero
+
+Zero joints' rotations in a Strings mode: forward zeroes them as they are, backward keeps what is pinned below still and swings the body, and so on. Parents first. Returns what each pose did.
+
+**Objects:** joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `holds` | `h` | bool | `True` | False ignores pins and locks. |
+| `stretch` | `st` | float | `1.0` | Above 1 lets bones lengthen up to this multiple. |
 
 ### walkCycle
 
@@ -18460,7 +19075,7 @@ Dress a cliff region with your own kit pieces instead of a generated mesh: each 
 | `scaleJitter` | `sj` | float | `0.2` | Scale variation, 0 to 1. |
 | `sink` | `sk` | float | `0.1` | Base sunk into the ground, as a fraction of a piece's height. |
 | `floatTolerance` | `ft` | float | `25.0` | A piece this far above the ground is floating, cm. |
-| `maxPenetration` | `mp` | float | `0.6` | Most of a piece that may be inside the ground, 0 to 1. |
+| `maxPenetration` | `mp` | float | `0.8` | How far into a piece's depth the cliff face behind it may reach, 0 to 1. |
 | `gap` | `gp` | float | `150.0` | Gaps wider than this get smaller pieces, cm. |
 | `seed` | `sd` | int | `1` | Another seed gives another arrangement. |
 | `send` | `se` | str | `'none'` | Send it to Unreal: none, hism or assembly. |

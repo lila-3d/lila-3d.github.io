@@ -22,6 +22,7 @@ To sculpt again, select the mesh and pick **Sculpt > Sculpt**: every level comes
 | M or Shift+F held + drag | Brush strength |
 | Shift+F tapped | The wireframe on or off |
 | `[` `]` | Radius smaller, larger |
+| Shift+right-click | Brushes, masks, levels and the hard-surface tools ([Plating](plating.md)) |
 | Esc | Leaves the tool; sculpt mode stays open until Exit Sculpt |
 
 The level keys work while the sculpt tool is active. Each stroke and each level change is one undo step. Tumbling orbits round your last stroke.
@@ -50,7 +51,7 @@ To bake, name the high poly `<low>_high` and pick **Auto Group by Name** in **Ba
 
 ## Polypaint
 
-1. Pick the **Paint** brush, or tick **Paint While Sculpting** to color as you shape. The mask shields points from paint.
+1. Pick the **Paint** brush, or tick **Paint While Sculpting** to color as you shape. The mask shields points from paint. Add **Only Where It Digs** and the color goes only where a stroke cuts in, so Dam Standard lines come out painted along their grooves.
 2. Exit. The mesh gets a `polypaint` color set at its current level.
 3. To bake it, set the Base Colour map's **Source** to `vertexColor` in the baker.
 

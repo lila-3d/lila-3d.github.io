@@ -44,6 +44,7 @@
   - [Component Spreadsheet](component-spreadsheet.md)
 - <span class="nav-label">Modeling</span>
   - [Clay](clay.md)
+  - [Plating](plating.md)
   - [Bridge](bridge.md)
   - [Curves](curves.md)
   - [Hair](hair.md)

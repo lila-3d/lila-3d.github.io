@@ -27,6 +27,8 @@ sculptBrush(preset="user/Deep Wrinkle")
 
 ## Alphas
 
+Set **Stroke** to **Curve** (in the **Stroke** options) to draw a path freely; on release it is smoothed into a clean curve and the brush runs along it, for even panel lines and seams by hand. **Line** does the same in a straight line.
+
 Every brush's **Stroke > Alpha** picker lists the images in the alpha folders (type to filter). White is where the brush acts and black where it doesn't, so pores, cracks and panel lines raise; hold Ctrl to cut them in.
 
 1. Put a grayscale image in `%APPDATA%/Lila/prefs/alphas`, or use the library button beside the **Alpha** field to copy one in.
