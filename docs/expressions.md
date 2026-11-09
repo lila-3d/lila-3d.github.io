@@ -52,6 +52,8 @@ unrealExpressionRig("Char")
 
 - Bone channels drive and read bones.
 - Morph target weights drive and read curves named after the target.
+- A morph target with in-betweens, a path or a response curve also gets a node per exported shape, so its curve drives those shapes as it does in Lila. Send the rig even if the character has no expressions.
+- Without Control Rig, run `unrealMorphPaths("Char")` instead: it keeps the shapes' curves on the skeletal mesh for the **Lila Morph Paths** anim node, and a mesh with no post-process Anim Blueprint gets `ABP_<name>_MorphPaths` running it. With your own Anim Blueprint, add the node to it. Use one or the other: with both, pass `morphShapes=False` to `unrealExpressionRig`.
 - Other attributes under the root become curves named `node_attr`, such as `fx_glow`.
 - Inputs that aren't bones, morph weights or time become float controls named `node_attr`. Animate them in Sequencer.
 
