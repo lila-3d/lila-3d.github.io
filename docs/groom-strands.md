@@ -44,7 +44,7 @@ Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads
 
 **No strands and no warning.** `inMesh` isn't connected or the mesh has no faces.
 
-**Strands don't scale with the head.** Sizes in the graph are scene units. Scale the lengths and densities in the graph to match.
+**Strands change size when the head is resized.** With `scaleWithScalp` on, the graph's sizes follow the head's area against `scaleReference`, the area stored on the first evaluation. Set `scaleReference` to 0 to take the head's area now, or turn `scaleWithScalp` off to keep sizes in scene units.
 
 **Hair doesn't move with the scene.** `useSceneTime` is off, so the graph holds at `time`.
 
