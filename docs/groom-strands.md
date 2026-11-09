@@ -56,6 +56,12 @@ importGroom("hair.groom", mesh="Head")
 
 **Curves > Groom > Import Yeti...** reads the Yeti grooms of a Maya ASCII (`.ma`) file, without Maya or Yeti. Import the `.ma` first so its head meshes are in the scene. Each Yeti node becomes a groom: its groom's strands are the guides, and its Scatter, Clumping, Scraggle and Width nodes become the graph's Scatter, Clump, Noise and Width. The command's report lists what was mapped, approximated and skipped.
 
+## Send to Unreal
+
+With Lila Link connected, select the groom and run **Curves > Groom > Send Groom to Unreal**. Unreal gets a groom asset (`/Game/Grooms/GR_<name>` by default) with the guides it simulates on and `M_LilaHair` as its material. Sending again reimports the same asset.
+
+`M_LilaHair` is built on the `MF_LilaHair` material function: hair colour from the groom, darker roots, roughness, scatter and specular. Call `MF_LilaHair` from your own Hair material to build on it. The project needs the HairStrands plugin, which Lila Link turns on.
+
 ## Hair cards
 
 Run **Curves > Groom > Hair Cards Preset** to give the groom a Cards node at a hero, mid or low budget and a mesh showing the cards. **Bake Hair Cards...** writes the cards' maps (Depth, Coverage, Tangent, Attribute, Color, AO and Normal as `.tga`), the atlas layout and a preview into a folder. The cards keep their atlas cells from that bake.
