@@ -1368,7 +1368,7 @@ Drop an autoBevel modifier's hand-picked edges, going back to its rule.
 
 ### bevelEdgeInfo
 
-The edges an autoBevel modifier picks on its input mesh: {edges, count, lost, editing}.
+The edges an autoBevel modifier picks on its input mesh: {edges, count, lost, editing, offset, applied, limiting}. applied is the offset after the clamp; limiting lists the edges holding it there.
 
 **Objects:** modifier or mesh
 
@@ -9372,7 +9372,7 @@ Break the connection into an input from the node editor; on an array input, ever
 
 A view of the scene's nodes for the node editor: the nodes with their plugs as sockets and values, the connections between them as links, and each node's canvas position.
 
-Views: Selection (the selection and what is wired straight into and out of it), Hierarchy (the selection's parents and children), Upstream and Downstream (depth steps from the selection). Views look through anim curves and unit conversions unless all is on.
+Views: Selection (the selection and what is wired straight into and out of it), History (each selected mesh's whole modifier stack and its source), Hierarchy (the selection's parents and children), Upstream and Downstream (depth steps from the selection). Views look through anim curves and unit conversions unless all is on.
 
 **Objects:** view
 
@@ -19816,7 +19816,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
