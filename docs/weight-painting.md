@@ -8,7 +8,7 @@ Paint skin weights where you decide where every bit of weight goes, see where Li
 
 1. Select a skinned mesh and choose **Rig > Paint Skin Weights**. The **Paint Weights** palette opens.
 2. Click the joint to paint in the influence list.
-3. Ctrl+click the joint that should take the weight you remove: the **receiver**. Its name shows under the list.
+3. Ctrl+click the joint that should take the weight you remove: the **receiver**. In the viewport, Ctrl+Alt+click a joint, or the surface to pick the heaviest other joint there. Its name shows under the list.
 4. Drag on the mesh. Weight moves between the painted joint and the receiver only; every other joint keeps its weight.
 
 Without a receiver, removed weight goes to the one other unlocked joint with weight at that vertex. Where more than one could take it, **Strict** refuses the vertex: the brush ring turns amber, the refused vertices flash and the readout says why.
@@ -53,13 +53,13 @@ Settle stays within `maxInfluences`, keeps locked joints and exports as plain li
 Paint a light, single-sided stand-in instead of a heavy or thick render mesh (a coat with its lining, buttons and cuffs), then push the weights onto it. The stand-in's edge loops sit at the joints with an even number between them, so smoothing spreads cleanly.
 
 1. Select the render meshes and choose **Rig > Weight Proxy > Create Weight Proxy**. The proxy appears beside them in the outliner, bound to the same joints, with their weights.
-2. Paint the proxy. The Paint Weights palette shows which meshes it stands in for.
+2. Paint the proxy. The Paint Weights palette shows which meshes it stands in for. Too coarse round a limb: raise **Edges Around** in the option box and create it again.
 3. Click **Push** in the palette (or **Rig > Weight Proxy > Push Proxy Weights**). Each render point takes the weights of the closest point on the proxy, so the outside and the lining get the same.
 
 **Pull** copies the render meshes' weights back onto the proxy. Nothing moves between them until you push or pull.
 
 ```python
-createWeightProxy("Coat", "Coat_buttons", loopsPerBone=4)
+createWeightProxy("Coat", "Coat_buttons", loopsPerBone=4, edgesAround=10)
 pushProxyWeights("Coat_weightProxy")
 ```
 
