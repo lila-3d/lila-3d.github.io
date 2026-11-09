@@ -13,7 +13,7 @@ For realistic hair and fur grown as thousands of strands, use [Groom strands](gr
 3. Run **Curves > Groom > Groom Brushes** and brush the guides: **Comb** drags them, **Smooth** relaxes kinks, **Lift** stands them up, **Place** adds guides where you click or drag. Each stroke shows live and undoes in one step.
 4. Add looks from **Curves > Groom > Style**: **Split** for chunks of chunks, then **Clump**, **Curl**, **Wave**, **Frizz**, **Noise**, **Length**, **Cut** or **Flyaways**. Each one appears in the **Groom** section of the Attribute Editor with its settings, where you also turn it off, reorder or remove it.
 5. Run **Curves > Groom > Settle Hair** to drop the locks onto the scalp and onto each other under gravity.
-6. Run **Curves > Groom > Hair Shell** for `HairShell`: one closed mesh over every lock. Retopologize it with `quadRemesh`.
+6. Run **Curves > Groom > Hair Shell** for `HairShell`: one closed mesh over every lock. Set **Quads** in its option box to get the quad remeshed shell too, ready for retopology.
 
 For a quick start, pick a look from **Apply Preset...** in the **Groom** section instead of building the stack by hand.
 
