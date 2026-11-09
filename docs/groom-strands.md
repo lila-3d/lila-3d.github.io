@@ -17,7 +17,7 @@ g = createGroom("Head", count=60, length=15.0, strands=True)
 getAttr(g["groom"] + ".strandCount")
 ```
 
-2. `HairStrands` shows strands grown over the head between the guides. Brush and style the guides as in [Hair](hair.md); the strands follow the styled locks.
+2. `HairStrands` shows strands grown over the head between the guides, drawn as shaded hair at their widths. Brush and style the guides as in [Hair](hair.md); the strands follow the styled locks.
 3. Set the groom's `graph` to your own groom graph to change the look. Empty gives guides into locks with strands interpolated from them.
 
 To grow from curves of your own instead of drawn guides, connect them to the groom's `inCurve`: `connectAttr("MyCurves.worldSpace", g["groom"] + ".inCurve")`. Each curve is a guide rooted at its first point.
@@ -71,6 +71,8 @@ Strands keep their roots on the head in the `groomRootFace` and `groomRootUV` cu
 | `warning` | What went wrong in the last evaluation. |
 
 The head's color sets are maps the graph reads: paint one with **Paint Vertex Colors** and a Map node named after the set reads it: a set painted in grays is a gray map, any other a color map. A map the groom stores under the same name wins.
+
+Strands without a Width node draw at about a hair's width. Far from the camera fewer strands draw, each wider, so the groom keeps its look and stays fast.
 
 The same head, guides and graph always grow the same strands, bit for bit, on any thread count and after saving and opening the scene.
 
