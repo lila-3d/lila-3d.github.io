@@ -4978,7 +4978,7 @@ Set the mesh curves grow from (their groom surface): sculpting keeps roots on it
 
 ### group
 
-Group objects under a new transform, or create an empty group with empty=True.
+Group objects under a new transform (under their parent when they all share one), or create an empty group with empty=True.
 
 **Objects:** objects
 
