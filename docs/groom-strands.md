@@ -38,6 +38,12 @@ setAttr(s + ".graph", """{"version": 1, "output": "interp",
 
 Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads the head's earlier frames. Simulate steps from its start frame, including frames you jump past, and scrubbing back shows the frames it already stepped.
 
+## In geometry nodes
+
+Each groom graph node that works on what it's handed is also a geometry node in the **Hair** category: Scatter, Interpolate, Clump, Curl, Noise and the rest. Strands and guides travel as curves, the head as a mesh. Link the head into every Hair node's `scalp` input: roots, sizes and surface distances are measured on it. Nodes that read the time have a `seconds` input; link Scene Time to animate them.
+
+Strands keep their roots on the head in the `groomRootFace` and `groomRootUV` curve attributes and their IDs in `groomIdLow` and `groomIdHigh`. Keep those attributes on the curves between Hair nodes, and a chain of Hair nodes grows exactly what the same groom graph grows. Other float attributes are the strands' channels.
+
 ## Troubleshooting
 
 **No strands, and `warning` names a node or says the graph can't load.** The graph JSON has an unknown node type, a bad connection or a typo. Fix the text; nothing grows until it loads.
@@ -57,6 +63,8 @@ Graphs with Wind, Jiggle or Simulate nodes move as the scene plays. Jiggle reads
 | `graph` | The groom graph as JSON; empty grows the default hair. |
 | `useSceneTime` | On by default: the graph runs at the scene's time. Off: it runs at `time`. |
 | `time` | Seconds the graph runs at while `useSceneTime` is off. Key it to retime the motion. |
+| `scaleWithScalp` | On by default: lengths, widths and densities scale with the head's area against `scaleReference`. |
+| `scaleReference` | The head area the graph's sizes are 1x at; 0 takes the area on the next evaluation. |
 | `outCurve` | The strands in world space, with a `width` per point and an `id` per strand. |
 | `strandCount` | How many strands grew. |
 | `warning` | What went wrong in the last evaluation. |

@@ -1383,6 +1383,1242 @@ Runs a node group again and again, each pass taking the last one's results: its 
 | --- | --- | --- | --- |
 | `group` |  |  | Name of the node group to repeat. |
 
+## Hair
+
+### Attribute
+
+Type `groomAttribute`.
+
+Writes a per-strand channel for later nodes or the shader: a number, a map or an expression.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `name` | string | input | `attr` | The attribute's name: the per-strand channel this node writes (an attribute map, an expression, a renderer reads it by name; a name made upstream is overwritten) |
+| `value` | float | input | `1` | The value per strand (mappable: a number, a map, or an expression such as fit(rand, 0.2, 0.8) for a random value per strand) |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Bands
+
+Type `groomBands`.
+
+Bands of another pigment along each hair, on the guard hairs: agouti, ticked, shaded fur. After HairColor.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `1` | How strongly the bands show, 0 (none) to 1 (mappable, per point) Range 0 to 1. |
+| `melanin` | float | input | `0.08` | The bands' pigment, 0 (pale) to 1 (black) Range 0 to 1. |
+| `redness` | float | input | `0.6` | The bands' redness, 0 (brown) to 1 (red): agouti's band is a pale yellow-red Range 0 to 1. |
+| `dye` | vector | input | `[1, 1, 1]` | Dye over the bands' pigment, linear RGB (white: none) |
+| `count` | int | input | `1` | How many times the profile repeats root to tip (ticked fur: several) Range 1 to 1000. |
+| `guards` | float | input | `1` | Share of the strands that are guard hairs, which take the bands and keep the tip color (1: all); the rest are undercoat in the plain color Range 0 to 1. |
+| `undercoatDye` | vector | input | `[1, 1, 1]` | Tint over the undercoat's color, linear RGB (white: the hair's own) |
+| `melaninRandom` | float | input | `0.1` | Random offset of each strand's band pigment (melanin and redness), +/- |
+| `offsetRandom` | float | input | `0.15` | Random shift of each strand's bands along it, as a share of a period, so bands do not line up across the coat Range 0 to 1. |
+| `widthRandom` | float | input | `0.1` | Random stretch of each strand's bands, +/- this share Range 0 to 0.9. |
+| `seed` | int | input | `0` | Random seed (HairColor's, for the same pigment offsets) |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `guardsBy` | `random`, `longest` | `random` | Which strands are the guard hairs: at random, or the longest |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Bend
+
+Type `groomBend`.
+
+Bends strands toward or away from the scalp, or combs them toward a direction, between a start and an end; start and end 0 stand them up at the root.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `angle` | float | input | `30` | Degrees the strands bend between start and end (mappable), never past the direction; positive toward it (with the normal: away from the scalp), negative away from it (down onto the scalp); 180 with start and end 0 points them along it |
+| `start` | float | input | `0` | Where the bend starts along the length, 0 root to 1 tip Range 0 to 1. |
+| `end` | float | input | `1` | Where it ends: the strand turns evenly between start and end and holds its shape past it Range 0 to 1. |
+| `direction` | vector | input | `[1, 0, 0]` | The way strands bend (world space; or an expression giving a vector per strand) |
+| `randomness` | float | input | `0` | Each strand's angle scaled down by up to this share, at random Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `along` | `normal`, `tangent`, `direction` | `normal` | normal: the scalp's normal at the root (never below the scalp's tangent plane); tangent: the scalp's U direction (its UVs; without them the direction below); direction: the direction below, laid onto the scalp at the root (as a comb lays hair) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Blend
+
+Type `groomBlend`.
+
+Mixes two looks of the same strands (dry to wet).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | geometry | input |  | Strand curves. |
+| `b` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `mix` | float | input | `1` | 0: a, 1: b (mappable, per point) |
+| `keepLength` | bool | input | `true` | Blend each segment's way and length from the root, so a strand midway between a curly look and a straight one keeps its length (off: its points blended, which pulls such a strand in) |
+| `mixChannel` | string | input | `blend` | Per-strand channel receiving the mix, e.g. for the shader (empty: none) |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `include` | `shapeAndLook`, `shape` | `shapeAndLook` | What moves toward b: the shape (points, widths) and the look (HairColor's color, melanin, redness, roughness), or the shape alone; IDs and other channels always stay a's |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Blend Neighbors
+
+Type `groomBlendNeighbors`.
+
+Pulls each strand toward its neighbours' shape for a coherent flow.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `neighbors` | int | input | `4` | Nearest strands (by root, of those every preview holds) each strand blends toward, 1-16 Range 1 to 16. |
+| `strength` | float | input | `1` | How far each strand moves toward its neighbours' mean shape, 0-1 (mappable) Range 0 to 1. |
+| `preserveLength` | bool | input | `true` | Scale the blended strand back to its own length |
+| `respectParts` | bool | input | `true` | Never blend with a strand across a part |
+| `regionChannel` | string | input | `region` | Channel numbering each strand's region (an Interpolate's regionMap writes region): strands blend only with strands of their own region; empty, or a channel the strands lack: across regions |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Braid
+
+Type `groomBraid`.
+
+Braids strands along paths: three-, four- and five-strand braids, fishtails, ropes, cornrows.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `braids` | geometry | input |  | Guide curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `sections` | int | input | `0` | A rope's plies (2-8, 0: two) or a fishtail's strips a side (3-12, 0: six) Range 0 to 12. |
+| `dutch` | bool | input | `false` | Cross the sections under instead of over (a raised braid; a rope twists the other way) |
+| `width` | float | input | `0.25` | Braid width at its start, scene units |
+| `tightness` | float | input | `1` | How close the crossings are: 1 a natural braid, 2 twice as many in the same length. A crossing is a share of the width long, so a tapering braid's crossings shrink with it At least 0.05. |
+| `flatness` | float | input | `0.3` | 0: round sections, 1: flat bands (a flatter braid) Range 0 to 1. |
+| `pancake` | float | input | `0` | Pulls the sections apart and loosens them: the loose, chunky look of a braid pulled out by hand Range 0 to 1. |
+| `loops` | float | input | `0` | Share of the sections' stretches between crossings where the hair on the section's outer side bows out of the braid in a loop and goes back in before the next crossing Range 0 to 1. |
+| `loopSize` | float | input | `0.5` | How far a loop reaches out, in braid widths (each a little more or less) At least 0. |
+| `roll` | float | input | `0` | Turns the braid's face about its path, degrees (it faces out of the scalp, or away from the head) |
+| `region` | float | input | `0.25` | Strands rooted within this distance of a braid's root join it (large: a ponytail's), or with feed of its path (the nearer braid's, when two reach); without a braids input, its own braids are about this far apart |
+| `feed` | bool | input | `false` | Pick up strands all along the path, where they grow (cornrows, French braids) |
+| `feedUntil` | float | input | `1` | With feed: pick up strands along this share of the path only; past it the braid hangs free (0: only the root region, a ponytail braid) Range 0 to 1. |
+| `gather` | float | input | `0.15` | Share of the strand spent leaving the scalp into the braid Range 0 to 0.9. |
+| `tail` | float | input | `0.12` | Share at the end where the sections let go (fan, tuft) Range 0 to 0.9. |
+| `ties` | int | input | `0` | Ties along each braid (beads, cuffs, hair ties): the braid tightens round each, and the ties output hands them on for an Instance node's along input. 1: one where the weave ends Range 0 to 32. |
+| `tieLength` | float | input | `0.5` | Each tie's length, in braid widths At least 0.05. |
+| `tieSpacing` | float | input | `0` | From one tie to the next, in braid widths (0: spread along the braid) At least 0. |
+| `cinch` | float | input | `0.35` | How much the braid narrows inside a tie Range 0 to 0.9. |
+| `strays` | float | input | `0.03` | Share of the region's strands left loose Range 0 to 1. |
+| `fuzz` | float | input | `0.02` | Random wander within the sections, scene units |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+| `paths` | geometry | output |  |  |
+| `ties` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `style` | `three`, `four`, `five`, `fishtail`, `rope`, `cornrow` | `three` | three, four or five sections, a fishtail, a rope (twisted plies) or a cornrow (raised, on the scalp) |
+| `end` | `fan`, `tuft`, `bound` | `fan` | How the braid ends: fan (over the tail the sections let go and the ends spread), tuft (they let go into a gathered tuft, as below a hair tie) or bound (woven to the tip, narrowing: sealed box-braid ends, no tail) |
+| `display` | `hair`, `paths` | `hair` | hair: the braided strands; paths: each braid's path and its sections' center curves in their place, to see the weave |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Cards
+
+Type `groomCards`.
+
+Hair cards for game engines, with baked maps and LODs.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `guides` | geometry | input |  | Guide curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `clumpChannel` | string | input | `clumpId` | Group strands by this channel (Clump writes clumpId); without it, strands group by root into as many groups as maxCards allows (0: 60) |
+| `cardsPerClump` | int | input | `1` | Cards per clump: its strands split into this many groups lying together, each a card along its own mean curve (1: one card per clump; a hero groom wants 4 to 8) Range 1 to 64. |
+| `layers` | int | input | `1` | Depth layers per clump (1 to 3): inner and outer shells of cards, each showing its own strands, alternately turned; cards per clump in all: cardsPerClump x layers Range 1 to 3. |
+| `segments` | int | input | `8` | Quads along each card Range 1 to 256. |
+| `widthSegments` | int | input | `2` | Quads across each card (2 gives one center edge loop) Range 1 to 16. |
+| `widthScale` | float | input | `1` | Card width, times its strands' spread |
+| `margin` | float | input | `0.1` | Share of the width kept clear of strands each side, so the bake never touches the texture's edges Range 0 to 0.45. |
+| `fitTwist` | float | input | `1` | How much the whole card, including its root row, rotates to the way its strands lie across (their principal direction): 1 follows them, 0 faces out of the scalp Range 0 to 1. |
+| `twist` | float | input | `0` | Degrees the card turns around its length, root to tip (on top of the fit) |
+| `curvature` | float | input | `0` | 0 flat, 1 a half-tube bowed out of the scalp Range 0 to 1. |
+| `ruffle` | float | input | `0.3` | Alternate cards of a clump push in and out along their normal (a share of their width) and turn a little the other way, so layered cards never share a plane Range 0 to 1. |
+| `minStrands` | int | input | `3` | Groups with fewer strands make no card (their strands are flyaways) At least 1. |
+| `flyawayCards` | int | input | `0` | Thin cards for strands no card holds (small clumps, strands without one), the farthest from any card first; the rest join the nearest card within reach Range 0 to 100000. |
+| `minWidth` | float | input | `0.002` | Narrowest card |
+| `maxCards` | int | input | `0` | At most this many cards (sub-cards, crossed and flyaway cards count): clumps give up sub-cards, then neighbouring clumps share wider cards (0: no limit). Lower LODs use fewer. The one budget: without clumps, the strands group into as many as it allows Range 0 to 100000. |
+| `variations` | int | input | `16` | Textures the cards share: alike cards (length, width, how their strands lie, color) use one, for sharper textures in the same atlas (0: every card its own) Range 0 to 4096. |
+| `mirror` | bool | input | `true` | Cards sharing a texture alternate mirrored, so the repeat doesn't show |
+| `crossCount` | int | input | `2` | Cards in a cross (crossStyle, a braid's cards, a down feather's): 2 an X, 3 a star, up to 6 Range 2 to 6. |
+| `braids` | bool | input | `true` | Braided strands (a Braid node's braidId channel) make one card set per braid: cards crossed along the braid, a cornrow one card lying on the scalp; off, they are carded by their clumps |
+| `segmentsByLength` | bool | input | `true` | Segments in proportion to each card's length: `segments` for the longest, fewer for short ones (the UVs don't change) |
+| `minSegments` | int | input | `2` | With segmentsByLength: the fewest segments a card gets Range 1 to 256. |
+| `volumeNormals` | bool | input | `true` | Shade cards like the hair volume (normals out from the scalp) rather than as flat planes |
+| `followBarbs` | float | input | `0.5` | Follow Barbs: turns feather cross-edges to follow each vane's barb direction; 0 keeps ordinary rows across the shaft, 1 fully follows the barbs Range 0 to 1. |
+| `featherSegments` | int | input | `6` | Quads along each feather's card after Follow Barbs shapes it Range 1 to 256. |
+| `featherSegmentsByLength` | bool | input | `true` | Segments in proportion to each feather's length: Feather Segments for the longest, fewer for short feathers |
+| `featherMinSegments` | int | input | `2` | With Feather Segments by Length: the fewest segments a feather gets Range 1 to 256. |
+| `featherMinLength` | float | input | `0` | Feathers shorter than this share of the longest make no card (drop small down feathers at low LODs) Range 0 to 1. |
+| `featherSpine` | bool | input | `true` | A vertex column down each feather card's shaft, each half folding to follow its vane (lift, droop, cupping): two quads per segment. Off: a flat strip |
+| `flatten` | float | input | `1` | How flat each hair card lies: 1 uses one best-fit plane along its centerline, preventing twisted quads from showing a wavy diagonal; 0 follows the rotation-minimizing frame Range 0 to 1. |
+| `featherFlatten` | float | input | `1` | How flat each feather card lies: 1 one plane along the shaft and one fold per half (every quad flat), 0 turning and folding with its barbs station by station (closer to the strands, but twisted quads show the texture faceted) Range 0 to 1. |
+| `separation` | float | input | `0` | Cards closer than this gap to another card, or passing through it, are pushed apart along their normals, roots held (a share of the narrower card's width; 0: off). The texture is baked against the separated final card Range 0 to 1. |
+| `featherSeparation` | float | input | `0` | Feather cards closer than this gap to another card, or passing through it, are pushed apart along their normals, roots held, so overlapping feathers lie on each other instead of clipping (a share of the narrower card's width; 0: off). The texture is baked against the separated final card Range 0 to 1. |
+| `separationIterations` | int | input | `8` | Passes of the cards' separation (separation, featherSeparation): more settle crowded cards further Range 1 to 64. |
+| `atlasSize` | int | input | `2048` | Atlas resolution to bake (pixels); several Cards nodes share one atlas and bake, at the largest of theirs Range 16 to 16384. |
+| `strandsRootFade` | float | input | `0.06` | Share of each strands card, from its root, over which coverage fades in so hair cards blend into the scalp and each other (0: none) Range 0 to 1. |
+| `featherRootFade` | float | input | `0` | Share of each feather card, from its shaft root, over which coverage fades in (0 keeps the feather texture planted at the scalp) Range 0 to 1. |
+| `thinnestStrand` | float | input | `0` | Minimum solid strand width in atlas pixels. 0 preserves the upstream Width node and its root-to-tip profile with antialiased fractional coverage; raise it only for alpha-tested cards that need minimum solid pixels. Several Cards nodes share one bake, at the largest of theirs Range 0 to 8. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `cardsFrom` | `strands`, `guides` | `strands` | What the hair's cards follow: strands: the strands, grouped by their clumps (else by root), each card along its own strands; guides: the guides input, a card (or a cross) along each guide itself from where it grows, as wide as the strands nearest it and baked from them (clumps, cardsPerClump, layers and flyawayCards then do nothing) |
+| `crossStyle` | `auto`, `single`, `cross` | `auto` | Cards per clump: single (one ribbon), cross (crossCount crossed around its axis) or auto (a cross for round tufts standing off the scalp, one ribbon elsewhere) |
+| `featherMode` | `auto`, `perFeather`, `perVane`, `off` | `auto` | Feathers (a Propagate node's barbs): auto cards each feather as one strip along its shaft spanning both vanes (down feathers crossed cards) and the rest as hair; perFeather cards only the feathers; perVane cards everything as hair (a card per vane or split); off cards only the hair |
+| `padding` | `Full`, `None` | `Full` | How baked values spread outside strand coverage: Full fills all empty texels from the nearest strand for mip-safe textures; None leaves them undilated. Coverage is never padded |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Clump
+
+Type `groomClump`.
+
+Pulls strands toward their clump's center (or into round locks; Twist after it for ropes).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `centers` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `0.7` | Overall pull toward the clump center, -1 to 1 (mappable, per point). Negative pushes strands away from the centers (part fur around whiskers, horns, eyes): those within repelRadius, out toward it |
+| `count` | int | input | `300` | About how many clumps (clumpBy count); 0: none (the strands as they came) At least 0. |
+| `size` | float | input | `1` | Clump size (clumpBy size): about how far apart the centers are, so the count follows the scalp's area; 0: none At least 0. |
+| `randomness` | float | input | `0.3` | How random the centers it picks are: 0 evenly spread (blue noise, every one about the average spacing from its neighbors), 1 at random (some side by side); in between each center moves smoothly from its even spot toward its random one (the same clumps, their borders shifting), past 1 on beyond it, up to 2. As Scatter's Range 0 to 2. |
+| `centerWeight` | float | input | `1` | Chance each strand can be a center it picks, 0-1 (mappable: e.g. an Expression favoring long strands, or guideInfluence) |
+| `clumpChannel` | string | input | `clumpId` | Per-strand channel receiving the clump's number, from its center's ID (the same while that center is; empty: none). Chained Clumps each want their own (lockId, then clumpId), for a Twist, Cards or HairColor's clumpShare to follow the one it names |
+| `seed` | int | input | `0` | Random seed for the centers it picks and the per-clump variation |
+| `respectParts` | bool | input | `true` | Never clump toward a center on the other side of a part |
+| `regionChannel` | string | input | `region` | Channel numbering each strand's region (an Interpolate's regionMap writes region): strands clump only toward centers of their own region (a center's region is its strand's, its own value of the channel, or else the nearest strand's), and a region without a center stays unclumped; empty, or a channel the strands lack: across regions |
+| `followTubes` | bool | input | `true` | Strands filling tube guides (an Interpolate's fillTubes: tubeId, tubeU and tubeV) clump inside their own tube: each tube's centers are picked among its strands (as far apart as clumpBy says for the whole scalp) and a strand gathers toward its tube's nearest, so the clumps flatten, twist and taper with the tube; strands in no tube clump as ever. Off: by root across tubes. Strands without those channels clump as ever either way |
+| `lockRadius` | float | input | `0` | Lock radius: strands gather into a round lock this thick around the center (dreads, wet strings; a Twist node after it turns them into ropes); 0: onto the center At least 0. |
+| `repelRadius` | float | input | `0.5` | With a negative strength: how far from its center a strand is pushed out to at least (the part's half width): those within twice it move out, the nearest to it, keeping their order; those farther away stay as they are At least 0. |
+| `flatness` | float | input | `0` | Squashes each clump across into a ribbon, 0-1, as much as it clumps there (wet hair) Range 0 to 1. |
+| `flatDirection` | vector | input | `[1, 0, 0]` | Flatten direction: the way a ribbon's width runs (world space) |
+| `volumize` | float | input | `0` | Pushes each clump's strands out from its axis by this share of how far they are from it, most near the root, filling the clump's volume (mappable) |
+| `strengthRandom` | float | input | `0` | Each clump's strength scaled down by up to this share, at random per clump Range 0 to 1. |
+| `strandStrengthRandom` | float | input | `0` | Each strand's strength scaled down by up to this share, at random per strand: some hug the clump, some hang loose Range 0 to 1. |
+| `lockRadiusRandom` | float | input | `0` | Each clump's lock radius up to this share bigger or smaller, at random per clump Range 0 to 1. |
+| `copyAmount` | float | input | `0` | Each clump takes on this share of its neighbouring clumps' shape (their center curves, from their roots), so clumps share one flow Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `centersFrom` | `pick`, `inputPoints`, `inputCurves` | `pick` | Where the clumps' centers come from: pick: it picks them among the strands (clumpBy), each axis the picked strand, and a centers input is ignored; inputPoints: the centers input (guides or strands: a Scatter, guides, single points) only says where the clumps are (their roots), each axis the strand it gathers nearest its center's root (the hair as grown there); inputCurves: each axis is the center curve itself (groomed clump curves, a Noise on the centers waving each clump as one). Connecting centers in the Graph Editor sets inputPoints (a Guides node: inputCurves) |
+| `clumpBy` | `count`, `size` | `count` | The clumps it picks among the strands: count: about `count` of them, whatever the scalp's size (re-fitted to the scalp's area: an edit that changes it by more than 1% moves every clump); size: clumps about `size` apart, as many as the scalp holds (a whole body gets more than a head, of the same size; an edit of the scalp changes the clumps only near it) |
+| `pastTip` | `gather`, `extend` | `gather` | A strand longer than its clump's axis: gather: its points past the axis's tip gather at the tip; extend: they go on past it, along the axis's last direction, so long hair keeps its length |
+| `flatAlong` | `surface`, `random`, `direction` | `surface` | Which way a flat clump lies: surface: flat along the scalp; random: turned at random per clump; direction: its width along flatDirection |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Collide
+
+Type `groomCollide`.
+
+Pushes strands out of the scalp and any collider. Best last.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp mesh. |
+| `collider` | geometry | input |  | The scalp mesh. |
+| `offset` | float | input | `0.05` | Distance kept between strands and the surfaces |
+| `maxDepth` | float | input | `3` | Points deeper under a surface than this are not pushed |
+| `softness` | float | input | `0` | Length along the strand, before it meets the collider, over which it curves onto it and then slides along it, its segments' lengths kept, instead of folding flat where it touches (0: a hard push; the scalp's always is) At least 0. |
+| `iterations` | int | input | `2` | Root-to-tip passes Range 1 to 16. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `method` | `field`, `exact` | `field` | field: each surface's signed distance field alone, made once and kept (fast, within a small fraction of the offset of exact; what the GPU preview runs); exact: the closest point on the mesh at every point (the CPU's alone) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Cull
+
+Type `groomCull`.
+
+Thins strands out: bald or thin patches.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `keep` | float | input | `1` | Share of strands kept, 0-1 (mappable: paint thin or bald patches) |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Curl
+
+Type `groomCurl`.
+
+Helical curls around each strand.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `radius` | float | input | `0.5` | Curl radius, scene units (mappable, per point); a coil's is coilWidths |
+| `frequency` | float | input | `0.4` | Turns per unit of length |
+| `randomness` | float | input | `0.3` | Per-strand variation of radius and frequency, 0-1 Range 0 to 1. |
+| `spacingRandom` | float | input | `0` | Smooth random variation of the spacing along each strand (each clump's with coherence clump), 0-1: the frequency varies by up to this share every turn or two Range 0 to 1. |
+| `coilWidths` | float | input | `3` | Coil: its radius in strand widths at each point (the widths the strands carry: put a Width node before it) |
+| `phase` | float | input | `0` | Where along a turn every curl starts, in turns (0-1) |
+| `phaseRandom` | float | input | `1` | How much of a turn each strand's (or clump's) start varies at random, 0-1 Range 0 to 1. |
+| `clumpChannel` | string | input | `clumpId` | Coherence clump: the channel naming each strand's clump (Clump writes clumpId) |
+| `weight` | float | input | `0` | How much each part of a curl stretches under the hair hanging below it, 0 or more: its turns spread apart where more turns hang below them along weightDirection (loose at the root, tight at the tip; long ringlets more than short curls, hair lying across it or pointing up barely), each turn keeping its length, so the radius narrows (an overstretched curl goes straight). 0: none; 1: 10 turns hanging straight below a point double its spacing Range 0 to 10. |
+| `weightDirection` | vector | input | `[0, -1, 0]` | The way the weight pulls (world space): curls stretch where the strands hang along it |
+| `tolerance` | float | input | `0.5` | How far a straight segment may stray from the round curl, a share of its radius: where the points coming in are too few a turn for it, Curl cuts each segment evenly along the smooth strand first (0.5: 3 a turn, so no curl aliases into another; 0.3: 4; 0.1: 7; 0.03: 13; a zigzag more than 2 / tolerance, keeping its kinks' peaks). 0: only the points coming in. Points added take the GPU preview off this node: more Resample segments keep it Range 0 to 1. |
+| `maxSegments` | int | input | `256` | The most segments a strand may have with the points Curl adds Range 1 to 4096. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `shape` | `helix`, `wave`, `zigzag`, `coil` | `helix` | helix: around the strand; wave: a planar sine; zigzag: sharp planar kinks (kinky hair); coil: a tight helix coilWidths strand widths across (coily hair) |
+| `coherence` | `strand`, `clump` | `strand` | strand: each strand curls on its own; clump: the strands of a clump curl together around its middle, with one phase, frequency and plane (ringlets; after a Clump) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Direction
+
+Type `groomDirection`.
+
+Points strands by inclination from the scalp and roll around its normal, at the root.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `inclination` | float | input | `45` | Degrees from the scalp's normal at the root: 0 straight out, 90 flat along the scalp (mappable) |
+| `roll` | float | input | `0` | Degrees around the normal from where roll 0 points (along) (mappable) |
+| `strength` | float | input | `1` | How far each strand turns to its direction, 0-1: that share of the turn (mappable) |
+| `direction` | vector | input | `[0, -1, 0]` | Where roll 0 points (world space), laid onto the scalp at each root |
+| `inclinationRandom` | float | input | `0` | Up to this many degrees more or less inclination per strand At least 0. |
+| `rollRandom` | float | input | `0` | Up to this many degrees more or less roll per strand At least 0. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `along` | `tangent`, `direction` | `direction` | Where roll 0 points: direction: the direction below, laid onto the scalp (no seams); tangent: the scalp's U direction (its UVs, so a UV seam draws a line through the hair; without UVs the direction below) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Displace
+
+Type `groomDisplace`.
+
+Moves strands along the scalp's normal (or a direction): volume off the scalp.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `distance` | float | input | `0.1` | How far each point moves, scene units (mappable, per point; negative: the other way) |
+| `direction` | vector | input | `[0, 1, 0]` | The way strands move (world space; unrooted strands too; or an expression giving a vector per strand) |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `along` | `normal`, `direction` | `normal` | normal: along the scalp's normal at the root; direction: along `direction` |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Feather Color
+
+Type `groomFeatherColor`.
+
+Patterns on feathers (bars, spots, an eye, a painted image), a down color and iridescence. After HairColor.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `1` | How strongly the pattern shows, 0-1 Range 0 to 1. |
+| `melanin` | float | input | `0` | The pattern's pigment, 0 (white) to 1 (black) Range 0 to 1. |
+| `redness` | float | input | `0` | The pattern's redness Range 0 to 1. |
+| `dye` | vector | input | `[1, 1, 1]` | Dye over the pattern's pigment, linear RGB |
+| `count` | float | input | `6` | Bars, chevrons, rows of spots per feather length At least 0.01. |
+| `width` | float | input | `0.4` | Bars, chevrons, spots: the share of each period the shape takes; eye: its diameter (a share of the feather's length); fringe: the share of each barb from its tip |
+| `angle` | float | input | `0` | Degrees: bars' tilt from straight across; chevrons' arms (try 30); an eye's tilt |
+| `sharpness` | float | input | `0.7` | Edges, 0 soft to 1 hard Range 0 to 1. |
+| `offset` | float | input | `0.7` | Along the feather, 0 root .. 1 tip: shifts bars and spots; the eye spot's center |
+| `texture` | string | input |  | With pattern texture: an image of the feather laid flat, the shaft up the middle, the left vane on the left, the root at the bottom; its alpha says where it covers |
+| `textureRight` | string | input |  | Optional: the right vane's own image (texture is then the left vane's), the shaft along the left edge |
+| `offsetRandom` | float | input | `0.2` | Random shift of each feather's pattern, as a share of its spacing (eye: its size) At least 0. |
+| `scaleRandom` | float | input | `0.1` | Random size of each feather's pattern, +/- this share Range 0 to 0.95. |
+| `angleRandom` | float | input | `3` | Random turn of each feather's pattern, +/- degrees |
+| `downColor` | vector | input | `[0.8999999761581421, 0.8799999952316284, 0.8199999928474426]` | The down zone's barbs' color (Propagate's down), linear RGB |
+| `downStrength` | float | input | `1` | How far the down zone's barbs go to downColor, 0-1 Range 0 to 1. |
+| `iridescence` | float | input | `0` | Structural color, 0 none to 1 full (mappable, per point): an angle-dependent sheen the hair shading mixes in (the iridescence channel) Range 0 to 1. |
+| `iridescenceColor` | vector | input | `[0.05000000074505806, 0.550000011920929, 0.20000000298023224]` | The structural color seen face-on (along the strand's normal: a feather's vane), linear RGB. Groom-wide: the first FeatherColor with iridescence sets it for the whole groom |
+| `iridescenceShift` | float | input | `0.3` | How far its hue turns from face-on to edge-on, in turns (+/-). Groom-wide, as iridescenceColor |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `pattern` | `none`, `texture`, `bars`, `chevrons`, `spots`, `fringe`, `eye` | `bars` | A pattern on the feathers in their own flat space: a painted image of the feather, bars, chevrons, spots, an edge fringe or an eye spot, in the pattern color (none: only the down color and iridescence) |
+| `vanes` | `both`, `left`, `right` | `both` | Which vanes the pattern covers (left and right seen from the vane's top, the tip up) |
+| `iridescenceOn` | `all`, `leftVane`, `rightVane`, `pattern`, `notPattern` | `all` | Where the iridescence shows: everywhere, on one vane of a feather, or where the pattern is (or is not) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Flow
+
+Type `groomFlow`.
+
+Lays short hair along the flow arrows on the scalp. The arrows are kept on the groom, laid with the Flow tool (Groom Tools > Create > Flow); GroomLab > Utilities > Delete All Flow Arrows removes them.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `lift` | float | input | `12` | Angle off the skin at the root, degrees (mappable) |
+| `bend` | float | input | `0.6` | How much the angle falls toward the tip, 0-1 (1: the tip lies on the skin) Range 0 to 1. |
+| `rollRandom` | float | input | `6` | Up to this many degrees of random turn of each strand around the scalp's normal, off the flow At least 0. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Flyaway
+
+Type `groomFlyaway`.
+
+Stray hairs leaving the flow. After Clump.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `fraction` | float | input | `0.01` | Fraction of strands that stray (mappable) |
+| `stray` | float | input | `0.75` | How far strays wander from the flow at the tip, scene units (mappable) |
+| `frequency` | float | input | `1.5` | Arcs per strand length |
+| `start` | float | input | `0.25` | Where along the length strays leave the flow, 0 root to 1 tip Range 0 to 0.99. |
+| `standOut` | float | input | `0.5` | How much strays stand out along their root direction, 0-1 Range 0 to 1. |
+| `lengthen` | float | input | `0.15` | Extra length of strays, a fraction of their length (up to) At least 0. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Gravity
+
+Type `groomGravity`.
+
+Bends strands from the root under their weight; stiff at the root (a Collide after it keeps them off the scalp).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `1` | How far strands bend under their weight (mappable): 0 none, 1 hanging, more heavier |
+| `direction` | vector | input | `[0, -1, 0]` | Gravity's direction (world space; or an expression giving a vector per strand: a painted one, vmap("name") * 2 - 1) |
+| `stiffness` | float | input | `1` | Bend stiffness: how much strands resist bending, 0-1, times stiffnessProfile (1 there: not at all) Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Group
+
+Type `groomGroup`.
+
+Names a set of strands (a region, a map, an expression, guide groups) for other nodes' affect to restrict them to.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `name` | string | input | `group1` | The group's name: the strand channel it writes (1 in the group, 0 out, between on soft edges), which an affect map, an expression or a Split reads |
+| `center` | vector | input | `[0, 0, 0]` | The sphere's or box's center (world space) |
+| `radius` | float | input | `1` | The sphere's radius At least 0. |
+| `size` | vector | input | `[1, 1, 1]` | The box's size along x, y and z (world space) |
+| `falloff` | float | input | `0` | A soft edge this wide outside the sphere or box (0: hard) At least 0. |
+| `value` | float | input | `1` | The value tested against the threshold, per strand (mappable: a painted map, a texture, a channel or an expression such as $y > 0) |
+| `guideGroup` | string | input |  | Hierarchy groups (space or comma separated): the strands nearest their guides (and their child groups'), blended from the 4 nearest guides |
+| `threshold` | float | input | `0.5` | In the group from this value up |
+| `softness` | float | input | `0` | A smooth step this wide around the threshold instead of a hard one Range 0 to 1. |
+| `invert` | bool | input | `false` | Everything but the region |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `by` | `sphere`, `box`, `map`, `guideGroup` | `sphere` | What makes the group: the roots inside a sphere or a box; where the value (a map, or an expression bound to it) passes the threshold; or near the guides of hierarchy groups |
+| `at` | `root`, `tip` | `root` | Which point of a strand is tested against the sphere or box |
+| `combine` | `replace`, `add`, `subtract`, `intersect` | `replace` | With a group of the same name made before: replace it, add to it (the larger), subtract from it, or keep where both are (the smaller) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Hair Color
+
+Type `groomHairColor`.
+
+The hair's look: pigment and dye, a map, greys, randomness, a tip color and the highlight (specular, roughness, tilt).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `melanin` | float | input | `0.35` | Pigment, 0 (white, blond) to 1 (black) (mappable) Range 0 to 1. |
+| `redness` | float | input | `0.2` | Share of red pigment (pheomelanin), 0 (brown, black) to 1 (red) (mappable) Range 0 to 1. |
+| `dye` | vector | input | `[1, 1, 1]` | A color dyeing the pigment (white: none): its absorption adds to the pigment's, as aiStandardHair combines its melanin and base color (a Map's rgb output can drive it) |
+| `color` | vector | input | `[0.800000011920929, 0.800000011920929, 0.800000011920929]` | The hair's color, as it shows and renders (white hair: 1, 1, 1); a Map's rgb output plugged in colors each strand by its root (times this color) |
+| `map` | string | input |  | A color read at each root (empty: none): a map painted in Groom Tools > Paint, by name, a color set of that name on the scalp, or an image file at the scalp's UVs. Mode color: it is the color; mode melanin: it dyes the pigment |
+| `greys` | float | input | `0` | Share of strands with almost no pigment: grey and white hairs (mappable) Range 0 to 1. |
+| `melaninRandom` | float | input | `0.1` | Each strand's melanin up to this much more or less, at random Range 0 to 1. |
+| `valueRandom` | float | input | `0` | Each strand's color up to this share lighter or darker, at random Range 0 to 1. |
+| `hueRandom` | float | input | `0` | Each strand's hue turned at random, up to half a turn either way at 1 Range 0 to 1. |
+| `saturationRandom` | float | input | `0` | Each strand's saturation up to this share more or less, at random (grey and white stay neutral) Range 0 to 1. |
+| `clumpShare` | float | input | `0.5` | How much of the randomness the strands of one clump share: 0 each strand its own, 1 the whole clump alike (needs a Clump before HairColor: its clumpChannel) Range 0 to 1. |
+| `clumpChannel` | string | input | `clumpId` | The channel naming each strand's clump, for clumpShare: a Clump's clumpChannel (clumpId by default; with chained Clumps, the one whose clumps should share a color) |
+| `seed` | int | input | `0` | Random seed |
+| `tipColor` | vector | input | `[0.550000011920929, 0.41999998688697815, 0.2800000011920929]` | The color the strands blend toward at the tip (with tipStrength above 0; a Map's rgb output can drive it) |
+| `tipStrength` | float | input | `0` | How far toward tipColor the tips go, 0-1 (mappable, per point: a painted per-point layer or an expression of t paints color along the strands) Range 0 to 1. |
+| `tipOffsetRandom` | float | input | `0` | Each strand's tip color starts up to this share of its length earlier or later, at random Range 0 to 1. |
+| `specular` | float | input | `0.3` | Highlight strength, 0 none to 1 bright (mappable; 0.3 is aiStandardHair's full specular tint) Range 0 to 1. |
+| `specularRandom` | float | input | `0` | Each strand's specular up to this share more or less, at random Range 0 to 1. |
+| `roughness` | float | input | `0.5` | Highlight spread, 0 sharp to 1 broad (mappable) Range 0 to 1. |
+| `roughnessRandom` | float | input | `0` | Each strand's roughness up to this share more or less, at random Range 0 to 1. |
+| `tilt` | float | input | `3` | Cuticle tilt, degrees: how far the highlight and its colored second highlight move apart along the strand (real hair: 2-4) Range -20 to 20. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `melanin`, `color` | `melanin` | What colors the hair: melanin (natural hair: melanin and redness, and a dye) or color (the color you pick, as it shows and renders); PxrHairColor's Physical and Artistic modes |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Instance
+
+Type `groomInstance`.
+
+Copies a mesh (leaves, feathers, beads) along the strands.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `along` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `prototype` | string | input | `instance` | The mesh to instance (its name in the scene); several separated by spaces are variants, one per instance (variantBy) |
+| `variant` | float | input | `0` | variantBy map: which prototype, 0 the first to 1 the last (mappable) Range 0 to 1. |
+| `count` | int | input | `1` | Instances tried per strand Range 0 to 64. |
+| `probability` | float | input | `0.1` | Chance each one is kept, per strand (mappable) |
+| `tMin` | float | input | `0.6` | Nearest the root they sit, 0 root to 1 tip Range 0 to 1. |
+| `tMax` | float | input | `1` | Nearest the tip they sit Range 0 to 1. |
+| `scale` | float | input | `0.02` | Size, scene units (mappable) |
+| `fitScale` | float | input | `1` | Length along +Y, a fraction of the strand's rest length (1: the whole strand) (mappable) |
+| `aspect` | float | input | `0.1` | Width across (X and Z) over the length along +Y (mappable); with fitWidth, over the strand's width At least 0. |
+| `fitWidth` | bool | input | `false` | Across: the strand's width where it sits (times aspect) instead of its length: beads and cuffs round a Braid node's ties, as thick as the braid |
+| `scaleByWidth` | bool | input | `true` | Scale each one by the strand's width where it sits over its root width (the Width node's profile): smaller toward thin tips |
+| `offset` | float | input | `0` | Distance off the strand, scene units |
+| `pinToRest` | bool | input | `false` | Keep each one at a fixed distance from the root, measured on the strand's rest pose, instead of a fraction of its length now: strands that stretch (simulated guides) don't slide them |
+| `scaleRandom` | float | input | `0.3` | Each one's size up to this share more or less, at random Range 0 to 1. |
+| `spinRandom` | float | input | `1` | Random turn about their axis, either way, 0-1 (1: up to half a turn either way: any roll) Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `variantBy` | `random`, `map` | `random` | With several prototypes: random (by each instance's ID and the seed) or map (the variant param, 0-1 over the list) |
+| `sizeMode` | `fixed`, `fitStrand` | `fixed` | fixed (scale: a size in scene units) or fitStrand (each spans its strand: fitScale of the strand's rest length along its +Y, aspect of that across; stable while strands stretch) |
+| `deform` | `none`, `alongStrand` | `none` | none: each one rigid, placed by its frame; alongStrand: bent along its strand (Yeti's instance deform), the prototype's long axis (deformAxis) laid onto the strand from where it sits, facing the vane (a feather's) or the skin: leaves on vines, feather meshes following a shaft, ribbons |
+| `deformAxis` | `x`, `y`, `z` | `y` | deform alongStrand: the prototype's axis laid along the strand (its length); the next two (cyclically) face up and across |
+| `orient` | `strand`, `up`, `root`, `random` | `strand` | strand (along it), up (world up), root (the root direction) or random |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Interpolate
+
+Type `groomInterpolate`.
+
+Grows each root into a strand shaped like the guides around it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `guides` | geometry | input |  | Guide curves. |
+| `scalp` | geometry | input |  | The scalp mesh. |
+| `smoothness` | float | input | `0.5` | How softly the guides blend into one another: 0 sharp (each strand mostly its nearest guide: crisp locks, soft edges), 1 soft (each guide reaching twice as far, its neighbours blended evenly); 0.5 between (2 neighbors or more) Range 0 to 1. |
+| `neighbors` | int | input | `3` | How far each guide reaches: to its neighbors-th nearest guide (times 1.5, scaled by smoothness). 1: every strand takes its nearest guide alone, with hard edges Range 1 to 16. |
+| `guideWeight` | float | input | `1` | How strongly each guide pulls the strands around it against its neighbours, read at its root, 0 or more (mappable: paint where guides pull more or less; a number alone changes nothing, every guide weighed alike: paint it, Groom Tools > Paint > + New Map > Guide weight). 0: a guide that shapes only strands no other guide reaches (2 neighbors or more) At least 0. |
+| `preserveLength` | bool | input | `true` | Scale each blended strand to its guides' blended length (blending guides that point different ways would shorten it; take shape; blend directions keeps it already) |
+| `keepClearance` | bool | input | `true` | Keep strands out of the skin: where the skin under a strand bulges more than under its guides (an ear, a cheek, the neck), the part that would sink in is lifted just onto the skin, its length kept, and past the bulge the strand eases back to its groomed path, so hair drapes over an ear instead of standing off it (take shape; needs the scalp input) |
+| `respectParts` | bool | input | `true` | Never blend guides from the other side of a part |
+| `followSurface` | bool | input | `true` | Measure how far guides reach along the scalp (the scalp input), not in a straight line, so they do not reach across an ear, a fold or a thin shell (the same on a smooth scalp) |
+| `limitDistance` | float | input | `0` | How far guides reach: strands farther from every guide root keep their incoming shape (e.g. from Flow); 0: every strand follows the guides (and falloff and influenceChannel do nothing) At least 0. |
+| `influenceChannel` | string | input | `guideInfluence` | With limitDistance above 0: per-strand channel receiving the guides' influence, 0-1 (empty: none) |
+| `regionMap` | string | input |  | Regions painted on the scalp in colors (empty: none): a strand blends only the guides rooted in its own region, with a hard edge between regions, like a part. Each color guides are rooted on is a region (soft paint between two joins the nearer); a strand in a color no guide is rooted on blends the nearest guides of any region. A map painted in Groom Tools > Paint by name, a color set of that name on the scalp, or an image file at the scalp's UVs |
+| `regionChannel` | string | input | `region` | With a regionMap: per-strand channel receiving each strand's region number (-1: none), which Clump, BlendNeighbors and Tangle keep within (empty: none) |
+| `fillTubes` | bool | input | `false` | Fill the guides' tubes (tube guides: a hierarchy's guides with their sections and shape): a strand rooted inside a guide's tube takes its place in the tube's section there and keeps it to the tip, so it stays inside the tube as it flattens, twists and tapers, and is as long as the guide, instead of blending the nearest guides. Where tubes overlap, the one it lies most centrally in; strands rooted in no tube blend as ever. Writes tubeId, tubeU and tubeV, which Clump's followTubes clumps inside each tube by (take shape) |
+| `tubeBlend` | float | input | `0.25` | With fillTubes: the tubes' soft edge, as a share of each tube's half-width at its root. Strands rooted outside a tube but within this of its outline lean from the guides' blend toward riding the tube, all the way at the outline and not at all at the edge, so no seam shows round a tube; 0: a hard edge Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `blend` | `offsets`, `directions` | `directions` | How the guides' shapes combine: offsets: their points averaged (guides pointing different ways pull the strand in, preserveLength scales it back); directions: each segment along their segments' average way, at their average length (no pulling in; a strand between two parted guides keeps their length) |
+| `take` | `shape`, `length` | `shape` | shape: the guides' shape and length; length: each strand keeps its own shape and takes the guides' length |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Length
+
+Type `groomLength`.
+
+Trims strands to a share of their length.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `keep` | float | input | `1` | Share of each strand's length kept from the root, 0-1 (mappable; to lengthen, Transform's scale) Range 0 to 1. |
+| `fraction` | float | input | `1` | Share of the strands trimmed at random, 0-1 (mappable) |
+| `randomness` | float | input | `0` | The most share of its kept length a strand trimmed at random loses, 0-1: each loses up to this (0: no random trim) Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Merge
+
+Type `groomMerge`.
+
+Combines two sets of strands.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | geometry | input |  | Strand curves. |
+| `b` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `blend` | float | input | `0` | Where a and b meet, strands this close to the other side take on its shape, meeting halfway at the seam (0: no blending; nothing on b: a passes through) |
+| `strength` | float | input | `1` | How far the shapes meet at the seam, 0-1 Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Mesh Cut
+
+Type `groomMeshCut`.
+
+Cuts strands where they cross a mesh: an obstacle, or a haircut's hull.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `mesh` | geometry | input |  | The scalp mesh. |
+| `offset` | float | input | `0` | Cut this much shorter than the crossing, along the strand At least 0. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `keep` | `outside`, `inside` | `outside` | outside: the mesh is an obstacle, strands are cut where they first go into it; inside: the mesh is a hull (a haircut's shape), strands are cut where they first come out of it. A strand rooted on the side cut away is cut to nothing (with nothing on the mesh input the strands pass through) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Mirror
+
+Type `groomMirror`.
+
+Mirrors guides or strands across a plane: groom one half, get both.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `offset` | float | input | `0` | Where the plane crosses that axis (scene units) |
+| `reattach` | bool | input | `true` | Root each mirrored strand again on the scalp where its mirrored root lands |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `axis` | `x`, `y`, `z` | `x` | The plane's normal: x, y or z |
+| `mode` | `replace`, `add` | `replace` | replace: the side's strands mirrored onto the other side, which loses its own; add: every strand's mirror added |
+| `side` | `positive`, `negative` | `positive` | Replace: the side kept and mirrored (by the roots) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Noise
+
+Type `groomNoise`.
+
+Random displacement; on a fraction of the strands at a high frequency, frizz.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `amplitude` | float | input | `0.2` | Displacement size, scene units (mappable, per point) |
+| `frequency` | float | input | `3` | Features per scene unit (world) or per strand length (strand) |
+| `octaves` | int | input | `1` | Fractal octaves Range 1 to 8. |
+| `fraction` | float | input | `1` | Share of the strands that get it, 0-1 (mappable): a few, at a high frequency, for frizz |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `space` | `strand`, `world` | `strand` | strand: independent per strand; world: coherent across strands |
+| `mode` | `smooth`, `kinky` | `smooth` | smooth: waves; kinky: sharp kinks, straight between random offsets frequency apart (scraggle, frizz) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Part
+
+Type `groomPart`.
+
+Opens a gap along the parts drawn on the scalp.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `width` | float | input | `1.5` | Distance from the part over which strands lean away (scene units) At least 1e-06. |
+| `strength` | float | input | `1` | How far strands at the part turn away from it, 0-1 (mappable) Range 0 to 1. |
+| `part` | string | input |  | Only this part (empty: every part) |
+| `splitAngle` | float | input | `90` | How sharply the hair must split to make a part: the angle between its flow on the two sides of the line, degrees (lower finds softer partings) Range 1 to 180. |
+| `minLength` | float | input | `0.15` | The shortest part kept, as a share of the scalp's size (the square root of its area): shorter splits, like a whorl's center, are left alone Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `partsFrom` | `painted`, `auto` | `painted` | Where the parts come from: painted: the lines drawn with the Part tool; auto: found where the hair it takes splits on the scalp, flowing away to both sides of a line (a parting combed into the guides) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Plume
+
+Type `groomPlume`.
+
+Lays feathers over one another (by a rank) and off the body: no vane through another.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `collider` | geometry | input |  | The scalp mesh. |
+| `offset` | float | input | `0.01` | Gap kept between a feather and each lower-ranked feather under it At least 0. |
+| `bodyOffset` | float | input | `0.005` | Gap kept between the feathers and the body (the scalp, and the collider input) At least 0. |
+| `direction` | vector | input | `[0, 0, 0]` | rootDistance: feathers rooted farther along this lie on top. (0, 0, 0): each two neighbouring feathers against their mean direction, so each feather's tip lies over the base of the one behind it (roof tiles), wherever the feathers point |
+| `rankChannel` | string | input |  | channel: the strand channel ranking the feathers (its shaft's value) |
+| `invert` | bool | input | `false` | Turn the order over: the feathers that would lie on top lie underneath |
+| `iterations` | int | input | `4` | Passes per feather: each turns it by what its points still need Range 0 to 32. |
+| `stiffness` | float | input | `1` | 1: each feather turns as a rigid whole about its root; 0: it bends, each part only as much as the contacts up to it need Range 0 to 1. |
+| `maxAngle` | float | input | `60` | The most a feather turns up off the body, degrees Range 0 to 180. |
+| `depth` | float | input | `0` | How far under a lower feather a point is still lifted over it (scene units; 0: a quarter of that feather's length) At least 0. |
+| `strength` | float | input | `1` | How much of its turn each feather takes, 0-1 (mappable, per feather: its shaft's value) Range 0 to 1. |
+| `seed` | int | input | `0` | rankBy random: the seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `rankBy` | `rootDistance`, `length`, `channel`, `random` | `rootDistance` | Which feathers lie on top: rootDistance (roots farther along `direction`), length (shorter feathers over longer ones: coverts over flight feathers), channel (a higher rankChannel value) or random |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Propagate
+
+Type `groomPropagate`.
+
+Grows barbs off every strand it is fed (the shafts): feathers, ferns, plumes.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shafts` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `count` | int | input | `40` | Barbs per side, spread evenly from start to end (around: twice this, spiralling round the shaft) Range 0 to 100000. |
+| `start` | float | input | `0.15` | Where barbs begin along the shaft, 0 root .. 1 tip Range 0 to 1. |
+| `end` | float | input | `1` | Where barbs end along the shaft, 0 root .. 1 tip Range 0 to 1. |
+| `segments` | int | input | `6` | Segments per barb Range 1 to 256. |
+| `length` | float | input | `0.3` | Barb length at the widest point of the vane (mappable, per shaft) At least 0. |
+| `asymmetry` | float | input | `0` | Left vane shorter, right longer (-1..1): flight feathers Range -1 to 1. |
+| `angle` | float | input | `50` | Degrees from the shaft toward the barb's side (mappable, per shaft); 90: straight out |
+| `curl` | float | input | `20` | Degrees each barb bends within the vane over its length (positive: toward the tip) |
+| `lift` | float | input | `0` | Degrees the barbs rise out of the vane at the shaft (toward the scalp normal) |
+| `droop` | float | input | `10` | Degrees the barbs bend down out of the vane over their length (a cupped vane; around: back toward the root) |
+| `splits` | float | input | `0` | Groups per vane: neighbouring barbs gather into about this many groups, as in a ruffled feather (0 or 1: none); written to clumpId At least 0. |
+| `splitAmount` | float | input | `0.6` | How far the barbs of a split gather toward its middle barb at their tips, 0-1 Range 0 to 1. |
+| `lengthRandom` | float | input | `0.1` | Each barb's length up to this share more or less, at random Range 0 to 1. |
+| `angleRandom` | float | input | `3` | Up to this many degrees more or less angle per barb, at random |
+| `down` | float | input | `0` | The down zone (afterfeather): from start up to this far along the shaft (0 root .. 1 tip) the barbs are soft and curly, the vane's begin past it (0: none); isDown 1 on them, for FeatherColor's downColor Range 0 to 1. |
+| `downCount` | int | input | `20` | Down barbs per side in the down zone (around: twice this) Range 0 to 100000. |
+| `downLength` | float | input | `1` | Down barbs' length, times the vane's there At least 0. |
+| `downCurl` | float | input | `140` | Degrees each down barb curls over its length |
+| `downFrizz` | float | input | `25` | Degrees of random kink at every segment of a down barb, in and out of the vane At least 0. |
+| `downSegments` | int | input | `12` | Segments per down barb Range 1 to 256. |
+| `width` | float | input | `0` | Barb width (0: the shaft's width where the barb grows) At least 0. |
+| `keepShaft` | bool | input | `true` | Keep the shafts in the output (isShaft 1) |
+| `shaftWidth` | float | input | `0` | The rachis's width at the root (0: none): the shafts become tubes of this width, a mesh to skin into the character (groomLabShape's outRachis) for engines At least 0. |
+| `shaftSides` | int | input | `6` | Sides of the rachis tube (2: a flat ribbon in the vane plane) Range 2 to 32. |
+| `shaftSegments` | int | input | `0` | Segments of the rachis tube along the shaft, on a smooth curve through the shaft's points, so a shaft of few points still makes a round rachis (0: one a shaft point) Range 0 to 256. |
+| `rootOnShaft` | bool | input | `true` | With a shaftWidth: barbs start on the rachis's surface, not its center line, so an engine binds them to their own rachis |
+| `groupId` | int | input | `0` | The groom group the feathers export in (written to groupId; 0: not set). Unreal gives each group its own material, LODs and physics Range 0 to 1048576. |
+| `groupName` | string | input |  | The group's name in engines (groom_group_name) |
+| `seed` | int | input | `0` | Random seed |
+| `barbs` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `sides` | `both`, `left`, `right`, `around` | `both` | Where barbs grow: both sides of the vane, one side, or all around the shaft (plumes, down) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Render Data
+
+Type `groomRenderData`.
+
+Render controls per strand for the shader: opacity along the strands.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `opacity` | float | input | `1` | How opaque each strand is, 0-1 (mappable), times opacityProfile Range 0 to 1. |
+| `opacityRandom` | float | input | `0` | Each strand up to this share less opaque, at random Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Resample
+
+Type `groomResample`.
+
+Evens out the points along each strand.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `segments` | int | input | `16` | Segments per strand (points = segments + 1); every Scatter before it grows its strands with them (the most any Resample after it, on the way to the Output, asks for). 0: keep each strand's. Braided strands keep the points their weave is drawn with (Braid's resolution) Range 0 to 1024. |
+| `minSegments` | int | input | `3` | With length or curvature: the fewest segments a strand gets At least 1. |
+| `maxAngle` | float | input | `15` | With curvature: about how far (degrees) a strand may turn per segment; smaller keeps curls rounder with more points At least 0.5. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `even`, `curvature`, `length` | `even` | even: segments for every strand; curvature: fewer points for render and export, fewer for straighter strands, placed where they bend; length: fewer for shorter strands |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Restore Length
+
+Type `groomRestoreLength`.
+
+Gives strands their length back after deformers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `reference` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `segments`, `scale`, `even` | `segments` | segments: each segment's length from the reference, along the deformed directions; scale: the whole strand scaled about its root to the reference's length; even: the strand's own points respaced evenly (no reference needed) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Scales
+
+Type `groomScales`.
+
+A scale at each strand's root, lying on the skin along the strand: reptile skin, armor plates.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `prototype` | string | input | `groomlab:scale` | The plate (a mesh's name in the scene); several separated by spaces are variants, one per scale (variantBy). Built in: groomlab:scale, groomlab:scaleRound, groomlab:scaleShield |
+| `variant` | float | input | `0` | variantBy map: which prototype, 0 the first to 1 the last (mappable) Range 0 to 1. |
+| `size` | float | input | `1` | Each scale's size: times its strand's length along and its root width across (mappable) |
+| `aspect` | float | input | `0.1` | Width over length for strands without widths (mappable) At least 0. |
+| `lift` | float | input | `0` | Degrees each tip turns up off the skin, along the flow (on top of tile's rise) |
+| `tile` | float | input | `1` | How far each tip rises over the next scale's base, in plate heights (1: by its own height, as roof tiles; 0: flat; lift turns it further). Overlap comes from the density and the strands' length At least 0. |
+| `stack` | float | input | `0.02` | A random height of their own, a fraction of the plate's: overlapping scales never share a depth (no z-fighting) Range 0 to 1. |
+| `conform` | bool | input | `true` | Bend each onto the skin, every vertex at its height above the surface under it |
+| `offset` | float | input | `0` | Their height above the skin, scene units |
+| `showStrands` | bool | input | `false` | The strands draw and render too (off: they only lay the scales out) |
+| `material` | string | input |  | The shading group or shader they render with (empty: the prototype mesh's own; the built-in plates a surface reading the scaleColor user data) |
+| `scaleRandom` | float | input | `0.1` | Each scale's size up to this share more or less, at random Range 0 to 1. |
+| `spinRandom` | float | input | `0` | Random turn about the skin's normal, either way, 0-1 (1: half a turn) Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `variantBy` | `random`, `map` | `random` | With several prototypes: random (by each scale's ID and the seed) or map (the variant param, 0-1 over the list) |
+| `follow` | `skin`, `strand` | `skin` | skin (flat on the skin, tilted by lift and tile) or strand (the base on the skin, the rest bent along the strand's curve over the plate's length: swept scales, spikes and quills that follow the groom) |
+| `aim` | `tip`, `root` | `tip` | Flat on the skin: which way each points, toward its strand's tip (root to tip) or root (the strand's direction near its root: strands that curl back). follow strand always aims by the root |
+| `preview` | `auto`, `meshes`, `quads` | `auto` | In the viewport: auto (their meshes, flat quads past the viewport's budget), meshes or quads (fast while grooming); renders always take the meshes |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Scatter
+
+Type `groomScatter`.
+
+Roots over the scalp: how many hairs, and where.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `scalp` | geometry | input |  | The scalp mesh. |
+| `guides` | geometry | input |  | Guide curves. |
+| `density` | float | input | `80` | Strands per unit area (mappable: texture, color set, expression, guide layer) At least 0. |
+| `seed` | int | input | `0` | Random seed |
+| `length` | float | input | `1` | Length of the straight strands grown along the scalp's normal. An Interpolate after it gives the strands the guides' shapes and lengths, so with guides this shows only where no guide reaches; to make hair longer or shorter, brush the guides or trim with the Length node |
+| `randomness` | float | input | `1` | How random the roots are: 0 evenly spread (blue noise), 1 at random (white noise); in between each root moves smoothly from its even spot to its random one. The same strands at every value Range 0 to 1. |
+| `gridRows` | int | input | `100` | uvGrid: rows of the grid, along V Range 1 to 20000. |
+| `gridColumns` | int | input | `100` | uvGrid: columns of the grid, along U Range 1 to 20000. |
+| `gridRandom` | float | input | `0` | uvGrid: each root moved at random up to this share of its cell Range 0 to 1. |
+| `previewAll` | bool | input | `false` | Every root in the viewport too, whatever the groom's preview density: for big pieces (instances, scales) that a thinned preview would leave bald. A scatter making 250 strands or fewer is never thinned anyway |
+| `guideRadius` | float | input | `0` | Only within this distance of a guide's root (the guides input, every level of its groups: primaries and their children): fur along drawn guides, a patch, a stripe. 0, or nothing connected to guides: the whole scalp At least 0. |
+| `tubeMargin` | float | input | `0` | With guideRadius: guides whose tube has a shape keep the roots on their tube's root footprint (its outline laid on the scalp) instead of a disc, and within this share of the tube's half-width round it (as Interpolate's tubeBlend measures) At least 0. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `layout` | `random`, `uvGrid` | `random` | random: roots at random (randomness 0 spreads them evenly); uvGrid: one per cell of a grid over the scalp's UVs (rows x columns; density maps thin it) |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Self Collide
+
+Type `groomSelfCollide`.
+
+Hair no longer passes through itself: where it is packed tighter than it can be, it is pushed apart, so layers rest on one another.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `1` | How far overpacked hair is pushed apart, 0-1 (mappable): 1 spreads it to the packing, 0 leaves the strands as they came Range 0 to 1. |
+| `packing` | float | input | `0.3` | The share of space hair may fill, 0-1: where it is packed tighter it is pushed apart. Lower gives more volume (real hair packs to about 0.2 to 0.5) Range 0.01 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Smooth
+
+Type `groomSmooth`.
+
+Takes out bumps up to a size (a share of the length; 1 straightens), keeping lengths and roots.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `1` | How far toward the smoothed shape, 0-1, lengths kept (mappable) Range 0 to 1. |
+| `scale` | float | input | `0.09` | The size of the bumps it takes out, as a share of the strand's length: small takes out kinks, 1 straightens the strand along the line from its root to its tip Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Split
+
+Type `groomSplit`.
+
+Sends each strand to one of four outputs by share or by a map: several designs on one set.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `weightA` | float | input | `1` | Share of the strands sent to a At least 0. |
+| `weightB` | float | input | `1` | Share of the strands sent to b At least 0. |
+| `weightC` | float | input | `0` | Share of the strands sent to c At least 0. |
+| `weightD` | float | input | `0` | Share of the strands sent to d At least 0. |
+| `select` | float | input | `1` | With mode map: a 0-1 value per strand, where it falls among the shares picks the output (mappable: a painted map, a channel) Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `a` | geometry | output |  |  |
+| `b` | geometry | output |  |  |
+| `c` | geometry | output |  |  |
+| `d` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `random`, `map` | `random` | random: each strand's output picked by its ID; map: by select |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Static
+
+Type `groomStatic`.
+
+Hair charged with static repels itself, like dry winter hair: strands spread, the outer layer puffs out, tips lift and locks fray.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `strength` | float | input | `0.5` | How charged the hair is (mappable): strands spread apart, the outer layer puffs out and the tips lift away; 0 leaves the strands as they came At least 0. |
+| `randomness` | float | input | `0.5` | How much the charge varies between strands, 0-1: some strands fly farther Range 0 to 1. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Subdivide
+
+Type `groomSubdivide`.
+
+Smooth strands from few points: each level doubles the segments along a smooth curve through them. Put it last.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `levels` | int | input | `2` | Renders and exports: each level doubles the segments, a smooth curve through the points (0: as they come) Range 0 to 4. |
+| `viewportLevels` | int | input | `1` | The viewport's levels (fewer draws faster; while a param is dragged none, so the GPU previews the nodes before it) Range 0 to 4. |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Switch
+
+Type `groomSwitch`.
+
+Picks one of two inputs: look variants.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | geometry | input |  | Strand curves. |
+| `b` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `index` | int | input | `0` | 0: pass a, 1: pass b |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Tangle
+
+Type `groomTangle`.
+
+Strands stuck together: mats and wet hair.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `fraction` | float | input | `0.5` | Fraction of strands that stick to a neighbor (mappable) |
+| `radius` | float | input | `0.4` | How far apart the roots of stuck strands can be, scene units At least 1e-06. |
+| `strength` | float | input | `0.8` | How close stuck strands come, 0-1 (1: they meet) (mappable) Range 0 to 1. |
+| `start` | float | input | `0.3` | Where along the length spans can begin, 0 root to 1 tip Range 0 to 1. |
+| `span` | float | input | `0.4` | Length of the stuck span, a fraction of the strand Range 0.01 to 1. |
+| `clumpChannel` | string | input | `clumpId` | Strands stick only to strands of their own clump (this channel, which a Clump writes), never across the gap to the next clump; empty, or a channel the strands lack: across clumps |
+| `regionChannel` | string | input | `region` | Channel numbering each strand's region (an Interpolate's regionMap writes region): strands stick only to strands of their own region; empty, or a channel the strands lack: across regions |
+| `reach` | float | input | `0.25` | How far a strand is pulled to its partner at most, scene units: farther apart there, they do not stick (0: no limit) At least 0. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### To Guides
+
+Type `groomToGuides`.
+
+Strands become guides, for nodes that follow guides.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `fraction` | float | input | `1` | Fraction of the strands that become guides, chosen by ID (stable), of those every preview holds (all of a small or unthinned set) Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed for the choice |
+| `channels` | bool | input | `true` | Carry strand channels over as guide attributes (point channels as per-point layers) |
+| `color` | vector | input | `[0.25, 0.8500000238418579, 0.550000011920929]` | The color these guides draw in when they are shown as guides (a Sculpt node after this one), linear RGB |
+| `guides` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### To Mesh
+
+Type `groomToMesh`.
+
+What it is handed as a polygon mesh that follows the animation: the strands as tubes or ribbons, the scales as their plates, feathers as barbs and rachis, cards, instances. Show it in the viewport, put it in the scene or export it (OBJ, FBX, Alembic): for ZBrush, baking, printing or a renderer without curves.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `sides` | int | input | `4` | A tube's sides Range 3 to 64. |
+| `widthScale` | float | input | `1` | Times each point's width (the strand's diameter) Range 0.0001 to 1000. |
+| `density` | float | input | `1` | The share of the strands evaluated for the mesh (as the preview density thins them: a subset of a higher density's) Range 0.0001 to 1. |
+| `maxStrands` | int | input | `20000` | At most this many strands make the mesh (by ID, as density picks them; 0: all). Tube meshes are heavy: 4 sides make about 4 vertices per strand point Range 0 to 100000000. |
+| `strandUVs` | bool | input | `false` | A second UV set (strandUVs) laying every strand out in its own cell of a grid, for baking per strand |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `make` | `auto`, `strands`, `scales`, `feathers`, `cards`, `instances` | `auto` | What the mesh is made of. auto: the scales when there are some, else other instances, else cards (a Cards node before it), else feathers (barbs and rachis), else the strands; strands: tubes or ribbons round every strand; scales: the scales' plates bent onto the skin; feathers: the barbs as tubes or ribbons and the rachis tubes; cards: the Cards nodes' cards, in one atlas; instances: every instance's mesh where it sits |
+| `style` | `tube`, `ribbon` | `tube` | tube: a closed tube round each strand (sides around, a fan at the tip); ribbon: a flat strip lying along the scalp |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### To Strands
+
+Type `groomToStrands`.
+
+Guides become strands: render them, or merge them in.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `guides` | geometry | input |  | Guide curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `segments` | int | input | `0` | Segments per strand (0: each guide's own points) Range 0 to 256. |
+| `width` | float | input | `0.005` | Strand width until a Width node sets it At least 0. |
+| `channels` | bool | input | `true` | Carry the guides' painted maps over as strand channels |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Transform
+
+Type `groomTransform`.
+
+Moves, turns and scales strands about their roots (or the whole set), with randomness.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `translate` | vector | input | `[0, 0, 0]` | Move, scene units: along the root's frame (strand) or world axes (world) |
+| `rotate` | vector | input | `[0, 0, 0]` | Turn, degrees about x, then y, then z: the root's frame's axes (strand) or the world's through the pivot (world) |
+| `scale` | float | input | `1` | Uniform scale about the root (strand) or the pivot (world) (mappable) At least 0. |
+| `pivot` | vector | input | `[0, 0, 0]` | World: the point the set turns and scales about |
+| `translateRandom` | vector | input | `[0, 0, 0]` | Up to this much more or less move per strand, per axis, scene units |
+| `rotateRandom` | vector | input | `[0, 0, 0]` | Up to this many degrees more or less turn per strand, per axis |
+| `scaleRandom` | float | input | `0` | Each strand's scale up to this share more or less, at random Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `space` | `strand`, `world` | `strand` | strand: each strand about its own root, in its root's frame (x along the scalp's U, y its normal, z across); world: the whole set about the pivot, in world axes |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Twist
+
+Type `groomTwist`.
+
+Twists strands around a lock or clump: ropes, twisted locks.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `axes` | geometry | input |  | Guide curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `turns` | float | input | `1` | Turns around the axis per unit of its length; negative turns the other way (mappable) |
+| `clumpChannel` | string | input | `clumpId` | With nothing on the axes input: strands sharing this channel (a Clump's clumpChannel) twist around their core strands' mean (those every preview holds). Unused while axes are connected |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Wet
+
+Type `groomWet`.
+
+Wet hair: small clumps near the root merging into bigger ones toward the tip, from one wetness slider.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `wetness` | float | input | `0.7` | How wet the hair is, 0-1: small clumps near the root merging into bigger ones toward the tip, forming closer to the root and tighter the wetter it is. 0: dry, the strands as they came (animate it from 1 to 0 to dry the hair out) Range 0 to 1. |
+| `clumpSize` | float | input | `1.5` | The biggest clumps' size (at the tips): about how far apart their centers are, as Clump's size; each smaller level is half the one above At least 0. |
+| `levels` | int | input | `3` | How many sizes of clump nest inside one another, each half the size of the one above, the smallest forming nearest the root Range 1 to 5. |
+| `randomness` | float | input | `0.3` | How random the clumps' centers are: 0 evenly spread, 1 at random (some side by side), up to 2. As Clump's Range 0 to 2. |
+| `clumpChannel` | string | input | `clumpId` | Per-strand channel receiving the biggest clumps' numbers (what a Cards, Twist or HairColor's clumpShare after it follows); each smaller level writes it with the level's halvings after it (clumpId1, clumpId2...). Empty: none |
+| `seed` | int | input | `0` | Random seed for the clumps' centers |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Width
+
+Type `groomWidth`.
+
+Strand thickness, root to tip.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `width` | float | input | `0.007` | Width, scene units (mappable, per point: e.g. an expression of t or a point channel) |
+| `randomness` | float | input | `0` | Per-strand variation of the width, 0-1: up to that share thinner or thicker Range 0 to 1. |
+| `seed` | int | input | `0` | Random seed |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
+### Wind
+
+Type `groomWind`.
+
+Strands bend along a wind moving through space and time. Play the timeline to see it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strands` | geometry | input |  | Strand curves. |
+| `scalp` | geometry | input |  | The scalp the strands grow on: what the node measures them against. |
+| `seconds` | float | input | `0` | Time in seconds; link Scene Time to animate. |
+| `direction` | vector | input | `[1, 0, 0]` | Where the wind blows to (world space) |
+| `strength` | float | input | `0.3` | How far strands bend with the wind, 0-1 (mappable); 0: no wind |
+| `gust` | float | input | `0.5` | How much the wind varies over space and time, 0-1 (0: steady) Range 0 to 1. |
+| `frequency` | float | input | `0.1` | Gust size: noise features per scene unit (smaller: broader gusts) At least 0. |
+| `speed` | float | input | `20` | How fast the gusts travel with the wind, scene units per second |
+| `turbulence` | float | input | `0.2` | A fast small flutter growing toward the tips, 0-1 At least 0. |
+| `loop` | bool | input | `false` | Repeat the wind every loopEnd - loopStart frames, seamlessly: a looping animation (the gusts repeat speed x the loop's length apart along the wind) |
+| `loopStart` | int | input | `1` | The frame the loop starts at |
+| `loopEnd` | int | input | `49` | The frame the loop ends at: the wind there is the wind at loopStart (after loopStart; else no loop) |
+| `seed` | int | input | `0` | Another wind with the same settings |
+| `out` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `params` |  |  | Other params as a groom graph's JSON holds them (ramps, maps); the sockets above win. |
+
 ## Input
 
 ### Active Camera
