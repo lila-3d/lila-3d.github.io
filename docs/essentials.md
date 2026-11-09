@@ -288,6 +288,8 @@ A live bevel that picks the edges for you: folds sharper than **Min Angle**, fil
 - **Show Edges** keeps the picked edges highlighted when the modifier isn't selected.
 - **Complete Corners** adds the loops that join folds meeting at an angle.
 
+**The bevel is narrower than Offset.** **Clamp** shrinks the whole bevel so no face runs out of room; the modifier's status shows the offset it used. The picked edges are coloured by how much they hold it back: red edges set the offset, blue ones leave it alone. Remove the red edges with **Edit Edges**, or turn off **Clamp**.
+
 ![Auto Bevel: the input, the edges it picks, and the result](images/essentials/auto-bevel.png)
 
 ### Split Rings
