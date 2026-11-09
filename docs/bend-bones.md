@@ -38,14 +38,14 @@ The result reports the fit error (`rmse`, `maxError`, cm) and the Unreal round-t
 
 ### Live in Unreal
 
-To bend the mesh in Unreal exactly as it bends here, rather than with the baked skin, run `unrealBendBones` after exporting the baked mesh. LilaLink binds the skeletal mesh's LOD 0 to the chains and makes the **Lila Bend Bones** Deformer Graph (`/Game/Lila/DG_LilaBendBones`) its default deformer. The baked skin stays the fallback wherever the deformer doesn't run.
+To bend the mesh in Unreal exactly as it bends here, rather than with the baked skin, run `unrealBendBones` after exporting the baked mesh. LilaLink binds every LOD of the skeletal mesh to the chains and makes the **Lila Bend Bones** Deformer Graph (`/Game/Lila/DG_LilaBendBones`) its default deformer. The baked skin stays the fallback wherever the deformer doesn't run.
 
 ```python
 exportFbx("Leg.fbx", "root", "Leg", kind="skeletal", deformOnly=False)
 unrealBendBones("Leg", skeletalMesh="/Game/Characters/Leg")
 ```
 
-Export with `deformOnly=False`: the bake leaves the chain joints unskinned, and the deformer needs them in Unreal. The result reports how many vertices were bound and matched a Lila point (`matched`), and how far the reference pose sits from Lila's rest (`restError`, cm).
+Export with `deformOnly=False`: the bake leaves the chain joints and bone CVs unskinned, and the deformer needs them in Unreal. Each bone CV goes as a bone named after it, so moving or keying it bends the mesh there as it does here. The result reports how many vertices were bound and matched a Lila point (`matched`, and per LOD in `lods`), and how far the reference pose sits from Lila's rest (`restError`, cm).
 
 ## Troubleshooting
 
@@ -59,7 +59,9 @@ Export with `deformOnly=False`: the bake leaves the chain joints unskinned, and 
 
 **unrealBendBones warns that vertices have no Lila point.** The mesh in Unreal isn't the exported bind pose mesh (it was edited, or exported in another pose). Those vertices take the nearest chains' weights. Export the mesh again in its bind pose.
 
-**Only LOD 0 bends.** Other LODs keep the baked skin.
+**A lower LOD bends a little differently.** Its vertices that aren't on a Lila point take the nearest point's chain weights; `lods` in the result says how many matched. Generate LODs from the bind pose mesh to keep them close.
+
+**"bone CV ... isn't in the skeleton".** The CV didn't reach Unreal, so it rides its bone as at rest. Export again with `deformOnly=False`.
 
 **"ends its chain, so it has no bone after it".** A bone CV goes on a bone's first joint; the last joint of a chain has no bone.
 

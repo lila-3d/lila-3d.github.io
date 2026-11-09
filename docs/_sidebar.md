@@ -70,6 +70,7 @@
   - [Weight painting](weight-painting.md)
   - [Creature rigging](creature-rigging.md)
   - [Bend Bones](bend-bones.md)
+  - [Soft Net](soft-net.md)
   - [Rigid bind](rigid-bind.md)
   - [Destruction](destruction.md)
 - <span class="nav-label">Lighting and rendering</span>

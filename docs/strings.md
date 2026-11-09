@@ -79,7 +79,7 @@ lineOfAction("manny", line="body", stroke=[[0, 95, 0], [0, 130, 12], [0, 160, 40
 
 ## Unreal
 
-To pose the character in Unreal the same way, map its root to the skeletal mesh (`unrealMap`) and run `unrealStringsRig("manny")`. LilaLink makes a Control Rig `CR_<mesh>_Strings` beside the mesh with a control on the hips, each limb and line end and each contact (`LS_<bone>`); dragging one poses its bone through a **Lila Strings Full Body** node that holds the contacts. Swap a node for **Lila Strings Forward**, **Backward** or **IK** to change how that control poses. `stringsRuleWeb("manny", file="manny_rules.json")` writes the rules the nodes read.
+To pose the character in Unreal the same way, map its root to the skeletal mesh (`unrealMap`) and run `unrealStringsRig("manny")`. LilaLink makes a Control Rig `CR_<mesh>_Strings` beside the mesh with a control on the hips, each limb and line end and each contact (`LS_<bone>`); dragging one poses its bone through a **Lila Strings Full Body** node that holds the contacts. Swap a node for **Lila Strings Forward**, **Backward** or **IK** to change how that control poses. The nodes solve exactly as Lila does, so the same drag gives the same pose in both. Every control is a goal on every evaluation: a control left where it was holds its bone there. `stringsRuleWeb("manny", file="manny_rules.json")` writes the rules the nodes read.
 
 ## Troubleshooting
 
@@ -94,5 +94,9 @@ To pose the character in Unreal the same way, map its root to the skeletal mesh 
 **A breakdown says there is no previous or next key.** The joints have no key on that side of the current frame.
 
 **"nothing given is animated" from Retime Range.** The selected joints have no keys. Select the character or its keyed joints.
+
+**Dragging one control in Unreal pulls another limb back.** The other limb's control still holds its old place. Move that control with it, or remove its node from the rig.
+
+**"No bone named ..., which the rule web poses" in the Control Rig.** The skeletal mesh lacks a joint Lila poses. Export the skeleton with every deform joint, then run `unrealStringsRig` again.
 
 **"give skeletalMesh" from unrealStringsRig.** The character's root isn't mapped to a skeletal mesh. Map it with `unrealMap`, or pass `skeletalMesh="/Game/..."`.

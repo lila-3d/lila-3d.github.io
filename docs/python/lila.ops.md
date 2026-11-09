@@ -10756,6 +10756,24 @@ Add a soft modification handle: moving, rotating or scaling the handle moves nea
 | `radius` |  | float |  | Falloff radius, cm. Default: a quarter of the meshes' size. |
 | `name` |  | str |  | Name for the deformer. |
 
+### softNet
+
+Make a Soft Net on a mesh from its Panel Layout: the layout's lines become curves bound to the surface as it is (no cuts), every junction a knot with a control riding the surface under the net. Added on top of the stack, so it shapes the skinned mesh. Move, turn, scale or key the knot controls. Returns {softNet, knots, samples}.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layout` | `ly` | str |  | The Panel Layout whose lines make the net; default the mesh's topmost. |
+| `reach` | `r` | float | `0.0` | How far from a line the surface follows it, cm; 0 is a sixth of the mesh's size. |
+| `stiffness` | `st` | float | `1.0` | How closely the surface meets the lines. |
+| `spacing` | `sp` | float | `0.0` | Distance between line samples, cm; 0 is twice the layout's. |
+| `name` | `n` | str |  | Name for the deformer. |
+
+```python
+softNet("Mochi", reach=4.0)
+```
+
 ### softSelectCurve
 
 Set or query the soft select falloff curve (weight against distance from the selection, 0 at the selection, 1 at the radius). With no flags it returns the current curve.
@@ -12208,7 +12226,7 @@ Not undoable.
 
 ### unrealBendBones
 
-Bend the mesh in Unreal live as bend bones bend it here: LilaLink binds the skeletal mesh's LOD 0 to the chains (each vertex takes the chain weights of the point at its place, painted ones included) and makes the Lila Bend Bones Deformer Graph its default deformer. Run it on the mesh exported from Bake Bend Bones, whose skin stays the fallback where the deformer doesn't run. Returns {skeletalMesh, deformer, unreal}: the vertices bound, how many matched a point, the rest pose error, warnings.
+Bend the mesh in Unreal live as bend bones bend it here: LilaLink binds every LOD of the skeletal mesh to the chains (each vertex takes the chain weights of the point at its place, painted ones included; LOD vertices with no point there take the nearest point's) and makes the Lila Bend Bones Deformer Graph its default deformer. Run it on the mesh exported from Bake Bend Bones, whose skin stays the fallback where the deformer doesn't run. Returns {skeletalMesh, deformer, unreal}: the vertices bound, how many matched a point, the rest pose error, warnings.
 
 **Objects:** deformer or mesh
 
@@ -19798,7 +19816,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
