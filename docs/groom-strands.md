@@ -60,6 +60,12 @@ importGroom("hair.groom", mesh="Head")
 
 With Lila Link connected, select the groom and run **Curves > Groom > Send Groom to Unreal**. Unreal gets a groom asset (`/Game/Grooms/GR_<name>` by default) with the guides it simulates on and `M_LilaHair` as its material. Sending again reimports the same asset.
 
+To have the hair follow a character's skinning, bind it to the character's skeletal mesh: a mesh already sent to Unreal, or its asset path. With `actor`, the actor with that label gets a groom component on its skeletal mesh. Later sends keep the binding.
+
+```python
+unrealSendGroom("HairGroom", bindTo="Hero", actor="BP_Hero")
+```
+
 `M_LilaHair` is built on the `MF_LilaHair` material function: hair colour from the groom, darker roots, roughness, scatter and specular. Call `MF_LilaHair` from your own Hair material to build on it. The project needs the HairStrands plugin, which Lila Link turns on.
 
 ## Hair cards
