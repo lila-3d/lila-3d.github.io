@@ -813,6 +813,25 @@ Auto paint a bake group's cage in one step: paints bakeOffset on its lows so eve
 | `margin` | `mg` | float | `0.004` | Gap kept between cage and high, as a fraction of each low's bounds diagonal. |
 | `apply` | `ap` | bool | `True` | Write the result; False only reports it. |
 
+### bakeBendBones
+
+Bake a bendBones deformer to plain joints for Unreal: each bone gets segment joints along its curve, keyed on every sampled frame, and the mesh is skinned to them with weights fitted (SSDR) to the bend bones' result over the animation and random poses. The deformer is turned off so the viewport shows what Unreal gets. Returns {joints, skinCluster, rmse, maxError, frames, poses, unrealCheck}: the fit error in cm and the Unreal round-trip check. A mesh skinned to spline chain or hose joints is already joints: it gets the Unreal check alone.
+
+**Objects:** deformer or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `segments` | `sg` | int | `3` | Segment joints per bone. |
+| `start` |  | int |  | First frame (the playback start by default). |
+| `end` |  | int |  | Last frame (the playback end by default). |
+| `step` |  | int | `1` | Frames between samples. |
+| `poses` |  | int | `24` | Random poses added to the fit so the weights hold beyond the animation. |
+| `angle` |  | float | `45.0` | Degrees the random poses turn each joint, at most. |
+| `seed` |  | int | `1` | Seed of the random poses. |
+| `maxInfluences` | `mi` | int | `4` | Influences per point. |
+| `iterations` |  | int | `3` | Fit passes. |
+| `tolerance` |  | float | `0.01` | cm the Unreal check allows. |
+
 ### bakeCage
 
 A bake group's editable cage. create=True duplicates the low pushed out by the auto cage (frontal x cageOffset x the painted bakeOffset) as a mesh the group then uses; edit its points freely, its topology must stay the low's. fromPaint=True moves an existing cage to the auto cage as painted now. reset=True goes back to the auto cage (delete=True also removes the cage mesh). With no flag, reports the cage and whether it matches the low.
@@ -1294,20 +1313,21 @@ Compute a skinCluster's weights as bounded biharmonic weights: each joint holds 
 
 ### bendBoneCV
 
-Add a bone CV to a bend bones bone: an extra point its curve passes through, at a fraction along the bone from joint to its child. Move or key it to reshape the bone without rebinding. Returns the CV.
+Add a bone CV to a bend bones bone (or a spline chain bone, as a curve point with a control; a hose limb answers with its bend control), an extra point the curve passes through at a fraction along the bone from joint to its child. Move or key it to reshape the bone without rebinding. Returns the CV.
 
-**Objects:** deformer
+**Objects:** deformer, or a joint
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `joint` | `j` | str |  | The bone's first joint (it runs to the next joint of its chain). |
 | `at` |  | float | `0.5` | How far along the bone, 0 to 1. |
+| `mirror` | `mi` | bool | `True` | Also add one on the mirrored joint's bone (arm_l and arm_r), placed mirrored. |
 
 ### bendBones
 
 Bind a mesh to chains of joints as bend bones: it bends along the smooth curve through each chain, each chain one influence, the joins between chains blending. Binds in the current pose. Returns the deformer.
 
-**Objects:** mesh
+**Objects:** mesh, or a chain's joints then the mesh
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -2345,7 +2365,7 @@ Create a display layer holding the objects (the selection by default), taking th
 
 ### createGroom
 
-A new groom growing from a scalp mesh: a guide curve (empty, or the curve given, or count guides grown from the scalp), the groom node and its locks mesh. Draw locks with groomDraw or the Draw Lock tool, style them with groomAddStyle. Returns {groom, guides, locks}.
+A new groom growing from a scalp mesh: a guide curve (empty, or the curve given, or count guides grown from the scalp), the groom node and its locks mesh. Draw locks with groomDraw or the Draw Lock tool, style them with groomAddStyle. Returns {groom, guides, locks} and, with strands, the strands curve.
 
 **Objects:** scalp
 
@@ -2355,6 +2375,7 @@ A new groom growing from a scalp mesh: a guide curve (empty, or the curve given,
 | `count` | `c` | int | `0` | Guides to grow straight out of the scalp; 0 starts empty. |
 | `length` | `l` | float | `10.0` | Length of grown guides, cm. |
 | `symmetry` | `sym` | str | `'x'` | Mirror the guides across the world plane: off, x, y or z. |
+| `strands` |  | bool | `False` | Also a curve showing the groom's strands, interpolated from its locks. |
 | `name` | `n` | str | `'Hair'` | Base name of the new nodes. |
 | `width` |  | float |  | Lock width, cm, times each lock's width and its points' radius. |
 | `thickness` |  | float |  | Thickness as a fraction of width; 1 is round. |
@@ -3664,6 +3685,22 @@ draco=True compresses every primitive with KHR_draco_mesh_compression (then requ
 
 Not undoable.
 
+### exportGroom
+
+Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* attributes, its primary guides to simulate) or Unity, .usd/.usda/.usdc curves, or .groom (GroomLab's file: guides, graph, parts, flow, maps and the scalp). Frames start to end (scene frames; the current one by default). Returns {file, frames, strands}.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | str |  | The file to write. |
+| `engine` | `e` | str | `'unreal'` | For .abc: the engine whose hair importer reads it. One of `unreal`, `unity`. |
+| `start` | `s` | float |  | First frame; the current frame when left out. |
+| `end` |  | float |  | Last frame; start when left out. |
+| `step` |  | float | `1.0` | Frames between written frames. |
+| `guides` |  | bool | `True` | Unreal: write the primary guides it simulates. |
+| `groups` |  | bool | `False` | One groom group per groupId (the Attribute node's groups). |
+
 ### exportMeshSequence
 
 Export animated meshes (geometry nodes, deformers, skins, anything that changes over time) frame by frame: a file per frame (fbx, obj), as Unreal's Niagara mesh flipbooks want, or one Alembic file (abc). The given meshes (or the selection, or the meshes under them) go into each file together. Returns the files.
@@ -4792,6 +4829,20 @@ Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
 
+### groomAddMap
+
+Adds a map to paint on the groom's scalp for Map nodes and map params to read: kind vertices (a value per scalp vertex) or texture (an image at the scalp's uv0, written to file as a PNG when painted). Paint it with Groom Brushes' Paint, Paint On Scalp or Texture. The head's color sets are maps already. Returns {name, kind}.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'mask'` | The map's name. |
+| `kind` | `k` | str | `'vertices'` | Where it lives. One of `vertices`, `texture`. |
+| `file` | `f` | str |  | texture: the image file it paints into. |
+| `color` |  | bool | `False` | A color map (RGBA) instead of gray. |
+| `value` | `v` | float | `0.0` | vertices: the value it starts at. |
+
 ### groomAddStyle
 
 Adds a lock style to a groom's graph, between its guides and its locks: split, clump, curl, wave, frizz, noise, length, cut or flyaways. The strands follow the styled locks. Returns the new graph node's name.
@@ -4812,6 +4863,30 @@ Adds a lock style to a groom's graph, between its guides and its locks: split, c
 | `randomness` |  | float |  | Sets the modifier's randomness when it has one. |
 | `seed` |  | int |  | Sets the modifier's seed when it has one. |
 | `ramp` |  | str |  | Sets the modifier's ramp when it has one. |
+
+### groomBakeCards
+
+Bakes the groom's cards into texture maps (Depth, Coverage, Tangent, Attribute, Color, AO, Normal as .tga), the atlas layout and a preview, in folder as <name>_<Map>.tga; the cards keep their atlas cells from it after. Needs a Cards node (groomCards). Returns {prefix, maps}.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str |  | Folder to write into. |
+| `name` | `n` | str |  | File name prefix; the groom's name when left out. |
+| `resolution` | `r` | int | `0` | Map size in pixels; 0: the Cards node's atlas size. |
+| `occlusion` |  | float | `1.0` | Ambient occlusion strength, 0 to 1. |
+
+### groomCards
+
+Gives the groom a Cards node (after the hair) set from a level-of-detail preset: hero, mid or low, its card count from the preset's triangle budget or triangles, and a mesh showing the cards (made once, fed by outCards). Returns {node, lod, mesh}.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lod` | `l` | str | `'mid'` | The preset. One of `hero`, `mid`, `low`. |
+| `triangles` | `t` | int |  | The triangle budget instead of the preset's. |
 
 ### groomDraw
 
@@ -4843,6 +4918,14 @@ Sets one guide's lock width (relative to the groom's) and twist from root to tip
 | `width` | `w` | float |  | Width relative to the groom's. |
 | `twist` | `t` | float |  | Twist from root to tip, degrees: replaces the guide's tilt with an even ramp. |
 
+### groomEndPreview
+
+Ends a groom's look preview: it shows its own params again.
+
+**Objects:** groom
+
+Not undoable.
+
 ### groomGuides
 
 Grow guide curves out of a mesh along its normals, spread evenly by area (and a density map), as a new curve with the mesh as its groom surface. Returns the curve.
@@ -4871,6 +4954,19 @@ Applies a hairstyle preset to a groom: its lock settings, its style stack in pla
 | `preset` | `p` | str |  | Preset id (groomPresets) or a .lilagroom file. |
 | `guides` | `g` | bool | `True` | Add the preset's guides when it has them. |
 | `replace` |  | bool | `False` | The preset's guides replace the groom's. |
+
+### groomLook
+
+Lists a groom's look nodes (the strands' Clump, Noise, Curl, Length, Cut and Width after they are interpolated) with their number and on/off settings, or changes them: add one at the end, remove, toggle or set its params. Returns the list.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edit` | `e` | str | `'list'` | What to do. One of `list`, `add`, `remove`, `toggle`, `set`. |
+| `type` | `t` | str | `'Clump'` | add: the node type. One of `Clump`, `Noise`, `Curl`, `Length`, `Cut`, `Width`. |
+| `node` | `n` | str |  | remove, toggle, set: the look node. |
+| `params` |  | str |  | set: params as a JSON object, e.g. {"strength": 0.5}. |
 
 ### groomPart
 
@@ -4905,6 +5001,19 @@ Adds a hairstyle preset's guides to a groom: a ponytail or bun gathered at a poi
 
 Hairstyle presets in the groom folders (Lila's, the studio's, yours and the project's). Returns [{id, name, doc, source, guides, file}, ...].
 
+### groomPreview
+
+Shows a groom's look nodes with these params without setting them, for a slider's drag: on the GPU from the strands as last grown when the look chain allows, else on the CPU. groomEndPreview ends it. Not undoable. Returns {gpu, why}: why tells what kept it on the CPU.
+
+**Objects:** groom
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `node` | `n` | str |  | The look node. |
+| `params` |  | str |  | Params as a JSON object. |
+
+Not undoable.
+
 ### groomSavePreset
 
 Saves a groom's lock settings and style stack as a hairstyle preset, with its guides when guides is on. Returns the preset id.
@@ -4937,7 +5046,7 @@ Settles a groom's guides under gravity: roots stay on the scalp, locks fall, res
 
 ### groomShell
 
-One watertight mesh over a groom's locks, smooth-unioned so they join into a single surface ready for retopology (quadRemesh). Live: it follows the groom. Returns [mesh, groomShell].
+One watertight mesh over a groom's locks, smooth-unioned so they join into a single surface ready for retopology (quadRemesh). Live: it follows the groom. With quads, also the quad remeshed shell. Returns [mesh, groomShell] and, with quads, quadRemesh's reply last.
 
 **Objects:** groom
 
@@ -4951,6 +5060,7 @@ One watertight mesh over a groom's locks, smooth-unioned so they join into a sin
 | `projectSteps` |  | int |  | Steps moving vertices onto the surface. |
 | `gpu` |  | bool |  | Sample the field on the GPU when one is available. |
 | `name` | `n` | str |  | Mesh name; default <groom>Shell. |
+| `quads` | `q` | int | `0` | Also quad remesh the shell (quadRemesh) to about this many faces; 0 leaves it as it is. |
 
 ### groomStack
 
@@ -5374,6 +5484,18 @@ Returns the new node names, or with report=True a dict of nodes, roots, joints, 
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the imported roots. |
 
+### importGroom
+
+Reads a GroomLab .groom file into a new groom: its guides, graph, parts, flow, maps and sculpts, on the mesh given or selected, else on the file's own scalp as a new mesh. Returns {groom, guides, locks, strands, scalp}.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The scalp mesh to grow on; the selected mesh, else the file's scalp, when left out. |
+| `strands` |  | bool | `True` | Also a curve showing the strands. |
+| `name` | `n` | str |  | Base name of the new nodes; the file's name when left out. |
+
 ### importObj
 
 Import an OBJ file; one mesh per object. Returns the new mesh names.
@@ -5453,6 +5575,17 @@ Add a theme from JSON text or a .lilatheme file and return its name. Fails with 
 | `workspace` | `ws` | bool | `False` | Save in the workspace instead of the user prefs |
 
 Not undoable.
+
+### importYeti
+
+Reads the Yeti grooms of a Maya ASCII (.ma) file into Lila grooms, without Maya or Yeti: each pgYetiMaya node's groom strands become guides, its Scatter, Clumping, Scraggle and Width nodes the groom graph's Scatter, Clump, Noise and Width. The scalp is the mesh given, else the scene node named as the Yeti node's mesh in the file (import the .ma first). Returns [{yeti, groom, guides, report: {mapped, approximated, skipped}}].
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | `m` | str |  | The scalp mesh for every groom. |
+| `nodes` |  | list |  | The pgYetiMaya nodes to read; every one when left out. |
 
 ### incrementAndSave
 
@@ -6318,6 +6451,12 @@ Find or fix broken geometry. mode='select' selects what each enabled check finds
 | `tolerance` |  | float | `-1.0` | Distance under which points coincide and edges and faces count as zero size, cm; negative scales with the mesh. |
 | `removeLoose` |  | bool | `True` | Repair also removes points and edges left without faces. |
 
+### mirrorBendBoneCVs
+
+Copy bone CVs to the other side: each CV's partner (on the mirrored joint's bone, same order along it) moves to its position mirrored across the character's centre. Returns the CVs moved.
+
+**Objects:** cvs
+
 ### mirrorDeformerWeights
 
 Mirror a deformer's weight map (or a field's painted layer) across a world plane through the origin, using the mesh's symmetry: one side's weights are copied to the matching points on the other.
@@ -6930,7 +7069,7 @@ panelLayoutStroke("Hull", points=[[0, 10, 5], [20, 10, 5]])
 
 ### panelLineMaterials
 
-Make the Unreal side of panel line decal strips through LilaLink: MF_LilaPanelLine (the groove drawn from the strip's UVs, for your own materials) and M_LilaPanelLine (masked) and M_LilaPanelLineTranslucent built on it. Assign one to the PanelLineDecal material slot. Returns the asset paths.
+Make the Unreal side of panel line decal strips through LilaLink: MF_LilaPanelLine (the groove drawn from the strip's UVs, for your own materials) and M_LilaPanelLine (masked) and M_LilaPanelLineTranslucent built on it. Meshes sent afterwards get M_LilaPanelLine on their LilaPanelLine slot. Returns the asset paths.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -12067,6 +12206,20 @@ An Unreal asset's class, material slots, LODs, vertex and triangle counts, Nanit
 
 Not undoable.
 
+### unrealBendBones
+
+Bend the mesh in Unreal live as bend bones bend it here: LilaLink binds the skeletal mesh's LOD 0 to the chains (each vertex takes the chain weights of the point at its place, painted ones included) and makes the Lila Bend Bones Deformer Graph its default deformer. Run it on the mesh exported from Bake Bend Bones, whose skin stays the fallback where the deformer doesn't run. Returns {skeletalMesh, deformer, unreal}: the vertices bound, how many matched a point, the rest pose error, warnings.
+
+**Objects:** deformer or mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the mesh's mapping. |
+| `deformer` | `df` | str | `'/Game/Lila/DG_LilaBendBones'` | The Deformer Graph asset to use, made when missing. |
+| `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
+
+Not undoable.
+
 ### unrealCall
 
 Call any LilaLink method in the connected Unreal editor and return its reply as {ok, result}, or {ok: False, error, code} when it fails or Unreal is not connected. runPython takes {code, mode: exec|evaluate} and returns {ok, result, log}.
@@ -12308,6 +12461,27 @@ Send curves to the connected Unreal editor as splines: an actor with a spline co
 | `remove` | `rm` | bool | `False` | Unmap the curves and delete what they made in Unreal instead. |
 | `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealSendCurve, "unreal" or "*" on a curve stops the send; others are logged. |
 | `wait` | `wt` | bool | `False` | Block until Unreal answers and return its replies. |
+
+Not undoable.
+
+### unrealSendGroom
+
+Sends a groom to the connected Unreal editor as a groom asset: its strands and the primary guides Unreal simulates on (exportGroom's Unreal Alembic), with M_LilaHair on it, built on the MF_LilaHair material function for your own hair materials. The groom stays mapped, so sending again reimports the same asset. Returns Unreal's reply with wait=True.
+
+**Objects:** groom (default: the selected groom)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str |  | Content folder, like /Game/Characters/Hair (default /Game/Grooms, or the mapped one). |
+| `name` | `n` | str |  | Asset name (default GR_<groom>, or the mapped one). |
+| `start` | `s` | float |  | First frame for an animated groom; the current frame when left out. |
+| `end` |  | float |  | Last frame; start when left out. |
+| `material` |  | bool | `True` | Set M_LilaHair on the groom. |
+| `bindTo` | `b` | str |  | Bind the groom to a skeletal mesh so it follows its skinning: an asset like /Game/Characters/SK_Hero, or a Lila node sent to Unreal as a skeletal mesh (its mapping). Remembered for the next send. |
+| `bindSource` |  | str |  | The skeletal mesh the groom was made on when it differs from bindTo (transfers it). |
+| `actor` |  | str |  | With bindTo: the level actor (its label) that gets a groom component on its skeletal mesh. |
+| `interpolationPoints` |  | int | `100` | Binding: points the hair follows on the mesh. |
+| `wait` | `wt` | bool | `False` | Block until Unreal answers and return its reply. |
 
 Not undoable.
 
@@ -15275,6 +15449,29 @@ Read a .lilatake file as a new take on its character (matched by node names with
 | `root` | `r` | str |  | Character root to put it on. Default: the file's. |
 | `activate` | `a` | bool | `False` | Switch to the new take. |
 
+### lineOfAction
+
+Pose a body path to a stroke's shape (line of action): the path's joints bend along the stroke through a full-body solve with each joint's stiffness, contacts and pins holding; bone CVs and spline chain controls on the path move onto it too. The stroke is world points, scaled to the path's length and kept at its first joint. With range or frames it poses each frame, travel slides the body along the stroke over the range. Returns the line, its joints and the error.
+
+**Objects:** character or one of its joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
+| `stroke` | `st` | list |  | World points along the stroke, [[x, y, z], ...]. |
+| `line` | `l` | str |  | A line of action the character's rules name (body, a limb); default the one nearest the stroke. |
+| `joints` | `j` | list |  | [top joint, end joint] instead of a named line. |
+| `range` | `r` | list |  | [start, end] seconds to pose across; default this frame only. |
+| `frames` | `f` | list |  | Times in seconds to pose at, instead of a range. |
+| `falloff` | `fo` | float | `0.0` | Frames either side of the range the edit eases out over. |
+| `dense` | `d` | bool | `False` | Pose every frame of the range, not only its keys. |
+| `travel` | `tr` | bool | `False` | The body lies on the stroke unscaled and slides along it over the range (a path stroke). |
+| `stretch` | `sx` | bool | `False` | Let bones lengthen when turning alone can't reach the stroke. |
+
+```python
+lineOfAction("manny", line="body", stroke=[[0, 100, 0], [0, 140, 15], [0, 170, 40]])
+```
+
 ### puppeteerBreakdown
 
 Breakdown: key the pose at the current time part way toward the previous key (weight -1) or the next key (weight 1), for the selected joints or (all) every joint of their characters. Returns the channels keyed.
@@ -15673,8 +15870,24 @@ A breakdown in space: blend the character toward its previous key's pose (weight
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `weight` | `w` | float | `0.0` | -1 the previous key's pose, 0 now, 1 the next key's. |
+| `favour` | `fv` | float | `0.0` | Above 0 the hands, feet and head lag behind the body; below 0 they lead. |
+| `parts` | `pt` | Any |  | {joint: weight}: those joints and their children take that weight instead. |
+| `brushed` | `br` | bool | `True` | Parts brushed with the Breakdown Parts tool take their fraction of the weight; False ignores them. |
 | `all` | `al` | bool | `True` | The whole character; False only the given joints. |
 | `world` | `wo` | list |  | Joints that blend in world space; default the character's contacts. |
+
+### stringsBreakdownParts
+
+Breakdown parts: joints whose part (the joint and its children) takes a fraction of the breakdown weight, as the Breakdown Parts tool brushes them over the mesh. 0 holds the part in its pose, 1 follows the slider, between lags it. Kept for the session, never keyed. Returns {joint: factor}.
+
+**Objects:** joints
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `factor` | `f` | float |  | Set the joints' parts to this fraction of the weight. |
+| `remove` | `rm` | bool | `False` | Remove the joints' parts; with no joints, all of them. |
+
+Not undoable.
 
 ### stringsFill
 
@@ -15684,6 +15897,7 @@ Fill a range with inbetweens: each frame (or every step frames) between its keys
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
 | `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
 | `step` | `st` | int | `1` | 1 every frame, 2 on twos, 3 on threes. |
 | `spacing` | `sp` | str | `'easeInOut'` | How the inbetweens are spaced. One of `linear`, `easeIn`, `easeOut`, `easeInOut`. |
@@ -15722,6 +15936,7 @@ Pose joints as a drag does, in a Strings mode: forward (FK), backward (the body 
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
 | `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
 | `by` |  | tuple[float, float, float] |  | World offset, cm. |
 | `axis` | `ax` | tuple[float, float, float] |  | World axis to turn about. |
@@ -15729,13 +15944,15 @@ Pose joints as a drag does, in a Strings mode: forward (FK), backward (the body 
 | `anchors` | `an` | list |  | More joints that hold still for this pose, besides pins and locks. |
 | `holds` | `h` | bool | `True` | False ignores pins and locks. |
 | `contacts` | `ct` | bool |  | The character's contacts (feet, from its rig template) hold too; default the Contacts setting. |
-| `chainLength` | `cl` | int | `0` | ik: how many bones above the joint bend; 0 to the next branch. |
+| `chainLength` | `cl` | int | `0` | ik: how many bones bend, the joint first, through branches; 0 its limb. |
 | `stretch` | `st` | float | `1.0` | Above 1 lets bones lengthen up to this multiple when turning can't reach. |
 | `autoPose` | `ap` | bool | `False` | fullBody moves: the auto-poser places the unpinned body (UE5 Manny joint names). |
 | `range` | `r` | list |  | [start, end] seconds: pose every keyed frame in it (or every frame with dense), keying each. |
 | `frames` | `fr` | list |  | Seconds to pose at, keying each, instead of a range. |
 | `dense` | `dn` | bool | `False` | With range: every frame, not only the keyed ones. |
 | `falloff` | `fo` | float | `0.0` | With range: frames either side the pose eases out over. |
+| `preview` | `pv` | bool | `False` | With range or frames: solve without keying, for a drag in progress. Ghosts show the result; returns each frame's joint positions. |
+| `show` | `sw` | list |  | With preview: more seconds to solve, such as a motion trail's frames. |
 | `relative` | `rel` | bool | `True` | Across frames: offset each frame by the drag. False brings each to where the drag put it now. |
 | `space` | `sp` | str | `'world'` | Across frames, relative: what the offset follows: world, parent, or a node (move a hand in head space). |
 
@@ -15744,6 +15961,19 @@ Pose joints as a drag does, in a Strings mode: forward (FK), backward (the body 
 Put stretched bones back to the length they were bound at, each keeping its direction. Joints that drive no skin have no bind length and are skipped. Returns the joints restored and skipped.
 
 **Objects:** joints (default the selection)
+
+### stringsRetime
+
+Retime in place along a time-warp curve: every frame of the range takes the pose from the time the curve maps it to, sampled from the motion as it is (keyed or dense) and keyed on every frame. The range's ends and every frame outside it keep their poses. Acts on the time slider's range without one. Returns {frames, kept, map}: frames keyed in the range, frames outside keyed to keep their pose, and [frame, source frame] pairs.
+
+**Objects:** joints or characters (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
+| `easeIn` | `ei` | float | `0.0` | 1 eases into the range (the motion starts still), -1 starts at double speed. |
+| `easeOut` | `eo` | float | `0.0` | 1 eases out of the range (the motion settles), -1 ends at double speed. |
+| `warp` | `wp` | list |  | [[x, y], ...]: the curve through these points instead, x the fraction of the range and y the fraction its pose comes from, rising from (0, 0) to (1, 1). |
 
 ### stringsRules
 
@@ -15755,7 +15985,22 @@ A character's Strings rules: its contacts (joints that hold still while you pose
 | --- | --- | --- | --- | --- |
 | `contacts` | `ct` | list |  | Joints that hold by default, replacing the inherited ones. |
 | `addChain` | `ac` | list |  | [top joint, end joint]: a limb from top down to end, replacing limbs it overlaps. |
+| `addLine` | `al` | list |  | [name, top joint, end joint]: a line of action a stroke may bind to. |
+| `removeChain` | `rc` | str |  | A joint: the limb it is in goes. |
+| `removeLine` | `rl` | str |  | The line of action with this name goes. |
 | `reset` | `rs` | bool | `False` | Forget this character's own rules first. |
+
+### stringsRuleWeb
+
+The character's rule web as data for Unreal: its hips, contacts, limbs, lines of action and full-body stiffness, by bone name, plus the bones and their parents. Writes it to file as JSON when given. Returns the web.
+
+**Objects:** character or one of its joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | A .json file to write the web to. |
+
+Not undoable.
 
 ### stringsSmooth
 
@@ -15765,6 +16010,7 @@ Smooth whole poses over a range of frames: each frame's rotations average with t
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
+| `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
 | `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
 | `strength` | `s` | float | `0.5` | 0 leaves the poses, 1 takes the average. |
 | `radius` | `rad` | int | `2` | Frames either side averaged. |
@@ -15772,7 +16018,7 @@ Smooth whole poses over a range of frames: each frame's rotations average with t
 
 ### stringsZero
 
-Zero joints' rotations in a Strings mode: forward zeroes them as they are, backward keeps what is pinned below still and swings the body, and so on. Parents first. Returns what each pose did.
+Zero joints' rotations in a Strings mode: forward zeroes them as they are, backward keeps what is pinned below still and swings the body, and so on. relativeTo zeroes relative to other joints, which stay where they are. Parents first. Returns what each pose did.
 
 **Objects:** joints (default the selection)
 
@@ -15781,6 +16027,21 @@ Zero joints' rotations in a Strings mode: forward zeroes them as they are, backw
 | `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
 | `holds` | `h` | bool | `True` | False ignores pins and locks. |
 | `stretch` | `st` | float | `1.0` | Above 1 lets bones lengthen up to this multiple. |
+| `relativeTo` | `rt` | list |  | Joints that keep their place in the world while the others zero (relative zero). |
+
+### unrealStringsRig
+
+Pose the character in Unreal the way Strings poses it here: LilaLink makes or updates a Control Rig on its skeletal mesh: a control on the hips and the end of each line of action and limb (hands, feet, head) and each contact, each posing its bone through a Lila Strings Full Body unit given the character's rule web; swap a unit for Forward, Backward or IK to change how it poses. Returns {rig, skeletalMesh, unreal}, or {rig, skeletalMesh, payload} with dryRun.
+
+**Objects:** character or one of its joints (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the root's skeletal mapping. |
+| `rig` | `r` | str |  | The Control Rig asset to make or update. Default: CR_<mesh>_Strings beside the mesh. |
+| `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
+
+Not undoable.
 
 ### walkCycle
 
@@ -19537,7 +19798,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
