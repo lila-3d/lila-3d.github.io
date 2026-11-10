@@ -7,8 +7,10 @@ Edit animation curves, and see the speed and acceleration they produce. Open it 
 ## Get it working
 
 1. Select an animated object. Its channels list on the left; pick some to show only those.
-2. Click a key, Shift-click to add, or drag a box. A click on a curve picks all its keys.
+2. Click a key or drag a box. Shift toggles, Ctrl removes, Ctrl+Shift adds, for clicks and boxes alike. A click on a curve picks all its keys.
 3. Drag a picked key to move it. MMB-drag anywhere does the same with whichever tool is on.
+
+While you drag, the cursor shows the key's frame and value. Type a number to set the value instead (or the frame, when Shift has locked the value), then Enter to place the keys; Esc puts them back.
 
 MMB on the frame ruler (or the time slider) moves the time but keeps the pose, so the next key you set copies it there. Alt+C and Alt+B step to the previous and next key, beside Alt+V for play.
 
@@ -54,9 +56,30 @@ The activity button turns on strips under the curves, sharing their time axis:
 
 ### Tangents
 
-The tangent buttons set the picked keys' tangents. **Break** lets a key's in and out handles move apart (square handles); **Unify** joins them again. On a weighted curve (right-click > **Tangents > Weighted**) dragging a handle also sets its length.
+The tangent buttons set the picked keys' tangents. Faster: flick the right mouse button in the plot for the tangent marking menu (Auto, Spline, Linear, Flat, Stepped, Break, Unify). A right click without moving opens the full menu. **Break** lets a key's in and out handles move apart (square handles); **Unify** joins them again. On a weighted curve (right-click > **Tangents > Weighted**) dragging a handle also sets its length.
 
 The Frame and Value fields take `+=`, `-=`, `*=` and `/=`: `+=5` in Frame shifts every picked key five frames; `*=2` in Value doubles each key's own value.
+
+## Curve Overlay
+
+In Puppeteer's Animate mode, tap Space: the selected joints' curves draw over the viewport under the cursor, and the scene stays live. Without Shift the mouse poses as usual; hold Shift and it edits the curves as in the Graph Editor. The overlay always spans the time slider's range.
+
+| Overlay | Does | Graph Editor |
+| --- | --- | --- |
+| Shift+click or drag a key or handle | Pick it (replace), move it, turn the tangent | Click |
+| Shift+drag on empty | Box pick | Drag |
+| Ctrl+click or Ctrl+drag, once keys are picked | Toggle | Shift |
+| Ctrl+Shift+click or drag | Add | Ctrl+Shift |
+| Shift+MMB drag | Pan the curves up and down | Alt+MMB |
+| Shift+RMB drag | Scale the curves vertically | Alt+RMB |
+| Shift+RMB flick on a key, Shift+RMB click | Tangent marking menu, tangent menu | RMB flick, RMB click |
+| Shift+LMB or Shift+MMB on the frame strip | Scrub, scrub keeping the pose | LMB or MMB on the ruler |
+| Shift held during a drag | Locks to one axis; let go of Shift to move freely | Shift |
+| Shift+F, Shift+A | Frame picked keys, frame all | F, A |
+| Delete | Delete the picked keys | Delete |
+| Space, Esc | Close | |
+
+The letters at the top left filter the curves: click **T**, **R** or **S** (or **X**, **Y**, **Z**) to show only those, Shift+click to add another. **Graph Editor** beside them opens the full editor on the same selection. Translate curves are solid, rotate dashed, scale dotted. The dark layer behind the curves is **Preferences > Puppeteer > Scrim** (0 turns it off).
 
 ## Troubleshooting
 
@@ -65,6 +88,8 @@ The Frame and Value fields take `+=`, `-=`, `*=` and `/=`: `+=5` in Frame shifts
 **The speed strip is empty.** World Speed and World Angular Speed read the selected objects, not the curves shown; select a transform.
 
 **Frame says "mixed" and won't take a number.** The picked keys are at different frames; use `+=` or `-=` to shift them together.
+
+**Shift+click in the viewport selects joints instead of keys.** The Curve Overlay is closed, or the cursor is over another viewport: the overlay draws in the last viewport the cursor entered.
 
 **Swap Buffer does nothing.** Those curves have no snapshot yet: run **Snapshot Buffer** first.
 
