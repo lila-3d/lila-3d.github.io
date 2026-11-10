@@ -5,10 +5,10 @@ One tiling texture of bevelled strips and panels, shared by every mesh that maps
 ## Get it working
 
 1. In the Level Toolkit's **Trim Sheets** section, pick a preset and press **New**. The sheet is generated and baked (normal, AO, curvature, height, cavity); the first time takes a few seconds.
-2. Press **Texture** to put the preset's smart material on it. Wear, dirt and chips follow the baked bevels.
-3. Press **Test** to see it on a blockout (wall, beam, steps, pillar, slab) at real sizes.
-4. Select faces or meshes and press **Auto**. Each island goes to the trim that fits its shape and world size, running up the trim where its faces stand up. Faces taller than every strip are cut into courses at the tallest strip's height, so a wall becomes rows of boards or panels at true scale (`trimAuto(sliceOversized=False)` keeps them whole). Press **Cycle** for the next-best fit, or click a trim in the palette to put the selection on that one.
-5. Press **Unreal** to send it (connected with `unrealConnect()`).
+2. Under **Sheet**, press **Texture** to put the preset's smart material on it. Wear, dirt and chips follow the baked bevels.
+3. Choose **Level > Trim Sheets > Test Blockout** to see it on a blockout (wall, beam, steps, pillar, slab) at real sizes.
+4. Select faces or meshes and press **Auto Trim** (under **Map**). Each island goes to the trim that fits its shape and world size, running up the trim where its faces stand up. Faces taller than every strip are cut into courses at the tallest strip's height, so a wall becomes rows of boards or panels at true scale (`trimAuto(sliceOversized=False)` keeps them whole). Press **Next Best** for the next-best fit, or click a trim in the palette to put the selection on that one.
+5. Press **Send to Unreal** to send it (connected with `unrealConnect()`).
 
 ```python
 trimSheetCreate(preset="industrialMetal")
@@ -69,9 +69,9 @@ trimCheck(distance=3000, screenHeight=2160)["issues"]   # e.g. {"unreadable": 4,
 
 | Tool | What it makes |
 | --- | --- |
-| **Edges** (`trimEdges`) | Chamfers the selected edges and maps the chamfers onto a thin edge strip, with weighted normals so the big faces stay flat. |
-| **Decal** (`trimDecal`) | A strip floating over the selected edges, half on each face, its crest on the edge. A separate `<mesh>_Decal`. |
-| **Trim Cut** (`trimDecal(cut=True)`) | The same strip carved into the mesh as a groove `depth` cm deep. |
+| **Chamfer** (`trimEdges`) | Chamfers the selected edges and maps the chamfers onto a thin edge strip, with weighted normals so the big faces stay flat. |
+| **Strip** (`trimDecal`) | A strip floating over the selected edges, half on each face, its crest on the edge. A separate `<mesh>_Decal`. |
+| **Groove** (`trimDecal(cut=True)`) | The same strip carved into the mesh as a groove `depth` cm deep. |
 | **Curve** (`trimAlongCurve`) | A strip along the selected curves, tiling without stretching, with caps from the sheet's `cap`-tagged trim at the ends. `orient="wall"` stands it up. |
 
 ### Unique decals
@@ -136,7 +136,7 @@ Open **Level > Level Toolkit** and expand **Trim Sheets**. Pick **Power-of-Two L
 
 ## 2. Lay out the strips
 
-Press **Edit** to open the Trim Sheet Editor.
+Press **Layout** to open the Trim Sheet Editor.
 
 1. Right-click the top strip and choose **Split Across**: it becomes two 256 px strips.
 2. Click each strip, then set its **Name**, **Style** and **Bevel** below the canvas:
@@ -162,7 +162,7 @@ Give every strip, the two thin edge strips at the bottom included, the same **Be
 
 Profiles are cross sections only; model anything that repeats along a strip.
 
-Choose **Level > Trim Sheets > Show Trim Sheet High/Low**. The sheet's high poly appears lying flat at the origin: its width along X, its strips running down Z from the top one at Z 0, 200 cm square. Hide `T_TrimLadder_Low` and model on top of the high with any tools.
+Choose **Level > Trim Sheets > Show Sheet High/Low**. The sheet's high poly appears lying flat at the origin: its width along X, its strips running down Z from the top one at Z 0, 200 cm square. Hide `T_TrimLadder_Low` and model on top of the high with any tools.
 
 **A rosette on the frieze.** The Frieze strip covers Z 0 to 50 cm.
 
@@ -192,15 +192,15 @@ For detail to survive the bake:
 
 ## 4. Bake the detail in
 
-Select the rosettes and dentils and press **Bake Detail** in the Trim Sheet Editor (or **Level > Trim Sheets > Bake Selection as Sheet Detail**).
+Select the rosettes and dentils and press **Bake Selected as Detail** in the Trim Sheet Editor (or **Level > Trim Sheets > Bake Selection as Sheet Detail**).
 
 ![The baked sheet with the rosettes and dentils](images/trim-sheets/tutorial-6-detail.png)
 
-The sheet keeps the detail: every later **Bake** uses it, in this scene or any other, from a copy saved beside the sheet's textures. To change it, edit the meshes and press **Bake Detail** again. **Level > Trim Sheets > Bake Without Detail** goes back to the plain profiles.
+The sheet keeps the detail: every later **Bake** uses it, in this scene or any other, from a copy saved beside the sheet's textures. To change it, edit the meshes and press **Bake Selected as Detail** again. **Level > Trim Sheets > Bake Without Sheet Detail** goes back to the plain profiles.
 
 ## 5. Texture it
 
-In the Trim Sheet Editor, pick **Trim Sandstone** in the material list next to **Texture**, then press **Texture**. Each press replaces the last material.
+In the Trim Sheet Editor, pick **Trim Sandstone** in the material list under **Texture**, then press **Apply**. Each press replaces the last material.
 
 ![Choosing the smart material in the Trim Sheet Editor](images/trim-sheets/tutorial-7-texture.png)
 
@@ -223,6 +223,6 @@ A wall built for a trim sheet is a stack of bands, each as tall as the strip it 
 
 Clicking a strip lines each face up with its motifs, so corners stay tidy. Hide the high poly and the motifs to see the finished wall.
 
-For walls you trim with **Auto** instead, click the Frieze in the editor and tick **Reserved**: Auto never picks a reserved strip, so it goes only where you click it.
+For walls you trim with **Auto** instead, click the Frieze in the editor and tick **Auto Trim: Skip**: Auto Trim never picks a skipped strip, so it goes only where you click it.
 
 The finished scene is in Lila's examples as **Trim Frieze**.
