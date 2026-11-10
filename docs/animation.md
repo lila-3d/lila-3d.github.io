@@ -63,3 +63,11 @@ Make one set per level and give each a `lodLevel`. The viewport shows the set fo
 | `lodLevel` | `-1` | The LOD level the set stands in at. |
 
 Puppeteer's preferences page has **Use anim proxy** (on), **Show proxy when Puppeteer turns on** and **Show real mesh when Puppeteer turns off**.
+
+## Spinner and views
+
+In Puppeteer's modes:
+
+- Hold **`** and the Spinner follows the cursor; let go and it stays there, for that camera. Dragging its rim moves it too.
+- The strip under the view cube switches views: **Persp**, **Front**, **Side**, **Top**, and the camera button lists the scene's cameras. Click the current view again for its opposite side (Front to Back). **Ctrl+F1** to **Ctrl+F4** do the same from the keyboard, in any mode.
+- To show the strip outside Puppeteer, or hide it, toggle **View Switcher** in the viewport's HUD menu.
