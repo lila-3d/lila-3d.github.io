@@ -2000,6 +2000,12 @@ Turn the loop key off on curves (nodes, plugs or curves, default the selection):
 | --- | --- | --- | --- | --- |
 | `attribute` | `at` | Any |  | Attribute name or list of names. |
 
+### clearMaterialTextures
+
+Clear every texture map on the materials, keeping their values and sampling settings. Returns the channels cleared.
+
+**Objects:** material...
+
 ### clearRecoveredScenes
 
 Delete every recovered scene kept for File > Recovered Scenes. Returns how many were deleted.
