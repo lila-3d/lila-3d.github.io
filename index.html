@@ -123,6 +123,41 @@ button:focus-visible {
 .vctl button:hover { background: rgba(23,25,28,.95); border-color: rgba(233,234,236,.32); }
 .vctl svg { width: 16px; height: 16px; }
 
+/* Centred while a clip is paused; the hero's labelled button drops to a corner once it plays. */
+.watch {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid rgba(233,234,236,.24);
+  border-radius: 999px;
+  background: rgba(12,13,15,.72);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 8px 28px rgba(0,0,0,.45);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  transition: background-color .15s ease, border-color .15s ease, transform .2s cubic-bezier(.16,1,.3,1);
+}
+.watch svg { width: 28px; height: 28px; }
+.watch:hover { background: var(--accent-strong); border-color: var(--accent-strong); transform: translate(-50%, -50%) scale(1.04); }
+.watch:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+.watch .len { color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
+.watch:hover .len { color: var(--text); }
+.frame.is-paused .watch { display: flex; }
+.watch.labelled { display: flex; padding: 14px 22px 14px 18px; font-size: 1.05rem; }
+.watch.labelled svg { width: 20px; height: 20px; }
+.frame:not(.is-paused) .watch.labelled { left: 12px; top: auto; bottom: 12px; transform: none; padding: 9px 16px 9px 12px; font-size: .9rem; }
+.frame:not(.is-paused) .watch.labelled:hover { transform: none; }
+.frame:not(.is-paused) .watch.labelled svg { width: 16px; height: 16px; }
+
 .lightbox {
   position: fixed;
   inset: 0;
@@ -961,7 +996,7 @@ footer p { margin: 0 0 6px; }
 </header>
 
 <main>
-  <figure class="shot wrap frame" data-slot="hero-video">
+  <figure class="shot wrap frame" data-slot="hero-video" data-watch>
     <video src="assets/clips/lila-pitch.mp4" poster="assets/screenshot-cockpit.webp" autoplay muted loop playsinline width="1920" height="1080" aria-label="Lila for Maya users: startup, the Maya benchmark, a Maya scene opening, the modeling tools and the live link to Unreal"></video>
   </figure>
 
@@ -1484,11 +1519,12 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     if (returnFocus) returnFocus.focus();
   }
 
-  function open(video, from) {
+  function open(video, from, sound) {
     var c = video.cloneNode(true);
     c.removeAttribute("width");
     c.removeAttribute("height");
-    c.muted = true;
+    c.muted = !sound;
+    if (sound) c.currentTime = 0;
     c.loop = true;
     c.controls = true;
     box.replaceChildren(closeBtn, c);
@@ -1528,10 +1564,28 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     var toggle = iconButton("Pause clip", "pause");
     var enlarge = iconButton("Enlarge clip", "enlarge");
     ctl.append(toggle, enlarge);
-    frame.appendChild(ctl);
+    var len = "watch" in frame.dataset;
+    var watch = iconButton(len ? "Watch with sound" : "Play clip", "play");
+    watch.className = len ? "watch labelled" : "watch";
+    if (len) {
+      watch.insertAdjacentHTML("beforeend", '<span>Watch with sound</span><span class="len"></span>');
+      var showLength = function () {
+        var t = Math.round(v.duration);
+        if (!isFinite(t)) return;
+        watch.querySelector(".len").textContent = Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
+      };
+      v.addEventListener("loadedmetadata", showLength);
+      showLength();
+    }
+    frame.append(ctl, watch);
+    watch.addEventListener("click", function () {
+      if (len) open(v, watch, true);
+      else { delete v.dataset.userPaused; v.play().catch(function () {}); }
+    });
 
     function sync() {
       var playing = !v.paused;
+      frame.classList.toggle("is-paused", !playing);
       toggle.setAttribute("aria-label", playing ? "Pause clip" : "Play clip");
       toggle.innerHTML = ICONS[playing ? "pause" : "play"];
     }
