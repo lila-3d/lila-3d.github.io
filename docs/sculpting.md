@@ -16,14 +16,18 @@ To sculpt again, select the mesh and pick **Sculpt > Sculpt**: every level comes
 | D | Next finer level |
 | Shift+D | Next coarser level |
 | Ctrl+D | Add a level: subdivides the finest once more |
-| Ctrl while stroking | Inverts: dig, unmask, unfreeze, magnify |
-| Shift while stroking | Smooths for that stroke |
+| Ctrl while stroking | Inverts: dig, unmask, unfreeze, magnify. On Grab, moves along the surface normal: drag up to pull out, down to push in |
+| Shift while stroking | Smooths for that stroke. On Paint and Mask, blurs the color or mask instead, leaving the surface still |
+| Shift+Alt+right-drag | Moves the light: sideways turns it, up and down sets how far it sits off your view |
+| Shift+Alt+right-click | Resets the light |
 | F or B held + drag | Brush radius (F tapped still frames the selection) |
 | M or Shift+F held + drag | Brush strength |
 | Shift+F tapped | The wireframe on or off |
 | `[` `]` | Radius smaller, larger |
 | Shift+right-click | Brushes, masks, levels and the hard-surface tools ([Plating](plating.md)) |
 | Esc | Leaves the tool; sculpt mode stays open until Exit Sculpt |
+
+For lighting that shows surface form, turn on **Sculpt Lighting** in the panel's **Display** section.
 
 The level keys work while the sculpt tool is active. Each stroke and each level change is one undo step. Tumbling orbits round your last stroke.
 
