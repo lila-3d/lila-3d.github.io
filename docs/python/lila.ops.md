@@ -2810,6 +2810,16 @@ Surface a network of crossing curves with quads, live: the curves sort into U an
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name. |
 
+### curveOverlay
+
+Opens or closes Puppeteer's Curve Overlay, and returns what it shows: whether it is open, its channels, the selected keys (curve and frame), the value range it frames and the viewport it draws in (screen position and size).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `open` | `o` | bool |  | Open (true) or close (false) it; leave out to only ask. |
+
+Not undoable.
+
 ### curveSculptStroke
 
 One curve sculpting stroke on a curve holding many curves (hair): comb, smooth, length, puff, add, delete, density, cut, pinch or slide, and on a groom's guides the lock brushes grab, twist, widen, flatten, curl, frizz, clump, split, merge and settle. dabs is a list of {center, normal, radius, strength, delta, view} in world space, as the Sculpt Curves tool records them. Roots stay put (on the groom surface) except under slide and add. Returns {changed, added, removed, curves}.
@@ -9065,6 +9075,16 @@ Revolve profile curves around an axis into a quad mesh with live history. Return
 | `maxAngle` |  | float |  | Largest turn between segments, degrees (adaptive and game). |
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
+
+### rigFromTemplate
+
+Give an existing skeleton its template's rig elements, matching joints by name and alias: IK limits, IK chains with poles, reverse feet on the skinned sole, lookers, twist drivers and deform flags, grouped under <root>_rig. A skeleton that already has IK chains is left alone. Without template, the best matching one is used. Returns the elements made.
+
+**Objects:** a joint of the skeleton
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `template` | `t` | str |  | Template id. |
 
 ### rigidBind
 
