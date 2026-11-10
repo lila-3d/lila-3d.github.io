@@ -8912,6 +8912,7 @@ Retopo Draw: connect a different reference mesh to the retopo mesh, so drawing c
 | --- | --- | --- | --- | --- |
 | `mesh` |  | str |  | Retopo mesh. |
 | `reference` |  | str |  | The new reference mesh. |
+| `create` |  | bool | `False` | Create the mesh if it doesn't exist (taking the reference's symmetry). |
 
 ### retopoPoles
 
