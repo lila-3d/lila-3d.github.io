@@ -29,6 +29,25 @@ Statistics of a field over the selected elements of a domain.
 | `dataType` | `float`, `vector` | `float` |  |
 | `domain` | `point`, `edge`, `face`, `corner`, `curve`, `instance` | `point` |  |
 
+### Attribute Transfer
+
+Copies named attributes from the source onto the geometry by distance, on points or faces. Each element blends its Count nearest source elements (inverse distance squared) and mixes the result with its own value by Blend. Within Max Distance less Falloff the transfer is full; it fades to none at Max Distance (0 reaches everywhere). Integer and boolean attributes take the nearest value.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `source` | geometry | input |  |  |
+| `attributes` | string | input | `color` | Names, separated by commas or spaces. |
+| `maxDistance` | float | input | `0` | cm; 0 is unlimited. At least 0. |
+| `falloff` | float | input | `0` | cm. At least 0. |
+| `count` | int | input | `4` | Range 1 to 64. |
+| `blend` | float | input | `1` | Range 0 to 1. |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `face` | `point` |  |
+
 ### Blur Attribute
 
 Averages a field with its neighbours, repeated iterations times: points across edges, edges sharing a point, faces across edges, corners within their face, curve points along their curve. Weight scales how much the neighbours count.
@@ -79,6 +98,28 @@ Element counts of a component.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `component` | `mesh`, `points`, `curve`, `instances` | `mesh` |  |
+
+### Flowmap
+
+Writes a flow direction over the mesh for flowmap shaders (water, lava, moss growth), laid in the surface: from the Direction field, downhill (slope), or along the nearest guide curve within Radius (blending into Direction beyond). It is stored per corner as a 2D vector in the UV map's space under Name, and with Color also as vertex colour (0.5 is still, red along U, green along V), as Unreal flowmap materials read it. Flip V suits textures that count V down.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `direction` | vector | input, field | `[1, 0, 0]` |  |
+| `guides` | geometry | input |  | Guide curves for curves mode. |
+| `radius` | float | input | `200` | Guide reach, cm. At least 0.001. |
+| `strength` | float | input | `1` | Length of the stored vector. Range 0 to 1. |
+| `uvMap` | string | input | `uv0` |  |
+| `name` | string | input | `flow` |  |
+| `color` | bool | input | `true` |  |
+| `flipV` | bool | input | `false` |  |
+| `mesh` | geometry | output |  |  |
+| `flow` | vector | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `direction`, `slope`, `curves` | `slope` |  |
 
 ### Named Attribute
 
@@ -160,6 +201,62 @@ A colour's RGB, HSV or HSL channels and alpha.
 | `mode` | `rgb`, `hsv`, `hsl` | `rgb` |  |
 
 ## Curve
+
+### Cable
+
+Hanging cables between anchors: the points of a point cloud in order, or each curve's points (a closed curve wraps). Each span is a true catenary with slack (extra length as a fraction of the span) or a sag depth in cm. Count above 1 makes a loose bundle. Tube also sweeps a round mesh along them.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `anchors` | geometry | input |  | Points or curves. |
+| `slack` | float | input | `0.1` | At least 0. |
+| `sag` | float | input | `20` | cm. At least 0. |
+| `gravity` | vector | input | `[0, -1, 0]` |  |
+| `segments` | int | input | `32` | Points per span. Range 2 to 4096. |
+| `count` | int | input | `1` | Range 1 to 64. |
+| `spread` | float | input | `2` | Bundle: how far apart the ends sit, cm. At least 0. |
+| `seed` | int | input | `1` |  |
+| `tube` | bool | input | `true` |  |
+| `radius` | float | input | `1` | Tube radius, cm. At least 0.001. |
+| `sides` | int | input | `8` | Range 3 to 256. |
+| `curve` | geometry | output |  |  |
+| `mesh` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `slack`, `sag` | `slack` |  |
+
+### Curve Boolean 2D
+
+Combines the areas inside closed curves lying in a plane: union, difference (a minus every b), intersect or xor. Curves inside curves of the same input are holes. Open curves are ignored. The result is closed poly curves at the inputs' average height above the plane.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | geometry | input |  |  |
+| `b` | geometry | input, multi |  |  |
+| `curves` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `union`, `difference`, `intersect`, `xor` | `union` |  |
+| `plane` | `xz`, `xy`, `yz` | `xz` | xz is the ground. |
+
+### Curve Intersect
+
+Finds where curves cross: in 3D where they pass within distance of each other, or on the ground plane as seen from above. Gives a point at each crossing ("curveA", "curveB" name the curves) and, with split, the curves cut there. Bezier and NURBS curves are resolved to poly first.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curves` | geometry | input |  |  |
+| `distance` | float | input | `0.1` | cm. Distance mode. At least 0. |
+| `selfIntersect` | bool | input | `true` |  |
+| `split` | bool | input | `true` |  |
+| `curves` | geometry | output |  |  |
+| `points` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `distance`, `ground` | `distance` |  |
 
 ### Curve Length
 
@@ -270,6 +367,19 @@ Bends the mesh along the first curve: its forward axis runs along the curve from
 | `forwardAxis` | `+x`, `-x`, `+y`, `-y`, `+z`, `-z` | `+x` |  |
 | `upMode` | `curveFrames`, `autoNormals` | `curveFrames` |  |
 
+### Deform Curves on Surface
+
+Type `DeformCurvesOnSurface`.
+
+Moves each curve with the surface under its first point, as hair follows a deforming head. Where the root sits is found on the rest surface (the rest input, or the surface's "rest_position" point attribute when unlinked); the curve then turns and moves with that triangle on the surface. Rest and surface must share their topology.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curves` | geometry | input |  |  |
+| `surface` | geometry | input |  | The deformed mesh. |
+| `rest` | geometry | input |  | The mesh at rest. |
+| `curves` | geometry | output |  |  |
+
 ### Endpoint Selection
 
 True for the first start and last end points of each curve.
@@ -311,6 +421,16 @@ Rounds (arc), cuts (chamfer) or blends (g2) curve corners by radius; a point's c
 | --- | --- | --- | --- |
 | `mode` | `arc`, `chamfer`, `g2` | `arc` |  |
 
+### Handle Positions
+
+Where each Bezier point's handles are, or their offset from the point when relative. Points without handles give their own position.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `relative` | bool | input, field | `false` |  |
+| `left` | vector | output, field |  |  |
+| `right` | vector | output, field |  |  |
+
 ### Interpolate Curves
 
 Grows a curve from every point by blending the shapes of the nearest guide curves (by their first points), closer guides weighing more. For hair and grass from a few guides.
@@ -322,6 +442,30 @@ Grows a curve from every point by blending the shapes of the nearest guide curve
 | `maxNeighbors` | int | input | `4` | Range 1 to 64. |
 | `curves` | geometry | output |  |  |
 | `closestIndex` | int | output, field |  | The nearest guide's index, per curve. |
+
+### Is Spline Cyclic
+
+Whether the curve each element belongs to is closed.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `cyclic` | bool | output, field |  |  |
+
+### Loft
+
+A quad surface through the curves in their order, with UVs: U across each curve, V from first to last. Curves are resampled to match; closed curves are turned to line up. Closed joins the last curve back to the first.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  | Sections, in order. |
+| `samples` | int | input | `0` | Points across each curve; 0 keeps their own. Range 0 to 100000. |
+| `spansBetween` | int | input | `4` | Rows between neighbouring curves. Range 1 to 1000. |
+| `smooth` | bool | input | `true` | Curved through the sections instead of straight between them. |
+| `closed` | bool | input | `false` |  |
+| `caps` | bool | input | `false` | Fill the open ends when the curves are closed. |
+| `autoAlign` | bool | input | `true` |  |
+| `flip` | bool | input | `false` |  |
+| `mesh` | geometry | output |  |  |
 
 ### Mesh to Curve
 
@@ -353,6 +497,19 @@ Offsets each curve within its plane by a distance: outward for closed curves, to
 | --- | --- | --- | --- |
 | `join` | `round`, `miter`, `square` | `round` |  |
 
+### Offset Point in Curve
+
+Type `OffsetPointInCurve`.
+
+The point offset steps along the same curve from a point, wrapping on closed curves, and whether that point exists.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pointIndex` | int | input, field | Index |  |
+| `offset` | int | input, field | `0` |  |
+| `isValidOffset` | bool | output, field |  |  |
+| `pointIndex` | int | output, field |  |  |
+
 ### Points of Curve
 
 Type `PointsOfCurve`.
@@ -366,6 +523,37 @@ A point of a curve, picked by its place when the curve's points are sorted by we
 | `sortIndex` | int | input, field | `0` |  |
 | `pointIndex` | int | output, field |  |  |
 | `total` | int | output, field |  |  |
+
+### Points to Curves
+
+Type `PointsToCurves`.
+
+One poly curve per curve group id, through its points in order of weight (ties by index), groups in order of id. Point attributes carry over. Takes the point cloud, or the mesh's points when there is none.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | geometry | input |  |  |
+| `curveGroupId` | int | input, field | `0` |  |
+| `weight` | float | input, field | `0` |  |
+| `curves` | geometry | output |  |  |
+
+### Polygon Offset 2D
+
+Type `PolygonOffset`.
+
+Grows or shrinks the region closed planar curves enclose (holes by containment) within their plane. Loops that run into each other merge, parts that pinch apart split and parts that vanish are dropped. Straight runs stay straight; corners follow the join.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  |  |
+| `distance` | float | input | `10` | cm; negative insets. |
+| `miterLimit` | float | input | `4` | Miter corners longer than this many times the distance are squared off. At least 1. |
+| `steps` | int | input | `1` | Evenly spaced offsets out to the distance. Range 1 to 1000. |
+| `curve` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `join` | `miter`, `round`, `square` | `miter` |  |
 
 ### Resample Curve
 
@@ -394,6 +582,22 @@ Runs the selected curves the other way, keeping their shape and point attributes
 | `selection` | bool | input, field | `true` | Curves to reverse. |
 | `curve` | geometry | output |  |  |
 
+### Revolve
+
+Spins each profile curve around an axis into a quad surface with UVs: U around, V along the profile. Profile points on the axis close into poles. A partial turn of a closed profile can be capped.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  | Profile curves. |
+| `origin` | vector | input | `[0, 0, 0]` | A point on the axis. |
+| `axis` | vector | input | `[0, 1, 0]` |  |
+| `startAngle` | float | input | `0` | Degrees. |
+| `angle` | float | input | `360` | Degrees turned from the start. |
+| `segments` | int | input | `16` | Range 1 to 4096. |
+| `caps` | bool | input | `true` | Close the open ends of a partial turn of a closed profile. |
+| `flip` | bool | input | `false` |  |
+| `mesh` | geometry | output |  |  |
+
 ### Sample Curve
 
 Reads position, tangent, normal and a value field at a point along a curve, by factor of its length or by length. With All Curves the curves count as one, end to end.
@@ -415,6 +619,20 @@ Reads position, tangent, normal and a value field at a point along a curve, by f
 | `dataType` | `float`, `int`, `vector`, `bool`, `rotation`, `color` | `float` |  |
 | `mode` | `factor`, `length` | `factor` |  |
 
+### Set Curve Normal
+
+Sets how curve normals point by writing tilt: minimumTwist clears it, so normals turn as little as they can; yUp keeps them square to the up axis; free turns each one toward the normal input, projected square to the curve.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Elements to affect. |
+| `curve` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `minimumTwist`, `yUp`, `free` | `minimumTwist` |  |
+
 ### Set Curve Tilt
 
 Sets the tilt of curve points (radians around the tangent), which turns the normal and swept profiles.
@@ -425,6 +643,22 @@ Sets the tilt of curve points (radians around the tangent), which turns the norm
 | `selection` | bool | input, field | `true` | Elements to affect. |
 | `tilt` | float | input, field | `0` |  |
 | `curve` | geometry | output |  |  |
+
+### Set Handle Positions
+
+Moves the left or right handles of Bezier points: to position when linked, then by offset. Auto and vector handles become free; an aligned handle opposite keeps its length and turns to stay in line.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Elements to affect. |
+| `position` | vector | input, field | `[0, 0, 0]` | Unlinked, the handle stays where it is. |
+| `offset` | vector | input, field | `[0, 0, 0]` |  |
+| `curve` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `left`, `right` | `left` |  |
 
 ### Set Handle Type
 
@@ -438,6 +672,28 @@ Sets the handle type of every Bezier point: auto, vector, aligned or free.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `type` | `auto`, `vector`, `aligned`, `free` | `auto` |  |
+
+### Set Spline Cyclic
+
+Opens or closes curves. A NURBS curve whose cyclic state changes gets uniform knots.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Curves to change. |
+| `cyclic` | bool | input, field | `false` |  |
+| `curve` | geometry | output |  |  |
+
+### Set Spline Resolution
+
+Segments per span when Bezier and NURBS curves are turned into points; 0 lets each span pick its own from how much it bends.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Curves to change. |
+| `resolution` | int | input, field | `12` | Range 0 to 512. |
+| `curve` | geometry | output |  |  |
 
 ### Set Spline Type
 
@@ -460,6 +716,33 @@ Length and point count of the curve each element belongs to.
 | --- | --- | --- | --- | --- |
 | `length` | float | output, field |  |  |
 | `pointCount` | int | output, field |  |  |
+
+### Spline Resolution
+
+Segments per span of the curve each element belongs to; 0 when its spans pick their own.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `resolution` | int | output, field |  |  |
+
+### Straight Skeleton
+
+The straight skeleton of the region closed planar curves enclose (inner loops are holes), as two-point curves, and a roof over it: hip slopes every side at the pitch, gable stands the short ends upright. Lift raises the skeleton onto a hip roof. The roof mesh has UVs along each slope and a face "part" (0 roof, 1 gable, 2 underside, 3 fascia).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  |  |
+| `pitch` | float | input | `30` | Roof slope, degrees. Range 0 to 89. |
+| `overhang` | float | input | `0` | How far the eaves reach past the outline, cm. At least 0. |
+| `thickness` | float | input | `0` | Roof slab thickness, cm; 0 is a single surface. At least 0. |
+| `uvScale` | float | input | `100` | cm per UV unit. At least 0.001. |
+| `lift` | bool | input | `false` |  |
+| `skeleton` | geometry | output |  |  |
+| `roof` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `roof` | `hip`, `gable` | `hip` |  |
 
 ### String to Curves
 
@@ -654,6 +937,43 @@ Bends geometry round an arc across a range of the axis; past the range it carrie
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `axis` | `x`, `y`, `z` | `y` | Axis the deformation runs along. |
+
+### Lattice
+
+Deforms geometry with a lattice cage. The rest lattice spans the geometry's bounding box (plus padding) at the given points per axis, or the bounds of a Rest grid. Its points move by the Offset field (evaluated on the lattice, so it can read Position) or take the positions of a Cage of the same points. Points outside the box fade out over Falloff cm. The lattice output is the moved cage, to view or to edit and feed back in as Cage.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `cage` | geometry | input |  | Moved lattice points, in the lattice output's order. |
+| `rest` | geometry | input |  | A grid whose bounds set the rest lattice. |
+| `resolution` | vector | input | `[3, 3, 3]` | Points per axis, 2 or more. |
+| `padding` | float | input | `1` | cm. At least 0. |
+| `offset` | vector | input, field | `[0, 0, 0]` | Movement of each lattice point, cm. |
+| `falloff` | float | input | `0` | cm. At least 0. |
+| `geometry` | geometry | output |  |  |
+| `lattice` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `basis` | `bspline`, `trilinear`, `bernstein` | `bspline` | Bspline is smooth and local, bernstein global. |
+
+### Point Deform
+
+Makes geometry follow a proxy: each point captures the proxy's rest points within the capture radius (up to Max Points, weighted by distance) and moves as they move in the deformed proxy. Rigid also turns it with its neighbourhood. Rest and Deformed need the same points in the same order; points with no rest point in reach stay put.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `rest` | geometry | input |  |  |
+| `deformed` | geometry | input |  |  |
+| `radius` | float | input | `50` | Capture radius, cm. At least 0.001. |
+| `maxPoints` | int | input | `8` | Range 1 to 256. |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `rigid`, `translate` | `rigid` |  |
 
 ### Taper
 
@@ -1186,6 +1506,15 @@ Copies each selected element amount times; faces become separate pieces. Duplica
 | --- | --- | --- | --- |
 | `domain` | `point`, `face`, `curve`, `instance` | `point` |  |
 
+### Geometry Name
+
+The geometry's name, empty when it has none.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `name` | string | output |  |  |
+
 ### Geometry Proximity
 
 Closest point on the target's faces, edges or points.
@@ -1200,6 +1529,19 @@ Closest point on the target's faces, edges or points.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `targetElement` | `faces`, `edges`, `points` | `faces` |  |
+
+### Index of Nearest
+
+Type `IndexOfNearest`.
+
+The index of the closest other element with the same group id, -1 when it is alone in its group.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` | vector | input, field | Position |  |
+| `groupId` | int | input, field | `0` |  |
+| `index` | int | output, field |  |  |
+| `hasNeighbor` | bool | output, field |  |  |
 
 ### Join Geometry
 
@@ -1278,6 +1620,23 @@ Index of the element of another geometry closest to each position. Pair with Sam
 | --- | --- | --- | --- |
 | `domain` | `point`, `edge`, `face`, `corner` | `point` |  |
 
+### Sample UV Surface
+
+Reads a mesh's value at a uv: the triangle under the uv in the source uv map (uv0 when unlinked), blended across it. Integers and booleans take the nearest corner. Is valid is false where no face covers the uv.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `value` | float | input, field | `0` | Evaluated on the mesh's corners. |
+| `sourceUvMap` | vector | input, field | `[0, 0, 0]` | The mesh's uvs, on its corners. |
+| `sampleUv` | vector | input, field | `[0, 0, 0]` | Where to read, on the geometry being evaluated. |
+| `value` | float | output, field |  |  |
+| `isValid` | bool | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `dataType` | `float`, `int`, `vector`, `bool`, `rotation`, `color` | `float` |  |
+
 ### Separate Geometry
 
 Splits geometry into the selected part and the rest.
@@ -1294,6 +1653,27 @@ Splits geometry into the selected part and the rest.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `domain` | `point`, `edge`, `face`, `curve`, `instance` | `point` |  |
+
+### Set Geometry Name
+
+Labels the geometry. Joins keep the first part's name; nodes that edit geometry keep it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `name` | string | input |  |  |
+| `geometry` | geometry | output |  |  |
+
+### Set ID
+
+Writes the id attribute that random values and the ID input read: on the points of meshes, point clouds and curves, and on instances.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Elements to affect. |
+| `id` | int | input, field | Index |  |
+| `geometry` | geometry | output |  |  |
 
 ### Set Position
 
@@ -1337,6 +1717,44 @@ Moves, rotates and scales all of the geometry.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
+
+## Gizmo
+
+### Dial Gizmo
+
+A ring in the viewport at position around the up axis, turned to change value by the angle in radians (an angle input shows degrees). Link a group input into value; dragging the handle edits that input.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | float | input | `0` |  |
+| `position` | vector | input | `[0, 0, 0]` |  |
+| `up` | vector | input | `[0, 1, 0]` |  |
+| `radius` | float | input | `1` | Ring size; 1 is the default screen size. Range 0.1 to 10. |
+
+### Linear Gizmo
+
+An arrow in the viewport at position, dragged along direction: one unit of value per unit moved, scaled by direction's length. Link a group input into value; dragging the handle edits that input.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | float | input | `0` |  |
+| `position` | vector | input | `[0, 0, 0]` |  |
+| `direction` | vector | input | `[0, 1, 0]` |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `style` | `arrow`, `box`, `cross` | `arrow` |  |
+
+### Transform Gizmo
+
+Move arrows, rotate rings and scale boxes at a matrix's origin, editing the matrix. Link a group input into value; dragging the handle edits that input.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | matrix | input |  |  |
+| `translate` | bool | input | `true` |  |
+| `rotate` | bool | input | `true` |  |
+| `scale` | bool | input | `false` |  |
 
 ## Group
 
@@ -2635,6 +3053,23 @@ The camera of the viewport last clicked or focused, in world space. A group usin
 | `orthographic` | bool | output |  |  |
 | `orthoSize` | vector | output |  |  |
 
+### Bone Info
+
+A joint's transform, posed: in world space, or local to its parent joint. The joint is connected into the modifier, so posing it re-evaluates the group. Any transform can stand in for a joint.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `transform` | matrix | output |  |  |
+| `location` | vector | output |  |  |
+| `rotation` | rotation | output |  |  |
+| `scale` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `joint` |  |  | Name of the joint. |
+| `space` | `world`, `local` | `world` |  |
+| `relativeTo` | `world`, `owner` | `world` | World space only: owner reads it relative to the mesh this group runs on. |
+
 ### Boolean
 
 A constant bool.
@@ -2643,6 +3078,21 @@ A constant bool.
 | --- | --- | --- | --- | --- |
 | `value` | bool | input | `false` |  |
 | `value` | bool | output |  |  |
+
+### Collection Info
+
+The mesh and curve objects under a transform (its children, theirs and so on), each placed as it stands in the scene. Original places them relative to that transform, Relative to the mesh this group runs on. Separate gives one instance per object, named after it (Geometry Name reads it); otherwise one instance holds them all. Reset puts each at the origin. Objects moved, reparented or added under it are picked up when the group is next edited or reapplied.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `separateChildren` | bool | input | `false` |  |
+| `resetChildren` | bool | input | `false` |  |
+| `instances` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `parent` |  |  | Name of the transform whose objects to use. |
+| `transformSpace` | `original`, `relative` | `original` |  |
 
 ### ID
 
@@ -2802,6 +3252,16 @@ Turns each linked geometry into one instance at the origin, in link order, so Pi
 | `geometry` | geometry | input, multi |  |  |
 | `instances` | geometry | output |  |  |
 
+### Instance Bounds
+
+Corners of each instance's axis-aligned bounding box: around the placed instance, or in its own space when local.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `local` | bool | input, field | `false` |  |
+| `min` | vector | output, field |  |  |
+| `max` | vector | output, field |  |  |
+
 ### Instance on Curve
 
 Type `InstanceOnCurve`.
@@ -2945,6 +3405,24 @@ Sets instances' translation, rotation and scale. Rotation and scale change only 
 | --- | --- | --- | --- |
 | `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
 
+### Split to Instances
+
+Type `SplitToInstances`.
+
+One instance per group id of the selected elements, at the origin, each holding its group's part: faces of the mesh, points (mesh points become a point cloud), curves or instances. Groups go in order of id.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Elements to affect. |
+| `groupId` | int | input, field | `0` |  |
+| `instances` | geometry | output |  |  |
+| `groupId` | int | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `face`, `curve`, `instance` | `face` |  |
+
 ### Translate Instances
 
 Moves instances. Local moves along each instance's own axes (its rotation and scale apply).
@@ -2997,6 +3475,19 @@ Names the value wired into it, so Receive nodes anywhere in the group can read i
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `name` |  |  | What Receive nodes call this value. |
+
+## Matrix
+
+### Matrix SVD
+
+Splits the 3x3 part of a matrix into U * diag(S) * transpose(V): U and V orthonormal, S the singular values, largest first.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `matrix` | matrix | input, field |  |  |
+| `u` | matrix | output, field |  |  |
+| `s` | vector | output, field |  |  |
+| `v` | matrix | output, field |  |  |
 
 ## Mesh
 
@@ -3068,6 +3559,48 @@ Melts spheres at points and tubes along curves into one surface with smooth join
 | `sharpEdges` | bool | input | `false` | Keep hard joins sharp (dual contouring). |
 | `mesh` | geometry | output |  |  |
 
+### Clean Mesh
+
+Finds and fixes common mesh faults: coincident points are welded, degenerate edges and faces collapsed, duplicate faces dropped, non-manifold edges and points split apart, winding made consistent, unused points and edges removed. Report only leaves the mesh as it is. The selections mark what was found, on elements that survive the fix.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `reportOnly` | bool | input | `false` |  |
+| `mergePoints` | bool | input | `true` |  |
+| `degenerate` | bool | input | `true` |  |
+| `duplicates` | bool | input | `true` |  |
+| `nonManifold` | bool | input | `true` |  |
+| `winding` | bool | input | `true` |  |
+| `removeLoose` | bool | input | `true` |  |
+| `tolerance` | float | input | `-1` | Distance under which points coincide and faces count as degenerate; negative scales with the mesh. |
+| `mesh` | geometry | output |  |  |
+| `coincident` | bool | output, field |  | Points. |
+| `degenerateFaces` | bool | output, field |  | Zero-area faces and faces on zero-length edges. |
+| `duplicateFaces` | bool | output, field |  |  |
+| `nonManifoldEdges` | bool | output, field |  |  |
+| `loosePoints` | bool | output, field |  | Points no face uses. |
+| `issueCount` | int | output |  |  |
+| `report` | string | output |  |  |
+
+### Clip
+
+Cuts meshes, curves and point clouds with a plane. Above keeps the side the normal points to, below the other, both keeps the two halves as separate pieces. Cap closes the cut with faces, holes respected, uvs matched to the surrounding texel density.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `origin` | vector | input | `[0, 0, 0]` | A point on the plane. |
+| `normal` | vector | input | `[0, 1, 0]` |  |
+| `cap` | bool | input | `true` | Close the cut on meshes. |
+| `geometry` | geometry | output |  |  |
+| `cut` | bool | output, field |  | Mesh edges on the cut. |
+| `capFaces` | bool | output, field |  | The cap faces. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `keep` | `above`, `below`, `both` | `above` |  |
+
 ### Decimate
 
 Quadric edge-collapse reduction that keeps uvs, borders and hard edges.
@@ -3088,6 +3621,22 @@ Quadric edge-collapse reduction that keeps uvs, borders and hard edges.
 | --- | --- | --- | --- |
 | `symmetry` | `none`, `x`, `y`, `z` | `none` |  |
 
+### Dissolve Flat Edges
+
+Merges faces across edges that bend less than the angle, and removes points left in the middle of straight runs.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Elements to affect. |
+| `angle` | float | input | `5` | Degrees of bend under which an edge goes. Range 0 to 180. |
+| `keepBorders` | bool | input | `true` | Edges touching an open border stay. |
+| `keepSeams` | bool | input | `true` | Uv seams stay: marked seams and edges where the uvs split. |
+| `keepHardEdges` | bool | input | `true` |  |
+| `keepMaterials` | bool | input | `true` | Edges between materials stay. |
+| `mesh` | geometry | output |  |  |
+| `dissolved` | int | output |  |  |
+
 ### Dual Mesh
 
 Swaps faces and points: a point at each face centre, a face round each interior point. Open borders are dropped.
@@ -3097,6 +3646,38 @@ Swaps faces and points: a point at each face centre, a face round each interior 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
+| `mesh` | geometry | output |  |  |
+
+### Edge Damage
+
+Chips and wear along convex sharp edges without booleans: points within Size of an edge sharper than Angle are pushed in by up to Amount, in noisy patches set by Coverage. Subdivisions add points to carve into first; Cut chamfers the edges before chipping, for broken corners. Wear is how damaged each point is, 0 to 1, for masks.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `angle` | float | input | `30` | Degrees. Range 0 to 180. |
+| `amount` | float | input | `1.5` | Depth, cm. At least 0. |
+| `size` | float | input | `3` | Reach from the edge, cm. At least 0.001. |
+| `chipScale` | float | input | `4` | Size of the chips, cm. At least 0.001. |
+| `coverage` | float | input | `0.6` | Range 0 to 1. |
+| `seed` | int | input | `0` |  |
+| `subdivisions` | int | input | `2` | Range 0 to 5. |
+| `cut` | bool | input | `false` |  |
+| `mesh` | geometry | output |  |  |
+| `wear` | float | output, field |  |  |
+
+### Edge Relax
+
+Moves the selected points so each edge takes the length it has in the reference, a copy of the mesh with the same points and edges such as its rest shape. Without a reference, edges even out towards the mean length.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Points free to move. |
+| `reference` | geometry | input |  |  |
+| `iterations` | int | input | `20` | Range 0 to 10000. |
+| `strength` | float | input | `0.5` | Range 0 to 1. |
+| `keepOnSurface` | bool | input | `false` | Pull moved points back onto the input surface. |
 | `mesh` | geometry | output |  |  |
 
 ### Extrude Mesh
@@ -3118,6 +3699,25 @@ Extrudes faces by an offset (a field, the face normal by default) times the scal
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `individual` | `true`, `false` | `true` | Each face separately, or connected regions together. |
+
+### Fill Holes
+
+Caps open border loops. Polygon makes one face per hole, triangles cuts it into triangles, fan adds a centre point, grid fills with quads. Border uvs copies the neighbouring uvs onto the cap; planar flattens it at the surrounding texel density.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Holes with any selected border edge are filled. |
+| `maxSides` | int | input | `0` | Holes with more border edges stay open; 0 fills any. At least 0. |
+| `maxPerimeter` | float | input | `0` | Holes longer round than this stay open; 0 fills any. At least 0. |
+| `mesh` | geometry | output |  |  |
+| `fill` | bool | output, field |  | The new faces. |
+| `holesFilled` | int | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `method` | `polygon`, `triangles`, `fan`, `grid` | `polygon` |  |
+| `uvs` | `border`, `planar` | `planar` |  |
 
 ### Flip Faces
 
@@ -3164,6 +3764,21 @@ Insets the selected faces, leaving a ring of faces round each region.
 | `inner` | bool | output, field |  | The inset faces. |
 | `rim` | bool | output, field |  | The new faces round them. |
 
+### Isotropic Remesh
+
+Rebuilds the surface as even triangles of the target edge length, kept on the original shape. Sharp, hard, seam and border edges stay as lines in the new mesh. Adaptivity makes triangles smaller where the surface curves. Attributes and uvs are sampled from the original.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `edgeLength` | float | input | `0` | Target edge length in cm; 0 keeps the mean edge length. At least 0. |
+| `iterations` | int | input | `8` | Range 1 to 100. |
+| `featureAngle` | float | input | `45` | Edges sharper than this many degrees are kept; negative off. Range -1 to 180. |
+| `keepHardEdges` | bool | input | `true` |  |
+| `keepSeams` | bool | input | `true` | Uv seams stay as lines, so uvs carry over cleanly. |
+| `adaptivity` | float | input | `0` | 0 even, 1 down to a fifth of the length where curved. Range 0 to 1. |
+| `mesh` | geometry | output |  |  |
+
 ### Mesh Boolean
 
 Union, difference or intersection of closed meshes (Manifold), with the seam cleaned up. Difference subtracts every mesh B from mesh A.
@@ -3183,6 +3798,22 @@ Union, difference or intersection of closed meshes (Manifold), with the seam cle
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `operation` | `difference`, `union`, `intersect` | `difference` |  |
+
+### Mesh Tiler
+
+Tiles a module mesh along each curve of the target, or across every quad of a target mesh (a grid). Along curves the module's forward axis follows the curve and each copy bends with it: stretch fits count copies to the length, fit rounds to whole copies and evens them out, repeat keeps their own length. On a surface the module's X and Z footprint fills each quad and its Y rises along the normal; fit scales the height with the quad, stretch keeps it in cm.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `module` | geometry | input |  |  |
+| `target` | geometry | input |  | Curves, or a mesh of quads. |
+| `count` | int | input | `4` | Stretch along curves: copies per curve. Range 1 to 100000. |
+| `mesh` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `fit` | `fit`, `stretch`, `repeat` | `fit` |  |
+| `forwardAxis` | `x`, `z` | `x` | Module axis laid along curves. |
 
 ### Mirror Mesh
 
@@ -3223,6 +3854,22 @@ Field-aligned quad remesh following curvature and sharp edges.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `symmetry` | `none`, `x`, `y`, `z` | `none` |  |
+
+### Rock
+
+A procedural rock from a seed: a hull of jittered points, cut by random planes into flat faces, then pitted by noise. Faceting toward 1 gives fewer, larger facets. It fills Size exactly, sitting on the ground plane, centred, with box-projected UVs (1 per m) and hard edges at its sharp facets.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seed` | int | input | `0` |  |
+| `size` | vector | input | `[100, 70, 80]` | cm. |
+| `faceting` | float | input | `0.6` | Range 0 to 1. |
+| `cuts` | int | input | `6` | Planes sliced off. Range 0 to 64. |
+| `cutDepth` | float | input | `0.25` | How deep each cut reaches, against the size. Range 0 to 0.9. |
+| `erosion` | float | input | `0.3` | Range 0 to 2. |
+| `erosionScale` | float | input | `25` | Size of the pits, cm. At least 0.01. |
+| `detail` | int | input | `4` | Mesh resolution. Range 1 to 7. |
+| `mesh` | geometry | output |  |  |
 
 ### Scale Elements
 
@@ -3329,6 +3976,24 @@ Gives the surface thickness: an inner shell along the point normals, joined at o
 | `fillRim` | bool | input | `true` | Close open borders between the two shells. |
 | `mesh` | geometry | output |  |  |
 
+### Split by Point Attribute
+
+Type `SplitByPointAttribute`.
+
+Cuts faces along a line through a point value. Threshold inserts points where the value crosses it, attributes interpolated; change inserts a point in the middle of every edge whose ends differ, so faces split between regions of different ids.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `value` | float | input, field | `0` | Read per point. |
+| `threshold` | float | input | `0.5` |  |
+| `mesh` | geometry | output |  |  |
+| `split` | bool | output, field |  | The new edges along the line. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `threshold`, `change` | `threshold` |  |
+
 ### Split Edges
 
 Disconnects the faces on either side of the selected edges.
@@ -3368,6 +4033,20 @@ Catmull-Clark subdivision. Edge "crease" attributes keep edges sharp.
 | `uvs` | `fitSurface`, `blend` | `fitSurface` | Island interior uvs: spread evenly over the smoothed surface, or smoothed like the points. |
 | `uvCorners` | `keep`, `smooth` | `keep` | Island corner uvs: kept where the input has them, or smoothed with the border. |
 
+### Tetrahedralize
+
+Fills a closed mesh with tetrahedra through its points, plus a grid of points inside at the spacing. Each tet comes out as its own four triangles, with the tetIndex attribute on its faces and points and tetPoint on its points (the shared vertex each came from, so tets can be welded back together). Surface selects the faces on the outside. The tets follow the surface through its points.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `spacing` | float | input | `0` | Distance between points added inside, cm; 0 uses only the surface points. At least 0. |
+| `shrink` | float | input | `0` | Scales each tet towards its centre, to see them apart. Range 0 to 1. |
+| `mesh` | geometry | output |  |  |
+| `tetIndex` | int | output, field |  |  |
+| `surface` | bool | output, field |  |  |
+| `tetCount` | int | output |  |  |
+
 ### Triangulate
 
 Splits the selected faces into triangles.
@@ -3383,6 +4062,21 @@ Splits the selected faces into triangles.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `quadMethod` | `shortestDiagonal`, `fixed` | `shortestDiagonal` |  |
+
+### Triangulate 2D
+
+Triangulates points, curves and mesh outlines (open borders and loose edges) in a plane, keeping each as triangle edges. Inside fills only what closed curves enclose, with curves inside others making holes; hull fills the whole outline. Points keep their height off the plane, so scattered heights make a terrain surface.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `normal` | vector | input | `[0, 1, 0]` | The plane's up; triangles face it. |
+| `mesh` | geometry | output |  |  |
+| `lostEdges` | int | output |  | Curve or edge segments that could not be kept, such as ones crossing another. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `fill` | `inside`, `hull` | `inside` | Inside falls back to the hull when there are no closed curves. |
 
 ### Voxel Remesh
 
@@ -3660,6 +4354,20 @@ Latitude-longitude sphere.
 
 ## Mesh Topology
 
+### Corners of Edge
+
+Type `CornersOfEdge`.
+
+One of the corners that start an edge, one per face using it, chosen by sorting them by weight. With equal weights they come in index order.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edgeIndex` | int | input, field | Index | The edge to look along; defaults to the index. |
+| `weights` | float | input, field | `0` | Values the choices are sorted by, lowest first. |
+| `sortIndex` | int | input, field | `0` | Which of the sorted choices to output; wraps around. |
+| `cornerIndex` | int | output, field |  |  |
+| `total` | int | output, field |  | How many choices there are. |
+
 ### Corners of Face
 
 Type `CornersOfFace`.
@@ -3778,6 +4486,25 @@ Groups faces connected without crossing a boundary edge. Group IDs run from 0.
 | `boundaryEdges` | bool | input, field | `true` | Edges that separate groups. |
 | `faceGroupId` | int | output, field |  |  |
 
+### Expand Selection
+
+Spreads a selection over the mesh by a number of steps or a distance in cm, measured between element centres along the surface. Also gives how far each element is from the selection and a falloff from 1 at the selection to 0 at the limit.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `selection` | bool | input, field | `false` |  |
+| `steps` | int | input | `2` | Topology mode. Range 0 to 100000. |
+| `distance` | float | input | `10` | Distance mode, cm. At least 0. |
+| `selection` | bool | output, field |  |  |
+| `distance` | float | output, field |  | Steps or cm from the selection; -1 beyond the limit. |
+| `falloff` | float | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `edge`, `face` | `point` |  |
+| `mode` | `topology`, `distance` | `distance` |  |
+| `across` | `edges`, `corners` | `edges` | Edges: points joined by an edge, edges sharing a point, faces sharing an edge. Corners also takes anything sharing a face, or faces sharing only a point. |
+
 ### Face Area
 
 Surface area of each face.
@@ -3815,6 +4542,21 @@ The face a corner belongs to, and the corner's position in that face's winding.
 | `cornerIndex` | int | input, field | Index | The corner; defaults to the index. |
 | `faceIndex` | int | output, field |  |  |
 | `indexInFace` | int | output, field |  |  |
+
+### Grow Selection
+
+Adds the neighbours of a selection, a ring per step.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `selection` | bool | input, field | `false` |  |
+| `steps` | int | input | `1` | Range 0 to 100000. |
+| `selection` | bool | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `edge`, `face` | `face` |  |
+| `across` | `edges`, `corners` | `edges` | Edges: points joined by an edge, edges sharing a point, faces sharing an edge. Corners also takes anything sharing a face, or faces sharing only a point. |
 
 ### Is Face Planar
 
@@ -3856,6 +4598,21 @@ For every point, the neighbouring point on the cheapest path along edges to the 
 | `edgeCost` | float | input, field | `1` | Cost of crossing each edge; negative counts as 0. |
 | `nextVertexIndex` | int | output, field |  |  |
 | `totalCost` | float | output, field |  |  |
+
+### Shrink Selection
+
+Takes the outer ring off a selection per step: elements with an unselected neighbour drop out.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `selection` | bool | input, field | `false` |  |
+| `steps` | int | input | `1` | Range 0 to 100000. |
+| `selection` | bool | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `edge`, `face` | `face` |  |
+| `across` | `edges`, `corners` | `edges` | Edges: points joined by an edge, edges sharing a point, faces sharing an edge. Corners also takes anything sharing a face, or faces sharing only a point. |
 
 ### Sort Elements
 
@@ -3910,6 +4667,20 @@ Previews geometry at this point of the graph in the viewport, coloured by the va
 | `domain` | `auto`, `point`, `edge`, `face`, `corner`, `instance` | `auto` |  |
 
 ## Point
+
+### Cluster Points
+
+Groups the points (of the point cloud, else the mesh) into count clusters of nearby points (k-means). Gives each point its cluster, and a point at each cluster's centre carrying "cluster" and its point count as "size".
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `count` | int | input | `8` | Range 1 to 100000. |
+| `seed` | int | input | `0` |  |
+| `iterations` | int | input | `20` | Range 1 to 1000. |
+| `geometry` | geometry | output |  |  |
+| `cluster` | int | output, field |  |  |
+| `centroids` | geometry | output |  |  |
 
 ### Distribute Points on Faces
 
@@ -3977,6 +4748,25 @@ Turns a point cloud into a mesh of loose vertices.
 | `points` | geometry | input |  |  |
 | `selection` | bool | input, field | `true` | Elements to affect. |
 | `mesh` | geometry | output |  |  |
+
+### Self Prune
+
+Removes points and instances that overlap ones kept before them, given each a sphere of radius or a box of size around its position. Priority sets who goes first: higher weight, a seeded random order, or the largest first. Unselected elements are kept and still block others.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Elements to affect. |
+| `radius` | float | input, field | `10` | At least 0. |
+| `size` | vector | input, field | `[20, 20, 20]` | Box: full extents. |
+| `weight` | float | input, field | `0` | Higher is kept first. |
+| `seed` | int | input | `0` |  |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `shape` | `sphere`, `box` | `sphere` |  |
+| `priority` | `weight`, `random`, `largestFirst` | `weight` |  |
 
 ## Procedural
 
@@ -4123,6 +4913,21 @@ A rotation of angle radians about an axis.
 | `angle` | float | input, field | `0` |  |
 | `rotation` | rotation | output, field |  |  |
 
+### Euler to Rotation
+
+Type `EulerToRotation`.
+
+A rotation from angles about X, Y and Z (radians), applied in the chosen order, first letter first.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `euler` | vector | input, field | `[0, 0, 0]` |  |
+| `rotation` | rotation | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `order` | `XYZ`, `XZY`, `YXZ`, `YZX`, `ZXY`, `ZYX` | `XYZ` |  |
+
 ### Invert Rotation
 
 The rotation that undoes this one.
@@ -4172,6 +4977,21 @@ The axis and angle (0 to pi radians) of a rotation. No rotation gives the Z axis
 | `axis` | vector | output, field |  |  |
 | `angle` | float | output, field |  |  |
 
+### Rotation to Euler
+
+Type `RotationToEuler`.
+
+A rotation as angles about X, Y and Z (radians) applied in the chosen order, first letter first.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `rotation` | rotation | input, field | `[0, 0, 0]` |  |
+| `euler` | vector | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `order` | `XYZ`, `XZY`, `YXZ`, `YZX`, `ZXY`, `ZYX` | `XYZ` |  |
+
 ### Rotation to Quaternion
 
 Type `EulerToQuaternion`.
@@ -4188,6 +5008,33 @@ A rotation as a unit quaternion with w not negative.
 
 ## Text
 
+### Find in String
+
+Type `FindInString`.
+
+Where search first appears in the string (a character index, -1 when absent) and how many times it appears without overlapping.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `string` | string | input |  |  |
+| `search` | string | input |  |  |
+| `firstFound` | int | output, field |  |  |
+| `count` | int | output, field |  |  |
+
+### Format String
+
+Builds text from a pattern: {a} to {d} are the numbers, {0}, {1}... the linked strings in link order. A spec after a colon formats the value: {a:.2f} two decimals, {a:04d} a zero-padded integer, {0:>8} right-aligned. {{ and }} are braces.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `format` | string | input | `{a}` |  |
+| `a` | float | input | `0` |  |
+| `b` | float | input | `0` |  |
+| `c` | float | input | `0` |  |
+| `d` | float | input | `0` |  |
+| `strings` | string | input, multi |  |  |
+| `string` | string | output |  |  |
+
 ### Join Strings
 
 Joins every linked string in link order, with the delimiter between them.
@@ -4197,6 +5044,21 @@ Joins every linked string in link order, with the delimiter between them.
 | `delimiter` | string | input |  |  |
 | `strings` | string | input, multi |  |  |
 | `string` | string | output |  |  |
+
+### Match String
+
+Whether the string starts with, ends with or contains the key, or matches it as a regular expression (ECMAScript, anywhere in the string).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `string` | string | input |  |  |
+| `key` | string | input |  |  |
+| `caseSensitive` | bool | input | `true` |  |
+| `result` | bool | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `startsWith`, `endsWith`, `contains`, `regex` | `contains` |  |
 
 ### Replace String
 
@@ -4228,6 +5090,22 @@ Number of characters in the string.
 | --- | --- | --- | --- | --- |
 | `string` | string | input |  |  |
 | `length` | int | output, field |  |  |
+
+### String to Value
+
+Type `StringToValue`.
+
+The number at the start of the string, leading spaces skipped, and how many characters it took (0 when there is no number).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `string` | string | input |  |  |
+| `value` | float | output, field |  |  |
+| `length` | int | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `dataType` | `float`, `int` | `float` |  |
 
 ### Value to String
 
@@ -4326,6 +5204,19 @@ Blender's Gradient Texture: a ramp from the vector's X (linear, quadratic, easin
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `gradientType` | `linear`, `quadratic`, `easing`, `diagonal`, `spherical`, `quadraticSphere`, `radial` | `linear` |  |
+
+### Image Info
+
+Size of an image file (png, exr, tif, psd, tga) in pixels, how many channels it uses (1 grey, 3 colour, 4 with transparency) and, for a numbered file like name.0001.png, how many frames its sequence has. Relative paths are under the workspace.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | string | input |  | Image path. |
+| `width` | int | output |  |  |
+| `height` | int | output |  |  |
+| `channels` | int | output |  |  |
+| `hasAlpha` | bool | output |  |  |
+| `frameCount` | int | output |  |  |
 
 ### Image Texture
 
@@ -4448,6 +5339,70 @@ Blender's White Noise Texture: a random value and colour hashed from the coordin
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `dimensions` | `1D`, `2D`, `3D`, `4D` | `3D` |  |
+
+## Tool
+
+### Active Element
+
+The last picked point, edge or face of the mesh the tool runs on. Exists is off when none is picked, and in modifiers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `index` | int | output |  |  |
+| `exists` | bool | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `edge`, `face` | `face` |  |
+
+### Mouse Position
+
+Where the pointer was when the tool ran: viewport pixels from the top-left, the viewport's size, and the pointer's ray in the mesh's own space. Zero in modifiers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | int | output |  |  |
+| `y` | int | output |  |  |
+| `regionWidth` | int | output |  |  |
+| `regionHeight` | int | output |  |  |
+| `rayOrigin` | vector | output |  |  |
+| `rayDirection` | vector | output |  |  |
+
+### Selection
+
+Type `ToolSelection`.
+
+The selected elements of the mesh a tool runs on, on whatever domain it is read; everything in object mode and in modifiers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `selection` | bool | output, field |  |  |
+
+### Set Selection
+
+Type `ToolSetSelection`.
+
+The component selection a tool leaves behind on this domain once it has run. No effect in modifiers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geometry` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` |  |
+| `geometry` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `domain` | `point`, `edge`, `face` | `face` |  |
+
+### Viewport Transform
+
+The view the tool ran in: world to camera (view) and camera to clip (projection). Identity in modifiers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` | matrix | output |  |  |
+| `projection` | matrix | output |  |  |
+| `isOrthographic` | bool | output |  |  |
 
 ## Utilities
 
@@ -4656,6 +5611,56 @@ A field computed by code: the value of its last expression, such as 'a * sin(@P.
 | --- | --- | --- | --- |
 | `dataType` | `float`, `int`, `vector`, `color`, `bool` | `float` |  |
 | `code` |  | `a` | The code; its last expression is the value. |
+
+### Field Average
+
+Mean and median of a field over a domain, per group of equal group ids, given to every element of the group.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | float | input, field | `0` |  |
+| `groupId` | int | input, field | `0` | Elements with equal ids are measured separately. |
+| `mean` | float | output, field |  |  |
+| `median` | float | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `dataType` | `float`, `vector` | `float` |  |
+| `domain` | `point`, `edge`, `face`, `corner`, `curve`, `instance` | `point` |  |
+
+### Field Min & Max
+
+Type `FieldMinMax`.
+
+Smallest and largest value of a field over a domain, per group of equal group ids. Vectors compare per component.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | float | input, field | `0` |  |
+| `groupId` | int | input, field | `0` | Elements with equal ids are measured separately. |
+| `min` | float | output, field |  |  |
+| `max` | float | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `dataType` | `float`, `vector` | `float` |  |
+| `domain` | `point`, `edge`, `face`, `corner`, `curve`, `instance` | `point` |  |
+
+### Field Variance
+
+Standard deviation and variance of a field over a domain, per group of equal group ids. Vectors measure per component.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | float | input, field | `0` |  |
+| `groupId` | int | input, field | `0` | Elements with equal ids are measured separately. |
+| `standardDeviation` | float | output, field |  |  |
+| `variance` | float | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `dataType` | `float`, `vector` | `float` |  |
+| `domain` | `point`, `edge`, `face`, `corner`, `curve`, `instance` | `point` |  |
 
 ### Float to Integer
 
@@ -5022,7 +6027,65 @@ Runs code on every selected element of a domain, reading and writing attributes.
 | `domain` | `point`, `edge`, `face`, `corner`, `curve`, `instance` | `point` |  |
 | `code` |  | `@P.y += a;` | The code run per element. |
 
+## UV
+
+### Auto UV Seams
+
+Marks uv seams on edges: sharp edges first, then each island is cut open along short, creased and hidden paths and split where it would stretch. Writes the seam edge attribute that unwrapping reads.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `selection` | bool | input, field | `true` | Faces to cut. |
+| `hardAngle` | float | input | `60` | Edges sharper than this many degrees are always seams. Range 0 to 180. |
+| `useHardEdges` | bool | input | `false` | Edges marked hard are seams too. |
+| `keepSeams` | bool | input | `false` | Existing seams stay. |
+| `maxDistortion` | float | input | `0.08` | Islands stretching more than this are split. At least 0. |
+| `hideSeams` | bool | input | `true` | Prefer occluded, concave and downward-facing edges. |
+| `merge` | bool | input | `true` | Join neighbouring islands back while they stay under the distortion. |
+| `mesh` | geometry | output |  |  |
+| `seam` | bool | output, field |  |  |
+| `islands` | int | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `method` | `split`, `optimise` | `split` | Split cuts and merges islands; optimise trades seam length against stretch over the whole mesh. |
+
 ## Volume
+
+### Advect Grid
+
+Carries a grid's values along a velocity grid (units per second) for time seconds, each voxel reading where its value came from. Higher integration orders follow curving flow more closely.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `velocity` | geometry | input |  | A vector grid; its own voxels need not match the grid's. |
+| `time` | float | input | `0.041666666666666664` | Seconds to advect for. |
+| `substeps` | int | input | `1` | Range 1 to 64. |
+| `grid` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `integration` | `euler`, `midpoint`, `rk4` | `midpoint` |  |
+
+### Distribute Points in Grid
+
+Type `DistributePointsInGrid`.
+
+Points on the volume's own voxels where it is solid (a density above threshold, a signed distance below 0). Centers puts one at each such voxel's centre; random scatters density points per voxel, scaled by a density's value, within the voxel. Each point gets the voxel's value as "value".
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `volume` | geometry | input |  |  |
+| `threshold` | float | input | `0.1` |  |
+| `density` | float | input | `1` | Random: points per voxel. At least 0. |
+| `seed` | int | input | `0` |  |
+| `points` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `centers`, `random` | `centers` |  |
 
 ### Distribute Points in Volume
 
@@ -5045,6 +6108,137 @@ Points inside a volume. Random scatters density points per 100-unit cube, scaled
 | --- | --- | --- | --- |
 | `mode` | `random`, `grid` | `random` |  |
 
+### Field to Grid
+
+Type `FieldToGrid`.
+
+A grid on the topology grid's voxels holding a field, read with Position as each voxel's centre and Index as its voxel. Float keeps a signed distance topology's kind and makes a density otherwise.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `topology` | geometry | input |  | The grid whose voxels are filled. |
+| `value` | float | input, field | `0` |  |
+| `vector` | vector | input, field | `[0, 0, 0]` | Read when type is vector. |
+| `background` | float | input | `0` | Value outside the grid, for float. |
+| `grid` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `type` | `float`, `vector` | `float` |  |
+
+### Grid Curl
+
+A vector grid of how a vector grid swirls around each voxel: the axis of rotation, its length the rate.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `grid` | geometry | output |  |  |
+
+### Grid Dilate
+
+Grows what a grid holds by a voxel per step: densities and vectors spread their strongest neighbour, a signed distance surface moves outward.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `steps` | int | input | `1` | Range 0 to 256. |
+| `grid` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `connectivity` | `face`, `edge`, `vertex` | `face` | Neighbours that count: 6 sharing a face, 18 with edges, 26 with corners. |
+
+### Grid Divergence
+
+A density grid of how much a vector grid flows out of each voxel: positive where it spreads, negative where it gathers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `grid` | geometry | output |  |  |
+
+### Grid Erode
+
+Shrinks what a grid holds by a voxel per step: densities and vectors take their weakest neighbour, a signed distance surface moves inward.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `steps` | int | input | `1` | Range 0 to 256. |
+| `grid` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `connectivity` | `face`, `edge`, `vertex` | `face` | Neighbours that count: 6 sharing a face, 18 with edges, 26 with corners. |
+
+### Grid Gradient
+
+A vector grid of the direction and rate the value rises fastest, per world unit. On a signed distance it is the outward normal; a vector grid uses its lengths.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `grid` | geometry | output |  |  |
+
+### Grid Info
+
+A grid's voxel-to-world transform (voxel size, rotation and the first voxel's centre), background value, name, kind (density, sdf or vector) and the voxels differing from the background. Empty without a grid.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `transform` | matrix | output |  |  |
+| `background` | float | output |  |  |
+| `name` | string | output |  |  |
+| `kind` | string | output |  |  |
+| `activeVoxels` | int | output |  |  |
+
+### Grid Laplacian
+
+A density grid of how much each voxel differs from the average around it, per world unit squared: the divergence of the gradient. A vector grid uses its lengths.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `grid` | geometry | output |  |  |
+
+### Grid Mean
+
+Each voxel takes the average of the cube width voxels around it, softening the grid; vectors per component.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `width` | int | input | `1` | Reach of the filter in voxels. Range 1 to 32. |
+| `iterations` | int | input | `1` | Range 0 to 100. |
+| `grid` | geometry | output |  |  |
+
+### Grid Median
+
+Each voxel takes the median of the cube width voxels around it, removing specks while keeping edges; vectors per component.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `width` | int | input | `1` | Reach of the filter in voxels. Range 1 to 4. |
+| `iterations` | int | input | `1` | Range 0 to 100. |
+| `grid` | geometry | output |  |  |
+
+### Grid to Points
+
+Type `GridToPoints`.
+
+A point at the centre of every voxel whose value differs from the background by more than threshold (a vector's length above it), carrying the voxel's value.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `threshold` | float | input | `0` | At least 0. |
+| `points` | geometry | output |  |  |
+| `value` | float | output, field |  |  |
+| `vector` | vector | output, field |  |  |
+
 ### Mesh to SDF
 
 Type `MeshToSDF`.
@@ -5059,6 +6253,21 @@ Signed distance to a closed mesh: negative inside, positive outside, kept accura
 | `voxelSize` | float | input | `5` | Edge length of a voxel. At least 0.01. |
 | `bandWidth` | int | input | `3` | Voxels kept either side of the surface; further ones hold the band distance. Range 1 to 100. |
 | `volume` | geometry | output |  |  |
+
+### Mesh to Volume
+
+Type `MeshToVolume`.
+
+A density grid (fog) filling a closed mesh. With fill off, only voxels within the interior band of the surface hold the density, a hollow shell.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` | geometry | input |  |  |
+| `density` | float | input | `1` |  |
+| `voxelSize` | float | input | `5` | Edge length of a voxel. At least 0.01. |
+| `interiorBand` | float | input | `10` | Depth of the shell when fill is off. At least 0. |
+| `fill` | bool | input | `true` | Fill the whole interior. |
+| `grid` | geometry | output |  |  |
 
 ### Offset SDF
 
@@ -5087,6 +6296,62 @@ Signed distance to a sphere around each point (the points component, or the mesh
 | `voxelSize` | float | input | `5` | Edge length of a voxel. At least 0.01. |
 | `bandWidth` | int | input | `3` | Voxels kept either side of the surface; further ones hold the band distance. Range 1 to 100. |
 | `volume` | geometry | output |  |  |
+
+### Points to Volume
+
+Type `PointsToVolume`.
+
+A density grid (fog) holding density inside a sphere around each point (the points component, or the mesh's vertices when there are none).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | geometry | input |  |  |
+| `density` | float | input | `1` |  |
+| `radius` | float | input, field | `10` | At least 0. |
+| `voxelSize` | float | input | `5` | Edge length of a voxel. At least 0.01. |
+| `grid` | geometry | output |  |  |
+
+### Prune Grid
+
+Crops the grid to the voxels that matter, keeping a voxel of margin. Inactive keeps voxels that differ from the background, threshold those that differ by more than threshold; sdf first clamps a signed distance to its band, then keeps the band.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `threshold` | float | input | `0.01` | At least 0. |
+| `grid` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `inactive`, `threshold`, `sdf` | `inactive` |  |
+
+### Sample Grid
+
+A grid's value at each position: value is the float (a vector grid's length), vector the vector (zero on a float grid). Outside the grid it reads the background.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `position` | vector | input, field | Position |  |
+| `value` | float | output, field |  |  |
+| `vector` | vector | output, field |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `interpolation` | `trilinear`, `nearest` | `trilinear` |  |
+
+### Sample Grid Index
+
+The value of voxel (x, y, z), counted from the grid's first voxel; outside the grid it reads the background.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `x` | int | input, field | `0` |  |
+| `y` | int | input, field | `0` |  |
+| `z` | int | input, field | `0` |  |
+| `value` | float | output, field |  |  |
+| `vector` | vector | output, field |  |  |
 
 ### Sample Volume
 
@@ -5182,6 +6447,16 @@ The volume's surface as quads, joined with any mesh the geometry already has. De
 | `volume` | geometry | input |  |  |
 | `threshold` | float | input | `0.1` |  |
 | `mesh` | geometry | output |  |  |
+
+### Voxelize Grid
+
+The grid resampled onto axis-aligned voxels of a new size over the same bounds: coarser to save memory, finer to work in more detail. A rotated grid comes out axis-aligned.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grid` | geometry | input |  |  |
+| `voxelSize` | float | input | `5` | Edge length of a voxel. At least 0.01. |
+| `grid` | geometry | output |  |  |
 
 ## Zones
 
@@ -5522,7 +6797,7 @@ Available when the NanoVDB extension is loaded.
 
 #### Read NanoVDB
 
-A float grid from a NanoVDB file (.nvdb) as a volume: level sets as signed distances, fog volumes as densities. Read whole over the grid's active voxels.
+A float or vec3 grid from a NanoVDB file (.nvdb) as a volume: level sets as signed distances, fog volumes as densities, vec3 grids as vectors. Read whole over the grid's active voxels.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -5532,12 +6807,12 @@ A float grid from a NanoVDB file (.nvdb) as a volume: level sets as signed dista
 
 #### Read VDB
 
-A float grid from an OpenVDB file (.vdb, from Houdini, Blender or EmberGen) as a volume: level sets as signed distances, fog volumes as densities. Read whole over the grid's active voxels.
+A float or vector grid from an OpenVDB file (.vdb, from Houdini, Blender or EmberGen) as a volume: level sets as signed distances, fog volumes as densities, vec3 grids such as velocity as vectors. Read whole over the grid's active voxels.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `path` | string | input |  | The .vdb file; relative paths are against the scene. |
-| `grid` | string | input |  | Grid name, such as density; empty reads the first float grid. |
+| `grid` | string | input |  | Grid name, such as density; empty reads the first float grid, else the first vector grid. |
 | `volume` | geometry | output |  |  |
 
 ## Seamwork extension

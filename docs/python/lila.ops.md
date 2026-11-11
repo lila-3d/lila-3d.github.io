@@ -4727,6 +4727,24 @@ Rename an exposed input (or, with output=True, a group output). Links follow, an
 | --- | --- | --- | --- | --- |
 | `output` |  | bool | `False` | Rename a group output instead. |
 
+### gnRunTool
+
+Run a tool group on meshes (the selected ones by default), replacing each base mesh with what the group makes. In a component mode the selection reaches the group's Selection node and Set Selection writes it back; the pointer and view flags feed Mouse Position and Viewport Transform. Returns the meshes edited.
+
+**Objects:** group
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `targets` |  | list |  | Mesh names; the selected meshes when left out. |
+| `mouse` |  | list |  | [x, y] pointer position in viewport pixels from the top-left. |
+| `region` |  | list |  | [width, height] of the viewport in pixels. |
+| `rayOrigin` |  | tuple[float, float, float] |  | World-space start of the pointer's ray. |
+| `rayDirection` |  | tuple[float, float, float] |  | World-space direction of the pointer's ray. |
+| `view` |  | list |  | World-to-camera matrix, 16 numbers column by column. |
+| `projection` |  | list |  | Camera-to-clip matrix, 16 numbers column by column. |
+| `orthographic` |  | bool | `False` | The view is orthographic. |
+| `values` |  | Any |  | Group input values by name, as a modifier attr holds them (angles in degrees). |
+
 ### gnSaveGroup
 
 Save a group to the user library (prefs folder) or the workspace's .lila/geometryNodes. Returns the file path.
@@ -4826,6 +4844,16 @@ Set how nodes draw and run: gnSetNodeFlags(group, 'Math', 'Noise', muted=True). 
 Replace a group's zip ties: gnSetTies(group, [{links: [[fromNode, fromSocket, toNode, toSocket], ...], position: [x, y], angle: 0, color: ''}]). Ties only change how the canvas draws links; links not in the group are dropped, and so is a tie left with fewer than two. Returns how many ties the group has.
 
 **Objects:** group ties
+
+### gnSetTool
+
+Flag a geometry-nodes group as a tool, so it runs on the selected meshes from the Mesh Tools menu and search, or clear the flag.
+
+**Objects:** group
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tool` |  | bool | `True` | On makes it a tool; off makes it a modifier group only. |
 
 ### gnSetValue
 
@@ -14826,7 +14854,7 @@ Available when the NanoVDB extension is loaded.
 
 ### exportNanoVDB
 
-Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to a NanoVDB file: a sparse float grid, a level set for signed distances and a fog volume for densities. Returns the file written.
+Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to a NanoVDB file: a sparse grid, a level set for signed distances, a fog volume for densities and a vec3 grid for vectors. Returns the file written.
 
 **Objects:** target path
 
@@ -14838,7 +14866,7 @@ Not undoable.
 
 ### exportVDB
 
-Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to an OpenVDB file: a sparse float grid, a level set for signed distances and a fog volume for densities, for Unreal's sparse volume textures, Houdini or Blender. Returns the file written.
+Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to an OpenVDB file: a sparse grid, a level set for signed distances, a fog volume for densities and a vec3 grid for vectors, for Unreal's sparse volume textures, Houdini or Blender. Returns the file written.
 
 **Objects:** target path
 
@@ -18632,7 +18660,7 @@ Bake a fabric's wrinkle normal maps: a square of it squeezed along U, then along
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
+| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
 | `size` | `s` | int | `512` | Map width and height, texels. |
 | `tile` | `tl` | float | `20.0` | The square of cloth one map covers, cm. |
 | `compress` | `c` | float | `0.25` | How far the square is squeezed, 0 to 0.6. |
@@ -18697,10 +18725,10 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, `dropShoulderTop`, `shirt`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`, `onesie`, `booties`. |
+| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, `dropShoulderTop`, `shirt`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`, `onesie`, `jumpsuit`, `flightSuit`, `coverall`, `overalls`, `booties`. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
-| `fabric` | `fab` | str |  | Fabric preset; the block's own when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
+| `fabric` | `fab` | str |  | Fabric preset; the block's own when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the block placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
@@ -18803,7 +18831,7 @@ Adds to the named or selected garment; with none, starts a garment on the select
 | `clearance` | `cl` | float | `1.5` | How far the panel starts outside the body, cm. |
 | `layer` | `l` | int | `0` | Layer: higher layers sit outside lower ones. |
 | `collider` | `c` | str |  | The body, when a new garment is started; the selected mesh otherwise. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
 | `particleDistance` | `pd` | float | `2.0` | Cloth edge length of a new garment, cm. |
 | `simulate` | `sim` | bool | `True` | Drape a new garment. |
 | `frames` | `fr` | int | `90` | Solver frames for a new garment. |
@@ -18905,7 +18933,7 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 | `file` | `f` | str |  | The pattern specification JSON. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the file placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
@@ -19089,7 +19117,7 @@ Without panels it sets the garment's fabric preset; with them, those panels get 
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
 | `panel` | `p` | list |  | Panels by name or index; all panels' shared fabric when left out. |
 
 ```python
@@ -19162,7 +19190,7 @@ Add a strap to a garment along a path (a belt, a sash, a bandolier): a strip of 
 | `curve` | `cv` | str |  | A curve to follow instead of points (its points, world space). |
 | `width` | `w` | float | `4.0` | Strap width, cm. |
 | `name` | `n` | str | `'Strap'` | Panel name; made unique. |
-| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`. |
+| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
 | `closed` | `cl` | bool | `False` | The path closes on itself (a belt round the waist). |
 
 ```python
@@ -20082,7 +20110,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
@@ -20711,7 +20739,7 @@ Send a terrain's cliffs (and extra= meshes, such as contact skirts or strips) to
 | `only` | `on` | list |  | Send only these cliffs, by name. |
 | `kitAs` | `ka` | str | `'assembly'` | Kits: assembly (a Nanite Assembly) or hism. |
 | `contentFolder` | `cf` | str |  | Where the tile assets go in Unreal; defaults to /Game/LilaLink/Landscapes/<terrain>/Cliffs. |
-| `material` | `mat` | bool | `True` | Give the tiles MI_<terrain>_Cliffs. |
+| `material` | `mat` | bool | `True` | Give the cliff tiles MI_<terrain>_Cliffs; extra= meshes keep their own material slots. |
 | `force` | `fc` | bool | `False` | Send every tile, changed or not. |
 | `collectEvery` | `ce` | int | `8` | Ask Unreal to collect garbage after this many tiles. |
 | `stopAfter` | `sa` | int | `-1` | Stop after this many tiles (a resumable partial send); -1 sends all. |
