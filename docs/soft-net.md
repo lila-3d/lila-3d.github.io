@@ -23,8 +23,10 @@ The net sits on top of the stack, after the skin, so the knots follow the skinne
 
 ## Knots and handles
 
+The net draws on the surface it shapes: its lines follow the mesh as it moves, junctions show as a ring round a dot and other knots as a dot. Hide `SoftNet_knots` to hide the net.
+
 - Junctions (three or more lines) and line ends show by default. Knots inside a line are hidden: **Rig > Show All Soft Net Knots** shows them, or set `showAllKnots` on `SoftNet_knots`.
-- Each line end has a tangent handle under its knot, a third of the way along the line. Move it to bend the line between its knots like a Bezier handle.
+- Each line end has a tangent handle under its knot, a third of the way along the line, shown while the knot is selected. Move it to bend the line between its knots like a Bezier handle.
 - On a mirrored layout, knots pair across the mirror and end in `_l` and `_r`. **Rig > Mirror Soft Net Knots** copies the selected knots' poses to their partners; on the whole net it copies the + side over the - side.
 
 ## Garments and props

@@ -1803,6 +1803,7 @@ Render several views offscreen and tile them into one PNG contact sheet (row by 
 | `showSelection` |  | bool | `True` | Tint selected components, and outline selected terrains drawn from their heights. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
+| `overlays` | `ov` | bool | `False` | Draw what the viewport draws over the scene too: locators, curves' draw overrides, Soft Net lines and knots, extension drawers. |
 | `path` | `p` | str |  | PNG file to write. |
 | `count` | `c` | int | `4` | Views around the up axis, starting at the front. |
 | `columns` |  | int | `0` | Tiles per row; 0 picks. |
@@ -1829,6 +1830,7 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `showSelection` |  | bool | `True` | Tint selected components, and outline selected terrains drawn from their heights. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
+| `overlays` | `ov` | bool | `False` | Draw what the viewport draws over the scene too: locators, curves' draw overrides, Soft Net lines and knots, extension drawers. |
 | `path` | `p` | str |  | PNG file to write. |
 
 Not undoable.
@@ -6403,6 +6405,7 @@ Draw the scene offscreen several times like captureView and return the median GP
 | `showSelection` |  | bool | `True` | Tint selected components, and outline selected terrains drawn from their heights. |
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
+| `overlays` | `ov` | bool | `False` | Draw what the viewport draws over the scene too: locators, curves' draw overrides, Soft Net lines and knots, extension drawers. |
 | `frames` |  | int | `20` | Frames to draw; the result is their median. |
 | `ambientOcclusion` | `ao` | bool |  | Force ambient occlusion on or off instead of the viewport pref. |
 
