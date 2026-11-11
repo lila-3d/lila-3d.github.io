@@ -1,0 +1,310 @@
+{
+  "updated": "2026-11-12",
+  "sections": [
+    {
+      "id": "alpha",
+      "title": "Alpha release",
+      "goal": "A build stable enough for real work, with every area below in it.",
+      "cards": [
+        {
+          "id": "modeling",
+          "title": "Modeling",
+          "status": "ready",
+          "docs": "essentials",
+          "body": ["Tools that save steps: Auto-Bevel picks the edges you'd bevel, Auto Bridge follows the surrounding surface even between borders with different edge counts, Grid Fill caps holes with clean quads, and smart booleans leave workable topology behind.", "Symmetry that stays exact, radial symmetry, Split Rings, Spherize, Circularize, primitives snapped onto surfaces, instancing and arrays, all with the Maya-style workflow: marking menus, option boxes and the Channel Box."]
+        },
+        {
+          "id": "curves",
+          "title": "Curves",
+          "status": "ready",
+          "docs": "curves",
+          "body": ["Draw curves, then turn them into meshes with sweeps, revolves, lofts, patches and pipes."]
+        },
+        {
+          "id": "clay",
+          "title": "Clay",
+          "status": "ready",
+          "docs": "clay",
+          "body": ["Block out characters and organic forms from shapes that melt into each other, then turn the result into a mesh for sculpting or retopology."]
+        },
+        {
+          "id": "retopology",
+          "title": "Retopology",
+          "status": "ready",
+          "docs": "topology",
+          "body": ["Retopologize by hand with the Topology Toolkit, or automatically with Quad Remesh, which rebuilds a sculpt, scan or boolean result as flowing, evenly sized quads you can rig, UV and animate."]
+        },
+        {
+          "id": "sculpting",
+          "title": "Sculpting",
+          "status": "ready",
+          "docs": "sculpting",
+          "body": ["Sculpt any mesh directly, with subdivision levels that stay on the mesh between sessions.", "Brushes, presets, alphas, polypaint and reference image overlays for tracing."]
+        },
+        {
+          "id": "uvs",
+          "title": "UV editing",
+          "status": "ready",
+          "docs": "uvs",
+          "body": ["Unwrap and lay out UVs in the UV Editor. Bake lint finds the UV problems a normal map would show and selects the exact edges and faces for you."]
+        },
+        {
+          "id": "baking",
+          "title": "Baking",
+          "status": "ready",
+          "docs": "baking",
+          "body": ["GPU baking of normal, AO, curvature and packed maps from high meshes, or a low baked onto itself, into textures ready for Unreal or smart materials."]
+        },
+        {
+          "id": "trim-sheets",
+          "title": "Trim Sheets",
+          "status": "ready",
+          "docs": "trim-sheets",
+          "body": ["One tiling texture of bevelled strips and panels shared by every mesh that maps onto it: made from a preset, baked, textured, applied by hand or automatically, and sent to Unreal."]
+        },
+        {
+          "id": "geometry-nodes",
+          "title": "Geometry Nodes",
+          "status": "ready",
+          "docs": "geometry-nodes",
+          "body": ["Node graphs that build or change a mesh, live on its modifier stack. Hundreds of nodes for meshes, curves, instances, fields, grids and volumes."]
+        },
+        {
+          "id": "lilalink",
+          "title": "LilaLink for Unreal",
+          "status": "ready",
+          "icon": "change-stream",
+          "body": ["A live link to Unreal Engine: send meshes, materials, levels and animation, and see changes in Unreal as you make them in Lila.", "Every material feature ships as a material function you can drop into your own materials."]
+        },
+        {
+          "id": "zbrush",
+          "title": "ZBrush send and receive",
+          "status": "ready",
+          "docs": "zbrush",
+          "body": ["Send meshes to ZBrush and bring them back into the same objects in Lila."]
+        },
+        {
+          "id": "lighting",
+          "title": "Lighting",
+          "status": "ready",
+          "docs": "lights",
+          "body": ["Lights that illuminate and cast shadows in the viewport and renders, on top of the environment, with Lighting Channels for Unreal."]
+        },
+        {
+          "id": "python",
+          "title": "Python scripting",
+          "status": "ready",
+          "docs": "python/",
+          "icon": "expressions",
+          "body": ["Every command is a Python function. Script editor, command palette, and a typed API with docs for every command and node. PySide6, Qt.py and numpy are bundled."]
+        },
+        {
+          "id": "cpp-extensions",
+          "title": "C++ extensions",
+          "status": "ready",
+          "docs": "cpp-extensions",
+          "body": ["Extend Lila in C++ with the SDK: new commands, nodes, tools, panels and file formats. Many of Lila's own toolsets ship as extensions built the same way."]
+        },
+        {
+          "id": "file-formats",
+          "title": "File formats",
+          "status": "ready",
+          "docs": "formats",
+          "body": ["FBX, glTF, USD, OBJ, Blender, COLLADA, STL, PLY and more, import and export.", "Uncommon formats still need further testing."]
+        },
+        {
+          "id": "texturing",
+          "title": "Texture painting",
+          "status": "dev",
+          "icon": "reference-images",
+          "body": ["Paint textures directly on the model in layers, with masks and smart materials built on your baked maps."]
+        },
+        {
+          "id": "material-nodes",
+          "title": "Material nodes",
+          "status": "dev",
+          "docs": "nodes/texture-nodes",
+          "icon": "node-editor",
+          "body": ["A texture graph for procedural materials, feeding the layer stack and exporting to Unreal."]
+        },
+        {
+          "id": "plating",
+          "title": "Plating",
+          "status": "dev",
+          "docs": "plating",
+          "body": ["Draw panel lines on any mesh and turn them into grooves, plates with gaps and bevels, rivets, bolts and surface patterns, all kept live as you redraw the lines."]
+        },
+        {
+          "id": "grooms",
+          "title": "Hair and grooms",
+          "status": "dev",
+          "docs": "hair",
+          "body": ["Stylized hair drawn as locks and joined into one mesh for retopology, and realistic hair and fur grown as thousands of strands from guide curves, sent to Unreal."]
+        },
+        {
+          "id": "tailor",
+          "title": "Tailor",
+          "status": "dev",
+          "docs": "tailor",
+          "body": ["Make clothing from sewing patterns, drape it on a body and bake it to a skinned game mesh, or send it to Unreal as a Chaos Cloth asset."]
+        },
+        {
+          "id": "deformers",
+          "title": "Deformers and morph targets",
+          "status": "dev",
+          "icon": "rigid-bind",
+          "body": ["Surface, shape and non-linear deformers, jiggle, and morph targets, each converted into something Unreal can play."]
+        },
+        {
+          "id": "rendering",
+          "title": "Rendering",
+          "status": "dev",
+          "docs": "rendering",
+          "body": ["Stills, turntables and video from the real-time renderer you work in: supersampled, with post process, depth of field and motion blur, in seconds."]
+        },
+        {
+          "id": "weight-painting",
+          "title": "Weight painting",
+          "status": "dev",
+          "docs": "weight-painting",
+          "body": ["Paint skin weights where you decide where every bit of weight goes, see where Lila split weight for you, and relax or settle weights with a solver instead of averaging them."]
+        },
+        {
+          "id": "rigging",
+          "title": "Rigging",
+          "status": "dev",
+          "docs": "creature-rigging",
+          "body": ["Skeletons, controls and constraints, rig templates, creature rigging (pins, spline IK, rubber hose limbs, joint limits) and retargeting, checked against Unreal as you build."]
+        },
+        {
+          "id": "animation",
+          "title": "Animation",
+          "status": "dev",
+          "docs": "graph-editor",
+          "body": ["Keys, layers, takes and poses, the Graph Editor with speed and acceleration views, cached playback of heavy scenes, and Unreal export."]
+        },
+        {
+          "id": "destruction",
+          "title": "Destruction",
+          "status": "dev",
+          "docs": "destruction",
+          "body": ["Break meshes apart, simulate the fall, and bake it for Unreal so nothing simulates at runtime."]
+        },
+        {
+          "id": "terrain",
+          "title": "Terrain and cliffs",
+          "status": "dev",
+          "docs": "terrain",
+          "body": ["Heightfield terrain from noise, a real place or a painting: eroded, with roads, rivers and caves, painted with material layers, cliffs that don't stretch, and sent to Unreal, Unity or Godot."]
+        },
+        {
+          "id": "settlement",
+          "title": "Settlement",
+          "status": "dev",
+          "docs": "settlement",
+          "body": ["Villages, towns and cities laid out inside an outline on any ground: roads, streets, walls and gates, blocks and lots, and a building on each lot."]
+        },
+        {
+          "id": "stagehand",
+          "title": "Stagehand",
+          "status": "dev",
+          "docs": "stagehand",
+          "body": ["Push, drop and settle props into place with physics, fill shelves and scatter debris, place assets from a prop library, and snap modular kit pieces together."]
+        },
+        {
+          "id": "masonry",
+          "title": "Masonry",
+          "status": "dev",
+          "docs": "masonry",
+          "body": ["Brick and stone walls and whole buildings laid stone by stone, with arches, columns, stairs and vaults, then ruined, aged and sent to Unreal as instanced stones."]
+        },
+        {
+          "id": "seamwork",
+          "title": "Seamwork",
+          "status": "dev",
+          "docs": "seamwork",
+          "body": ["Find every place a wall meets the terrain or two meshes cut through each other, then cover the joins with rubble, grime strips, material blends or a blend mesh."]
+        },
+        {
+          "id": "3d-printing",
+          "title": "3D printing",
+          "status": "dev",
+          "docs": "3d-printing",
+          "body": ["Get a mesh ready for the slicer: closed, thick enough, sized for your printer, hollowed or split if it needs to be, then out as STL or 3MF."]
+        },
+        {
+          "id": "installer",
+          "title": "Installer and updates",
+          "status": "planned",
+          "icon": "requirements",
+          "body": ["An installer, and updates delivered from inside Lila."]
+        }
+      ]
+    },
+    {
+      "id": "after-alpha",
+      "title": "After alpha",
+      "goal": "Soon after the alpha, possibly before it ends.",
+      "cards": [
+        {
+          "id": "puppeteer",
+          "title": "Puppeteer",
+          "status": "dev",
+          "icon": "strings",
+          "note": "Please don't try it yet, not even to experiment.",
+          "body": ["Posing and animating by hand, fast: grab and pull characters directly in the viewport, with curves shown over the live view and contextual rigging that appears only while you work."]
+        },
+        {
+          "id": "physics-animation",
+          "title": "Physics animation",
+          "status": "dev",
+          "icon": "soft-net",
+          "note": "Please don't try it yet, not even to experiment.",
+          "body": ["Follow-through, overlap and physically driven secondary motion layered on your animation."]
+        }
+      ]
+    },
+    {
+      "id": "later",
+      "title": "Later",
+      "goal": "Planned, not scheduled.",
+      "cards": [
+        {
+          "id": "macos",
+          "title": "macOS",
+          "status": "planned",
+          "icon": "requirements",
+          "body": ["Lila on Apple silicon Macs."]
+        },
+        {
+          "id": "linux",
+          "title": "Linux",
+          "status": "planned",
+          "icon": "requirements",
+          "body": ["Lila on Linux workstations."]
+        },
+        {
+          "id": "maya-tools",
+          "title": "Maya Python tools",
+          "status": "planned",
+          "icon": "studio-setup",
+          "body": ["Run a studio's existing Maya Python and MEL tools in Lila without rewriting them."]
+        },
+        {
+          "id": "sound-video",
+          "title": "Sound and video",
+          "status": "planned",
+          "icon": "animation",
+          "body": ["Audio in the time slider with waveforms and scrubbing, and video on image planes and reference images, for animating to sound and reference footage."]
+        },
+        {
+          "id": "lessons",
+          "title": "Lessons",
+          "status": "planned",
+          "icon": "getting-started",
+          "body": ["Follow-along tutorials inside Lila that check your work as you go, and live sessions to learn with others."]
+        }
+      ]
+    }
+  ]
+}

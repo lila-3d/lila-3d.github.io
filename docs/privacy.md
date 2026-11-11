@@ -64,5 +64,8 @@ To have your data deleted, email [lila3d.app@gmail.com](mailto:lila3d.app@gmail.
 | --- | --- | --- |
 | Usage statistics | PostHog, EU region | 1 year |
 | Crash reports | Sentry, United States region | 30 days |
+| Roadmap votes | Cloudflare | Until the card is removed |
 
 Sending happens in the background, at startup and every half hour. A failed send is retried later; an event is dropped after five tries. It never slows Lila down or stops it working offline.
+
+Roadmap votes on the website store a one-way hash of your IP address next to the card, so each address votes once per card. The address itself is never stored.

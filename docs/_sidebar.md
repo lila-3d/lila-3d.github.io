@@ -1,4 +1,5 @@
 - [← Lila home](https://lila-3d.github.io/ ':ignore')
+- [Roadmap](https://lila-3d.github.io/roadmap.html ':ignore')
 - [Source on GitHub](https://github.com/lila-3d/Lila ':ignore')
 - [Support Lila](https://ko-fi.com/jaredtaylor ':ignore')
 

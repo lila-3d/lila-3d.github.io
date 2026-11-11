@@ -1,11 +1,11 @@
 # Progress
 
-Where each area of Lila stands before release. Updated 12 November 2026.
+Where each area of Lila stands before release. Updated 12 November 2026. What comes when is on the [roadmap](https://lila-3d.github.io/roadmap.html ':ignore').
 
 | Area | Done | Status |
 |---|---|---|
 | Modeling | 98% | Ready for user feedback |
-| UV editing | 98% | Ready for user feedback, new Auto UV algorithm in progress |
+| UV editing | 98% | Ready for user feedback |
 | 3D sculpting | 98% | Ready for user feedback |
 | Geometry nodes | 98% | Ready for user feedback |
 | Curves | 95% | Ready for user feedback |
@@ -31,4 +31,4 @@ Where each area of Lila stands before release. Updated 12 November 2026.
 | Tailor (cloth) | 70% | Pending further testing |
 | 3D painting | 60% | Pending further testing |
 | Material nodes | 60% | Pending further testing |
-| Puppeteer and physics animation | 40% | Pending further testing |
+| Puppeteer and physics animation | 40% | Not ready for use, after the alpha |
