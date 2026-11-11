@@ -196,6 +196,10 @@ Turns the object to aim along the components you select, in the order you pick t
 | One face | Along its normal, with up along its longest edge |
 | One edge | Along the edge, with up along its faces' normal |
 | One closed loop | Through the loop, with up toward its first picked point |
+| One curve point | Along the curve, with up along its normal |
+| Two or more objects, in Object mode | Like the first one: the others take its pivot axes and position |
+
+With a group selected, picking components on a mesh inside it turns the group instead of the mesh.
 
 Change the aim and up axes, what up follows, and where the pivot goes in the popup afterwards.
 
