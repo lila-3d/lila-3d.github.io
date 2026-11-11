@@ -1614,7 +1614,7 @@ Bridge two mesh border loops or edge chains (the selected edges, on one mesh or 
 
 ### boundingMesh
 
-Wrap the selection's points in a fitted shape, ready to go to Unreal as collision. Orientation is solved from the points alone (minimum-volume box), so frozen and unfrozen geometry behave the same, and every point is inside. Works on objects (every mesh at or under them) or on selected components. Returns the new meshes.
+Wrap the selection's points in a fitted shape, ready to go to Unreal as collision. Orientation is solved from the points alone (minimum-volume box), so frozen and unfrozen geometry behave the same, and every point is inside. Works on objects (every mesh at or under them) or on selected vertices, edges or faces, which get one shape per mesh around their vertices. Returns the new meshes.
 
 **Objects:** objects
 
@@ -1625,7 +1625,8 @@ Wrap the selection's points in a fitted shape, ready to go to Unreal as collisio
 | `axisOffset` | `ao` | tuple[float, float, float] |  | Extra padding per box axis, added to offset, cm. |
 | `orient` | `or` | str | `'fit'` | fit (tightest box from the points), world or object (the owner's axes). |
 | `axis` | `ax` | str | `'auto'` | Axis a capsule or cylinder runs along: auto (smallest), x, y or z of the box. |
-| `perObject` | `po` | bool | `False` | One shape per mesh instead of one around everything. |
+| `perObject` | `po` | bool | `False` | One shape per mesh instead of one around everything. Component selections always get one per mesh. |
+| `symmetry` | `sym` | str | `'perSide'` | Components on a mesh with symmetry on, selected clear of the mirror plane: perSide (one shape per side), clickedSide (only the side clicked) or selection (one shape around all of them). |
 | `nameFromSelection` | `ns` | bool | `True` | Name after the mesh it wraps, so Unreal pairs it as that mesh's collision. |
 | `name` | `n` | str | `'Collision'` | Base name when not named from the selection. |
 | `prefix` | `p` | str | `'auto'` | Put before the name; auto picks Unreal's: UBX_, USP_, UCP_, or UCX_ for cylinders and hulls. |
