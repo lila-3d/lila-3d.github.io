@@ -6,7 +6,7 @@ Villages, towns and cities laid out inside an outline, on flat ground, a Terrain
 
 ## Get it working
 
-1. **Level > Settlement > Settlement** with nothing selected lays out a 400 m medieval town. With a mesh selected, its loose-edge loop is the outline, open loose-edge lines are streets kept as drawn, and loose points are the centre (the first point) and attractors main roads run to (a bridge, a harbour, a gate).
+1. **Level > Settlement > Settlement** lays out a 400 m medieval town on the best site of the selected Terrain or mesh, else of whatever is under the origin, else on flat ground. With an outline mesh selected (no faces), its loose-edge loop is the outline, open loose-edge lines are streets kept as drawn, and loose points are the centre (the first point) and attractors main roads run to (a bridge, a harbour, a gate).
 2. Change **profile** on the modifier: `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`.
 3. Drag **growth** to watch it grow, change **seed** for another town on the same site.
 4. `settlementBuildings(mesh, route="massing")` turns the envelopes into greybox buildings with roofs.
@@ -39,7 +39,7 @@ settlementSuggest(ground="Terrain", count=3, kind="port")                 # best
 settlementRegion(ground="Terrain", cities=1, towns=3, villages=8, kind="market")
 ```
 
-`settlementRegion` puts cities on the best sites, towns between them and villages filling in, routes roads between neighbours, then lays out each place with its main roads continuing the regional ones. **kind** (`town`, `market`, `port`, `mining`, `fort`, `farming`, `mill`) weights what makes a good site: flat ground, water out of its flood, trade routes, defence, resources, climate. `rules=` sets the weights yourself. On a Terrain the terrain's fords, confluences, harbours and buildable land feed the scores. The roads and rivers land on a `Region` mesh; each place gets its own settlement mesh.
+**Level > Settlement > Settle Region** does this over the selected ground, else whatever is under the origin. `settlementRegion` puts cities on the best sites, towns between them and villages filling in, routes roads between neighbours, then lays out each place with its main roads continuing the regional ones. **kind** (`town`, `market`, `port`, `mining`, `fort`, `farming`, `mill`) weights what makes a good site: flat ground, water out of its flood, trade routes, defence, resources, climate. `rules=` sets the weights yourself. On a Terrain the terrain's fords, confluences, harbours and buildable land feed the scores. The roads and rivers land on a `Region` mesh; each place gets its own settlement mesh.
 
 ### Lots, uses and landmarks
 
@@ -148,7 +148,7 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 
 **`settlementCheck` reports issues.** Each names its part by id; `settlementExplain(mesh, id=...)` says why that part is there. Edit or delete it by that id.
 
-**Streets stop short on hills.** Streets refuse grades over the profile's **maxGrade**. Raise it in **overrides**: `{"maxGrade": 0.2}`.
+**Hillsides stay empty.** Streets and lots are cut into terraces up to the profile's **terraceGrade** (0.5, rise over run); steeper ground stays open. Raise it in **overrides**: `{"terraceGrade": 0.7}`, or soften the terrain.
 
 **`checks.components` above 1, or `checks.warnings` names an unconnected street network.** Some streets don't join the rest: streets you drew that end early, or a network with no way over the ground to the town's. Extend them, or let **growth** fill in.
 
