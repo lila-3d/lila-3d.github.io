@@ -33,6 +33,17 @@ tailorCreateBlock(block='onesie', collider=body, params={'tail': 1, 'tailLength'
 tailorAddZip('Onesie', seam=0, open=0.2)
 ```
 
+`jumpsuit`, `flightSuit` and `coverall` are fitted one-piece suits with the same zip-ready seam 0. They share their options and differ in defaults: `jumpsuit` is skin-tight `Spandex` with a stand collar; `flightSuit` is `Nylon` with a shirt collar, cuffed sleeves, ankle cuffs and flapped chest and thigh pockets; `coverall` is loose `Twill` workwear with chest pockets and knee patches. `collar` is 0 none, 1 stand, 2 shirt. `kneePatches` and `elbowPatches` tack reinforcement panels on; for hard armour plates, use [Plating](plating.md) and [Rigid Bind](rigid-bind.md) instead.
+
+`overalls` are bib-and-brace `Denim` trousers: a bib at the front, a lower bib at the back, and straps sewn over the shoulders. Set `length` to about 0.5 for short overalls.
+
+```python
+tailorCreateBlock(block='jumpsuit', collider=body, params={'kneePatches': 1, 'elbowPatches': 1}, wait=True)
+tailorCreateBlock(block='overalls', collider=body, params={'bibPocket': 0}, wait=True)
+```
+
+For tight clothes, pick a stretch fabric: `Spandex` for bodysuits and base layers, or `Neoprene` for thick, springy wetsuit-style cloth.
+
 ## Check the pattern
 
 **Tailor > Pattern Editor** lists what a pattern maker would flag, each with what to change: a sleeve cap shorter than its armhole or with too much ease, a flat dropped-shoulder cap on a shoulder that isn't dropped, seam sides that don't match, too little ease round the chest for the body, crossed outlines, panels too small for the cloth, grain off true. Click a finding to see the panel or seam. `tailorCheck` returns the same list, and the `tailor` validator puts it on the garment mesh as diagnostics.
