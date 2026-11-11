@@ -17504,6 +17504,7 @@ Sends a settlement to the connected Unreal editor and keeps it in sync: each sen
 | `pcg` | `pc` | bool | `True` | Lots, envelopes and roads as PCG data. |
 | `partition` | `pt` | bool | `True` | PCG data per cell (a data asset and a cell actor each); off for one asset. |
 | `pcgGraph` | `pg` | str |  | PCG graph each cell actor runs; it reads the cell's data asset from its SettlementData parameter. |
+| `makeGraph` | `mg` | bool | `False` | Make pcgGraph when the project has none: an empty PCG graph with the SettlementData parameter, ready for its nodes. |
 | `zoneGraph` | `zg` | bool | `True` | Lanes as ZoneGraph shapes, for Mass traffic and crowds. |
 | `placeMode` | `pm` | str | `'hism'` | How placements go. One of `hism`, `ism`, `actors`. |
 | `placements` | `pl` | Any |  | Extra placements, a list or its JSON text: [{id, asset, position: [x, y, z], rotation: [x, y, z, w], scale, tags}], cm. |

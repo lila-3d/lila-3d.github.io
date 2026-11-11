@@ -77,6 +77,8 @@ settlementTransit(mesh, busRoutes=2, tramRoutes=1)
 
 Furniture placements go out with exports and **Send to Unreal**; `engineAssets=` names the Unreal asset per kind. `settlementLanes(mesh)` returns the lane graph with its checks.
 
+Signalised junctions carry their `phases` (the approaches that get green together, with a phase of its own for a through movement that would cross another on a skewed junction, and a pedestrian-only phase when needed) and `walks` (per phase, the crosswalks people cross on). Turns across a walking crosswalk give way. Every export and **Send to Unreal** writes both.
+
 ### Around and on a structure
 
 Keep a monument, ruin or megastructure clear and lay only roads and paths around and onto it:
@@ -102,11 +104,13 @@ settlementAddStreet(mesh, points=[[-50000, 60000], [50000, 60000]], profile="ave
 
 `settlementGrade(mesh)` builds the settlement into its Terrain (or `terrain=`): streets as terrain roads with their cross-section, grade limit, banking, cut and fill, bridges and tunnels; roundabouts where at least three main roads meet; lots as building pads (`padMode`), squares as flat paved regions; canals, moats, quays and rivers the settlement builds. Grading again sends only what changed.
 
+Junction heights are set across the whole street network so every street can stay within its class's grade, and each junction is level a few metres out along its streets. A street the terrain still could not lay within its grade is listed in the result's `overGrade` with the road solver's reason, and in the log.
+
 Grading pins the plan: the settlement stays as graded while you edit the terrain. `settlementReplan(mesh)` re-plans only the blocks in regions the terrain changed, keeping every other block, lot and building as it was; `full=True` plans everything afresh.
 
 ### Change generated streets
 
-Every street has a stable id: the same street keeps it through re-runs and edits elsewhere. Find it, then change or remove it like your own:
+Every street has a stable id: the same street keeps it through re-runs and edits elsewhere, in every pattern. Streets you draw or route go in over the grown layout, so drawing one changes only the streets it crosses. Find a street, then change or remove it like your own:
 
 ```python
 main = settlementStreets(mesh, near=[1200, -800], streetClass="arterial")[0]["id"]
@@ -124,6 +128,8 @@ A change whose street the layout no longer makes (after a bigger edit) shows in 
 
 `settlementExport(mesh, path=...)` writes by the extension, or `format=`: `json`, `geojson` (every layer with its properties, in metres), `usd` (`.usda`), `dxf` (a plan), `unity` and `godot` (a folder with the data, street and massing meshes, and an importer: **Tools > Lila > Import Settlement** in Unity, an EditorScript in Godot 4.3 or later).
 
+Unity in batch mode: `Unity -batchmode -quit -projectPath <project> -executeMethod LilaSettlementImporter.ImportFromCommandLine -lilaSettlement <export>.json` builds it into a new scene saved as `Assets/LilaSettlement/<name>.unity`, or into `-lilaScene <scene>`.
+
 ### Send to Unreal
 
 Copy `ue/LilaLinkSettlement` into the project's Plugins folder next to LilaLink and enable **Lila Link Settlement**. It brings the PCG and ZoneGraph plugins; LilaLink alone does not need them.
@@ -135,7 +141,8 @@ settlementSendToUnreal(mesh, roads="landscape", pcg=True, zoneGraph=True, massin
 - Everything is cut into World Partition cells (`cell`, 128 m by default). Sending again sends only what changed since the last send and deletes what is gone; `resend=True` sends all of it, `dryRun=True` reports what would go.
 - **roads**: `landscape` (landscape splines joined at junctions, shaping the landscape), `splines` (a spline actor; `roadMesh=` lays a mesh along it), `meshes` (ribbon meshes per cell) or `none`. Paths on the walkable mesh always go as a spline actor.
 - **massing** sends the greybox buildings as static meshes; library buildings and street furniture go as HISM instances (`placeMode`: `hism`, `ism` or `actors`).
-- **pcg** writes a PCG data asset per cell under **folder**, with an actor that runs `pcgGraph` on it. Read it with **Load PCG Data Asset**: pins Lots, Envelopes (footprint polygons with `MaxHeight`, `Floors`, `Use`, `Roof`, `Style`, `Seed` on the data), EnvelopePoints (a point per building), Roads, Intersections (`control`: signal, stop or yield; phases) and ParkingSpots (along roads whose profile has parking, such as `parkedStreet`).
+- **pcg** writes a PCG data asset per cell under **folder**, with an actor that runs `pcgGraph` on it, the asset bound to the graph's `SettlementData` parameter. `makeGraph=True` makes `pcgGraph` when the project has none: an empty graph with that parameter, ready for your nodes. A cell that is gone takes its data asset with it. Read it with **Load PCG Data Asset**: pins Lots, Envelopes (footprint polygons with `MaxHeight`, `Floors`, `Use`, `Roof`, `Style`, `Seed` on the data), EnvelopePoints (a point per building), Roads, Intersections (`control`: signal, stop or yield; phases) and ParkingSpots (along roads whose profile has parking, such as `parkedStreet`).
+- **levels** above the ground (decks, elevated roads, ramps, skybridges) go as one spline actor, and as ZoneGraph shapes tagged `Level` with the rest of the lanes.
 - **zoneGraph** adds lane profiles named `Lila_<profile>` and tags (Vehicle, Pedestrian, Parking, Intersection, Crossing, TrafficLight, StopSign) to the project's ZoneGraph settings, then a spline zone shape per road and crosswalk and a polygon per junction, and rebuilds the ZoneGraph for Mass traffic and crowds. When the project has MassTraffic, the tags its settings name for vehicle, pedestrian, intersection, crosswalk and parking lanes go on the matching shapes too; the reply's `massTraffic` lists which settings it read.
 
 To make streets match a road kit, read its cross-section: `settlementRoadProfileFromUnreal(mesh, asset="/Game/Roads/SG_Avenue")` adds it as a road profile streets can name. `settlementRoadProfileToUnreal(profile="avenue")` writes a Lila profile as ModulesInfo and Grammar pins for PCG's Subdivide Segment.
@@ -143,6 +150,8 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 ## Troubleshooting
 
 **"the settlement outline has no area".** The outline loop crosses itself or has fewer than three points.
+
+**`settlementGrade` lists streets under `overGrade`.** The terrain could not keep them within their grade, usually a short street between junctions on steep ground. Each entry gives the reason. Lower the ground there, raise the style's **maxGrade** in **overrides**, or remove the street by its id.
 
 **Terrain edits don't move the town.** A graded settlement keeps its plan. Run `settlementReplan(mesh)` or `settlementGrade(mesh)` again.
 
@@ -153,6 +162,8 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 **`checks.components` above 1, or `checks.warnings` names an unconnected street network.** Some streets don't join the rest: streets you drew that end early, or a network with no way over the ground to the town's. Extend them, or let **growth** fill in.
 
 **Few or no buildings.** Lots smaller than the profile's **minLot**, or with no street frontage, stay open ground. Lower **lotScale** or **minLot**, or raise **growth**.
+
+**`contacts=True` says contacts need the ground.** Seamwork joins buildings to a ground mesh or Terrain. Give the settlement its **ground**.
 
 **`route="library"` lists lots nothing fits.** No Stagehand library asset with a fitting footprint and tags. Add assets or widen `fit`; those lots keep their envelopes.
 
@@ -184,5 +195,7 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 | overrides | JSON object of profile fields, such as `{"maxFloors": 6, "gridAngle": 30, "blockType": "courtyard", "lotMethod": "burgage", "windAngle": 90}`. `settlementProfiles()` lists every field of every profile. |
 | heightScale, widthScale, lotScale | Multiply floors, street widths and lot sizes. |
 | showStreets, showLots, showBuildings | What the modifier shows. All three stay available on the node's own outputs. |
+
+The **levels** output holds the levels above the ground as curves with `class`, `layer` and `kind` (0 deck street, 1 elevated road, 2 ramp, 3 skybridge, 4 air lane, 5 deck outline).
 
 Streets carry face attributes `street`, `class` (0 arterial, 1 collector, 2 local, 3 alley, 4 path) and `path` (the edit id, -1 when generated); lot outlines an edge attribute `lot`; envelopes face attributes `lot`, `use` (0 residential, 1 commercial, 2 civic, 3 plaza, 4 open, 5 market, 6 religious, 7 industrial, 8 port, 9 farm, 10 park, 11 cemetery), `floors` and `part` (0 wall, 1 roof, 2 floor). `settlementInfo` also returns street metrics comparable with real cities: orientation entropy and order, intersections, dead-end ratio and block sizes.

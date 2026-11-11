@@ -6927,6 +6927,7 @@ Lays out a settlement inside an outline: arterial roads routed over the ground f
 | `lots` | geometry | output |  | Lot outlines as loose edges and closed curves. |
 | `buildings` | geometry | output |  | Building envelopes as closed meshes, footprints as closed curves. |
 | `water` | geometry | output |  | River ribbons. |
+| `levels` | geometry | output |  | Levels above the ground as curves: deck streets and outlines, elevated roads, ramps, skybridges and air lanes, with class, layer and kind (0 deck, 1 elevated, 2 ramp, 3 skybridge, 4 air, 5 deck outline). |
 
 ## Stagehand extension
 
