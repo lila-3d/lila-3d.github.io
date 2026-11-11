@@ -71,7 +71,7 @@ No pull requests, patches or outside code. Lila's code has one owner, which keep
 
 ### How do I get a fix or feature in?
 
-Ask for it with **Help > Report Issue** (see [Support](support.md)). A diff that shows the idea is welcome as a pointer, and I'll write the change.
+Ask for it with **Help > Request a Feature** (see [Support](support.md)). A diff that shows the idea is welcome as a pointer, and I'll write the change.
 
 ### What if Lila stops being developed?
 
