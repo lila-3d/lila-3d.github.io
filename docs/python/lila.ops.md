@@ -17705,6 +17705,58 @@ Line objects up on one axis by their bounds: min, max or center of all of them, 
 | `to` |  | str | `'min'` | min, max, center, first or last. |
 | `side` | `sd` | str | `'min'` | Which side of each object lines up: min, max or center. |
 
+### arrangementPresets
+
+The arrangement presets: built in (Storeroom, Rubble Corner, Library Shelf, Messy Desk), saved to the user's folder, or to the workspace's ArrangementPresets folder (which wins on a name). Each has name, description, slots (kind, doc, default, optional), steps and source.
+
+Not undoable.
+
+```python
+[p['name'] for p in arrangementPresets()]
+```
+
+### arrangementSave
+
+Save an arrangement preset: a spec of slots and steps (see arrangementPresets for the shape), so arrangePreset can dress any place with it. Saved to the user's presets, or the workspace's ArrangementPresets folder to share it with the project. Returns the file.
+
+**Objects:** preset name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `sp` | Any |  | {description, slots: {...}, steps: [{command, args, flags, needs}]}. |
+| `tier` | `t` | str | `'user'` | user or workspace. |
+| `overwrite` | `o` | bool | `False` | Replace a preset of the same name in that folder. |
+
+Not undoable.
+
+```python
+arrangementSave('Crate Row', spec={'slots': {'floor': {'kind': 'mesh'}}, 'steps': [{'command': 'scatterProps', 'args': ['$floor'], 'flags': {'items': ['Industrial/Crate'], 'density': 2, 'realize': True}}]})
+```
+
+### arrangePreset
+
+Dress a place from an arrangement preset: fill its slots (the floor, the boards, the books) and it runs its steps as one undo step, gathering what they make into one group. Slots left out take their defaults; an optional slot left unset skips the steps that need it. Returns group, preset and each step's result.
+
+**Objects:** preset name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `slots` | `sl` | Any |  | Slot values: {slot: mesh name, [meshes] or [items]}. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement; each step adds its index to it. |
+| `name` | `n` | str |  | Name of the group made (default the preset's name). |
+
+```python
+arrangePreset('Storeroom', slots={'floor': 'Floor'})
+```
+
+```python
+arrangePreset('Rubble Corner', slots={'floor': 'Ground', 'broken': ['Wall_pieces']}, seed=4)
+```
+
+```python
+arrangePreset('Library Shelf', slots={'boards': ['Shelf_1', 'Shelf_2'], 'books': ['Books/Hardback']})
+```
+
 ### assemblyCreate
 
 Group placed objects into an assembly: a group that goes to Unreal as one Level Instance (or Packed Level Actor) with unrealPlaceAssembly. Returns the group.
@@ -17719,6 +17771,37 @@ Group placed objects into an assembly: a group that goes to Unreal as one Level 
 
 ```python
 assemblyCreate(['Gate_Left', 'Gate_Right', 'Gate_Arch'], name='Gate', kind='packedLevelActor')
+```
+
+### debrisProps
+
+Strew debris around broken things: chips sized from each piece of a fracture, ruin or wall (bigger pieces shed more and bigger chips), dropped beside it and settled against the pieces and the ground. Places scene instances (mode='copy' for copies) in one group. Returns the same as fillShelf with realize=True.
+
+**Objects:** broken objects: their meshes are the pieces (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `settle` | `st` | bool | `True` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `items` | `it` | list |  | Chips: library asset ids and/or scene meshes (default the starter library's stone chunks). |
+| `amount` | `a` | float | `6.0` | Chips per piece of median size, on average; bigger pieces shed more. |
+| `size` | `sz` | float | `0.12` | Chip size as a fraction of the piece it comes off. |
+| `minSize` | `mns` | float | `2.0` | Smallest chip, cm. |
+| `maxSize` | `mxs` | float | `40.0` | Largest chip, cm. |
+| `spread` | `sd` | float | `1.0` | How far out they land, in piece radii beyond each piece. |
+| `density` |  | float | `2400.0` | kg/m3 of the chips, for the settle. |
+| `onto` | `on` | list |  | Meshes they land on besides the pieces; default a floor plane at the pieces' lowest point. |
+
+```python
+debrisProps('Wall_fractured')
+```
+
+```python
+debrisProps('RuinedArch', amount=12, size=0.08, onto=['Terrain'])
 ```
 
 ### distribute
@@ -17949,7 +18032,7 @@ Not undoable.
 
 Find props in the library by words, tags, collection and size. Best match first.
 
-Every word must match the name, tags, collection, id or description (prefixes and one-letter typos count). Each result has id, name, collection, tier, model, thumbnail, tags, description, size [x, y, z] cm, physics, unreal and snapPoints. Pass an id to place().
+Every word must match the name, tags, collection, id or description (prefixes and one-letter typos count). Each result has id, name, collection, tier, model, thumbnail, tags, description, size [x, y, z] cm, physics, unreal, snapPoints and assembly (null, or kind and members for an assembly). Pass an id to place().
 
 **Objects:** words (optional)
 
@@ -18002,6 +18085,41 @@ Snap points joined to nothing: gaps in a kit layout. Returns them as snapPoints 
 | `tolerance` | `tol` | float | `0.5` | How close counts as joined, cm. |
 
 Not undoable.
+
+### pathProps
+
+Place items along curves: litter along a kerb, cones down a road, posts along a fence, cable drums by a track. Spaced along each curve, offset or wandering to the side, turned a little, stood on the surface below and optionally settled. Places scene instances (mode='copy' for copies) in one group. Returns the same as fillShelf with realize=True.
+
+**Objects:** curves (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `settle` | `st` | bool | `False` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `density` |  | float | `600.0` | kg/m3 of the items, for the settle. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `spacing` | `sp` | float | `100.0` | Distance between items along the curve, cm. |
+| `spacingJitter` | `sj` | float | `0.3` | 0 to 1: how much each gap varies. |
+| `offset` | `of` | float | `0.0` | Distance to the curve's right, cm (negative: its left). |
+| `spread` | `sd` | float | `0.0` | Random sideways wander either way, cm. |
+| `turn` | `tu` | float | `15.0` | Random turn about up either way, degrees. |
+| `along` | `al` | bool | `True` | Items face along the curve; off turns each at random. |
+| `scaleMin` | `smn` | float | `0.9` | Smallest scale. |
+| `scaleMax` | `smx` | float | `1.1` | Largest scale. |
+| `snap` | `sn` | bool | `True` | Stand each item on the surface below the curve (looked for from 50 cm above it). |
+| `onto` | `on` | list |  | Meshes they settle on; default a floor plane at the curve's lowest point. |
+
+```python
+pathProps('Kerb', items=['Debris/Rebar', 'Debris/RebarBent'], spacing=60, offset=40, spread=20, along=False)
+```
+
+```python
+pathProps('Road_Edge', items=['Road/Delineator'], spacing=500, offset=-150, turn=0)
+```
 
 ### physicsBody
 
@@ -18308,6 +18426,36 @@ Stack items one on another (plates, crates, books lying flat), each turned and n
 
 ```python
 stackProps(items=['Kitchen/Plate'], at=[30, 90, 0], onto=['Counter'], count=8)
+```
+
+### sweep
+
+Sweep meshes along a stroke like a broom, or gather them toward a point, then let them settle: push litter into a corner, herd scattered books into a heap.
+
+Only the targets (and dynamic bodies) move; the broom carries whatever is within radius of it as it travels the stroke at speed. One undo step. Returns the same report as settle.
+
+**Objects:** meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | list |  | The broom's stroke, world points [[x, y, z], ...]; with gather=True, one point to gather toward. |
+| `radius` | `r` | float | `30.0` | Size of the broom, cm. |
+| `speed` | `sp` | float | `60.0` | How fast the broom moves along the stroke, and what it sweeps with it, cm/s. |
+| `gather` | `ga` | bool | `False` | Pull everything under the broom toward its centre instead of along the stroke. |
+| `movable` | `mv` | list |  | Meshes that may move as well (default: those touching the targets, chained, smaller than the biggest of them x8). |
+| `colliders` | `co` | list |  | Meshes things hit but that never move (default: every visible mesh nearby). |
+| `ground` | `gr` | bool | `True` | A floor plane at groundHeight, under everything. |
+| `groundHeight` | `gh` | float | `0.0` | Height of the floor plane, cm. |
+| `gravity` | `g` | list | `[0.0, -981.0, 0.0]` | Gravity, cm/s2. |
+| `time` | `ti` | float | `120.0` | Longest it simulates, seconds: it runs until everything is at rest, and the report says capped when this stopped it first. |
+| `reach` | `re` | float | `300.0` | Without colliders=, meshes within this many cm of a mover join as colliders (more below it, the way it falls). |
+
+```python
+sweep(['can_01', 'can_02', 'wrapper_01'], path=[[0, 0, 0], [200, 0, 0]], radius=40)
+```
+
+```python
+sweep(ls('Book*'), path=[[50, 0, 50]], gather=True, radius=120)
 ```
 
 ### unrealPlaceAssembly

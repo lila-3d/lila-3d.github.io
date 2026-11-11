@@ -8,10 +8,13 @@ Push, drop and settle props into place with physics, fill shelves and scatter de
 
 | Key | Does |
 | --- | --- |
-| 1 to 5, Tab | Grab, Push, Wiggle, Drop, Shake |
+| 1 to 6, Tab | Grab, Push, Wiggle, Drop, Shake, Sweep |
 | Ctrl-click | Pin or unpin an object, to push others against it |
 | P | Pause |
-| [ ] | Wiggle brush size |
+| L | Slow motion |
+| K | Auto keep on or off: on (the default), each drag is kept as its own undo step once everything comes to rest |
+| [ ] | Wiggle and Sweep brush size |
+| Shift (Sweep) | Gather under the brush instead of sweeping along the stroke |
 | Enter | Keep, as one undo step |
 | Esc | Put everything back |
 
@@ -22,6 +25,7 @@ Leaving the tool keeps the result.
 ```python
 settle(["mug", "plate"])                              # fall and rest on what is below
 push("book_01", direction=[1, 0, 0])                  # topple a row of books
+sweep(["can_01", "can_02"], path=[[0, 0, 0], [200, 0, 0]])   # broom litter along a stroke
 drop("mug", onto="desk", at=[40, 0, 10])
 dressCheck(["mug", "plate"])["issues"]                # anything floating, overlapping or about to fall
 ```
@@ -43,7 +47,29 @@ fillShelf(["Shelf_1", "Shelf_2"], items=["Books/Hardback", "Books/Paperback"], s
 
 This makes a live arrangement; its seed, gap and lean inputs re-arrange it. `realize=True` places real objects to push, edit and check one by one. `scatterProps`, `pileProps` and `stackProps` work the same way.
 
+**Line a curve with props.** `pathProps` spaces items along curves and stands each on the surface below: litter along a kerb, cones down a road, posts along a fence.
+
+```python
+pathProps("Kerb", items=["Debris/Rebar", "Debris/RebarBent"], spacing=60, offset=40, spread=20, along=False)
+```
+
 <!-- TODO image: a bookshelf filled with fillShelf, some books leaning, a stack lying flat, the boards sagging (images/stagehand/shelf.png) -->
+
+**Dress a place from a preset.** Built-in presets: Storeroom, Rubble Corner, Library Shelf and Messy Desk. Each fills slots you name, such as the floor, the boards or the books, and runs as one undo step.
+
+```python
+arrangePreset("Storeroom", slots={"floor": "Floor"})
+arrangePreset("Rubble Corner", slots={"floor": "Ground", "broken": ["Wall_pieces"]}, seed=4)
+arrangePreset("Library Shelf", slots={"boards": ["Shelf_1", "Shelf_2"], "books": ["Books/Hardback"]})
+```
+
+`arrangementPresets()` lists the presets with their slots. `arrangementSave("My Corner", spec={...})` saves your own preset; `tier="workspace"` shares it with the project in `<workspace>/ArrangementPresets/`.
+
+**Strew debris around broken things.** `debrisProps` drops chips beside each piece of a fracture, ruin or wall, sized from the piece, and settles them. It uses the starter stone chunks unless you give `items=`.
+
+```python
+debrisProps("Wall_fractured", amount=8)
+```
 
 **Settle debris from Fracture or a scatter.** Turn the geometry-nodes instances into objects first, then settle them like anything else.
 
@@ -69,7 +95,7 @@ assemblyCreate(["Gate_L", "Gate_R", "Gate_Arch"], name="Gate", kind="packedLevel
 unrealPlaceAssembly("Gate", folder="/Game/Kits")
 ```
 
-`libraryAdd("Gate", collection="Kits")` saves an assembly to the library: its library props by id and where they stand, anything else in it as its own model. Assemblies can hold assemblies; `place("Kits/Gate")` puts the whole thing down.
+`libraryAdd("Gate", collection="Kits")` saves an assembly to the library: its library props by id and where they stand, anything else in it as its own model. Assemblies can hold assemblies; `place("Kits/Gate")` puts the whole thing down. Saved assemblies show in the Prop Library and `librarySearch` like any prop; their results carry `assembly` with the members.
 
 ## Troubleshooting
 
@@ -100,6 +126,9 @@ unrealPlaceAssembly("Gate", folder="/Game/Kits")
 | `settle(time=, reach=)` | Longest run in seconds (it stops once everything rests), and how far around each mover meshes join as colliders, cm. |
 | `push(speed=)` | 50 nudges, 150 topples a book, 500 knocks it flying (cm/s). |
 | `wiggle(strength=, times=)` | Size and rounds of the random jostle. |
+| `sweep(radius=, speed=, gather=)` | Broom size and speed; `gather=True` pulls everything under it to its centre (give one point as `path=`). |
+| `debrisProps(amount=, size=, spread=)` | Chips per piece (bigger pieces shed more), chip size as a fraction of its piece, and how far out they land. |
+| `pathProps(spacing=, offset=, spread=, turn=, along=)` | Gap along the curve, distance to its right (negative: left), sideways wander, random turn, and whether items face along it. |
 | `fillShelf(leanChance=, lyingChance=, gap=)` | How messy the row is. |
 | `variants=` | `pool` (a few bowed variants per mesh, shared, cheap in Unreal), `unique` (one each) or `none`. |
 | `fillShelf(sagAmount=)` | Sag at a board's middle for 10 kg there, cm. |
