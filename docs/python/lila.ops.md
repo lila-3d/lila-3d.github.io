@@ -12788,7 +12788,7 @@ Automatic uvs: seams, low-stretch unwrap and pack, in one step.
 | `iterations` |  | int | `12` | SLIM iterations. |
 | `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 | `hardAngle` |  | float | `60.0` | Edges sharper than this always get a seam, degrees. |
-| `useHardEdges` |  | bool | `True` | Edges marked hard always get a seam. |
+| `useHardEdges` |  | bool | `False` | Edges marked hard always get a seam, unless a Weighted Normals modifier smooths them over. |
 | `keepSeams` |  | bool | `False` | Keep the seams already there. |
 | `maxDistortion` |  | float | `0.08` | Split islands that stretch more than this when flattened. |
 | `visibility` |  | bool | `True` | Hide cuts where they are least visible. |
@@ -12827,7 +12827,7 @@ Place seams for game assets on the selected faces: hard edges, then cuts that op
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `hardAngle` |  | float | `60.0` | Edges sharper than this always get a seam, degrees. |
-| `useHardEdges` |  | bool | `True` | Edges marked hard always get a seam. |
+| `useHardEdges` |  | bool | `False` | Edges marked hard always get a seam, unless a Weighted Normals modifier smooths them over. |
 | `keepSeams` |  | bool | `False` | Keep the seams already there. |
 | `maxDistortion` |  | float | `0.08` | Split islands that stretch more than this when flattened. |
 | `visibility` |  | bool | `True` | Hide cuts where they are least visible. |
@@ -12992,12 +12992,12 @@ Optimise the selected uv islands from where they are: conformal (keep angles), a
 
 ### uvOrient
 
-Rotate the selected islands upright: by bounding box, principal axis or longest edge.
+Rotate the selected islands upright: by bounding box, principal axis, longest edge or edge grid.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
-| `mode` |  | str | `'bbox'` | bbox, principal or edge. |
+| `mode` |  | str | `'bbox'` | bbox, principal, edge or grid (polygon edges along U and V). |
 
 ### uvPack
 
@@ -13073,13 +13073,29 @@ Project uvs onto the selected faces: planar, box, cylindrical, spherical or came
 
 ### uvSeamView
 
-Create a seam view: a locator that uvAuto and uvAutoSeams keep seams out of sight of, such as where a first person camera sits or where a character's face is seen from. Move it and run Auto UV again to see the seams move. Its seamView attribute is the weight: higher hides seams harder, negative draws them towards it. Returns its path.
+Create a seam view: a locator that uvAuto, uvAutoSeams and uvHose keep seams out of sight of, such as where a first person camera sits or where a character's face is seen from. With normal it is a plane instead, seeing along its local direction like an orthographic camera (a game's fixed side or top view). Move or rotate it and run Auto UV again to see the seams move. Its seamView attribute is the weight: higher hides seams harder, negative draws them towards it. Returns its path.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `position` | `p` | tuple[float, float, float] |  | World position. |
+| `normal` | `nm` | tuple[float, float, float] |  | Makes it a plane through position with this world normal: it sees along that axis from its own side, like an orthographic camera. |
 | `weight` | `w` | float | `1.0` | How hard seams avoid what it sees; negative draws them towards it. |
+| `override` | `o` | bool | `False` | Make it the seam view override (uvSeamViewOverride). |
 | `name` | `n` | str | `'seamView'` | Name; made unique among its siblings. |
+
+### uvSeamViewOverride
+
+Make a camera, locator or plane the seam view override: uvAuto, uvAutoSeams and uvHose then hide seams from it alone, whatever seam views their options or flags name, and say so in their result and a toast. A perspective camera sees from its eye, an orthographic one along its axis. With no node, clears the override. Returns the override's name, or an empty string when cleared.
+
+**Objects:** node
+
+```python
+uvSeamViewOverride("camera1")
+```
+
+```python
+uvSeamViewOverride()
+```
 
 ### uvSetCurrent
 
@@ -13446,6 +13462,7 @@ Pop up a short message in the bottom-right corner of the active viewport; it fad
 | `all` | `a` | bool |  | Show it in every viewport, not only the active one. |
 | `duration` | `d` | float | `2.0` | Seconds before it is gone, including the fade. |
 | `error` | `e` | bool |  | Mark it as a failure, with a red accent. |
+| `warning` | `w` | bool |  | Mark it as a warning, with a warning accent and triangle. |
 
 Not undoable.
 
@@ -18568,7 +18585,7 @@ tailorAutoSew('Garment', maxGap=12, apply=False)
 
 ### tailorBake
 
-Turn a draped garment into a plain mesh for the game: the drape as it stands, seams welded and thickness applied as set on the garment, uv0 packed, uv1 the fabric pattern, and point attribute clothMaxDistance (cm from the body) as a runtime cloth mask.
+Turn a draped garment into a plain mesh for the game: the drape as it stands, seams welded and thickness applied as set on the garment, uv0 packed, uv1 the fabric pattern, and point attribute clothMaxDistance (cm from the body) as a runtime cloth mask unless clothMask is off, for garments that hold their shape with no cloth at runtime.
 
 When the collider is skinned, the new mesh is bound to the same joints and takes its weights by closest point, ready to export with the character. Returns the new mesh.
 
@@ -18578,6 +18595,7 @@ When the collider is skinned, the new mesh is bound to the same joints and takes
 | --- | --- | --- | --- | --- |
 | `name` | `n` | str |  | Name of the new mesh; the garment mesh's name plus _baked when left out. |
 | `skin` | `sk` | bool | `True` | Bind to the collider's joints and copy its weights when it is skinned. |
+| `clothMask` | `cm` | bool | `True` | Write clothMaxDistance for runtime cloth; off for a mesh that only follows the skin. |
 | `maxInfluences` | `mi` | int | `4` | Influences per point. |
 | `retopo` | `rt` | int | `0` | Quad remesh to about this many faces, seams kept as edge loops; 0 keeps the cloth triangles. |
 | `lods` | `lod` | int | `0` | Extra levels of detail to generate in a LOD group. |
@@ -18595,6 +18613,10 @@ tailorBake('Cloak', name='SM_Cloak', skin=False)
 
 ```python
 tailorBake('Tunic', retopo=3000, lods=2)
+```
+
+```python
+tailorBake('Jacket', clothMask=False)
 ```
 
 ### tailorBakeWrinkleMaps
@@ -18734,6 +18756,30 @@ Delete an outline point from a panel (it keeps at least 3). Seams ending there e
 
 ```python
 tailorDeletePoint('Garment', panel='Front', index=2)
+```
+
+### tailorDrapeMesh
+
+Drop a mesh as cloth onto the meshes under it and keep the settled shape. Its own edge lengths are the rest shape, so a plane keeps its size; a coarse mesh drapes as a finer copy and its points follow. With no colliders named or selected after it, every visible mesh below it is used. Undoable. Returns the frames run and whether it settled.
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `colliders` | `col` | list |  | Meshes to drape over; default: the rest of the selection, else every visible mesh below. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset: how it stretches, bends and slides. |
+| `frames` | `f` | int | `300` | Most frames to run; stops earlier once settled. |
+| `gap` |  | float | `0.2` | Distance kept from the colliders, cm. |
+| `detail` | `d` | float | `3.0` | Simulated edge length, cm: coarser meshes are subdivided toward it for the drape, then their points take the result. 0 drapes the mesh as it is. |
+| `keepDetail` | `kd` | bool | `False` | Keep the subdivided mesh the drape ran on instead of the original topology. |
+| `selfCollision` | `sc` | bool | `True` | Keep the cloth from passing through itself. |
+
+```python
+tailorDrapeMesh('Plane')
+```
+
+```python
+tailorDrapeMesh('Tablecloth', colliders=['Table'], fabric='Linen')
 ```
 
 ### tailorDrawPanel
@@ -19005,23 +19051,27 @@ tailorRemoveNotch('Shirt', panel='Sleeve', index=7)
 
 ### tailorSendToUnreal
 
-Ship a garment to Unreal with Chaos Cloth. as=clothAsset builds a Chaos Cloth Asset from the sewing pattern itself (panels as sim patterns, seams welded, the drape as its rest shape), ready for the Cloth Editor and a Chaos Cloth Component on your character. as=skeletalMesh bakes it (skinned like its collider, which must be skinned), imports it and adds clothing data to the mesh. Both paint max distance from how far the cloth hangs off the body and carry the fabric's mass, stiffness, damping and friction. Returns what was made.
+Ship a garment to Unreal with Chaos Cloth. as=clothAsset builds a Chaos Cloth Asset from the sewing pattern itself (panels as sim patterns, seams welded, the drape as its rest shape), ready for the Cloth Editor and a Chaos Cloth Component on your character. as=skeletalMesh bakes it (skinned like its collider, which must be skinned), imports it and adds clothing data to the mesh. Both paint max distance from how far the cloth hangs off the body and carry the fabric's mass, stiffness, damping and friction. as=skinnedMesh bakes and imports it the same way with no cloth at all: the drape holds its shape and follows the skin. Returns what was made.
 
 **Objects:** garment
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `contentPath` | `cp` | str |  | The skeletal mesh asset, like /Game/Characters/Hero/SK_Hero_Cloak. |
+| `contentPath` | `cp` | str |  | The skeletal mesh asset, like /Game/Characters/Hero/SK_Hero_Cloak; /Game/Tailor/SK_<garment mesh> when left out. |
 | `skeleton` | `sk` | str |  | Skeleton asset to reuse, like /Game/Characters/Hero/SK_Hero_Skeleton. |
 | `retopo` | `rt` | int | `0` | Quad remesh the game mesh to about this many faces first; 0 keeps the cloth triangles. |
 | `maxInfluences` | `mi` | int | `4` | Skin influences per point. |
 | `save` | `sv` | bool | `True` | Save the Unreal assets afterwards. |
-| `as` |  | str | `'clothAsset'` | clothAsset or skeletalMesh. |
+| `as` |  | str | `'clothAsset'` | clothAsset, skeletalMesh with clothing, or skinnedMesh with no cloth. |
 | `skeletalMesh` | `skm` | str |  | Cloth asset: the character's skeletal mesh in Unreal it is made for. |
 | `material` | `mat` | str |  | Cloth asset: the render material, like /Game/Cloth/M_Wool; a debug material when left out. |
 
 ```python
 tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/SK_Hero_Cloak', skeleton='/Game/Characters/Hero/SK_Hero_Skeleton')
+```
+
+```python
+tailorSendToUnreal('Jacket', as='skinnedMesh', skeleton='/Game/Characters/Hero/SK_Hero_Skeleton')
 ```
 
 ### tailorSetFabric

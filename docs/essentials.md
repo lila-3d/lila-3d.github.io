@@ -352,6 +352,10 @@ Fits the selected edge loops, vertices, or the border of a face region to a circ
 
 To keep seams out of sight, such as away from a first person camera or a character's face, use **UV > Add Seam View**. It drops a locator where the camera is; move it and run Auto UV again. Its **Seam View** attribute sets how hard seams avoid it, and a negative value draws them towards it instead. Add as many as you need.
 
+For a fixed side or top view, use **UV > Add Seam Plane** instead: a plane facing the camera that sees along its axis from its own side, like an orthographic camera. An orthographic camera works the same way when picked as a view.
+
+To make one view win over everything else, pick it in the **Seam View** row at the top of the UV Toolkit (or use **UV > Override Seam Views with Selected**). Auto UV, Auto Seams and Hose UVs then hide seams from that view alone, whatever their options say. While an override is set, the row turns into a warning naming it, their option boxes show the same warning with **Use Views** and **Views** disabled, and each run shows a toast. Click the row's **x** or use **UV > Clear Seam View Override** to go back to the options.
+
 ## Hose UVs
 
 Select pipes, hoses, cables or rings and click **Hose** in the UV Editor's **Project** section (or **UV > Hose UVs**). Each tube becomes one straight strip with its seam along the least seen side, round ends become circles, and ring fittings get one cut across and one along. It reads the quad topology, so anything swept from a curve qualifies, whatever tool made it.
@@ -391,6 +395,8 @@ The pieces don't need to match. They can sit anywhere, be rotated or mirrored (l
 
 - **Keep Island Shape** keeps each island exactly as copied. Turn it off to relax the islands to the new piece's shape.
 - **Separate Unmatched Faces** puts faces the source doesn't have, such as a cap where the source is open, into their own island beside the layout. Turn it off to merge them into the island next to them.
+
+Where the shapes differ a lot, the log says how many faces matched poorly. Seams there follow creases and hidden edges more than the source's; where the match is good, they stay where the source has them.
 
 > Maya requires identical topology, world position, or object position.
 
