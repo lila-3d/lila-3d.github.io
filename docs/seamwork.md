@@ -79,7 +79,7 @@ Strips are meshes by default and work in every renderer. `decals='dbuffer'` send
 
 **`seamSend` skipped the PCG data.** LilaLinkPCG isn't enabled, or LilaLink is older than this version of Lila. The result says which.
 
-**The skirt says a union failed and it swept instead.** The union can't fillet against one huge face, such as a floor slab made of a single polygon. Subdivide the floor or use `method='sweep'`.
+**The skirt says a union failed and it swept instead.** The reason says why. "The ground mesh doesn't reach under the object" means the floor stops short of the wall: extend the floor or use `method='sweep'`.
 
 **The skirt shows the wall in grey or the wrong colour.** `MF_LilaSkirtBlend` needs the wall's material in `WallBaseColor`. Build the skirt material from a copy of the wall material.
 

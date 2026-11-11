@@ -59,10 +59,10 @@ Rebuild LilaLink from Lila's `ue/LilaLink` once. Then:
 - **Send Cliffs** cuts the cliffs on the World Partition grid (12800 cm cells by default, matching Unreal's grid origin). Tiles share their border vertices exactly, every LOD included, and each actor's pivot is its tile's centre, so it lands in its own cell.
 - Only changed tiles are re-sent, plus any whose asset or actor Unreal lost (an editor closed without saving, a deleted actor); a lost actor is placed again without reimporting. A stopped or cancelled send carries on next time, and tiles that no longer exist are removed in Unreal.
 - Tiles turn on Nanite past a triangle count. Without Nanite they get LODs and collision from the last LOD.
-- `terrainSendToUnreal('Terrain', cliffs=True)` sends the landscape, then the cliffs. `extra=[...]` tiles other meshes with them, such as contact skirts and strips from Seamwork.
+- `terrainSendToUnreal('Terrain', cliffs=True)` sends the landscape, then the cliffs. `extra=[...]` tiles other meshes with them, such as contact skirts and strips from Seamwork; those keep their own materials and vertex colours.
 - Tiles get `MI_<terrain>_Cliffs`, built on `MF_LilaTerrainVolume`. Drop that function into your own rock material for triplanar rock with cavity darkening; it also outputs the cliff's Strata, Openness, UpFacing and ScatterZones masks from vertex colour.
 
-Landscape paint layers no longer stretch on steep slopes: `MF_LilaTerrainLayer` projects from above on flats and from the sides above 35 degrees, and Lila's viewport draws them the same way. Under mobile (ES3.1) both functions use a cheaper two-projection path. Nothing reads the GBuffer, so deferred, desktop forward and mobile forward look the same.
+Landscape paint layers don't stretch on steep slopes: `MF_LilaTerrainLayer` projects from above on flats and from the sides above 35 degrees, and Lila's viewport draws them the same way. Where a sudden step bends the shading normal away from the surface, each triangle's own slope decides, so the step's lip doesn't stretch either. Under mobile (ES3.1) both functions use a cheaper two-projection path. Nothing reads the GBuffer, so deferred, desktop forward and mobile forward look the same.
 
 ## Troubleshooting
 
@@ -89,7 +89,7 @@ Landscape paint layers no longer stretch on steep slopes: `MF_LilaTerrainLayer` 
 | `strataHeight`, `undercut`, `ledges`, `overhang`, `noise` | Cliff Mesh, Extrude Cliff | Rock layer shape. |
 | `rockMap`, `rock`, `rockSize` | Cliff Mesh, Extrude Cliff | A rock height map (image or `.lilamat` height channel) displaced triplanar. |
 | `blockout` | Cliff Mesh | Build from any mesh instead of a region. |
-| `lowPoly` | Cliff Mesh | Add a reduced copy with baked normal and AO maps for non-Nanite targets. |
+| `lowPoly` | Cliff Mesh | Add a reduced copy with its own UV layout and baked normal and AO maps, for non-Nanite targets. |
 | `overlap`, `sink`, `maxPenetration`, `gap` | Cliff Kit | Spacing, how deep bases sink, how far the hill may reach into a piece, and which gaps get fillers. |
 | `cellSize`, `nanite`, `naniteTriangles`, `hlodLayer` | Send Cliffs | Tile grid, Nanite threshold and HLOD layer. |
 
