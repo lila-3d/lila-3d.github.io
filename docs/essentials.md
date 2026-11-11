@@ -36,6 +36,15 @@ Fields that take a mesh, curve, joint or other object have a dropdown of the sce
 - Commands that take `preset=` from Python, like `quadRemesh`, accept a saved preset's name.
 - For a whole studio, see [Studio setup](studio-setup.md#studio-shelves).
 
+## Type math in number fields
+
+Every number field, Channel Box and Attribute Editor value takes arithmetic, applied on **Enter** or when you click away:
+
+- `*=3` triples the value. `+=`, `-=` and `/=` work the same way.
+- `2048/4`, `(1+2)*4` or `sqrt(2)*10` set the result. `pi`, `round()`, `floor()`, `ceil()`, `abs()` and `sin()`/`cos()`/`tan()` in degrees work too.
+
+Text that isn't a number leaves the value as it was.
+
 ## Hotkey cheat sheet
 
 Hold **F1** to show every hotkey. Release it to close.
