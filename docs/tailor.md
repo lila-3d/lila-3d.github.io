@@ -101,6 +101,8 @@ tailorSendToUnreal('Cloak', contentPath='/Game/Characters/Hero/CA_Cloak', skelet
 
 `as='skeletalMesh'` instead bakes the garment, imports it as a skeletal mesh skinned like the body and adds clothing data to it; that needs a skinned body.
 
+For a garment that holds its drape with no cloth at runtime (stylized characters), choose **Skinned Mesh, No Cloth** in the **Tailor > Send to Unreal** options, or pass `as='skinnedMesh'`. It's baked and skinned the same way, with no clothing data. To bake it in Lila without the cloth mask, turn off **Cloth Mask** in **Bake to Game Mesh** (`clothMask=False`).
+
 ### Wrinkles that follow the motion
 
 Drapes carry a `wrinkle` colour set: compression along the pattern's U in red and V in green. Lila's tension deformer writes the same set on any skinned mesh. `tailorBakeWrinkleMaps` simulates the fabric squeezed each way and writes two tiling wrinkle normal maps; with `send=True` it imports them and builds `MF_LilaTensionWrinkles` in Unreal:
@@ -129,7 +131,7 @@ To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBa
 
 **A brush stroke does nothing.** The stroke missed the cloth, or the garment isn't selected. Pin, Fold and Shrink need the drape under the cursor; Steam needs the garment live.
 
-**tailorSendToUnreal fails.** It needs LilaLink connected (`unrealConnect`) with a LilaLink build that has the cloth methods (rebuild the plugin after updating Lila). `as='skeletalMesh'` also needs a skinned body.
+**tailorSendToUnreal fails.** It needs LilaLink connected (`unrealConnect`) with a LilaLink build that has the cloth methods (rebuild the plugin after updating Lila). `as='skeletalMesh'` and `as='skinnedMesh'` also need a skinned body.
 
 **An animated garment lags or stays put.** Frames simulate when Lila is idle; `simulate('TailorGarment', frame=120)` runs them now.
 
