@@ -59,6 +59,16 @@ With a garment selected, paint on it in the viewport. **[** and **]** size the b
 
 **Tailor > Clear Brushes** removes what they painted.
 
+## Drape any mesh
+
+Select a mesh, such as a plane, above another object and pick **Tailor > Drape Mesh** (also in **Mesh**). It falls as cloth onto the visible meshes below it and keeps the settled shape; select the meshes to drape over after it to pick them yourself. Undo puts it back.
+
+A coarse mesh is subdivided for the drape until its edges are near `detail` (3 cm) and its own points take the result, so its topology stays. Pass `keepDetail=True` to keep the finer mesh instead.
+
+```python
+tailorDrapeMesh('Tablecloth', colliders=['Table'], fabric='Linen', keepDetail=True)
+```
+
 ## Add details
 
 ```python
@@ -122,6 +132,8 @@ To bake texture maps from the drape onto the game mesh, pass `maps` to `tailorBa
 **The mesh stays flat and undraped.** The drape is still running (see the progress bar), or **simulate** is off on the garment node. In scripts, pass `wait=True` to get the finished drape back.
 
 **Cloth pokes through the body.** Lower **particleDistance** for a finer cloth mesh, or raise **frames** and drape again with **Tailor > Drape**.
+
+**A draped coarse mesh cuts into a curved object.** Its flat faces span the curve between points. Drape again with `keepDetail=True`, or subdivide it first.
 
 **Bake didn't skin the mesh.** The body has no skinCluster. Skin it, then bake again.
 
