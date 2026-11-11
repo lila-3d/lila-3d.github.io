@@ -56,16 +56,18 @@ Edit the Panel Layout, then pick **Rig > Rebind Soft Net**. Knots on junctions t
 
 | Route | What Unreal gets | Use for |
 | --- | --- | --- |
-| **Bake** (default) | Knot and handle joints as bones, skin weights fitted to the net, helper joints and keyed morph correctives for what is left. Any export carries it. | Games |
+| **Bake** (default) | Knot and handle joints as bones, skin weights fitted to the net, and morph correctives for what is left, driven by the knot, handle and skin joints. Any export carries it. | Games |
 | **Live** | The net runs on the GPU as the Lila Soft Net Deformer Graph, after linear skinning, driven by the knot bones. | Animating the net in Unreal |
 | **Cache** | The deformed mesh as an Alembic or vertex animation cache. | Cinematics |
 
 ```python
-softNetUnreal("Face", route="bake", helpers=4, correctives=8)
+softNetUnreal("Face", route="bake", correctives=32)
 unrealSoftNet("Face", skeletalMesh="/Game/Face/Face")
 ```
 
-Bake reports `rmse` and `maxError` in cm against the net, per-frame worst errors in `frameError`, and the Unreal round-trip check. For **Live**, export the skeleton with **deformOnly** off so the knot joints go too, then run it with Unreal connected: LilaLink binds every LOD and turns on high-precision skin weights.
+Bake reports `rmse` and `maxError` in cm against the net, per-frame worst errors in `frameError`, and the Unreal round-trip check. Each corrective's weight is an expression on the joints, so a pose the range never reaches still gets its correctives: `checkTo=` bakes frames past the range without fitting them and reports their errors in `check`. In Unreal, `unrealExpressionRig` sends the expressions to a Control Rig. `helpers=` adds helper joints, which are keyed to the range, so poses outside it don't get them.
+
+For **Live**, export the skeleton with **deformOnly** off so the knot joints go too, then run it with Unreal connected: LilaLink binds every LOD (LOD 1 and lower follow the nearest place on LOD 0), turns normals and tangents with the net, and turns on high-precision skin weights.
 
 ## Troubleshooting
 
@@ -79,7 +81,7 @@ Bake reports `rmse` and `maxError` in cm against the net, per-frame worst errors
 
 **"the mesh changed since the Soft Net was bound".** Its point count changed. Run **Rig > Rebind Soft Net**.
 
-**The first knot move pauses.** The net works out each point's response the first time a knot leaves rest: about two seconds on a 50,000-point mesh. Later moves are quick.
+**The first knot move pauses.** The net works out each point's response in the background as soon as it is made, which takes about two seconds on a 50,000-point mesh. A knot moved before that waits for it; later moves are quick.
 
 **"has no skin to bake into".** Bake needs a skinned mesh. Use the **Cache** route for an unrigged one.
 

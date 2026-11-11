@@ -1101,7 +1101,7 @@ Fit linear skin weights (SSDR, Dem Bones) to everything the mesh's stack does: c
 
 ### bakeSoftNet
 
-Bake a skinned mesh's Soft Net for Unreal: each knot becomes a frame joint riding the surface with a control joint under it, each tangent handle a joint under its knot, keyed over the range and added to the skin as fixed bones; weights are fitted to the net's result (with up to helpers helper joints), and morph correctives keyed per frame take the residual. The net is turned off so the viewport shows what Unreal gets. Returns {joints, helpers, correctives, skinnedRmse, rmse, maxError, frameError, frames, unrealCheck}: errors in cm against the net, per frame worst, and the Unreal round-trip check.
+Bake a skinned mesh's Soft Net for Unreal: each knot becomes a frame joint riding the surface with a control joint under it, each tangent handle a joint under its knot, keyed over the range and added to the skin as fixed bones; weights are fitted to the net's result (with up to helpers helper joints), and morph correctives take the residual, each weighted by an expression on the knot, handle and skin joints' channels, so poses outside the range get them too (unrealExpressionRig sends them to Unreal). The net is turned off so the viewport shows what Unreal gets. Returns {joints, helpers, correctives, skinnedRmse, rmse, maxError, frameError, frames, check, unrealCheck}: errors in cm against the net, per frame worst, the checkTo frames' errors, and the Unreal round-trip check.
 
 **Objects:** mesh (or its net)
 
@@ -1110,14 +1110,15 @@ Bake a skinned mesh's Soft Net for Unreal: each knot becomes a frame joint ridin
 | `start` |  | int |  | First frame (the playback start by default). |
 | `end` |  | int |  | Last frame (the playback end by default). |
 | `step` |  | int | `1` | Frames between samples. |
-| `helpers` |  | int | `4` | Helper joints solved with the weights for what knots and skin can't follow (capped per character). |
-| `correctives` |  | int | `8` | Most morph correctives for the residual. |
+| `helpers` |  | int | `0` | Helper joints solved with the weights for what knots and skin can't follow. They are keyed to the range, so poses outside it don't get them. |
+| `correctives` |  | int | `32` | Most morph correctives for the residual. |
 | `tolerance` |  | float | `0.001` | cm of RMS residual at which correctives stop. |
+| `checkTo` |  | int |  | Frames after end up to this one are baked and checked against the net but not fitted: how the bake holds up on poses it wasn't fitted to. |
 | `maxInfluences` | `mi` | int | `8` | Influences per point. |
 | `iterations` |  | int | `3` | Fit passes. |
 
 ```python
-bakeSoftNet("Mochi", helpers=4, correctives=8)
+bakeSoftNet("Mochi", correctives=32)
 ```
 
 ### bakeStatus
@@ -10930,9 +10931,10 @@ Send a Soft Net to Unreal one of three ways. bake (default): knot joints, fitted
 | `start` |  | int |  | First frame (the playback start by default). |
 | `end` |  | int |  | Last frame (the playback end by default). |
 | `step` |  | int | `1` | Frames between samples. |
-| `helpers` |  | int | `4` | Helper joints solved with the weights for what knots and skin can't follow (capped per character). |
-| `correctives` |  | int | `8` | Most morph correctives for the residual. |
+| `helpers` |  | int | `0` | Helper joints solved with the weights for what knots and skin can't follow. They are keyed to the range, so poses outside it don't get them. |
+| `correctives` |  | int | `32` | Most morph correctives for the residual. |
 | `tolerance` |  | float | `0.001` | cm of RMS residual at which correctives stop. |
+| `checkTo` |  | int |  | Frames after end up to this one are baked and checked against the net but not fitted: how the bake holds up on poses it wasn't fitted to. |
 | `maxInfluences` | `mi` | int | `8` | Influences per point. |
 | `iterations` |  | int | `3` | Fit passes. |
 | `cacheFormat` |  | str | `'alembic'` | cache: Alembic or vertex animation (VAT). One of `alembic`, `vat`. |
