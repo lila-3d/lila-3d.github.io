@@ -143,7 +143,17 @@ settlementSendToUnreal(mesh, roads="landscape", pcg=True, zoneGraph=True, massin
 - **massing** sends the greybox buildings as static meshes; library buildings and street furniture go as HISM instances (`placeMode`: `hism`, `ism` or `actors`).
 - **pcg** writes a PCG data asset per cell under **folder**, with an actor that runs `pcgGraph` on it, the asset bound to the graph's `SettlementData` parameter. `makeGraph=True` makes `pcgGraph` when the project has none: an empty graph with that parameter, ready for your nodes. A cell that is gone takes its data asset with it. Read it with **Load PCG Data Asset**: pins Lots, Envelopes (footprint polygons with `MaxHeight`, `Floors`, `Use`, `Roof`, `Style`, `Seed` on the data), EnvelopePoints (a point per building), Roads, Intersections (`control`: signal, stop or yield; phases) and ParkingSpots (along roads whose profile has parking, such as `parkedStreet`).
 - **levels** above the ground (decks, elevated roads, ramps, skybridges) go as one spline actor, and as ZoneGraph shapes tagged `Level` with the rest of the lanes.
-- **zoneGraph** adds lane profiles named `Lila_<profile>` and tags (Vehicle, Pedestrian, Parking, Intersection, Crossing, TrafficLight, StopSign) to the project's ZoneGraph settings, then a spline zone shape per road and crosswalk and a polygon per junction, and rebuilds the ZoneGraph for Mass traffic and crowds. When the project has MassTraffic, the tags its settings name for vehicle, pedestrian, intersection, crosswalk and parking lanes go on the matching shapes too; the reply's `massTraffic` lists which settings it read.
+- **zoneGraph** adds lane profiles named `Lila_<profile>` and tags (Vehicle, Pedestrian, Access, Parking, Intersection, Crossing, TrafficLight, StopSign) to the project's ZoneGraph settings, then a spline zone shape per road and crosswalk and a polygon per junction, and rebuilds the ZoneGraph for Mass traffic and crowds. So traffic never gets stuck, a two-way dead end gets a turning loop, roads of different profiles meeting end to end get a polygon between them, junctions a few metres apart become one polygon, and the lanes of roads a car could drive into but never back out of are Access lanes Mass traffic stays off (the send warns how many).
+
+#### Mass traffic
+
+With City Sample's Traffic plugin (MassTraffic) in the project, a **zoneGraph** send also:
+
+- fills MassTraffic's empty lane filters with Lila's tags (saved to `Config/DefaultPlugins.ini`); filters you set are kept and their tags go on Lila's lanes too.
+- writes `DA_<label>_Lanes_TrafficLights` (a light per approach of each signalised junction), `DA_<label>_Lanes_TrafficLightTypes` and `DA_<label>_Lanes_ParkingSpaces` (type `Car`) under **folder**.
+- points the level's Mass spawners at them: a `MassTrafficIntersectionSpawnDataGenerator` gets the light data, a `MassTrafficParkedVehicleSpawnDataGenerator` the parking spaces. Generators already pointing at other data are left alone.
+
+Place your Mass Spawners (vehicles with `MassTrafficVehicleSpawnDataGenerator`, intersections with `MassTrafficIntersectionSpawnDataGenerator`) and their entity configs before sending. MassTraffic builds its own signal periods from the junction geometry; stop and yield junctions run as stop signs. The light types have no mesh: give them one to see the lights.
 
 To make streets match a road kit, read its cross-section: `settlementRoadProfileFromUnreal(mesh, asset="/Game/Roads/SG_Avenue")` adds it as a road profile streets can name. `settlementRoadProfileToUnreal(profile="avenue")` writes a Lila profile as ModulesInfo and Grammar pins for PCG's Subdivide Segment.
 
@@ -178,6 +188,10 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 **A command says Terrain, Masonry, Stagehand or Seamwork commands are not available.** Load that extension.
 
 **`settlementSendToUnreal` warns that placements were not sent.** The project has no static mesh at the paths in `missingAssets`. Name your own with `settlementFurniture(mesh, engineAssets={"lantern": "/Game/Props/SM_Lamp"}, store=True)` and send again.
+
+**Mass vehicles queue at every junction and never go.** The intersection entity config has no `MassRepresentationLODFragment`, so MassTraffic never runs its periods. Add it in an Assorted Fragments trait, or use the MassTraffic light visualization trait, which brings it.
+
+**`settlementSendToUnreal` warns about Access lanes.** Those roads are one-way into a dead end, or one-way carrying on from a two-way road, so Mass traffic stays off them. Make them two-way or join their far end to the network, then send again.
 
 **`settlementSendToUnreal` asks for the LilaLinkSettlement plugin.** Copy `ue/LilaLinkSettlement` next to LilaLink in the project's Plugins folder and enable it.
 
