@@ -61,6 +61,10 @@ Yes, for modeling, UVs, sculpting, texturing, rigging and animation. Lila has no
 
 The full text is in [LICENSE](https://github.com/lila-3d/Lila/blob/main/LICENSE).
 
+### Where are the licences of the components Lila ships?
+
+**Help > Licenses** lists every third-party library, font, asset and dataset with its licence; select one for its full text. The same list is `THIRD-PARTY-NOTICES.md` beside `lila.exe`, with the texts in its `licenses` folder. FFmpeg is LGPL and ships as separate DLLs you can replace with your own build.
+
 ### Can I fork Lila?
 
 Yes, to read, build and change it for yourself or inside your studio, contractors included. You can't publish builds or modified versions, or host Lila for others: point people to the official download. A public fork on GitHub is fine only to show me a change you're asking for, with no builds published from it. Extensions built against the SDK aren't forks, so you can share or sell them under any terms.

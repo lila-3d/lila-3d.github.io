@@ -49,6 +49,22 @@ Cut pieces clear their background (the picture's top left colour) so a turned pi
 imagePlaneCut(points=[(20, 150, 0), (18, 130, 0)], symmetry="x")
 ```
 
+## Video references
+
+A video file works as a reference tab or overlay and plays with the time slider, looping over its length. While a video tab is shown, the Reference window's toolbar adds:
+
+- **Pause** to hold the current frame while you scrub the scene; the arrows beside it step the held frame.
+- While playing, the arrows and **Offset** move the video's sync with the scene a frame at a time.
+- **... > Video Rate** plays it at another rate than the file's.
+
+Videos stay linked to their file: **Embed in Set** is off for them, so a `.lilaref` never carries a whole video.
+
+```python
+referenceImage(edit="ref3", videoOffset=-12, paused=True)
+```
+
+For footage that belongs to a shot and its sound, use an image plane with **Animation > Import Footage...** instead; see [Sound and video](sound-and-video.md).
+
 ## Troubleshooting
 
 **O does nothing.** O works on the active view's overlays. Click in the view first; a message says so when it has none.

@@ -23,6 +23,7 @@ Where each area of Lila stands before release. Updated 12 November 2026. What co
 | Destruction physics | 85% | Pending further testing |
 | Rigging | 80% | Pending further testing |
 | Animation | 80% | Pending further testing |
+| Sound and video | 80% | Pending further testing |
 | Weight painting | 80% | Pending further testing |
 | Level Toolkit | 80% | Pending further testing |
 | Rendering | 70% | Pending further testing |
@@ -32,3 +33,4 @@ Where each area of Lila stands before release. Updated 12 November 2026. What co
 | 3D painting | 60% | Pending further testing |
 | Material nodes | 60% | Pending further testing |
 | Puppeteer and physics animation | 40% | Not ready for use, after the alpha |
+| Generated motion and crowds | 40% | Not ready for use, after the alpha |
