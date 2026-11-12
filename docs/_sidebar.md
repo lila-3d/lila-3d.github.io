@@ -38,6 +38,8 @@
   - [Essentials](essentials.md)
   - [Duplicate and instance](duplicate.md)
   - [Scene origin](scene-origin.md)
+  - [Large worlds](large-worlds.md)
+  - [Point clouds](point-clouds.md)
   - [Attributes and arrays](attributes.md)
   - [Channel Box](channel-box.md)
   - [Drive and connect](driving.md)

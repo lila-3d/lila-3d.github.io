@@ -3818,6 +3818,19 @@ Export meshes to PLY in world space, merged into one mesh, defaulting to the sel
 
 Not undoable.
 
+### exportPointCloud
+
+Write a point cloud to LAS or LAZ (by extension), cut by its clip boxes and thinned to spacing: in the scene's CRS at its real coordinates when the scene is georeferenced (the WKT goes in the file), else in metres Z up. Unreal's LiDAR Point Cloud plugin reads it. Returns {path, points}.
+
+**Objects:** path pointCloud
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spacing` | `s` | float | `0.0` | Keep one point per cube this many cm across; 0 keeps every point. |
+| `clip` |  | bool | `True` | Apply the cloud's clip boxes. |
+
+Not undoable.
+
 ### exportSoundCues
 
 Write the sounds the cues fire, to play them in Unreal.
@@ -4412,6 +4425,36 @@ Save game exporter settings under a name, in the prefs or (scene=True) in the sc
 | `embedMedia` | `em` | bool |  | Embed textures in the file. The FBX writer doesn't write textures yet, so this has no effect. |
 | `settings` |  | Any |  | The whole settings object; the other flags are laid over it. |
 | `scene` |  | bool | `False` | Keep it in the scene (a gameExportPreset node) instead of the prefs. |
+
+### georeference
+
+The scene's georeference: its CRS, the projected coordinates of the scene origin (origin), that origin's latitude, longitude and height in the CRS's datum (originLatLonHeight) and in WGS 84 with ellipsoidal height (wgs84). None when the scene has none.
+
+Not undoable.
+
+### georeferenceConvert
+
+Convert points between scene coordinates (cm), the scene CRS's projected coordinates, latitude/longitude/height, or another CRS.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | [[x, y, z], ...] in the from= space. |
+| `from` |  | str | `'scene'` | scene, projected, geographic (latitude, longitude, height) or a CRS. |
+| `to` |  | str | `'geographic'` | scene, projected, geographic or a CRS. |
+
+Not undoable.
+
+### georeferenceSearch
+
+Projected CRSs in PROJ's EPSG database whose code or name contains the query: [[code, name], ...].
+
+**Objects:** query
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `limit` |  | int | `50` | Most results. |
+
+Not undoable.
 
 ### getAttr
 
@@ -5505,6 +5548,7 @@ Import an FBX file: its node hierarchy as transforms, joints and meshes, convert
 | `instances` |  | bool | `True` | Objects sharing one geometry come in as instances of the first. |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the imported roots. |
+| `georeference` |  | bool | `True` | Place it by the georeference files beside it (metadata.xml, _offset.xyz, .rcinfo, .prj), as importObj does. |
 
 ### importFile
 
@@ -5555,11 +5599,35 @@ Reads a GroomLab .groom file into a new groom: its guides, graph, parts, flow, m
 | `strands` |  | bool | `True` | Also a curve showing the strands. |
 | `name` | `n` | str |  | Base name of the new nodes; the file's name when left out. |
 
+### importIfc
+
+Import an IFC file (IFC2x3, IFC4, IFC4x3): each building element a mesh with its colours in the ifcColor set, the spatial structure (project, site, building, storeys, spaces) as groups, and every property set value as an attribute named <set>_<property>, with ifcType and ifcGlobalId.
+
+IfcMapConversion places it: it sets the scene's georeference or moves the model into it; without one the model is read as metres. The log says which. Returns the counts.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `georeference` |  | bool | `True` | Place it by its IfcMapConversion. |
+| `properties` |  | bool | `True` | Bring the property sets in as attributes. |
+| `circleSegments` |  | int | `12` | Segments a full circle is tessellated with. |
+
+```python
+importIfc("D:/bim/school.ifc")
+```
+
 ### importObj
 
 Import an OBJ file; one mesh per object. Returns the new mesh names.
 
+A georeferenced export (metadata.xml, _offset.xyz, .rcinfo or .prj beside it) sets the scene's georeference or is moved into it; the log says which.
+
 **Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `georeference` |  | bool | `True` | Place it by the georeference files beside it. |
 
 ### importPicker
 
@@ -5583,7 +5651,28 @@ Import a PLY file (ASCII or binary, either byte order) as one mesh: polygons wit
 | `unit` |  | str | `'m'` | The file's length unit. Scanners and photogrammetry write metres. One of `mm`, `cm`, `m`, `in`. |
 | `upAxis` |  | str | `'z'` | The file's up axis; converted to the scene's. One of `y`, `z`. |
 | `normals` |  | bool | `True` | Keep the file's normals. |
+| `georeference` |  | bool | `True` | Place it by the georeference files beside it (metadata.xml, _offset.xyz, .rcinfo, .prj): it sets the scene's georeference or moves into it, and unit and upAxis are the CRS's. |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
+
+### importPointCloud
+
+Import a LAS, LAZ or E57 scan as a point cloud. Its points are sorted into a level-of-detail cache (.lilapc, beside the scan) that the view streams from, so clouds of hundreds of millions of points open at once; a cache newer than the scan is reused.
+
+A CRS in the file (or a .prj beside it) sets the scene's georeference or moves the cloud into it; without one the cloud is read as metres, Z up, rebased on its centre. The log says which. Returns the node, cache and counts.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Node name; the file's by default. |
+| `cache` |  | str |  | Where the cache goes, instead of beside the scan. |
+| `rebuild` |  | bool | `False` | Build the cache again even when it is up to date. |
+| `georeference` |  | bool | `True` | Place it by its CRS. |
+| `unitScale` |  | float | `100.0` | cm per file unit when the file has no CRS. |
+
+```python
+importPointCloud("D:/scans/site.laz")
+```
 
 ### importReference
 
@@ -7462,6 +7551,32 @@ Query or set playback: ranges in seconds, fps (default 30), loop, playbackSpeed 
 | `speedMultiplier` | `sm` | float |  | Real-time multiplier of the custom speed, e.g. 0.25 or 1.5. Selects custom unless playbackSpeed is given. |
 | `everyFrame` | `ef` | bool |  | True plays every frame up to fps (everyFrameMaxRealTime), False real time. |
 | `query` | `q` | bool | `False` |  |
+
+Not undoable.
+
+### pointCloudClipBox
+
+Add a clip box to a point cloud, around its middle half, and select it. Move, turn and scale it like any object; clipMode on the cloud keeps the inside or cuts it away. Returns the box's name.
+
+**Objects:** pointCloud
+
+### pointCloudExtract
+
+Make a mesh of a point cloud's points (loose vertices with their colours in colorSet), cut by its clip boxes and thinned to one point per spacing cube: for snapping, retopology, or meshing elsewhere. Returns the mesh's name.
+
+**Objects:** pointCloud
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spacing` | `s` | float | `5.0` | Keep one point per cube this many cm across; 0 keeps every point. |
+| `clip` |  | bool | `True` | Apply the cloud's clip boxes. |
+| `maxPoints` |  | int | `20000000` | Refuse more than this many points. |
+
+### pointCloudInfo
+
+A point cloud's counts, bounds (node space, cm) and source: {points, nodes, depth, color, crs, format, boundsMin, boundsMax}.
+
+**Objects:** pointCloud
 
 Not undoable.
 
@@ -10220,6 +10335,27 @@ Change a field layer's settings: params= {key: value} with any of the keys field
 | `index` |  | int |  | The layer, 0 the bottom. Default: the top. |
 | `params` |  | Any |  | The settings to change. |
 
+### setGeoreference
+
+Place the scene on the Earth: a projected CRS and the projected coordinates of the scene origin. Nothing in the scene moves; imports, exports and readouts use it. Saved with the scene.
+
+Axes match Unreal's georeferencing: a Z-up scene has east +X and north +Y, a Y-up one north +X and east +Z; the up axis is height. Scene cm become the CRS's units.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `crs` |  | str |  | EPSG code ("EPSG:32633", or with a vertical CRS "EPSG:32633+5773"), WKT or a PROJ string. Example: `setGeoreference(crs="EPSG:32633", origin=(500000, 4649776, 0))` |
+| `origin` |  | tuple[float, float, float] |  | The scene origin's easting, northing and height, in the CRS's units. |
+| `latLonHeight` | `llh` | tuple[float, float, float] |  | The scene origin as latitude, longitude (degrees) and height instead of origin= |
+| `clear` |  | bool | `False` | Remove the scene's georeference. |
+
+```python
+setGeoreference(crs="EPSG:32633", origin=(500000, 4649776, 0))
+```
+
+```python
+setGeoreference(crs="EPSG:27700", llh=(51.5007, -0.1246, 0))
+```
+
 ### setInfinity
 
 Curve behaviour outside its keys: constant, linear, cycle, cycleRelative (cycle with offset), oscillate. query=True returns [{curve, pre, post}].
@@ -12710,6 +12846,20 @@ Sends a groom to the connected Unreal editor as a groom asset: its strands and t
 
 Not undoable.
 
+### unrealSendPointCloud
+
+Send a point cloud to Unreal's open level through its LiDAR Point Cloud plugin: cut by its clip boxes, thinned to spacing, written as LAS in the level's coordinates and shown on a LidarPointCloudActor named after the cloud. A georeferenced scene puts the level on its place on the Earth first. Returns what Unreal made.
+
+**Objects:** pointCloud
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spacing` | `s` | float | `2.0` | Keep one point per cube this many cm across; 0 keeps every point. |
+| `clip` |  | bool | `True` | Apply the cloud's clip boxes. |
+| `folder` |  | str | `'/Game/Lila/PointClouds'` | Content folder for the asset. |
+
+Not undoable.
+
 ### unrealSendTextures
 
 Send a bake project's last textures to Unreal, updating the texture assets in place (sRGB, compression, flip green and LOD group per map; UDIM sets as virtual textures). materialMode instance also creates or updates a material instance per material slot from materialParent and sets it on the slot of every mapped mesh (unrealMap). assign=True first wires the textures into the Lila materials (bakeAssign). Returns {queued} or, with wait=True, Unreal's {assets, warnings, errors}.
@@ -12747,6 +12897,12 @@ Send a texture set to Unreal: exports it through the Unreal preset (only tiles a
 | `remember` | `rm` | bool | `True` | Send this set on every save from now on. |
 | `save` | `sv` | bool |  | Save the packages in Unreal afterwards. |
 | `wait` | `w` | bool | `False` | Block until Unreal finishes and return its reply. |
+
+Not undoable.
+
+### unrealSetGeoreference
+
+Put Unreal's open level on the scene's place on the Earth: sets the GeoReferencing plugin's GeoReferencingSystem and Cesium for Unreal's CesiumGeoreference (whichever the project has) to the scene's georeference, so what Lila places lands at the right spot. unrealPlaceInstances does this itself. Returns what was set.
 
 Not undoable.
 
@@ -13615,6 +13771,27 @@ Line the pivots' axes up with the world (or with the object's own axes), leaving
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `space` |  | str | `'world'` | Axes to line up with. One of `world`, `object`. |
+
+## CadImport extension
+
+Available when the CadImport extension is loaded.
+
+### importCad
+
+Import a STEP, IGES or BREP model through OpenCascade, tessellated to meshes: the assembly tree as groups with the file's names, one material per colour, millimetres to cm, normals sharp across B-rep face edges. Importing the same file again updates the parts it made where they are and reports parts the file no longer has. Returns the counts.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `chordal` |  | float | `0.05` | How far the triangles may stray from the surface, cm (or a fraction of edge length with relative). |
+| `angular` |  | float | `20.0` | Most degrees between neighbouring normals within a face. |
+| `relative` |  | bool | `False` | chordal is a fraction of each edge's length. |
+| `update` |  | bool | `True` | Update the parts an earlier import of this file made instead of adding new ones. |
+
+```python
+importCad("D:/cad/gearbox.step", chordal=0.02)
+```
 
 ## Destruction extension
 

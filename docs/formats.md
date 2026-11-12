@@ -42,7 +42,10 @@ Which to use:
 | Engines and tools built on Maya's COLLADA (PhyreEngine and others) | COLLADA |
 | 3D printing | 3MF, or STL (see [3D printing](3d-printing.md)) |
 | CAD drawings, laser cutting, CNC | DXF |
-| Scans, photogrammetry, point clouds | PLY |
+| Scans and photogrammetry meshes | OBJ, PLY or FBX with the tool's `.prj` and offset file ([Large worlds](large-worlds.md)) |
+| LiDAR and laser scans | LAS, LAZ, E57 ([Point clouds](point-clouds.md)) |
+| BIM models | IFC ([Large worlds](large-worlds.md)) |
+| CAD models | STEP, IGES, BREP (CadImport extension) |
 | CAD meshes, large worlds, anything that must stay exact | OBJ, FBX or a Lila scene |
 | Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`, `exportAlembic`, `importAlembic`) |
 
