@@ -63,15 +63,17 @@ The full text is in [LICENSE](https://github.com/lila-3d/Lila/blob/main/LICENSE)
 
 ### Can I fork Lila?
 
-Yes, to read, build and change it for yourself or inside your studio, contractors included. You can't publish builds, modified versions or forks, or host Lila for others: point people to the official download. Extensions built against the SDK aren't forks, so you can share or sell them under any terms.
+Yes, to read, build and change it for yourself or inside your studio, contractors included. You can't publish builds or modified versions, or host Lila for others: point people to the official download. A public fork on GitHub is fine only to show me a change you're asking for, with no builds published from it. Extensions built against the SDK aren't forks, so you can share or sell them under any terms.
+
+Why: official builds are the only Lila you can trust, since a build from anywhere else can carry anything. And every issue report should be about code I ship: a report from someone else's build is a bug I can't reproduce and may not exist in Lila. Report issues from an official build.
 
 ### Do you take pull requests?
 
-No pull requests, patches or outside code. Lila's code has one owner, which keeps its license and IP simple for the studios that use it.
+No pull requests, patches or outside code, and a fork counts the same: each is a feature request, and I write my own version. Lila's code has one owner, which keeps its license and IP simple for the studios that use it.
 
 ### How do I get a fix or feature in?
 
-Ask for it with **Help > Request a Feature** (see [Support](support.md)). A diff that shows the idea is welcome as a pointer, and I'll write the change.
+Ask for it with **Help > Request a Feature** (see [Support](support.md)). A diff or fork that shows the idea is welcome as a pointer, and I'll write the change.
 
 ### What if Lila stops being developed?
 
