@@ -77,6 +77,24 @@ Hold **F1** to show every hotkey. Release it to close.
 
 Each camera has its own slots, including persp and each ortho view, and they save with the scene. Space, then click **Lila**, lists them too.
 
+## Drone Camera
+
+Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited.
+
+| Press | To |
+| --- | --- |
+| **W A S D**, arrows or number pad | Move |
+| **E** / **Q** | Rise / fall |
+| **Z** / **C** (hold) | Zoom in / out |
+| **R** / **F** | Faster / slower (also right drag + wheel) |
+| Right drag | Look around |
+| Left drag | Move along the ground and turn |
+| Middle drag, or left + right | Pan |
+| Wheel | Move forward or back |
+| **Esc**, or **×** on the banner | Leave |
+
+Alt with the mouse still tumbles, tracks and dollies. The whole flight is one camera undo step, so **[** goes back to where you started. Orthographic and look-through views switch to perspective when you start flying.
+
 ## Hide the selection highlight
 
 **Overlays > Highlight Selection** in the viewport header turns off the selection highlight, so you can see the mesh change while you adjust a modifier or attribute.
