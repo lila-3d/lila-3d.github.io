@@ -291,6 +291,19 @@ p { text-wrap: pretty; }
 
 .card:hover .media img { transform: scale(1.03); }
 
+/* Card clips sit over the still and fade in only while the card is hovered. */
+.media video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card .media video { opacity: 0; transition: opacity .25s ease; }
+.card .media.playing video { opacity: 1; }
+
 .media .floor {
   position: absolute;
   inset: 48% -40% -30%;
@@ -650,9 +663,44 @@ footer p { margin: 0 0 6px; }
     }).catch(function () {});
   }
 
-  function media(card) {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function clip(card, inDialog) {
+    var v = el("video");
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.setAttribute("aria-hidden", "true");
+    if (card.image) v.poster = card.image;
+    v.preload = inDialog ? "auto" : "none";
+    v.src = card.video;
+    if (inDialog && reduce.matches) v.controls = true;
+    else if (inDialog) v.autoplay = true;
+    return v;
+  }
+
+  /* Hover plays the card's clip; touch and reduced motion keep the still until the detail opens. */
+  function hoverClip(card, c, m) {
+    if (!card.video || reduce.matches || !window.matchMedia("(hover: hover)").matches) return;
+    var v = null;
+    c.addEventListener("mouseenter", function () {
+      if (!v) m.appendChild(v = clip(card, false));
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+      m.classList.add("playing");
+    });
+    c.addEventListener("mouseleave", function () {
+      if (!v) return;
+      v.pause();
+      m.classList.remove("playing");
+    });
+  }
+
+  function media(card, inDialog) {
     var m = el("div", "media");
-    if (card.image) {
+    if (inDialog && card.video) {
+      m.appendChild(clip(card, true));
+    } else if (card.image) {
       var img = el("img");
       img.src = card.image;
       img.alt = "";
@@ -705,7 +753,9 @@ footer p { margin: 0 0 6px; }
   function cardEl(card) {
     var c = el("article", "card");
     c.dataset.status = card.status;
-    c.appendChild(media(card));
+    var m = media(card, false);
+    c.appendChild(m);
+    hoverClip(card, c, m);
     var h = el("h3");
     h.textContent = card.title;
     c.appendChild(h);
@@ -762,7 +812,7 @@ footer p { margin: 0 0 6px; }
     var card = byId[id];
     if (!card) return;
     dialog.innerHTML = "";
-    var m = media(card);
+    var m = media(card, true);
     var tools = el("div", "tools");
     var close = el("button", null, SVG.close);
     close.type = "button";
@@ -810,6 +860,7 @@ footer p { margin: 0 0 6px; }
   }
 
   dialog.addEventListener("close", function () {
+    dialog.querySelectorAll("video").forEach(function (v) { v.pause(); });
     if (location.hash) history.replaceState(null, "", location.pathname + location.search);
     paintVotes();
   });
