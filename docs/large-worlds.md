@@ -17,9 +17,12 @@ The scene's geometry stays near the origin; the georeference only says where tha
 
 ## Send it to Unreal
 
-Placing objects in Unreal's level (**Send to Unreal** with level placement, `unrealPlaceInstances`) sets the level's georeference first: Unreal's GeoReferencing plugin gets the CRS and origin, and Cesium for Unreal's georeference gets the origin's latitude, longitude and ellipsoidal height. Enable either plugin in the Unreal project; the Unreal log says which ones were set. `unrealSetGeoreference()` does it on its own.
+Placing objects in Unreal's level (**Send to Unreal** with level placement, `unrealPlaceInstances`) sets the level's georeference first, so everything lands on its real latitude and longitude. Enable GeoReferencing, Cesium for Unreal, or both, in the Unreal project; the Unreal log says which were set. `unrealSetGeoreference()` does it on its own.
 
-FBX, glTF and USD exports carry the georeference too: FBX as `LilaGeoreference*` document properties, glTF in `asset.extras.lilaGeoreference`, USD as a `CesiumGeoreferencePrim` with the WGS 84 origin plus `lilaGeoreference` in the layer's custom data. A glTF from a georeferenced scene, imported into another, lands where it was.
+- **GeoReferencing alone** lays the level on the CRS's grid (a flat planet), exactly as Lila's scene is laid out.
+- **With Cesium** the level sits on the globe's tangent plane at the origin. Lila moves placements, lights and point clouds onto it, so they line up with Cesium's tiles; GeoReferencing is set to a round planet to agree.
+
+FBX, glTF and USD exports carry the georeference too: FBX as `LilaGeoreference*` scene info properties, glTF in `asset.extras.lilaGeoreference`, USD as a `CesiumGeoreferencePrim` with the WGS 84 origin plus `lilaGeoreference` in the layer's custom data. Imported into another georeferenced scene, they land where they were; a USD with only a Cesium georeference prim sets the scene on the UTM zone around it. Pass `georeference=False` to keep the file's coordinates as they are.
 
 ## Georeferenced imports
 

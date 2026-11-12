@@ -4444,6 +4444,17 @@ Convert points between scene coordinates (cm), the scene CRS's projected coordin
 
 Not undoable.
 
+### georeferencePlace
+
+Place nodes from a georeferenced file into the scene: the file's CRS and origin set the scene's georeference when it has none, otherwise the nodes are moved and turned into the scene's. Importers call it with what the file carries; returns the message saying which happened.
+
+**Objects:** nodes: the imported root transforms
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `crs` |  | str |  | The file's CRS: an authority code (EPSG:32632) or WKT. |
+| `origin` |  | list |  | The file's origin in that CRS: [easting, northing, height]. |
+
 ### georeferenceSearch
 
 Projected CRSs in PROJ's EPSG database whose code or name contains the query: [[code, name], ...].
@@ -5548,7 +5559,7 @@ Import an FBX file: its node hierarchy as transforms, joints and meshes, convert
 | `instances` |  | bool | `True` | Objects sharing one geometry come in as instances of the first. |
 | `report` |  | bool | `False` | Return the import report instead of just the names. |
 | `select` |  | bool | `True` | Select the imported roots. |
-| `georeference` |  | bool | `True` | Place it by the georeference files beside it (metadata.xml, _offset.xyz, .rcinfo, .prj), as importObj does. |
+| `georeference` |  | bool | `True` | Place it by the georeference it carries (a georeferenced Lila export) or the files beside it (metadata.xml, _offset.xyz, .rcinfo, .prj), as importObj does. |
 
 ### importFile
 
@@ -15171,6 +15182,7 @@ Axes and units convert as FBX import does: a Z-up stage is read in Unreal's axes
 | `setPlayback` |  | bool | `True` | Set the scene fps and playback range from the stage. |
 | `materials` |  | bool | `True` | Create materials from the bound UsdPreviewSurface networks and assign them. |
 | `loadPayloads` |  | bool | `True` | Load payloads; False leaves them out and lists them as skipped. |
+| `georeference` |  | bool | `True` | Place it by the georeference it carries (a georeferenced Lila export, or a Cesium georeference prim). |
 | `variants` |  | Any |  | Variant selections before importing: {'set': 'variant'} for every prim with that set, or {'/prim/path': {'set': 'variant'}} for one prim. Example: `importUsd("chair.usd", variants={"modelingVariant": "Rocking"})` |
 | `take` |  | str |  | For files Lila exported with several takes: the take to import (a variant of the root's 'take' set). |
 | `purposes` |  | Any |  | Prim purposes to import: a list of default, render, proxy and guide, or 'all'. Default and render by default. |
