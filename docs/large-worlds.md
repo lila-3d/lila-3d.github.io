@@ -32,7 +32,7 @@ FBX, glTF and USD exports carry the georeference too: FBX as `LilaGeoreference*`
 | Pix4D | `<name>_offset.xyz` (or `offset.xyz`) and the `.prj`. |
 | RealityScan | `<name>.rcinfo` from a shifted project output, and the `.prj`. |
 | Metashape, RealityScan project output | A `.prj` and absolute coordinates: the mesh is rebased on its rounded centre, which becomes its origin. |
-| IFC | `IfcMapConversion` and its `IfcProjectedCRS`. |
+| IFC | `IfcMapConversion` and its `IfcProjectedCRS`; without one (IFC2x3), the site's latitude, longitude and elevation in the UTM zone around it, turned to the model's true north. |
 | LAS, LAZ, E57 | The CRS in the file, else a `.prj` beside it. |
 
 When the scene already has a georeference, the file is moved (and turned, across CRSs) into it instead. Turn this off with `georeference=False` on `importObj`, `importPly`, `importFbx`, `importIfc` or `importPointCloud`.
@@ -43,7 +43,7 @@ Turn on **Georeference** in the viewport's HUD menu for the cursor's and the sel
 
 ## IFC
 
-`importIfc("site.ifc")` brings each building element in as a mesh with its colours in the `ifcColor` set, the project, site, building, storeys and spaces as groups, and every property set value as an attribute named `<set>_<property>` (such as `Pset_WallCommon_FireRating`), with `ifcType` and `ifcGlobalId`.
+`importIfc("site.ifc")` brings each building element in as a mesh with one material per IFC colour (`IFC_RRGGBB`, translucent for glazing) and the colours in the `ifcColor` set, the project, site, building, storeys and spaces as groups, and every property set value as an attribute named `<set>_<property>` (such as `Pset_WallCommon_FireRating`), with `ifcType` and `ifcGlobalId`.
 
 ## CAD
 

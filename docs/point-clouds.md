@@ -22,7 +22,7 @@ pointCloudExtract("site", spacing=5)  # the points inside as a mesh, one per 5 c
 
 ## Snapping
 
-With vertex snapping on (hold **V**), moved vertices, objects and curve points snap to the cloud's points, so you can trace walls or place props on a scan.
+Click a cloud's points to select it; a marquee selects it when its centre is inside. With vertex snapping on (hold **V**), moved vertices, objects and curve points snap to the cloud's points, so you can trace walls or place props on a scan.
 
 ## Getting points out
 
