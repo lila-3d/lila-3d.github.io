@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "sections": [
     {
       "id": "alpha",
@@ -247,6 +247,16 @@
           ]
         },
         {
+          "id": "sound-video",
+          "title": "Sound and video",
+          "status": "dev",
+          "icon": "sound-and-video",
+          "body": [
+            "Audio in the time slider with waveforms and scrubbing, video on image planes and reference images, Import Footage for a reference video and its sound in one step, and a media lane to slide, trim and bind footage to takes."
+          ],
+          "docs": "sound-and-video"
+        },
+        {
           "id": "destruction",
           "title": "Destruction",
           "status": "dev",
@@ -332,7 +342,20 @@
           "icon": "strings",
           "note": "Please don't try it yet, not even to experiment.",
           "body": [
-            "Posing and animating by hand, fast: grab and pull characters directly in the viewport, with curves shown over the live view and contextual rigging that appears only while you work."
+            "Posing and animating by hand, fast: grab and pull characters directly in the viewport, with curves shown over the live view and contextual rigging that appears only while you work.",
+            "Edit across a range of frames with falloff, hand poses in one click, character-to-character contacts for grappling, props and weapons held in one or both hands, and per-control tracks on top of whole-character keys."
+          ]
+        },
+        {
+          "id": "generated-motion",
+          "title": "Generated motion and crowds",
+          "status": "dev",
+          "icon": "motion",
+          "docs": "motion",
+          "note": "Please don't try it yet, not even to experiment.",
+          "body": [
+            "NVIDIA MotionBricks built in: fill between your keys, walk a character along a path, author interactions from your own poses, and drive it live, then keep editing the keys.",
+            "Crowds of hundreds on the same model, with behaviours and avoidance, baked to your characters."
           ]
         },
         {
@@ -377,15 +400,6 @@
           "icon": "studio-setup",
           "body": [
             "Run a studio's existing Maya Python and MEL tools in Lila without rewriting them."
-          ]
-        },
-        {
-          "id": "sound-video",
-          "title": "Sound and video",
-          "status": "planned",
-          "icon": "animation",
-          "body": [
-            "Audio in the time slider with waveforms and scrubbing, and video on image planes and reference images, for animating to sound and reference footage."
           ]
         },
         {
