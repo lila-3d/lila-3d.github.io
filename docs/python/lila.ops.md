@@ -10006,7 +10006,7 @@ Not undoable.
 
 ### selectPathBetween
 
-Select the components between two of a mesh's vertices, edges or faces: the shorter way along a loop or ring they share, else the shortest path across the surface. Neighbours (vertices on one edge, edges along a loop or across a quad, faces sharing an edge) select the whole loop or ring through both instead, unless deselecting. Adds to the selection unless replace or deselect. Returns the ids in order.
+Select the components between two of a mesh's vertices, edges or faces: the shorter way along a loop or ring they share, else the shortest path across the surface. Neighbours (vertices on one edge, edges along a loop or across a quad on no loop they share, faces sharing an edge) select the whole loop or ring through both instead, unless deselecting. Adds to the selection unless replace or deselect. Returns the ids in order.
 
 **Objects:** mesh
 
@@ -13598,9 +13598,13 @@ pos = xform("cube1", query=True, worldSpace=True, translation=True)
 
 ### zeroPivot
 
-Move the pivots to the world origin, keeping the object where it is.
+Move the pivots to the world origin, keeping the object where it is. axes zeroes only those world axes, so axes="y" drops the pivot to the ground plane.
 
 **Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axes` | `a` | str | `'xyz'` | World axes to zero: any of x, y and z. |
 
 ### zeroPivotRotation
 
