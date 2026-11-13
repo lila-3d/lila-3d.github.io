@@ -6,7 +6,7 @@ Work at real map coordinates, from a drone scan at UTM easting 500 000 to a city
 
 1. Import a georeferenced file: **File > Import...** a photogrammetry OBJ, PLY or FBX with its `.prj` or offset file beside it, a LAS, LAZ or E57 scan ([Point clouds](point-clouds.md)) or an IFC model. The first one sets the scene's georeference; the log says which CRS and origin.
 2. Or set it yourself: **Windows > Scene Settings**, type an EPSG code (or part of a name, such as `UTM zone 33N`) in **CRS**, then the origin's **Easting** and **Northing**, or its **Latitude** and **Longitude**.
-3. Fly around with the Drone Camera. Geometry far from the origin draws as steadily as geometry at it.
+3. Fly around with the [Drone Camera](#fly-with-the-drone-camera). Geometry far from the origin draws as steadily as geometry at it.
 
 ```python
 setGeoreference(crs="EPSG:32633", llh=(42.0, 15.0, 30.0))
@@ -14,6 +14,25 @@ georeferenceConvert(points=[[0, 0, 0]], to="geographic")  # the scene origin's l
 ```
 
 The scene's geometry stays near the origin; the georeference only says where that origin is on the Earth, so nothing moves when you set or change it. In a Y-up scene +X is north and +Z east; in a Z-up scene +X is east and +Y north. Both land in Unreal as X east, Y south, which is what Unreal's georeferencing and Cesium expect.
+
+## Fly with the Drone Camera
+
+Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited. Its keys show in the corner of the view while it's on.
+
+| Press | To |
+| --- | --- |
+| **W A S D**, arrows or number pad | Move |
+| **E** / **Q**, or **Space** / **Ctrl** with the right button held | Rise / fall |
+| **Z** / **C** (hold) | Zoom in / out |
+| **R** | Faster (right drag + wheel also changes speed) |
+| **F** | Frame the selection; slower while right dragging |
+| Right drag | Look around |
+| Left drag | Move along the ground and turn |
+| Middle drag, or left + right | Pan |
+| Wheel | Move forward or back |
+| **Esc**, or **×** on the banner | Leave |
+
+Alt with the mouse still tumbles, tracks and dollies. The whole flight is one camera undo step, so **[** goes back to where you started. Orthographic and look-through views switch to perspective when you start flying.
 
 ## Send it to Unreal
 

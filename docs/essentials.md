@@ -79,26 +79,7 @@ Each camera has its own slots, including persp and each ortho view, and they sav
 
 ## Smooth the camera
 
-The view follows your mouse directly, with no easing. To glide instead, raise **Look smoothing** (turning: tumble and the Drone Camera's mouse look) or **Move smoothing** (travel and zoom) in **Preferences > Viewport > Camera**, or Shift-click the drone button on the viewport bar; Smoothing plays the view back a few milliseconds behind the mouse (Medium is about 25 ms), so uneven mouse input comes out as even motion at your display's refresh rate. Picking and tools use the camera as you moved it.
-
-## Drone Camera
-
-Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited. Its keys show in the corner of the view while it's on.
-
-| Press | To |
-| --- | --- |
-| **W A S D**, arrows or number pad | Move |
-| **E** / **Q**, or **Space** / **Ctrl** with the right button held | Rise / fall |
-| **Z** / **C** (hold) | Zoom in / out |
-| **R** | Faster (right drag + wheel also changes speed) |
-| **F** | Frame the selection; slower while right dragging |
-| Right drag | Look around |
-| Left drag | Move along the ground and turn |
-| Middle drag, or left + right | Pan |
-| Wheel | Move forward or back |
-| **Esc**, or **×** on the banner | Leave |
-
-Alt with the mouse still tumbles, tracks and dollies. The whole flight is one camera undo step, so **[** goes back to where you started. Orthographic and look-through views switch to perspective when you start flying.
+The view follows your mouse directly, with no easing. To glide instead, raise **Look smoothing** (turning) or **Move smoothing** (travel and zoom) in **Preferences > Viewport > Camera**, or Shift-click the drone button on the viewport bar; Smoothing plays the view back a few milliseconds behind the mouse (Medium is about 25 ms), so uneven mouse input comes out as even motion at your display's refresh rate. Picking and tools use the camera as you moved it.
 
 ## Hide the selection highlight
 
