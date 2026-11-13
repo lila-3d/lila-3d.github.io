@@ -147,6 +147,16 @@
           ]
         },
         {
+          "id": "large-worlds",
+          "title": "Large worlds and scans",
+          "status": "ready",
+          "docs": "large-worlds",
+          "body": [
+            "Work at real map coordinates with no jitter, kilometres from the origin: scenes georeferenced to their place on the Earth, drone and photogrammetry scans placed by their survey files, and levels sent to Unreal on the right spot with GeoReferencing or Cesium.",
+            "Point clouds of hundreds of millions of points (LAS, LAZ, E57), 3D Tiles city tilesets, IFC buildings and STEP or IGES CAD, and a Drone Camera to fly through them."
+          ]
+        },
+        {
           "id": "texturing",
           "title": "Texture painting",
           "status": "dev",
