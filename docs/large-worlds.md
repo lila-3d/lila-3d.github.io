@@ -49,6 +49,8 @@ Turn on **Georeference** in the viewport's HUD menu for the cursor's and the sel
 
 `import3dTiles("D:/city/tileset.json", maxError=2)` brings in a 3D Tiles tileset (1.0 or 1.1) from a local folder: b3dm and glTF tiles as meshes, i3dm as instances, pnts as point clouds. Along each branch it takes the first tile whose geometric error is within `maxError` metres, or the finest with `maxError=0`. `centre=[lat, lon]` with `radius` (metres) keeps only tiles near that point, and `maxTiles` caps the count; the log says when it stopped early. A scene without a georeference takes the UTM zone around the tileset.
 
+To try it, open **Delft 3DBAG** under **Examples** on the Welcome screen: a 15 MB download of Delft's historic centre from the Dutch 3DBAG (© 3DBAG by tudelft3d and 3DGI, CC BY 4.0).
+
 Streamed services (Cesium ion, Google Photorealistic 3D Tiles) aren't read; download the tileset first where its terms allow.
 
 ## CAD

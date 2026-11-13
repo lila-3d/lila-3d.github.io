@@ -50,3 +50,4 @@ Click a cloud's points to select it; a marquee selects it when its centre is ins
 | **detail** | 1 | Below 1 draws coarser and faster; above 1 finer, up to the budget. |
 | **clipBoxes** | | `pointCloudClip` nodes, by name, separated by spaces. |
 | **clipMode** | inside | **off**, **inside** or **outside**. |
+| **eyeDomeLighting** | 0.3 | Darkens points where their neighbours are nearer, so a scan without normals reads as surfaces. 0 turns it off; up to 4. |
