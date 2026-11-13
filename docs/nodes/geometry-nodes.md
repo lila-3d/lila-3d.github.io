@@ -6753,6 +6753,7 @@ Lays stones in courses along footprint lines and builds the mortar core they sit
 | `stoneDepth` | float | input | `10.25` | Stone depth into the wall, cm; also a header's width on the face. Range 0.5 to 100000. |
 | `joint` | float | input | `1` | Mortar joint, cm. Range 0 to 10000. |
 | `recess` | float | input | `0.6` | How far the mortar sits behind the stone faces, cm. Range 0 to 10000. |
+| `region` | string | input |  | Region name of the wall (ruin, masonryInfo and masonryCheck use it); empty is wall_0. More footprints are region_1, region_2, ... |
 | `bevel` | float | input | `0.5` | Stone edge chamfer, cm. Range 0 to 10000. |
 | `wear` | float | input | `0.5` | How knocked about stone corners are, 0 to 1. Range 0 to 1. |
 | `jitter` | float | input | `1` | How far stones wander and tilt inside their joints, 0 to 1. Range 0 to 1. |

@@ -15304,7 +15304,7 @@ masonryBuilding(node='MasonryBuilding', spec=b['spec'])
 
 ### masonryCheck
 
-Check a masonry wall or building before shipping it: floating stones (not on the ground and touching nothing under them), standing stones interpenetrating by more than tolerance, missing collision, and an optional budget. Returns {ok, issues: [text], floating, floatingStones (the first ten: region, role, at), overlaps, rubbleOverlaps, collisionHulls, stones, triangles}.
+Check a masonry wall or building before shipping it: floating stones (not on the ground and touching nothing under them), standing stones interpenetrating by more than tolerance, rubble heaped higher than half the walls (stacked), missing collision, and an optional budget. Returns {ok, issues: [text], floating, floatingStones (the first ten: region, role, at), overlaps, overlapRegions (pairs per region, 'a + b' across two), overlapPairs (the first ten: regions, roles, at), rubbleOverlaps, stacked, rubbleHeight, collisionHulls, stones, triangles}.
 
 **Objects:** masonry mesh or modifier (default the selection)
 
@@ -15343,6 +15343,7 @@ Lay masonry walls over a blockout mesh: it is sliced with level planes, each sec
 | `stoneDepth` |  | float | `10.25` | Stone depth into the wall, cm; also a header's width on the face. |
 | `joint` |  | float | `1.0` | Mortar joint, cm. |
 | `recess` |  | float | `0.6` | How far the mortar sits behind the stone faces, cm. |
+| `region` |  | Any |  | Region name of the wall (ruin, masonryInfo and masonryCheck use it); empty is wall_0. More footprints are region_1, region_2, ... |
 | `bevel` |  | float | `0.5` | Stone edge chamfer, cm. |
 | `wear` |  | float | `0.5` | How knocked about stone corners are, 0 to 1. |
 | `jitter` |  | float | `1.0` | How far stones wander and tilt inside their joints, 0 to 1. |
@@ -15472,6 +15473,7 @@ Give points= (a new mesh holds them as edges) or a mesh whose loose edges are th
 | `stoneDepth` |  | float | `10.25` | Stone depth into the wall, cm; also a header's width on the face. |
 | `joint` |  | float | `1.0` | Mortar joint, cm. |
 | `recess` |  | float | `0.6` | How far the mortar sits behind the stone faces, cm. |
+| `region` |  | Any |  | Region name of the wall (ruin, masonryInfo and masonryCheck use it); empty is wall_0. More footprints are region_1, region_2, ... |
 | `bevel` |  | float | `0.5` | Stone edge chamfer, cm. |
 | `wear` |  | float | `0.5` | How knocked about stone corners are, 0 to 1. |
 | `jitter` |  | float | `1.0` | How far stones wander and tilt inside their joints, 0 to 1. |
@@ -18507,7 +18509,7 @@ Land use: what each use covers and the rules behind it, or (lot= or at= with use
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `lot` | `lt` | Any |  | Lot id, or a list of them. |
-| `at` |  | list |  | Or the lot under this point, [x, z]. |
+| `at` |  | list |  | Or the lot under this point, [x, z], or the nearest one (returned as snapped). |
 | `use` | `u` | str |  | The use to give them. One of `residential`, `commercial`, `civic`, `plaza`, `open`, `market`, `religious`, `industrial`, `port`, `farm`, `park`, `cemetery`. |
 | `clear` | `cl` | bool | `False` | Drop their use overrides. |
 
@@ -18614,14 +18616,14 @@ settlementNames('Settlement', district=d, name='Old Town')
 
 ### settlementPlaceLandmark
 
-Reserve a lot as a landmark under a name (a footprint to fill from the library or Masonry), by stable id or the lot under at=, kept in the edits; use= changes its use too. remove=True takes the name off again. Generated landmarks (market_square, church, town_hall, castle or temple on high ground, axis_end_N, park_N, cemetery) carry the reasons they are where they are; settlementLots(landmarks=True) lists them all.
+Reserve a lot as a landmark under a name (a footprint to fill from the library or Masonry), by stable id or the lot under at= (or the nearest within 100 m, returned as snapped), kept in the edits; use= changes its use too. remove=True takes the name off again. Generated landmarks (market_square, church, town_hall, castle or temple on high ground, axis_end_N, park_N, cemetery) carry the reasons they are where they are; settlementLots(landmarks=True) lists them all.
 
 **Objects:** settlement mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `lot` | `lt` | Any |  | Lot id. |
-| `at` |  | list |  | Or the lot under this point, [x, z]. |
+| `at` |  | list |  | Or the lot under this point, [x, z], or the nearest one. |
 | `name` | `n` | str |  | Landmark name, such as guild_hall. |
 | `use` | `u` | str |  | Its use. One of `residential`, `commercial`, `civic`, `plaza`, `open`, `market`, `religious`, `industrial`, `port`, `farm`, `park`, `cemetery`. |
 | `remove` | `rm` | bool | `False` | Take the landmark name off. |
@@ -20917,6 +20919,18 @@ Collapse a terrain's node graph into a file: the heightfield, masks and placemen
 
 ```python
 terrainBake('Terrain')['file']
+```
+
+### terrainBatch
+
+Run many stamp and road edits as one: calls is a list of {command, flags} for terrainStampPad, terrainStampRegion, terrainStampQuay, terrainAddFeature, terrainAddRoad and terrainAddRoundabout, each with its flags as that command takes them (args included). The terrain's group is written once at the end and evaluated once on the next read, so hundreds of edits cost about one. Each call returns its id and layer only; read the results afterwards with terrainStamps or terrainRoads. Returns ran, results (null for a call that failed) and errors ({index, command, error}); the calls that worked still apply.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `calls` | `c` | list |  | [{command, flags}, ...]. |
+
+```python
+terrainBatch(calls=[{'command': 'terrainStampPad', 'flags': {'args': ['Terrain'], 'id': 'a', 'footprint': [[0, 0], [1000, 0], [1000, 1000], [0, 1000]]}}])['errors']
 ```
 
 ### terrainBiomes
