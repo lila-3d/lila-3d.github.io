@@ -27,6 +27,8 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 **The two sides don't match.** Set **Symmetry** to the mirror axis; the mesh has to be symmetric about the origin.
 
+**Rows dip into a V down the middle (sternum, spine).** The source has a groove there. Raise **Middle Smoothing** to fill it.
+
 **The status line says the mesh isn't symmetric.** The result mirrors one half over the other. Set **Symmetry** to Off for meshes that aren't symmetric about their origin, like props and posed characters.
 
 **Method Grid gave Flow instead.** Grid needs an open sheet that never turns back on itself seen from one side, and no symmetry, guides or poles.
@@ -69,6 +71,7 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 | Option | Default | What it does |
 | --- | --- | --- |
 | Symmetry | X | Remeshes one half and mirrors it, exactly symmetric. Off for meshes that aren't symmetric about their origin. |
+| Middle Smoothing | 0 | With Symmetry, fills a groove along the middle edge loop so rows cross it level. The faces beside the middle leave the source; a ridge such as a nose is kept. |
 | Method | Flow | Flow: quads follow the shape, loops run unbroken between a few poles and the symmetry line is one loop; use it for characters, props and anything you deform, bake or edit by hand. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
 | Use Hard Edges | on | Lays an edge loop along edges marked hard. |
 | Sharp Angle | 40 | Also follows creases sharper than this; negative turns it off. |

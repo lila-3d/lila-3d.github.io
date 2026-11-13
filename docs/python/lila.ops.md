@@ -8711,6 +8711,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'x'` | off, x, y or z: remesh half and mirror, exactly symmetric. The mesh has to be symmetric across that plane through its origin. |
+| `middleSmoothing` |  | float | `0.0` | With symmetry, fills a groove along the middle edge loop (a sternum, a spine) so the rows cross it level: 0 follows the source, 1 smooths six faces either side. |
 | `guides` |  | list |  | Curves, or meshes whose edges trace lines, that the edge flow turns to follow. Draw them on the mesh with Curves > Pencil Curve (S draws on the surface). |
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
 | `featureGuides` |  | list |  | Curves, or meshes whose edges trace lines, that get an edge loop laid exactly on them, like a hard edge. Draw them as for guides. |
@@ -9462,6 +9463,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. The mesh has to be symmetric across that plane through its origin. |
+| `middleSmoothing` |  | float | `0.0` | With symmetry, fills a groove along the middle edge loop (a sternum, a spine) so the rows cross it level: 0 follows the source, 1 smooths six faces either side. |
 | `guides` |  | list |  | Curves, or meshes whose edges trace lines, that the edge flow turns to follow. Draw them on the mesh with Curves > Pencil Curve (S draws on the surface). |
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
 | `featureGuides` |  | list |  | Curves, or meshes whose edges trace lines, that get an edge loop laid exactly on them, like a hard edge. Draw them as for guides. |
