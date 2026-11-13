@@ -17568,7 +17568,7 @@ Zero joints' rotations in a Strings mode: forward zeroes them as they are, backw
 
 ### unrealStringsRig
 
-Pose the character in Unreal the way Strings poses it here: LilaLink makes or updates a Control Rig on its skeletal mesh: a control on the hips and the end of each line of action and limb (hands, feet, head) and each contact, each posing its bone through a Lila Strings Full Body unit given the character's rule web; swap a unit for Forward, Backward or IK to change how it poses. Returns {rig, skeletalMesh, unreal}, or {rig, skeletalMesh, payload} with dryRun.
+Pose the character in Unreal the way Strings poses it here: LilaLink makes or updates a Control Rig on its skeletal mesh: a control on the hips and the end of each line of action and limb (hands, feet, head) and each contact, each posing its bone through a Lila Strings unit given the character's rule web. Each control's Mode and Isolate Rotation channels pick how it poses. Returns {rig, skeletalMesh, unreal}, or {rig, skeletalMesh, payload} with dryRun.
 
 **Objects:** character or one of its joints (default the selection)
 
@@ -17576,6 +17576,8 @@ Pose the character in Unreal the way Strings poses it here: LilaLink makes or up
 | --- | --- | --- | --- | --- |
 | `skeletalMesh` | `sm` | str |  | The skeletal mesh asset. Default: the root's skeletal mapping. |
 | `rig` | `r` | str |  | The Control Rig asset to make or update. Default: CR_<mesh>_Strings beside the mesh. |
+| `mode` | `m` | str |  | The mode the controls start in; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
+| `isolate` | `iso` | bool |  | The controls start with Isolate Rotation on; default the Isolate Rotation setting. |
 | `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
 
 Not undoable.
@@ -21527,7 +21529,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |

@@ -109,7 +109,7 @@ lineOfAction("manny", line="body", stroke=[[0, 95, 0], [0, 130, 12], [0, 160, 40
 
 ## Unreal
 
-To pose the character in Unreal the same way, map its root to the skeletal mesh (`unrealMap`) and run `unrealStringsRig("manny")`. LilaLink makes a Control Rig `CR_<mesh>_Strings` beside the mesh with a control on the hips, each limb and line end and each contact (`LS_<bone>`); dragging one poses its bone through a **Lila Strings Full Body** node that holds the contacts. Swap a node for **Lila Strings Forward** (plain FK, as Forward All here), **Backward** or **IK** to change how that control poses; the other modes pose in Lila only. The nodes solve exactly as Lila does, joint limits included (hinges and cones set on the joints in Lila), so the same drag gives the same pose in both. A control still where it started leaves its bone to the others; a control you moved holds its bone where you put it. `stringsRuleWeb("manny", file="manny_rules.json")` writes the rules the nodes read.
+To pose the character in Unreal the same way, map its root to the skeletal mesh (`unrealMap`) and run `unrealStringsRig("manny")`. LilaLink makes a Control Rig `CR_<mesh>_Strings` beside the mesh with a control on the hips, each limb and line end and each contact (`LS_<bone>`); dragging one poses its bone through a **Lila Strings** node, contacts holding. Each control has a **Mode** channel (every mode above) and an **Isolate Rotation** channel; set or key them in the Control Rig's animation details. They start at the current mode and Isolate Rotation setting, or pass `mode="ik"`, `isolate=True`. The nodes solve exactly as Lila does, joint limits and the rules' per-joint modes included, so the same drag gives the same pose in both. A control still where it started leaves its bone to the others; a control you moved holds its bone where you put it. `stringsRuleWeb("manny", file="manny_rules.json")` writes the rules the nodes read.
 
 ## Troubleshooting
 
@@ -132,5 +132,7 @@ To pose the character in Unreal the same way, map its root to the skeletal mesh 
 **Dragging one control in Unreal pulls another limb back.** That limb's control was moved earlier and holds its place. Move it with the limb, reset it to where it started, or remove its node from the rig.
 
 **"No bone named ..., which the rule web poses" in the Control Rig.** The skeletal mesh lacks a joint Lila poses. Export the skeleton with every deform joint, then run `unrealStringsRig` again.
+
+**Old rigs show deprecated Lila Strings Forward, Backward, IK or Full Body nodes.** They still pose as before. Run `unrealStringsRig` again to rebuild the rig with **Lila Strings** nodes and mode channels, or upgrade the nodes in the Control Rig editor (Forward becomes **Forward All**).
 
 **"give skeletalMesh" from unrealStringsRig.** The character's root isn't mapped to a skeletal mesh. Map it with `unrealMap`, or pass `skeletalMesh="/Game/..."`.
