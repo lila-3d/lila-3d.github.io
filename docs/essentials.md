@@ -77,6 +77,10 @@ Hold **F1** to show every hotkey. Release it to close.
 
 Each camera has its own slots, including persp and each ortho view, and they save with the scene. Space, then click **Lila**, lists them too.
 
+## Smooth the camera
+
+The view follows your mouse directly, with no easing. To glide instead, raise **Preferences > Viewport > Camera > Smoothing** (0.3 to 0.5 is gentle): the view eases toward where you navigate at the display's refresh rate. Picking and tools still use the camera as you moved it.
+
 ## Drone Camera
 
 Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited. Its keys show in the corner of the view while it's on.
