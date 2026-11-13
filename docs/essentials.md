@@ -79,14 +79,15 @@ Each camera has its own slots, including persp and each ortho view, and they sav
 
 ## Drone Camera
 
-Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited.
+Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited. Its keys show in the corner of the view while it's on.
 
 | Press | To |
 | --- | --- |
 | **W A S D**, arrows or number pad | Move |
-| **E** / **Q** | Rise / fall |
+| **E** / **Q**, or **Space** / **Ctrl** with the right button held | Rise / fall |
 | **Z** / **C** (hold) | Zoom in / out |
-| **R** / **F** | Faster / slower (also right drag + wheel) |
+| **R** | Faster (right drag + wheel also changes speed) |
+| **F** | Frame the selection; slower while right dragging |
 | Right drag | Look around |
 | Left drag | Move along the ground and turn |
 | Middle drag, or left + right | Pan |
