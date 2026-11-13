@@ -8695,14 +8695,14 @@ Put objects (the selection by default) on a turntable: the selected turntable, o
 
 ### quadRemesh
 
-Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard edges and guide curves, at about the target face count, optionally with UVs and normals transferred from the source. Open borders, sharp creases, crease corners and cone tips are kept. With method=field, where the shape is too thin or tight for the requested size (a strip narrower than the edge length) it retries finer, so the face count can come out higher. The kept source is hidden. Runs off the UI thread with a cancellable progress bar, and gives up after timeout= seconds with an error saying how far it got, changing nothing. Returns {name, metrics, layout, attempts: [{layout, faces, defects, irregular}] for every layout tried, notes: where the result departs from what was asked}, and with poles= where each pole landed: {point, position, valence, valenceMatched}, or null where none came out near it.
+Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard edges and guide curves, at about the target face count, optionally with UVs and normals transferred from the source. Open borders, sharp creases, crease corners and cone tips are kept. Where the layout folds at a part too thin or tight for the requested size (a strip narrower than the edge length) it retries finer, so the face count can come out higher. The kept source is hidden. Runs off the UI thread with a cancellable progress bar, and gives up after timeout= seconds with an error saying how far it got, changing nothing. Returns {name, metrics, layout, attempts: [{layout, faces, defects, irregular}] for every layout tried, notes: where the result departs from what was asked}, and with poles= where each pole landed: {point, position, valence, valenceMatched}, or null where none came out near it.
 
 **Objects:** source
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
-| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
+| `method` |  | str | `'flow'` | flow: quads follow the shape, loops run unbroken between a few poles; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), flow otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
@@ -9453,7 +9453,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `preset` |  | str | `'none'` | Starting settings for what the mesh is for: gameCharacter, midPoly, hero, stylized, hardSurface, prop, or the name of a preset saved from the option box. Flags set to other than their default win. |
-| `method` |  | str | `'patches'` | patches: loops run unbroken between a few poles; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), patches otherwise. |
+| `method` |  | str | `'flow'` | flow: quads follow the shape, loops run unbroken between a few poles; grid: a straight grid over an open sheet seen from one side (terrain tiles, panels), flow otherwise. |
 | `targetFaces` |  | int | `3000` | Approximate face count. |
 | `countTolerance` |  | float | `0.1` | Retry at a corrected size until the face count is within this fraction of targetFaces; 0 takes the first try. |
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
@@ -13334,6 +13334,7 @@ Automatic uvs: seams, low-stretch unwrap and pack, in one step.
 | `maxDistortion` |  | float | `0.08` | Split islands that stretch more than this when flattened. |
 | `visibility` |  | bool | `True` | Hide cuts where they are least visible. |
 | `merge` |  | bool | `True` | Merge islands back while they still flatten well. |
+| `darts` |  | bool | `False` | Before splitting an island that stretches, try short cuts in from where it caps over (fingertips, a nose). |
 | `method` |  | str | `'split'` | split (hard edges, open to disks, split where stretched) or optcuts (Auto Seams 2: seams and distortion optimised together). |
 | `distortionBound` |  | float | `0.05` | optcuts: stretch (symmetric Dirichlet excess, all islands) to get under. |
 | `seamWeight` |  | float | `0.5` | optcuts: price of seam length against stretch; higher keeps seams shorter. |
@@ -13373,6 +13374,7 @@ Place seams for game assets on the selected faces: hard edges, then cuts that op
 | `maxDistortion` |  | float | `0.08` | Split islands that stretch more than this when flattened. |
 | `visibility` |  | bool | `True` | Hide cuts where they are least visible. |
 | `merge` |  | bool | `True` | Merge islands back while they still flatten well. |
+| `darts` |  | bool | `False` | Before splitting an island that stretches, try short cuts in from where it caps over (fingertips, a nose). |
 | `method` |  | str | `'split'` | split (hard edges, open to disks, split where stretched) or optcuts (Auto Seams 2: seams and distortion optimised together). |
 | `distortionBound` |  | float | `0.05` | optcuts: stretch (symmetric Dirichlet excess, all islands) to get under. |
 | `seamWeight` |  | float | `0.5` | optcuts: price of seam length against stretch; higher keeps seams shorter. |
@@ -13388,6 +13390,7 @@ Boundary First Flattening of the selected faces' islands: conformal, with the bo
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
 | `boundary` |  | str | `'free'` | free, disk, rectangle or polygon. |
 | `cones` |  | int | `0` | Cone points placed automatically (free boundary only); each adds a short seam. |
+| `coneSource` |  | str | `'stretch'` | stretch: where flattening stretches most. flow: where the surface's flow turns (caps and saddles), most curved first; with cones 0, every one that bends enough. |
 | `exactLengths` |  | bool | `False` | free boundary: bend rather than stretch to close it, so its lengths are exact. |
 | `pack` |  | bool | `False` | Pack the islands into 0-1 afterwards. |
 | `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
@@ -13417,6 +13420,18 @@ Delete the uvs of the selected faces, leaving the faces: their uvs collapse to 0
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+
+### uvFlowUnwrap
+
+Unwrap the selected faces' islands so U and V follow the surface's flow (its curvature, creases and borders): panels come out as rectangles and bevels as straight strips, ready for trim sheets. Each island is cut open from the points its flow turns round; one that would fold or overlap itself that way is unwrapped for least stretch instead and counted in fellBack. Islands keep their place unless pack=True or they had no uvs.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
+| `straighten` |  | bool | `True` | Lay border and crease edges that run nearly along U or V exactly along it. |
+| `straightAngle` |  | float | `12.0` | How close to U or V an edge must run to be straightened, degrees. |
+| `pack` |  | bool | `False` | Pack the islands into 0-1 afterwards. |
+| `finalMesh` | `fm` | bool | `True` | Measure and solve on the mesh as exported, after modifiers that move its surface (bevel, subdivision); False works on the base mesh alone. |
 
 ### uvHose
 
@@ -13533,12 +13548,12 @@ Optimise the selected uv islands from where they are: conformal (keep angles), a
 
 ### uvOrient
 
-Rotate the selected islands upright: by bounding box, principal axis, longest edge or edge grid.
+Rotate the selected islands upright: by bounding box, principal axis, longest edge, edge grid or surface flow.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uvSet` |  | str |  | UV set; the current one (uvSetCurrent) when not given. |
-| `mode` |  | str | `'bbox'` | bbox, principal, edge or grid (polygon edges along U and V). |
+| `mode` |  | str | `'bbox'` | bbox, principal, edge, grid (polygon edges along U and V), flow (the surface's curvature and creases along U and V) or auto (grid, else flow, else bbox). |
 
 ### uvPack
 
@@ -21748,7 +21763,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |

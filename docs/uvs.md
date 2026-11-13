@@ -38,6 +38,15 @@ The other checks (rays missing the high, the cage) are on the [Baking](baking.md
 
 **Hard edges reported on a mesh with a Weighted Normals modifier.** The message names the modifier: its **Keep Hard Edges** is on, so it keeps the mesh's hard edges split. Turn it off; you don't need to soften the edges first.
 
+**Flow Unwrap reports islands that fell back.** Those islands would fold or overlap if laid out along their flow, usually rounded organic parts with many poles. They are unwrapped for least stretch instead. Flow Unwrap is for hard-surface panels, bevels and trim-sheet strips; use **Unwrap** or **Auto UV** for organic shapes.
+
 **No Issues row at all.** Lint only checks meshes in a bake group. Add the mesh with **Low** in the Baker.
 
 See [UVs under modifiers](essentials.md#uvs-under-modifiers) for how the UV tools work on a mesh with modifiers.
+
+## Options
+
+- **Flow Unwrap** (UV menu, or the Unwrap section's overflow) lays islands out so U and V follow the surface: panels come out as rectangles and bevels as straight strips, ready for trim sheets. Flat islands are laid out as they are. **Straighten Within** sets how close to U or V a border or crease edge must run to be made exactly straight.
+- **Auto Seams with Darts** (the Seams button's arrow) cuts short darts in at tips, like a fingertip or a nose, before splitting an island in two. Seams come out shorter and islands fewer, but the notched islands pack a little looser.
+- **BFF Unwrap with Flow Cones** (the Conformal button's arrow) puts BFF's cone points where the surface's flow turns, at tips, corners and saddles. In the BFF option box, **Cones From** switches between that and **Stretch**, which puts them where flattening stretches most.
+- **Orient UVs** with **Mode** set to **Flow** turns islands so the surface's curvature and creases run along U and V; **Auto** uses the edge grid when the island has one, then the flow, then the smallest box. Auto UV and Pack already orient islands this way.
