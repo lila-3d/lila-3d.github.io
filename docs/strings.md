@@ -117,7 +117,7 @@ Pins, locked IK chains, glue and attach go too. Each pinned joint, locked chain'
 - **Lock**: on each IK chain's end, on where the chain is locked now. A locked chain bends as Lila's IK chain does: the same solver (two-bone, FABRIK or spline), pole, pole angle, joint limits, preferred angles, softness and stretch, its end turning to the controller as far as its align weight says. A keyed lock goes into a Level Sequence beside the rig (`LS_<rig>`, or the `sequence` flag) as keys on the Lock channel, one wherever the lock turns on or off.
 - **Glue** and **Attach**: one per glue or attach set, on its first joint (glue) or the joint the others follow (attach), named after the others (**Glue hand_r**). Off frees them.
 
-A prop or another character's joint in a glue or attach set gets a control of its own in the rig (`LS_x_<name>`), where it is in Lila. Posing the character moves it when it follows; dragging it poses the character when the character follows, as dragging the prop does in Lila. Constrain the prop's actor, or the other character's control, to it in Sequencer to carry them along. Send again with `unrealStringsRig` after changing pins, chains or glue.
+A prop or another character's joint in a glue or attach set gets a control of its own in the rig (`LS_x_<name>`), where it is in Lila, and the rig's Level Sequence binds the character's actor (labelled after the rig). Send the prop to Unreal first; its actor is found by the prop's name. One member leads and the rest follow it, one way: in an attach set, the last selected; in a glue set, the heaviest (a character over a prop, the larger skeleton over the smaller, the first on a tie). A prop that follows is attached to the bone it is glued to. A prop that leads, or another character's joint, drives its `LS_x_` control, so moving the prop's actor or posing the other character poses this one. Build both characters' rigs. Send again with `unrealStringsRig` after changing pins, chains or glue.
 
 ## Troubleshooting
 
@@ -145,6 +145,8 @@ A prop or another character's joint in a glue or attach set gets a control of it
 
 **"the IK chain to hand_l isn't solved as Lila solves it" from unrealStringsRig.** A joint of the chain isn't a deform joint, so the skeletal mesh has no bone for it. Export the skeleton with every joint of the chain, then run `unrealStringsRig` again.
 
-**A glued hand doesn't follow in Unreal.** Its **Glue** switch is off, or the prop's control (`LS_x_...`) isn't what moved: a prop's actor moved in the level doesn't drive the rig. Drag the control, or constrain it to the actor.
+**A glued hand doesn't follow in Unreal.** Its **Glue** switch is off, or the hand leads the set, so the prop follows the hand instead. **"no actor labelled ..."** from `unrealStringsRig` means the prop wasn't in the level: send it, then run `unrealStringsRig` again.
+
+**"build ...'s Strings rig too" from unrealStringsRig.** The other character leads the glue but has no rig in the level yet. Run `unrealStringsRig` for it, then for this character again.
 
 **"give skeletalMesh" from unrealStringsRig.** The character's root isn't mapped to a skeletal mesh. Map it with `unrealMap`, or pass `skeletalMesh="/Game/..."`.
