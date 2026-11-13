@@ -111,6 +111,14 @@ lineOfAction("manny", line="body", stroke=[[0, 95, 0], [0, 130, 12], [0, 160, 40
 
 To pose the character in Unreal the same way, map its root to the skeletal mesh (`unrealMap`) and run `unrealStringsRig("manny")`. LilaLink makes a Control Rig `CR_<mesh>_Strings` beside the mesh with a control on the hips, each limb and line end and each contact (`LS_<bone>`); dragging one poses its bone through a **Lila Strings** node, contacts holding. Each control has a **Mode** channel (every mode above) and an **Isolate Rotation** channel; set or key them in the Control Rig's animation details. They start at the current mode and Isolate Rotation setting, or pass `mode="ik"`, `isolate=True`. The nodes solve exactly as Lila does, joint limits and the rules' per-joint modes included, so the same drag gives the same pose in both. A control still where it started leaves its bone to the others; a control you moved holds its bone where you put it. `stringsRuleWeb("manny", file="manny_rules.json")` writes the rules the nodes read.
 
+Pins, locked IK chains, glue and attach go too. Each pinned joint, locked chain's end and glued or attached joint gets a control, and the controls get switches you can set or key:
+
+- **Pin**: on every control, on where the joint is pinned in Lila. A pinned bone holds where it is while the others pose, contacts or not.
+- **Lock**: on each IK chain's end, on where the chain is locked now. A locked chain bends as Lila's IK chain does: the same solver (two-bone, FABRIK or spline), pole, pole angle, joint limits, preferred angles, softness and stretch, its end turning to the controller as far as its align weight says. A keyed lock goes into a Level Sequence beside the rig (`LS_<rig>`, or the `sequence` flag) as keys on the Lock channel, one wherever the lock turns on or off.
+- **Glue** and **Attach**: one per glue or attach set, on its first joint (glue) or the joint the others follow (attach), named after the others (**Glue hand_r**). Off frees them.
+
+A prop or another character's joint in a glue or attach set gets a control of its own in the rig (`LS_x_<name>`), where it is in Lila. Posing the character moves it when it follows; dragging it poses the character when the character follows, as dragging the prop does in Lila. Constrain the prop's actor, or the other character's control, to it in Sequencer to carry them along. Send again with `unrealStringsRig` after changing pins, chains or glue.
+
 ## Troubleshooting
 
 **"posed Forward" after a Backward or IK drag.** The joint is above the hips, so there is no body to swing or limb to bend. Grab a joint at or below the hips, or use Full Body.
@@ -134,5 +142,9 @@ To pose the character in Unreal the same way, map its root to the skeletal mesh 
 **"No bone named ..., which the rule web poses" in the Control Rig.** The skeletal mesh lacks a joint Lila poses. Export the skeleton with every deform joint, then run `unrealStringsRig` again.
 
 **Old rigs show deprecated Lila Strings Forward, Backward, IK or Full Body nodes.** They still pose as before. Run `unrealStringsRig` again to rebuild the rig with **Lila Strings** nodes and mode channels, or upgrade the nodes in the Control Rig editor (Forward becomes **Forward All**).
+
+**"the IK chain to hand_l isn't solved as Lila solves it" from unrealStringsRig.** A joint of the chain isn't a deform joint, so the skeletal mesh has no bone for it. Export the skeleton with every joint of the chain, then run `unrealStringsRig` again.
+
+**A glued hand doesn't follow in Unreal.** Its **Glue** switch is off, or the prop's control (`LS_x_...`) isn't what moved: a prop's actor moved in the level doesn't drive the rig. Drag the control, or constrain it to the actor.
 
 **"give skeletalMesh" from unrealStringsRig.** The character's root isn't mapped to a skeletal mesh. Map it with `unrealMap`, or pass `skeletalMesh="/Game/..."`.

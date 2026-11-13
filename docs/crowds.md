@@ -70,6 +70,21 @@ crowdExport("crowd", path="D:/out/plaza.glb", format="gltf", combined=True)
 crowdSendToUnreal("crowd", folder="/Game/Crowds/Plaza")
 ```
 
+### Mass crowd in Unreal
+
+**Mass to Unreal** sends the crowd as a live Mass crowd instead of a baked sequence: Unreal simulates the agents itself, walking the sidewalks and crossing at the crosswalks, for as long as the game runs. It needs the LilaLinkCrowd plugin (Lila's `ue/LilaLinkCrowd`, next to LilaLink) enabled in the project.
+
+1. Spawn the crowd on the network (above), then press **Mass to Unreal** under **Output**.
+2. Press Play in Unreal. The agents spawn on the sidewalks and wander the lanes, pausing between walks.
+
+```python
+crowdSendToUnreal("crowd", mass=True, count=200)
+```
+
+Each group walking the network becomes a StateTree and a Mass entity config in **folder**, at the group's speed and pause, and its share of **count**. The walkways and crossings go as their own ZoneGraph lanes in a `Lila/Crowd` outliner folder, apart from the road lanes `settlementSendToUnreal` sends for traffic, with a Mass spawner beside them. Sending again replaces the lanes and the spawner and rewrites the assets. Near the camera agents show as the crowd's characters, walking: each character's skeletal mesh and a walk cut from the crowd go to Unreal with it (`BP_<crowd>_<character>`). Within **actorDistance** (5000 cm) they are characters, at most **maxActors** (200) at once; past it they show as **mesh** (a cylinder unless you give one, `mesh=""` for none); past **visibleDistance** (15000 cm) nothing is drawn, though they still walk.
+
+Crossings at signalled junctions follow the settlement's signal phases: each phase lasts **phaseSeconds** (20), a crossing shows walk in the phase that walks it, and no one starts across in its last **clearSeconds** (4). Agents don't choose a crossing that won't show walk by the time they reach it; one who reaches it stands at the kerb and tries again.
+
 ## Troubleshooting
 
 **Agents play stiff cycles instead of generated motion.** The panel's warning says why: the motion model is missing, **Detail** is `cycles`, or the agents are outside **Generated Radius** of the **Focus**. A bake reports how many frames came from cycles.
@@ -81,6 +96,16 @@ crowdSendToUnreal("crowd", folder="/Game/Crowds/Plaza")
 **Spawn fails with "needs a path curve" (or a goal, threat, target, spots).** That behaviour needs it: pass it in the option box or select it with the crowd.
 
 **"the crowd has no network".** Set **Network** on the crowd before spawning with **onNetwork**.
+
+**"enable the LilaLinkCrowd plugin".** The Unreal project doesn't have it. Enable LilaLinkCrowd in the project's plugins and restart the editor; it brings MassCrowd, MassAI, StateTree and ZoneGraph with it.
+
+**"mass=True sends the groups that walk the network".** No group was spawned with **onNetwork**. Mass agents only walk lanes.
+
+**Mass agents show as cylinders up close.** The crowd has no characters, or a character has no skinned mesh: the send's warnings name it. Set the crowd's characters and send again.
+
+**People bunch at a crossing for a long time.** Its walk phase is short next to the time agents need to reach it once they choose it: raise **phaseSeconds**, or lower **clearSeconds**.
+
+**Mass agents stand still or don't appear.** The spawner places agents on the crowd lanes when play starts: send again after changing the settlement, and check the level has a ZoneGraph Data actor (Unreal builds it with the lanes). Agents far from the camera stop drawing, as Mass does by distance; they still walk.
 
 ## Options
 
