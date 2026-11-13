@@ -667,7 +667,10 @@ Audio plays under the time slider during playback and scrubbing. With take, it b
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `fileName` | `f` | str |  | Sound file; stored relative to the workspace root. |
+| `track` | `tr` | int |  | Sound track of a file with several, from 0. |
 | `offset` | `o` | float |  | Frame the sound starts at. |
+| `sourceStart` | `ss` | float |  | Frame of the file the sound starts from. |
+| `sourceEnd` | `se` | float |  | Frame of the file the sound stops at; 0 for the end. |
 | `gain` | `g` | float |  | Volume multiplier. |
 | `mute` | `m` | bool |  | Silence it. |
 | `take` | `t` | str |  | Take it belongs to. |
@@ -895,6 +898,22 @@ Bake everything a downstream tool needs in one go: applies the target profile's 
 | `backend` | `be` | str |  | Where to bake; defaults to the target's backend, else cpu. |
 | `async` | `as` | bool | `False` | Return at once and bake off the main thread, as bake async=True. |
 | `overrideGroups` | `og` | bool | `False` | Give every existing group the target's group defaults, including settings made on a group by hand. |
+
+### bakeGrapple
+
+Bake the grapple onto the characters' joints as plain keys, on its own additive layer (replacing the one it baked before; mute the layer to compare, delete it to go back). Every frame is solved with the characters' animation below the layer. Returns {'layer', 'frames', 'contactError', 'penetration'}: the worst contact gap and body overlap left, cm.
+
+**Objects:** grapple or one of its contacts (default the selection, else the scene's only grapple)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grapple` | `g` | str |  | The grapple. |
+| `start` |  | int |  | First frame. Default: the playback range. |
+| `end` |  | int |  | Last frame. |
+
+```python
+bakeGrapple("grapple1", start=0, end=120)
+```
 
 ### bakeGroup
 
@@ -1804,6 +1823,7 @@ Render several views offscreen and tile them into one PNG contact sheet (row by 
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `overlays` | `ov` | bool | `False` | Draw what the viewport draws over the scene too: locators, curves' draw overrides, Soft Net lines and knots, extension drawers. |
+| `hud` |  | bool | `False` | Draw the heads-up readouts the view shows (the cursor taken at the view's centre) and the Drone Camera banner. |
 | `path` | `p` | str |  | PNG file to write. |
 | `count` | `c` | int | `4` | Views around the up axis, starting at the front. |
 | `columns` |  | int | `0` | Tiles per row; 0 picks. |
@@ -1831,6 +1851,7 @@ Render the scene offscreen from a named view or angle and save a PNG. Never move
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `overlays` | `ov` | bool | `False` | Draw what the viewport draws over the scene too: locators, curves' draw overrides, Soft Net lines and knots, extension drawers. |
+| `hud` |  | bool | `False` | Draw the heads-up readouts the view shows (the cursor taken at the view's centre) and the Drone Camera banner. |
 | `path` | `p` | str |  | PNG file to write. |
 
 Not undoable.
@@ -4213,6 +4234,17 @@ Refit curves as Beziers with as few points as tolerance allows, corners kept. Re
 | `replaceOriginal` | `rpo` | bool | `True` | Change the curve itself rather than making a new one. |
 | `name` | `n` | str |  | Name of a new curve. |
 
+### fitGrappleBodies
+
+Refit the grapple's collision capsules and masses at the current pose: from the characters' physics markers, else their skinned meshes, else bone-sized. Keeps each figure's planted feet. Returns the figures with what each was fitted from.
+
+**Objects:** grapple or one of its contacts (default the selection, else the scene's only grapple)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grapple` | `g` | str |  | The grapple. |
+| `keepMass` | `km` | bool | `False` | Keep each figure's mass as it is. |
+
 ### fixDuplicateJointNames
 
 Rename joints that share a name with another joint in the same skeleton (the given roots and their descendants, or the selection), so the skeleton exports with unique bone names. Returns [[old, new], ...].
@@ -4508,6 +4540,7 @@ Animation ghosting of the selected characters: their meshes or skeletons at the 
 | `show` | `sh` | str |  | What to draw. One of `mesh`, `skeleton`, `both`. |
 | `beforeColor` | `bc` | str |  | sRGB #rrggbb tint of ghosts before now. |
 | `afterColor` | `ac` | str |  | sRGB #rrggbb tint of ghosts after now. |
+| `range` | `rg` | bool |  | While the time slider has a range selected, spread the ghosts across it and its falloff. |
 | `refresh` | `r` | bool | `False` | Recapture every ghost. |
 
 Not undoable.
@@ -4941,6 +4974,95 @@ Replace a Group node with the nodes of the group it runs, rewired in place. Retu
 Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
+
+### grappleAim
+
+Aim what a joint holds at a target: the axis (a muzzle, a blade's tip; its +X) is turned onto the target about the pivot, moving the joint and, through the grapple's solve, the arms and body with it. style places the pivot first: shoulder on the anchor (rifles, launchers), extend out toward the target (pistols), guard below that line (blades). Key weight to blend it. Returns the aim.
+
+**Objects:** holding joint, target
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `axis` | `ax` | str |  | The transform whose +X is aimed. |
+| `pivot` | `pv` | str |  | The transform turned about. Default: axis. |
+| `style` | `s` | str | `'turn'` | turn, shoulder, extend or guard. |
+| `anchor` | `an` | str |  | Shoulder, extend, guard: the joint or point the pivot is placed from. |
+| `reach` | `r` | float | `0.0` | Extend, guard: cm from the anchor. 0: 0.9 of the arm. |
+| `drop` | `d` | float | `0.0` | Guard: cm below the line to the target. |
+| `grapple` | `g` | str |  | The grapple to add it to. Default: the one holding the character, else a new one. |
+| `time` | `t` | float |  | Seconds the aim comes on at. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds it blends in over. 0 makes it on at every time. |
+| `name` | `n` | str |  | Name for the aim. |
+
+```python
+grappleAim("hand_r", "target1", axis="rifle_muzzle", pivot="rifle_stock", style="shoulder", anchor="upperarm_r")
+```
+
+### grappleContact
+
+Hold a joint of one character to a point on another (grab a wrist, a collar, an arm round a neck, hands under a body to lift it). The characters are solved together every frame by their grapple; key the contact's weight to blend it in and out. Returns the contact.
+
+**Objects:** source joint, target joint
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | tuple[float, float, float] |  | World point the source is held to, riding the target joint. Default: the target's body surface nearest the source. |
+| `kind` | `k` | str | `'grab'` | grab holds position and rotation; hold position only; push lets the source lead; lift lets the source lead and frees the target's feet. |
+| `orient` | `o` | bool |  | Hold the source's rotation against the target too. Default by kind. |
+| `lead` | `l` | str |  | Who yields. Default by kind: auto (by mass), or source for push and lift. One of `auto`, `source`, `target`, `even`. |
+| `grapple` | `g` | str |  | The grapple to add it to. Default: the one holding either character, else a new one. |
+| `time` | `t` | float |  | Seconds the contact comes on at. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds it blends in over, keyed from what it was before. 0 makes it on at every time. |
+| `name` | `n` | str |  | Name for the contact. |
+
+```python
+grappleContact("attacker:hand_r", "defender:lowerarm_l", kind="grab")
+```
+
+```python
+grappleContact("lifter:hand_l", "lifted:spine_02", kind="lift", blend=0.3)
+```
+
+### grappleFigure
+
+A character's settings in its grapple: its mass (who yields: the heavier side moves less) and whether its feet stay where the animation plants them. Returns every figure of the grapple.
+
+**Objects:** a joint of the character
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grapple` | `g` | str |  | The grapple. Default: the one holding the character. |
+| `mass` | `m` | float |  | kg. |
+| `plant` | `pl` | bool |  | Keep the feet where the animation puts them. |
+
+### grappleInfo
+
+The grapple's figures and contacts, and how its solve does at a frame: {'figures', 'contacts', 'contactError', 'penetration', 'iterations'} (cm). Solves up to the frame if it isn't cached.
+
+**Objects:** grapple or one of its contacts (default the selection, else the scene's only grapple)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `grapple` | `g` | str |  | The grapple. |
+| `frame` | `f` | int |  | Frame. Default: the current one. |
+
+Not undoable.
+
+### grappleKey
+
+Key contacts on or off: their weight reaches 1 (on) or 0 (off) at the time, blending from what it was before. Returns the contacts.
+
+**Objects:** contacts (default the selected ones)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool | `True` | True keys them on, False off. |
+| `time` | `t` | float |  | Seconds. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds the blend takes. |
+
+```python
+grappleKey("hand_r_to_lowerarm_l", on=False, time=2.0)
+```
 
 ### groomAddMap
 
@@ -5466,6 +5588,25 @@ Add, remove or clear guide lines drawn over an image plane, for lining limbs up 
 | `remove` | `rm` | int |  | Index of a guide to remove. |
 | `clear` | `cl` | bool | `False` | Remove every guide. |
 
+### import3dTiles
+
+Import a 3D Tiles tileset (tileset.json, 1.0 or 1.1) from a local folder, or a single b3dm, i3dm, pnts, cmpt or glb tile. Tiles are picked by geometric error: along each branch the first tile within maxError, or the finest. Meshes come in through the glTF importer (Draco and meshopt included) and point tiles as point clouds, all placed from the tileset's Earth-centred frame into the scene's georeference; a scene without one takes the UTM zone around the tileset. Returns the group and counts; skipped content is listed and logged.
+
+**Objects:** path
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `maxError` |  | float | `0.0` | Geometric error to stop refining at, metres; 0 takes the finest tiles. |
+| `centre` |  | list |  | With radius: only tiles reaching within radius of this [latitude, longitude, height]. |
+| `radius` |  | float | `0.0` | Metres around centre (or the tileset's centre) to bring in; 0 takes everything. |
+| `maxTiles` |  | int | `1000` | Stop after this many tiles, and say so. |
+| `georeference` |  | bool | `True` | Set the scene's georeference from the tileset when it has none. |
+| `name` | `n` | str |  | Name of the group the tiles go under. |
+
+```python
+import3dTiles("D:/city/tileset.json", maxError=2, centre=[45.8257, 11.5324], radius=500)
+```
+
 ### importAlembic
 
 Import an Alembic (.abc) file's PolyMeshes as meshes, each placed through its transforms at its first sample. A mesh whose points move over time gets a meshCache deformer playing every sample (interpolated between them); one whose topology changes keeps its first sample. Returns the new mesh names, or with report=True a dict of nodes, meshCaches, start, end and warnings.
@@ -5573,6 +5714,29 @@ Import a file into the scene with the translator for its extension (.fbx, .gltf,
 | `options` |  | Any |  | {flag: value} passed on to the translator's command. |
 
 Not undoable.
+
+### importFootage
+
+Bring in reference footage for the shot in one step: a video becomes an image plane on the camera, and its sound (or a sound file given alone) an audio node starting on the same frame. Both belong to the active take, so they play only with it and line up from its start. Returns the nodes made.
+
+**Objects:** video or sound file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `camera` | `c` | str | `'persp'` | View or camera the video is seen through. |
+| `take` | `t` | str |  | Take the media belongs to; default the active one, empty for none. |
+| `frame` | `fr` | float |  | Frame the footage starts on: default the take's first frame, or the playback start without a take. |
+| `sound` | `s` | bool | `True` | Also make an audio node from a video's sound. |
+| `track` | `tr` | int | `0` | Sound track of a video with several, from 0. |
+| `name` | `n` | str |  | Base name; default the file's. |
+
+```python
+importFootage('ref/shot010.mov')
+```
+
+```python
+importFootage('ref/shot010.mov', camera='shotCam', frame=1001)
+```
 
 ### importGltf
 
@@ -6534,10 +6698,23 @@ Draw the scene offscreen several times like captureView and return the median GP
 | `samples` |  | int | `1` | Jittered frames averaged into the image: 16 or more gives a supersampled still. |
 | `label` |  | bool | `True` | Write the view's name in the top-left corner. |
 | `overlays` | `ov` | bool | `False` | Draw what the viewport draws over the scene too: locators, curves' draw overrides, Soft Net lines and knots, extension drawers. |
+| `hud` |  | bool | `False` | Draw the heads-up readouts the view shows (the cursor taken at the view's centre) and the Drone Camera banner. |
 | `frames` |  | int | `20` | Frames to draw; the result is their median. |
 | `ambientOcclusion` | `ao` | bool |  | Force ambient occlusion on or off instead of the viewport pref. |
 
 Not undoable.
+
+### mediaInfo
+
+What a video or sound file holds: its picture (size, rate, frames, codec, the decoder that reads it) and its sound tracks, the choices for an audio node's track.
+
+**Objects:** file
+
+Not undoable.
+
+```python
+mediaInfo('ref/shot010.mov')
+```
 
 ### mergeAnimLayers
 
@@ -6767,6 +6944,138 @@ Set or query how a target's points travel to its shapes. interpolation linear, s
 A morph's targets in order: [{node, name, weight, sliderMin, sliderMax, live, inBetweens, driver, editing}]. driver is the plug setting the weight (a pose driver for a corrective), editing the edit mesh in edit mode, sliderMin and sliderMax the panel slider's range. Set a weight with setAttr(node + ".weight", w).
 
 **Objects:** morph, mesh or target
+
+Not undoable.
+
+### motionBuildGaits
+
+Build a gait library from motion capture (BVH): each clip retargeted to the model's skeleton, its speed and cycle measured, target windows sampled across one cycle. For your own mocap, or to rebuild Lila's.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `s` | Any |  | {'provenance': text, 'windows': 6, 'gaits': [{'file', 'style', 'name', 'scale', 'from', 'to', 'crouch'}], 'idle': {'file', 'at'}}. |
+| `out` | `o` | str |  | The gaits .json to write. |
+
+Not undoable.
+
+### motionDevice
+
+Choose where motion generates: auto (the GPU where it works, else the CPU), gpu or cpu. Saved as a preference; the model reloads on next use.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `device` | `d` | str | `'auto'` | auto, gpu or cpu. |
+
+Not undoable.
+
+### motionFollowPath
+
+Generate a character walking, running, strafing or crouching along a path, performing any spots on it, and key the motion into a new take. The path is points, curves and spots in order; the character starts as posed at the start time.
+
+**Objects:** the character (a joint of its skeleton, or the node above it)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | list |  | Waypoints in order: points [x, y, z] (cm), curve names, motionSpot names. |
+| `style` | `st` | str | `'walk'` | walk, run, crouch, strafeLeft, strafeRight or backward (motionGaits lists them). |
+| `speed` | `sp` | float | `0.0` | m/s; 0 uses the gait's own. |
+| `stop` | `s` | bool | `True` | Come to rest at the end. |
+| `facing` | `f` | tuple[float, float, float] |  | Strafe styles face this direction; default: the way the path starts. |
+| `variant` | `v` | int | `0` | Other values give other, equally valid motion. |
+| `lookahead` | `la` | float | `0.9` | Seconds of travel each target sits ahead: lower follows tighter. |
+| `take` | `t` | str | `'Path'` | Take to key into; one of that name is replaced. Empty keys the current animation. |
+| `start` | `sa` | float |  | Seconds; default the playback start. |
+| `rootMotion` | `rm` | bool | `True` | The root joint follows the pelvis on the ground (for engine root motion). |
+| `plantFeet` | `pf` | bool | `True` | Hold feet still where the model predicts contact. |
+| `lockFeet` | `lf` | bool | `True` | Key the foot lock of the character's IK chains where feet are planted. |
+
+```python
+motionFollowPath('Manny', path=[[0, 0, 400], [300, 0, 700]], style='run')
+```
+
+```python
+motionFollowPath('Manny', path=['pathCurve1', 'chairSpot'], take='SitDown')
+```
+
+### motionGaits
+
+List the locomotion styles and their gaits (speed in m/s, cycle in seconds) motionFollowPath can use, and where their poses came from.
+
+Not undoable.
+
+### motionSample
+
+A character's motion as the motion model sees it: per frame at 30 fps, the world positions (cm) of SOMA joints, the heading and the ground point. For checking generated motion and building spots from clips.
+
+**Objects:** the character
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | float |  | Seconds; default the playback start. |
+| `end` | `e` | float |  | Seconds; default the playback end. |
+| `joints` | `j` | list |  | SOMA joint names (Hips, LeftHand, RightFoot ...); default Hips, hands and feet. |
+
+Not undoable.
+
+### motionSpot
+
+Make a spot: a starter interaction Lila ships (by name), a .lilaspot file, or an empty one to capture poses into. Returns the node, or with list the starters.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `pr` | str |  | A shipped spot by name (list shows them). |
+| `file` | `f` | str |  | A .lilaspot file. |
+| `name` | `n` | str |  | Node name. |
+| `position` | `p` | tuple[float, float, float] |  | World position, cm. |
+| `yaw` | `y` | float | `0.0` | Degrees about Y: the way the spot faces. |
+| `list` | `l` | bool | `False` | List the shipped spots instead. |
+
+```python
+motionSpot(preset='Pick Up', position=[0, 0, 300])
+```
+
+### motionSpotSave
+
+Save a spot's targets as a .lilaspot asset to reuse in other scenes (motionSpot file=...).
+
+**Objects:** the motionSpot node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Where to write; default the spot's file. |
+| `provenance` | `pv` | str |  | Where the poses came from, stored with the asset. |
+
+### motionSpotTarget
+
+Add, change or remove a spot's targets. capture adds the character's pose at a time (and the next poses at 30 Hz for a moving arrival) relative to the spot. Returns the spot's targets.
+
+**Objects:** the motionSpot node
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `capture` | `c` | str |  | Character to capture a target from. |
+| `time` | `t` | float |  | Seconds; default the current time. |
+| `poses` | `ps` | int | `1` | Poses to capture, 1 to 4: more gives the arrival its velocity. |
+| `index` | `i` | int |  | Target to change or remove; capture inserts before it (default: at the end). |
+| `remove` | `rm` | bool | `False` | Remove the target at index. |
+| `name` | `n` | str |  | Target name. |
+| `transitionEarly` | `te` | int |  | Frames before arriving the next target takes over: higher passes through. |
+| `minTokens` | `mn` | int |  | Shortest approach, tokens of 4 frames (6..16). |
+| `maxTokens` | `mx` | int |  | Longest approach, tokens of 4 frames (6..16). |
+| `pins` | `pi` | list |  | Hands and feet held on the pose as it arrives: leftHand, rightHand, leftFoot, rightFoot. |
+| `hold` | `h` | int |  | Frames to stay in the pose. |
+
+```python
+motionSpotTarget('chairSpot', capture='Manny', time=2.0, poses=1, name='Sit')
+```
+
+### motionStatus
+
+Load the motion model if needed and report what it runs on: the device (GPU through DirectML, or CPU, with the reason when it fell back), the model file, the runtime version, or what is missing.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `reload` | `r` | bool | `False` | Load the model again (after replacing the file). |
 
 Not undoable.
 
@@ -10888,6 +11197,20 @@ Add a skin slide deformer: the deformation below it slides along the rest surfac
 | `normalAmount` |  | float | `0.0` | 0 to 1: how much movement off the rest surface is kept. |
 | `name` |  | str |  | Name for the deformer. |
 
+### slideMedia
+
+Move audio nodes and image planes along the timeline by a number of frames: an audio node's offset, an image plane's start frame. Trims stay with the sound.
+
+**Objects:** audio nodes or image planes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `frames` | `f` | float | `0.0` | Frames to move by; negative moves earlier. |
+
+```python
+slideMedia('shot010', 'shot010Ref', frames=-6)
+```
+
 ### smartJoin
 
 Join a limb mesh to a body mesh with a quad bridge, changing only a local region of each. The smaller mesh is the limb unless flip=True. Returns {name, confidence (0-100), summary, reasons, counts...}.
@@ -12228,13 +12551,17 @@ Which project images the material editor's texture lists show. Globs relative to
 
 ### timeRange
 
-The time slider's selected range (Shift + drag on it), which edits across frames act on, such as Strings poses. Give start and end to select, clear to drop it, falloff for the frames edits ease out over either side. Returns {active, start, end, falloff}, times in seconds.
+The time slider's selected range (Shift + drag on it), which edits across frames act on, such as Strings poses and Curve Overlay drags. Give start and end to select, clear to drop it, falloff for the frames edits ease out over either side (falloffBefore and falloffAfter for one side), falloffType for its shape, every to key every n frames. Returns {active, start, end, falloffBefore, falloffAfter, falloffType, every}, times in seconds.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `start` | `s` | float |  | Seconds. |
 | `end` | `e` | float |  | Seconds. |
 | `falloff` | `fo` | float |  | Frames edits ease out over either side. |
+| `falloffBefore` | `fob` | float |  | Frames edits ease out over before the range. |
+| `falloffAfter` | `foa` | float |  | Frames edits ease out over after the range. |
+| `falloffType` | `fot` | str |  | How edits ease out across the falloff. One of `smooth`, `linear`, `sharp`, `soft`, `constant`. |
+| `every` | `ev` | int |  | Range edits key every this many frames; 0 only the keyed frames. |
 | `clear` | `c` | bool | `False` | Drop the selection. |
 
 Not undoable.
@@ -13802,6 +14129,210 @@ Import a STEP, IGES or BREP model through OpenCascade, tessellated to meshes: th
 
 ```python
 importCad("D:/cad/gearbox.step", chordal=0.02)
+```
+
+## Crowds extension
+
+Available when the Crowds extension is loaded.
+
+### crowdAgents
+
+Where every agent of a crowd is at a frame (simulating up to it): position (cm), heading (degrees), what it is doing, and whether its motion is generated or a cycle.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `frame` | `f` | int |  | Frame; default the current one. |
+
+Not undoable.
+
+### crowdBake
+
+Bake crowd agents onto real characters: each agent gets its own copy of its character, keyed every frame (30 Hz) with its motion, feet planted where the motion has contact. The copies go under one group. Reports any frames that came from gait cycles rather than generated motion.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `agents` | `a` | list |  | Agent indices to bake; default every agent. |
+| `start` | `st` | int |  | First frame; default the later of the crowd's start and the playback start. |
+| `end` | `et` | int |  | Last frame; default the playback end. |
+| `group` | `g` | str |  | Name of the group the copies go under; default <crowd>_baked. |
+| `plantFeet` | `pf` | bool | `True` | Hold feet still where the motion has contact. |
+| `lockFeet` | `lf` | bool | `True` | Key the foot lock of the characters' IK chains where feet are planted. |
+
+```python
+crowdBake('crowd', agents=[0, 1, 2])
+```
+
+```python
+crowdBake('crowd', start=1, end=240)
+```
+
+### crowdCharacters
+
+Set the characters a crowd's agents wear (skinned characters' root nodes); each is characterised for motion when it isn't yet. Agents keep their character index, so the order matters. Returns how each one draws.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `characters` | `c` | list |  | Character root nodes, in order. |
+
+```python
+crowdCharacters('crowd', characters=['Manny', 'Quinn'])
+```
+
+### crowdCreate
+
+Make a crowd: a node that holds spawn groups of agents and simulates them. Then add agents with crowdSpawn.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'crowd'` | Name of the crowd node. |
+| `characters` | `c` | list |  | Characters the agents wear (skinned characters' root nodes). |
+| `ground` | `g` | str |  | Mesh or terrain the agents stand on. |
+| `network` | `nw` | list |  | Settlements and curves agents can walk along. |
+| `obstacles` | `o` | list |  | Nodes the agents walk around. |
+| `focus` | `f` | str |  | Node detail is measured from (a camera or hero character). |
+| `startFrame` | `sf` | int |  | Frame the crowd starts from; default the playback start. |
+
+```python
+crowdCreate(characters=['Manny', 'Quinn'], ground='terrain1')
+```
+
+### crowdExport
+
+Bake crowd agents and export them: one FBX or glTF per agent into a folder, or every agent in one file. Returns the files written and the bake report.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | str |  | Folder (one file per agent) or file (combined). |
+| `format` | `fm` | str | `'fbx'` | fbx or gltf (.glb). |
+| `combined` | `cb` | bool | `False` | Every agent in one file at path, each node named with its agent's prefix so names stay unique. |
+| `agents` | `a` | list |  | Agent indices; default every agent. |
+| `start` | `st` | int |  | First frame. |
+| `end` | `et` | int |  | Last frame. |
+| `keep` | `k` | bool | `True` | Keep the baked characters in the scene afterwards. |
+
+```python
+crowdExport('crowd', path='D:/out/crowd', format='fbx')
+```
+
+```python
+crowdExport('crowd', path='D:/out/crowd.glb', format='gltf', combined=True)
+```
+
+### crowdGroups
+
+List a crowd's spawn groups, or remove one.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `remove` | `rm` | str |  | Name of the group to remove. |
+
+### crowdInfo
+
+What a crowd holds and how its last simulation went: agents and groups, the inference device (or why agents play cycles), generations, batches, cached frames.
+
+**Objects:** the crowd
+
+Not undoable.
+
+### crowdSendToUnreal
+
+Send a crowd to the connected Unreal editor as a Level Sequence: each character's skeletal mesh is imported once, each agent's baked animation becomes its own animation asset on that skeleton, and the sequence holds one skeletal mesh actor per agent playing it, placed in the open level.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `fo` | str | `'/Game/Crowds'` | Content folder for the meshes, animations and the sequence. |
+| `sequence` | `sq` | str |  | Level Sequence name; default LS_<crowd>. |
+| `agents` | `a` | list |  | Agent indices; default every agent. |
+| `start` | `st` | int |  | First frame. |
+| `end` | `et` | int |  | Last frame. |
+| `keep` | `k` | bool | `False` | Keep the baked characters in the scene afterwards. |
+
+Not undoable.
+
+```python
+crowdSendToUnreal('crowd', folder='/Game/Crowds/Plaza')
+```
+
+### crowdSimulate
+
+Simulate a crowd up to a frame (default the playback end) so it plays back and scrubs from the cache. Reports the inference device, generations, batches and how full they were, and how many agents generated their motion.
+
+**Objects:** the crowd
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `frame` | `f` | int |  | Last frame; default the playback end. |
+
+Not undoable.
+
+```python
+r = crowdSimulate('crowd')
+r['device'], r['generations'], r['meanBatch']
+```
+
+### crowdSpawn
+
+Add a spawn group of agents to a crowd with a behaviour: wander an area or the network, go to a goal, follow a path, queue along a path, stand in idle groups, perform spots (sit, pick up), flee a threat or chase a target. Agents are placed in a disc, along a curve, on a mesh or terrain, or on the network's sidewalks and crosswalks. A group of the same name is replaced.
+
+**Objects:** the crowd (default the selected one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `count` | `n` | int |  | Agents in the group (default 20; spot: one per spot). |
+| `behaviour` | `b` | str | `'wander'` | What they do. One of `wander`, `goTo`, `followPath`, `queue`, `idle`, `spot`, `flee`, `chase`, `stand`. |
+| `style` | `st` | str |  | Gait: walk, run, crouch, strafeLeft, strafeRight, backward (default walk; flee and chase run). |
+| `source` | `src` | str |  | Where agents start: a curve (along it), a mesh or terrain (on it), or a node (around it). |
+| `center` | `c` | tuple[float, float, float] |  | Centre of the spawn disc, wander area or idle group (cm). |
+| `radius` | `r` | float | `1000.0` | Radius of the spawn disc and wander area (cm). |
+| `onNetwork` | `on` | bool | `False` | Start on the crowd's network and walk along it (sidewalks, crosswalks, paths). |
+| `goal` | `gl` | Any |  | goTo: a node to walk to (followed when animated) or a point [x, y, z] (cm). |
+| `path` | `p` | str |  | followPath, queue: the curve; a queue's head is its end. |
+| `loop` | `lp` | bool | `False` | followPath: go round and round. |
+| `spots` | `sp` | list |  | spot: motionSpot nodes, one agent each in turn. |
+| `stay` | `sy` | float | `0.0` | spot: seconds to stay after the last target, then leave; 0 stays. |
+| `threat` | `th` | Any |  | flee: the node (or point) to run from. |
+| `target` | `tg` | Any |  | chase: the node (or point) to run after. |
+| `prey` | `py` | str |  | chase: run after the nearest agent of this group instead. |
+| `range` | `rg` | float | `800.0` | flee: distance at which the threat is noticed; chase: distance that counts as caught (cm). |
+| `then` | `tn` | str |  | What goTo, queue and spot agents do afterwards (default stand; queue and spot wander). One of `stand`, `wander`, `goTo`, `followPath`, `idle`, `flee`, `chase`. |
+| `pauseMin` | `pmn` | float | `1.0` | wander: shortest pause at a goal, seconds. |
+| `pauseMax` | `pmx` | float | `4.0` | wander: longest pause at a goal, seconds. |
+| `spacing` | `sc` | float | `90.0` | Gap between agents as spawned, and a queue's spacing (cm). |
+| `serve` | `sv` | float | `6.0` | queue: seconds the head waits before it leaves. |
+| `speedMin` | `smn` | float | `0.85` | Slowest agent, as a share of the gait's speed. |
+| `speedMax` | `smx` | float | `1.15` | Fastest agent, as a share of the gait's speed. |
+| `character` | `ch` | int |  | Every agent wears this character (index into the crowd's characters). |
+| `characterWeights` | `cw` | list |  | Relative share of each of the crowd's characters. |
+| `appearOver` | `ao` | float | `0.0` | Agents appear one after another over this many seconds. |
+| `seed` | `sd` | int |  | Seed of the placement and the agents' own seeds. |
+| `name` | `nm` | str |  | Group name; default the behaviour and a number. |
+
+```python
+crowdSpawn('crowd', count=60, behaviour='wander', radius=2000)
+```
+
+```python
+crowdSpawn('crowd', count=200, behaviour='wander', onNetwork=True)
+```
+
+```python
+crowdSpawn('crowd', count=12, behaviour='queue', path='queueCurve', then='wander')
+```
+
+```python
+crowdSpawn('crowd', count=40, behaviour='flee', threat='monster', range=1200)
 ```
 
 ## Destruction extension
@@ -15503,6 +16034,25 @@ Refit markers: the shape to the joint's dominant-influence region of the skinned
 | `start` |  | int |  | First frame. Default: the playback start. |
 | `end` |  | int |  | Last frame. Default: the playback end. |
 
+### grappleRagdoll
+
+Make the grapple's characters one ragdoll: a physics solver with markers on every character (from their joints' labels, fitted to the skinned meshes), pulled toward the animation (with the grapple's bake) by pose matching, the grapple's contacts as springs between the bodies and the characters colliding with each other. Simulate, then recordPhysics bakes it. Returns {'solver', 'markers'}.
+
+**Objects:** grapple or one of its contacts (default the selection, else the scene's only grapple)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name for a new solver. Default: the grapple's name with _physics. |
+| `poseStiffness` | `ps` | float |  | Pose match spring frequency for every new marker, Hz. Default: each label's own. |
+
+```python
+grappleRagdoll("grapple1")
+```
+
+```python
+recordPhysics("grapple1_physics")
+```
+
 ### physicsApplyPose
 
 Key joints to world matrices at the current time on the active layer (what Live mode's Apply runs). Returns the number of joints keyed.
@@ -15850,6 +16400,16 @@ Copy a take as a new, inactive take named with the next free _NN suffix (Walk ->
 
 **Objects:** take
 
+### characterKey
+
+Set Key for a character. Key target character: every control the character animates is keyed (plus the named or selected controls, and every joint's rotate on a first key), so one key holds the whole pose. Key target control: the controls' tracks are keyed, an offset becoming a keyed track. Returns the target and the channel keys set.
+
+**Objects:** controls (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `time` | `t` | float |  | Seconds. Default: the current time. |
+
 ### characterLabels
 
 The semantic labels of a character's joints (pelvis, thigh_l ...), from its rig template or by name, as {joint: label}.
@@ -15858,15 +16418,49 @@ The semantic labels of a character's joints (pelvis, thigh_l ...), from its rig 
 
 Not undoable.
 
+### controlTrack
+
+Give controls a track of their own: an offset (one value over the whole take) until keyed. Returns the tracks.
+
+**Objects:** controls (default the selection)
+
+### controlTracksOn
+
+Turn every control track of a character off or on, without changing the character keys or each track's own mute. Returns the state.
+
+**Objects:** a node in the character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `state` | `st` | bool |  | On or off. Default: toggle. |
+
 ### curveOverlay
 
-Opens or closes Puppeteer's Curve Overlay, and returns what it shows: whether it is open, its channels, the selected keys (curve and frame), the value range it frames and the viewport it draws in (screen position and size).
+Opens or closes Puppeteer's Curve Overlay, and returns what it shows: whether it is open, its channels, the selected keys (curve and frame), the value range it frames, the viewport it draws in (screen position and size) and where its plot, strip and, with a time range selected, range row sit in that view.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `open` | `o` | bool |  | Open (true) or close (false) it; leave out to only ask. |
 
 Not undoable.
+
+### curveRangeEdit
+
+Edit curves across a time range, as the Curve Overlay's drags do: offset adds to every frame of the range (eased out across its falloff), tween blends every frame toward the line between the values just outside it. Keys the range's keys, or every n frames as the range says. With rotationType pivot, a rotate channel of the joint that carries a character turns through stringsPose so its path swings about where it is now. Acts on the time slider's range without one. Returns {channels, pivot, frames}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `channels` | `ch` | list |  | Plugs, one axis each: hips.translateY, spine_01.rotateX. |
+| `offset` | `o` | float |  | Added to every frame, in the channel's units (cm, degrees). |
+| `tween` | `tw` | float |  | 1 takes the line between the values either side, past 1 overshoots, below 0 exaggerates. |
+| `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
+| `falloff` | `fo` | float | `0.0` | With range: frames either side the edit eases out over. |
+| `falloffBefore` | `fob` | float |  | With range: frames before it the edit eases out over. |
+| `falloffAfter` | `foa` | float |  | With range: frames after it the edit eases out over. |
+| `falloffType` | `fot` | str | `'smooth'` | With range: how the edit eases out. One of `smooth`, `linear`, `sharp`, `soft`, `constant`. |
+| `every` | `ev` | int | `0` | With range: key every this many frames; 0 only its keys. |
+| `rotationType` | `rt` | str |  | local or pivot; default the Rotation Type setting. |
+| `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
 
 ### cycleSide
 
@@ -15888,6 +16482,23 @@ Cycle Step: build the second step of a cycle from the first. The keys in the fir
 | --- | --- | --- | --- | --- |
 | `axis` | `ax` | str | `'x'` | Axis the mirror plane faces. One of `x`, `y`, `z`. |
 | `end` | `e` | float |  | Cycle end frame when the character has no loop key. |
+
+### deleteControlTrack
+
+Delete control tracks; the character keys underneath stay as they are. Returns how many went.
+
+**Objects:** tracks or controls (default the selection)
+
+### editControlTrack
+
+Mute or solo control tracks (named, or the tracks of the named or selected controls). Returns them.
+
+**Objects:** tracks or controls (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mute` | `mu` | bool |  | Turn the track off; the character keys stay. |
+| `solo` | `so` | bool |  | Mute every other layer. |
 
 ### exportTake
 
@@ -15913,6 +16524,17 @@ Read a .lilatake file as a new take on its character (matched by node names with
 | `root` | `r` | str |  | Character root to put it on. Default: the file's. |
 | `activate` | `a` | bool | `False` | Switch to the new take. |
 
+### keyTarget
+
+Where a character's posing and keys go: character (the character keys; tracks stay on top) or control (the posed control's own track, made on the first edit). Returns the target.
+
+**Objects:** a node in the character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `target` | `tg` | str |  | character \| control |
+| `toggle` | `tgl` | bool | `False` | Switch to the other target. |
+
 ### lineOfAction
 
 Pose a body path to a stroke's shape (line of action): the path's joints bend along the stroke through a full-body solve with each joint's stiffness, contacts and pins holding; bone CVs and spline chain controls on the path move onto it too. The stroke is world points, scaled to the path's length and kept at its first joint. With range or frames it poses each frame, travel slides the body along the stroke over the range. Returns the line, its joints and the error.
@@ -15934,6 +16556,77 @@ Pose a body path to a stroke's shape (line of action): the path's joints bend al
 
 ```python
 lineOfAction("manny", line="body", stroke=[[0, 100, 0], [0, 140, 15], [0, 170, 40]])
+```
+
+### listControlTracks
+
+A character's key target, whether its tracks are on, and each track: its control, whether it is an offset, its key frames, mute and solo.
+
+**Objects:** a node in the character (default the selection)
+
+Not undoable.
+
+### mergeControlTrack
+
+Merge control tracks into the character keys: each control is keyed at its own keys and its track's keys with the summed pose, and the track goes. Returns per track the keys and the largest difference from the layered result between keys (degrees, units).
+
+**Objects:** tracks or controls (default the selection)
+
+### motionDrive
+
+Drive a character live: start, set the input, step frames (scripts) or let the Drive tool run it in real time, then stop to key everything shown into a take. Returns the drive's state.
+
+**Objects:** the character, to start
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `start` | `s` | bool | `False` | Start driving the character. |
+| `move` | `m` | tuple[float, float, float] |  | Ground direction [x, 0, z] scaled 0..1 of the gait's speed; zero stands. |
+| `style` | `st` | str |  | walk, run, crouch, strafeLeft, strafeRight, backward. |
+| `facing` | `f` | tuple[float, float, float] |  | Keep facing this way while moving (strafing); [0, 0, 0] faces the way it moves. |
+| `step` | `n` | int |  | Frames to advance now (30 fps). |
+| `sync` | `sy` | bool | `True` | With start from a script: generate on this thread, so stepped frames never wait. |
+| `stop` | `x` | bool | `False` | Stop driving. |
+| `keep` | `k` | bool | `True` | With stop: key what was shown into the take (false discards it). |
+| `take` | `t` | str | `'Drive'` | The take a stopped drive keys into; one of that name is replaced. |
+
+```python
+motionDrive('Manny', start=True)
+motionDrive(move=[0, 0, 1], step=90)
+motionDrive(stop=True)
+```
+
+### motionFill
+
+Fill between a character's keys with generated motion: the poses before a key lead in, the next key is the target, and the result is keyed as ordinary keys marked generated (the animator's keys stay exact). Filling again replaces earlier generated keys. Returns each gap filled.
+
+**Objects:** a node in the character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `time` | `t` | float |  | Fill the gap around this time (default: the current time). |
+| `from` | `fr` | float |  | Fill every gap from this time... |
+| `to` |  | float |  | ...to this time. |
+| `all` | `a` | bool | `False` | Fill every gap. |
+| `timing` | `tm` | str | `'keys'` | keys: keep the key times. model: the model chooses each gap's length and later keys move. |
+| `minTokens` | `mn` | int | `6` | With model timing, the shortest gap in tokens of 4 frames at 30 fps (6..16). |
+| `maxTokens` | `mx` | int | `16` | With model timing, the longest gap (6..16). |
+| `every` | `e` | int | `2` | Frames between generated keys (2 keys on twos). |
+| `targetPoses` | `tp` | int | `1` | Poses from the next key on the model aims for: more carries its motion in. |
+| `variant` | `v` | int | `0` | Other values give other motion through the same keys. |
+| `plantFeet` | `pf` | bool | `True` | Hold feet still where the model predicts contact. |
+| `rootMotion` | `rm` | bool | `False` | Move the root joint under the pelvis too. |
+
+```python
+motionFill('Manny', all=True)
+```
+
+```python
+motionFill('Manny', time=1.5, variant=2)
+```
+
+```python
+motionFill('Manny', all=True, timing='model')
 ```
 
 ### puppeteerBreakdown
@@ -16007,6 +16700,160 @@ Move one of reverse feet's pivots (heel, ball, toe, inner or outer edge) to a wo
 | --- | --- | --- | --- | --- |
 | `pivot` | `pv` | str |  | Which pivot. One of `heel`, `ball`, `toe`, `inner`, `outer`. |
 | `position` | `p` | tuple[float, float, float] |  | World position; its height is dropped onto the sole. |
+
+### puppeteerHandDeletePose
+
+Deletes a saved hand pose.
+
+**Objects:** the pose's name
+
+### puppeteerHandGrip
+
+Closes hands' fingers onto a mesh or another character until they touch: each finger curls the natural way and, as a bone touches, the joints before it stop and the rest carry on, so it wraps the surface. Thickness is how far the finger's skin is from its bones, by default measured from the character's own mesh.
+
+**Objects:** hands, fingers or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `target` | `tg` | Any |  | Mesh, group or character to grip; default what else is selected. |
+| `thickness` | `tk` | float |  | Finger skin thickness, cm. |
+| `fingers` | `fi` | Any |  | Fingers to pose (thumb, index, middle, ring, pinky); default all. |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+| `key` | `k` | bool |  | Key what changes at the current time; default follows auto key. |
+
+```python
+puppeteerHandGrip("hand_r", target="sword_grip")
+```
+
+### puppeteerHandInfo
+
+The hands of the selection or the given nodes: side, fingers and their joints, and the pose's shape (curl, spread, thumb, cup, each finger's curl and spread) and joint angles (bend, splay, twist in degrees, per finger).
+
+**Objects:** hands, fingers or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+
+Not undoable.
+
+### puppeteerHandKey
+
+Keys every finger joint of hands at the current time (a hose finger's curl and spread), whatever moved.
+
+**Objects:** hands, fingers or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `fingers` | `fi` | Any |  | Fingers to pose (thumb, index, middle, ring, pinky); default all. |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+
+### puppeteerHandMirror
+
+Copies hands' poses onto the same character's other hand, mirrored. swap exchanges the two.
+
+**Objects:** hands, fingers or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `swap` | `sw` | bool | `False` | Exchange the two hands' poses. |
+| `fingers` | `fi` | Any |  | Fingers to pose (thumb, index, middle, ring, pinky); default all. |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+| `key` | `k` | bool |  | Key what changes at the current time; default follows auto key. |
+
+### puppeteerHandPad
+
+Where the Hand Pad is drawn: whether it shows, its hand, its plate (x, y, width, height), the palm and each finger's grab point, in the pixels of the viewport it last drew in, and that viewport's place on screen.
+
+Not undoable.
+
+### puppeteerHandPose
+
+Puts hands into a pose: a built-in one (relaxed, fist, point, grip, pinch, ok, flat, spread, claw, thumbsUp, peace, cup, hook, trigger, ball, pen, gun, blade, horns, tense), a saved one, or rest. weight applies it partly; blendTo and mix blend it with a second pose first. Poses are anatomical, so one pose fits either hand and any character.
+
+**Objects:** hands, fingers or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pose` | `p` | str |  | The pose. |
+| `blendTo` | `bt` | str |  | A second pose to blend the first with. |
+| `mix` | `mx` | float | `0.5` | With blendTo: 0 the first pose, 1 the second. |
+| `weight` | `w` | float | `1.0` | How far toward the pose: 1 all the way, 0 not at all. |
+| `fingers` | `fi` | Any |  | Fingers to pose (thumb, index, middle, ring, pinky); default all. |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+| `key` | `k` | bool |  | Key what changes at the current time; default follows auto key. |
+
+```python
+puppeteerHandPose("hand_l", pose="fist")
+```
+
+```python
+puppeteerHandPose(pose="relaxed", blendTo="fist", mix=0.3, side="both")
+```
+
+```python
+puppeteerHandPose("index_01_r", pose="point", fingers=["index"])
+```
+
+### puppeteerHandPoses
+
+Every hand pose: the built-in ones, then the saved ones, each with its fingers.
+
+Not undoable.
+
+### puppeteerHandSavePose
+
+Saves a hand's pose under a name, for any hand of any character (poses are anatomical). fingers saves only those, so applying it leaves the others. Saved poses live in the user preferences.
+
+**Objects:** the hand, a finger or its character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | The pose's name. |
+| `fingers` | `fi` | Any |  | Fingers to pose (thumb, index, middle, ring, pinky); default all. |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+
+```python
+puppeteerHandSavePose("hand_r", name="sword grip")
+```
+
+### puppeteerHandSetup
+
+Finds a character's hands in its skeleton (fingers by name, else by layout; jointed or rubber hose) and makes a hand node for each under the character, replacing any it had. The pose now is the hands' rest. Returns the hands.
+
+**Objects:** character or a node in it (default the selection's)
+
+```python
+puppeteerHandSetup("manny_character")
+```
+
+### puppeteerHandShape
+
+Shapes hands by hand-level values: curl (0 straight, 1 a fist), spread (1 fanned, negative squeezed), thumb (-1 out, 1 across the palm), cup (1 the palm hollowed), relax (toward the relaxed pose, negative toward tense), and per finger curl and spread. Each spreads over the joints the natural way and keeps whatever else the pose holds. add makes the values changes instead.
+
+**Objects:** hands, fingers or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curl` | `cu` | float |  | Curl of the fingers in fingers (the thumb has its own). |
+| `spread` | `sp` | float |  | Fan of the fingers. |
+| `thumb` | `th` | float |  | The thumb: -1 out, 0 alongside, 1 across the palm. |
+| `cup` | `cp` | float |  | Palm hollowing. |
+| `relax` | `rl` | float |  | Toward the relaxed pose by this much, or the tense one when negative. |
+| `fingerCurl` | `fc` | Any |  | Per finger curl, {finger: value}. |
+| `fingerSpread` | `fs` | Any |  | Per finger spread, {finger: value}. |
+| `add` | `ad` | bool | `False` | The values are changes to the pose's own. |
+| `fingers` | `fi` | Any |  | Fingers to pose (thumb, index, middle, ring, pinky); default all. |
+| `side` | `sd` | str |  | selected (default), left, right, both or opposite: which of the character's hands. |
+| `key` | `k` | bool |  | Key what changes at the current time; default follows auto key. |
+
+```python
+puppeteerHandShape("hand_l", curl=0.5, spread=0.3)
+```
+
+```python
+puppeteerHandShape(side="both", fingerCurl={"index": 0.0})
+```
 
 ### puppeteerIkChain
 
@@ -16101,6 +16948,177 @@ Swing IK chains' pole by degrees (ikPole): the knee or elbow turns around the li
 | `by` |  | float | `0.0` | Degrees added to the pole angle. |
 | `turn` | `tu` | bool | `False` | Turn the controller with the pole. |
 
+### puppeteerPropAim
+
+Aims a held prop's muzzle or tip at a target from time on, weight blending in over blend; the arms and body follow in the solve. style auto takes the class's: shoulder (rifles, shotguns, launchers: the stock to the shoulder), extend (pistols, bows: held out toward the target), guard (blades: held out, dropped below the line), turn (turns where it is). off=True blends the aim out. Returns the prop.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `target` | `tg` | str |  | The transform to aim at (a locator). |
+| `style` | `s` | str | `'auto'` | auto, turn, shoulder, extend or guard. |
+| `weight` | `w` | float | `1.0` | How fully to aim. |
+| `off` |  | bool | `False` | Blend the prop's aims out instead. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds after time the new hold settles over, so nothing pops. 0 snaps. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+| `start` |  | int |  | Solve from this frame. |
+| `end` |  | int |  | Solve to this frame. |
+
+```python
+puppeteerPropAim("rifle", target="enemy", time=1.0)
+```
+
+### puppeteerPropClasses
+
+The prop classes and what each sets: id, label, two-handed, hand poses, aim style and holster spot.
+
+Not undoable.
+
+### puppeteerPropDrop
+
+Lets go of a prop at time: it stays in the world where it is, the hands open over blend. Returns the prop.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds after time the new hold settles over, so nothing pops. 0 snaps. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+
+### puppeteerPropFit
+
+Fits a prop's points to its mesh again by its class (points the fit doesn't make are kept). Returns how they were found.
+
+**Objects:** prop (default the selection)
+
+### puppeteerPropHold
+
+Puts a prop in a character's hand from time on: it switches into the hand's space there (no pop) and settles into the grip by time + blend, the hand closing round it. hands=2 puts the other hand on the off grip too, held by the solve, which shares the reach between both arms. A hand that held it before and doesn't now lets go. Use it again later to hand it to the other hand or change grip. Returns the prop with its holds.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `hand` | `hd` | str | `'main'` | main (the prop's), right or left. |
+| `hands` | `n` | int |  | 1 or 2. Default: the prop's two-handed setting. |
+| `point` | `pt` | str |  | The grip point the hand takes, by name or role. Default: main. |
+| `offPoint` | `op` | str |  | With two hands: the other hand's grip. Default: off. |
+| `fingers` | `fi` | bool | `True` | Pose and wrap the fingers round the prop. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds after time the new hold settles over, so nothing pops. 0 snaps. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+| `start` |  | int |  | Solve from this frame. Default: the playback start. |
+| `end` |  | int |  | Solve to this frame. |
+
+```python
+puppeteerPropHold("sword", hands=2, time=0.5)
+```
+
+```python
+puppeteerPropHold("pistol", hand="left", time=2.0, blend=0.25)
+```
+
+### puppeteerPropHolster
+
+Puts a prop away at time: it switches to its holster on the character (made from the class's default spot, back, hip or thigh, the first time; move it to taste) and settles there by time + blend while the hands let go. puppeteerPropHold draws it again. Returns the prop.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `holster` | `hs` | str |  | A transform on the character to put it at instead. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `blend` | `b` | float | `0.2` | Seconds after time the new hold settles over, so nothing pops. 0 snaps. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+
+### puppeteerPropInfo
+
+A prop's class, points (world positions), holds over time (who or what holds it from when) and its holder now.
+
+**Objects:** prop (default the selection)
+
+Not undoable.
+
+### puppeteerPropPoint
+
+Adds a point to a prop: another grip (alt), or a muzzle, tip or stock. It starts on the point of that role, or the main grip, or at position. Returns the point.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `role` | `r` | str | `'alt'` | main, off, alt, muzzle, tip or stock. |
+| `name` | `n` | str |  | Name (after the prop's). Default: the role. |
+| `position` | `p` | tuple[float, float, float] |  | World point to put it at. |
+| `radius` | `rd` | float | `1.6` | Grips: the handle's radius, cm. |
+
+### puppeteerPropSetup
+
+Marks a mesh or group as a prop or weapon of a class and fits its points to the mesh: grips (main, off, alternates), the muzzle or tip that aims, and the stock. Points are transforms under the prop; move and turn them in the viewport. Already a prop: changes its class or hand and fits again. Returns the prop.
+
+**Objects:** mesh or group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str |  | The kind of prop: generic sword1h sword2h dagger axe spear shield bow pistol rifle shotgun launcher. |
+| `hand` | `hd` | str |  | right or left: the hand that holds it by default. |
+| `twoHanded` | `th` | bool |  | Held in both hands by default. Default by class. |
+| `fit` | `ft` | bool | `True` | Fit the points to the mesh. |
+
+```python
+puppeteerPropSetup("rifle", kind="rifle")
+```
+
+```python
+puppeteerPropSetup("sword", kind="sword2h")
+```
+
+### puppeteerPropSolve
+
+Solves the arms and body holding props over a range onto the character's props layer: off hands held on their grips with both arms sharing the reach, aims turned onto their targets. Holds and aims do this themselves unless solve=False. Returns {'layer', 'frames', 'contactError'} (cm).
+
+**Objects:** prop or character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `start` |  | int |  | First frame. Default: the playback start. |
+| `end` |  | int |  | Last frame. |
+
+### puppeteerPropUnreal
+
+Sets a prop up for Unreal: it attaches to a bone of the character's skeletal mesh (by default the hand holding it, hand_r) through a socket with the offset it is held at, which the Unreal link makes on the mesh when it sends the prop; the character's own bones carry the animation. With ikBones, also keys the skeleton's hand IK bones (by default UE5's ik_hand_gun, ik_hand_r, ik_hand_l) to follow the hands every frame, for projects whose locomotion reads them. Returns the socket, bone, and how far the prop strays against the bone while held.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `bone` | `bn` | str |  | The bone it attaches to. Default: the hand holding it now, else hand_r (hand_l left-handed). |
+| `socket` | `sk` | str |  | The socket's name. Default: weapon_r or weapon_l by the bone's side. |
+| `ikBones` | `ik` | bool | `False` | Key the hand IK bones to follow the hands. Off by default; needs the bones. |
+| `gunBone` |  | str | `'ik_hand_gun'` | ikBones: the bone that follows the holding hand. |
+| `rightBone` |  | str | `'ik_hand_r'` | ikBones: the bone that follows the right hand. |
+| `leftBone` |  | str | `'ik_hand_l'` | ikBones: the bone that follows the left hand. |
+| `start` | `st` | float |  | Seconds; default the playback start. |
+| `end` | `et` | float |  | Seconds; default the playback end. |
+
+```python
+puppeteerPropUnreal("rifle")
+```
+
+```python
+puppeteerPropUnreal("rifle", ikBones=True)
+```
+
 ### puppeteerReverseFoot
 
 Make a reverse foot (reverseFoot) on an IK chain's ankle, with Puppeteer's foot limits: a control on the sole that poses the leg and rolls the foot over heel, ball and toe, swivels on the ball and tips over its edges.
@@ -16180,6 +17198,7 @@ Copy keys' poses (and the gaps between them) for stackerPasteKeys and stackerIns
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `keys` | `k` | Any |  | Key index (0 first) or a list of them, as stackerKeys numbers them. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 Not undoable.
 
@@ -16193,6 +17212,7 @@ Make a key after a key, holding that key's pose, one gap later (the gap before i
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int |  | The key to follow. Default: the last key before the loop key. |
 | `gap` | `g` | float |  | Frames after it. Default: the gap before it. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerDeleteKey
 
@@ -16203,6 +17223,7 @@ Delete keys with their timing: every later key moves earlier by the deleted key'
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `keys` | `k` | Any |  | Key index (0 first) or a list of them, as stackerKeys numbers them. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerInsertKeys
 
@@ -16213,12 +17234,17 @@ Insert the copied keys after a key, with the gaps they were copied with (the fir
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int |  | The key to insert after. Default: the last key before the loop key. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerKeys
 
 A character's keys as the Stacker lists them: every key across its joints and layers, in order, with its frame, the gap to the next key (frames), its breakdown/extreme mark, and which is the loop key.
 
 **Objects:** a node in the character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 Not undoable.
 
@@ -16232,6 +17258,7 @@ Turn the character's loop key on (a key one gap after the last that mirrors the 
 | --- | --- | --- | --- | --- |
 | `state` | `st` | bool |  | On or off. Default: toggle. |
 | `gap` | `g` | float |  | Frames from the last key to a new loop key. Default: the last gap. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerMarkKey
 
@@ -16246,7 +17273,7 @@ Mark keys as breakdowns or extremes (or clear the mark); marks move with their k
 
 ### stackerMirrorKeys
 
-Mirror the pose at keys: left and right swap, centre joints reflect across the mirror plane. Returns the channel keys set.
+Mirror the pose at keys: left and right swap, centre joints reflect across the mirror plane. On a control track the track's keys go, mirrored, to the opposite control's track. Returns the channel keys set.
 
 **Objects:** a node in the character (default the selection)
 
@@ -16254,6 +17281,7 @@ Mirror the pose at keys: left and right swap, centre joints reflect across the m
 | --- | --- | --- | --- | --- |
 | `keys` | `k` | Any |  | Key index (0 first) or a list of them, as stackerKeys numbers them. |
 | `axis` | `ax` | str | `'x'` | Axis the mirror plane faces. One of `x`, `y`, `z`. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerNudgeGap
 
@@ -16265,6 +17293,7 @@ Lengthen (by > 0) or shorten the gaps after keys by whole frames, retiming every
 | --- | --- | --- | --- | --- |
 | `keys` | `k` | Any |  | Key index (0 first) or a list of them, as stackerKeys numbers them. |
 | `by` | `b` | float | `1.0` | Frames to add; negative shortens. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerPasteKeys
 
@@ -16275,6 +17304,7 @@ Paste copied poses onto keys, in order, repeating the copied keys when pasting o
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `keys` | `k` | Any |  | Key index (0 first) or a list of them, as stackerKeys numbers them. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerResetKeys
 
@@ -16287,6 +17317,7 @@ Reset keys to the character's bind or ref pose (any library pose), optionally on
 | `keys` | `k` | Any |  | Key index (0 first) or a list of them, as stackerKeys numbers them. |
 | `pose` | `p` | str | `'bind'` | Library pose: bind, ref or any other. |
 | `channels` | `ch` | list |  | Channels: translate, rotate, scale or attribute names. Default: all. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stackerSelect
 
@@ -16297,6 +17328,7 @@ Key indices for a quick select: all keys, the first half or the second half of t
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `which` | `w` | str | `'all'` | all \| firstHalf \| secondHalf |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 Not undoable.
 
@@ -16310,6 +17342,7 @@ Set the gap (frames) from a key to the next: the key's span stretches to fit and
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int |  | The key whose gap changes. |
 | `gap` | `g` | float |  | New gap, frames. |
+| `track` | `tr` | str |  | A control (or its track): work on its control track's keys instead of the character keys. |
 
 ### stringsBlend
 
@@ -16322,7 +17355,7 @@ Blend joints toward their pose at another time, or toward zero, in a Strings mod
 | `time` | `t` | float |  | Seconds whose pose to blend toward; leave out for zero. |
 | `weight` | `w` | float | `1.0` | How far: 1 all the way, 0 not at all, past 1 overshoots. |
 | `channels` | `ch` | str | `'rotate'` | rotate, translate or both. |
-| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `mode` | `m` | str |  | The Strings mode; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
 | `holds` | `h` | bool | `True` | False ignores pins and locks. |
 
 ### stringsBreakdown
@@ -16337,6 +17370,7 @@ A breakdown in space: blend the character toward its previous key's pose (weight
 | `favour` | `fv` | float | `0.0` | Above 0 the hands, feet and head lag behind the body; below 0 they lead. |
 | `parts` | `pt` | Any |  | {joint: weight}: those joints and their children take that weight instead. |
 | `brushed` | `br` | bool | `True` | Parts brushed with the Breakdown Parts tool take their fraction of the weight; False ignores them. |
+| `mode` | `m` | str |  | The Strings mode: forwardAll, all and free blend every joint in its parent's space, the others keep the contacts in world and, with Isolate Rotation on, the isolated joints' world rotation. Default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
 | `all` | `al` | bool | `True` | The whole character; False only the given joints. |
 | `world` | `wo` | list |  | Joints that blend in world space; default the character's contacts. |
 
@@ -16379,6 +17413,18 @@ Glue things so they keep their place relative to each other through every String
 | `remove` | `rm` | bool | `False` | Free these from glue and attach; with none given, free everything. |
 | `query` | `q` | bool | `False` | Only return the glue and attach sets. |
 
+### stringsMirror
+
+Mirror in a Strings mode: the joints take their other side's pose (left onto right, centre joints reflected), posed through the mode so what holds stays put: in Backward the planted feet stay while the body mirrors. Parents first. Returns what each pose did.
+
+**Objects:** joints or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str |  | The Strings mode; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
+| `mirrorAxis` | `ma` | str | `'x'` | Axis the mirror plane faces. One of `x`, `y`, `z`. |
+| `holds` | `h` | bool | `True` | False ignores pins and locks. |
+
 ### stringsOvershoot
 
 Push joints past their pose, along the motion from the previous key (or from), in a Strings mode so holds keep. Negative amounts pull back toward it.
@@ -16389,7 +17435,7 @@ Push joints past their pose, along the motion from the previous key (or from), i
 | --- | --- | --- | --- | --- |
 | `amount` | `a` | float | `0.25` | Fraction of the motion since the previous key to carry on by. |
 | `from` | `f` | float |  | Seconds to measure the motion from; default the previous key. |
-| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `mode` | `m` | str |  | The Strings mode; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
 | `holds` | `h` | bool | `True` | False ignores pins and locks. |
 
 ### stringsPose
@@ -16401,7 +17447,7 @@ Pose joints as a drag does, in a Strings mode: forward (FK), backward (the body 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
-| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `mode` | `m` | str |  | The Strings mode; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
 | `by` |  | tuple[float, float, float] |  | World offset, cm. |
 | `axis` | `ax` | tuple[float, float, float] |  | World axis to turn about. |
 | `angle` | `a` | float | `0.0` | Degrees about axis. |
@@ -16415,6 +17461,11 @@ Pose joints as a drag does, in a Strings mode: forward (FK), backward (the body 
 | `frames` | `fr` | list |  | Seconds to pose at, keying each, instead of a range. |
 | `dense` | `dn` | bool | `False` | With range: every frame, not only the keyed ones. |
 | `falloff` | `fo` | float | `0.0` | With range: frames either side the pose eases out over. |
+| `falloffBefore` | `fob` | float |  | With range: frames before it the pose eases out over, instead of falloff. |
+| `falloffAfter` | `foa` | float |  | With range: frames after it the pose eases out over, instead of falloff. |
+| `falloffType` | `fot` | str | `'smooth'` | With range: how the pose eases out across the falloff. One of `smooth`, `linear`, `sharp`, `soft`, `constant`. |
+| `every` | `ev` | int | `0` | With range: key every this many frames across it and its falloff, besides its keys; 0 only its keys. |
+| `rotationType` | `rt` | str |  | Across frames, relative: local turns each frame about the joint where it is then; pivot swings each frame about where the joint is now, so its path turns too. Default the Rotation Type setting. |
 | `preview` | `pv` | bool | `False` | With range or frames: solve without keying, for a drag in progress. Ghosts show the result; returns each frame's joint positions. |
 | `show` | `sw` | list |  | With preview: more seconds to solve, such as a motion trail's frames. |
 | `relative` | `rel` | bool | `True` | Across frames: offset each frame by the drag. False brings each to where the drag put it now. |
@@ -16441,7 +17492,7 @@ Retime in place along a time-warp curve: every frame of the range takes the pose
 
 ### stringsRules
 
-A character's Strings rules: its contacts (joints that hold still while you pose the rest, its feet) and its limbs (what bends together when IK or a hold reaches). They come from its rig template or rig elements; contacts and addChain set them on this character instead, reset goes back. Returns the rules and where each came from.
+A character's Strings rules: its contacts (joints that hold still while you pose the rest, its feet), its limbs (what bends together when IK or a hold reaches), its isolated joints (what Isolate Rotation keeps level) and the modes Default poses joints in. They come from its rig template or rig elements; contacts, addChain, isolate and defaultMode set them on this character instead, reset goes back. Returns the rules and where each came from.
 
 **Objects:** character or one of its joints (default the selection)
 
@@ -16452,6 +17503,8 @@ A character's Strings rules: its contacts (joints that hold still while you pose
 | `addLine` | `al` | list |  | [name, top joint, end joint]: a line of action a stroke may bind to. |
 | `removeChain` | `rc` | str |  | A joint: the limb it is in goes. |
 | `removeLine` | `rl` | str |  | The line of action with this name goes. |
+| `isolate` | `iso` | list |  | Joints that keep their world rotation while Isolate Rotation is on, replacing the inherited ones. |
+| `defaultMode` | `dm` | list |  | [joint, mode]: the mode the joint poses in under Default; mode default (or empty) removes it. |
 | `reset` | `rs` | bool | `False` | Forget this character's own rules first. |
 
 ### stringsRuleWeb
@@ -16480,6 +17533,26 @@ Smooth whole poses over a range of frames: each frame's rotations average with t
 | `radius` | `rad` | int | `2` | Frames either side averaged. |
 | `holds` | `h` | bool | `True` | False lets pins, locks and contacts move with the smoothing. |
 
+### stringsTween
+
+Tween a range: every frame of it blends toward the inbetween of the poses just outside the range and its falloff, rotations on arcs and contacts in world, by amount times the frame's falloff weight. Keys the range's keys, or every n frames as the range says. Acts on the time slider's range without one.
+
+**Objects:** joints or a character (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layer` | `ly` | str |  | Key the edit onto this additive animation layer (made if missing) instead of the base. |
+| `range` | `r` | list |  | [start, end] seconds; default the time slider's range. |
+| `falloff` | `fo` | float | `0.0` | With range: frames either side the tween eases out over. |
+| `falloffType` | `fot` | str | `'smooth'` | With range: how it eases out. One of `smooth`, `linear`, `sharp`, `soft`, `constant`. |
+| `every` | `ev` | int | `0` | With range: key every this many frames; 0 only its keys. |
+| `amount` | `a` | float | `1.0` | 1 takes the inbetween, 0 leaves the motion, past 1 overshoots, below 0 exaggerates. |
+| `spacing` | `sp` | str | `'linear'` | How the inbetween runs across the range. One of `linear`, `easeIn`, `easeOut`, `easeInOut`. |
+| `mode` | `m` | str |  | The Strings mode: forwardAll, all and free blend every joint locally. Default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
+| `all` | `al` | bool | `True` | The whole character; False only the given joints. |
+| `preview` | `pv` | bool | `False` | Tween the current frame and the ghosts' frames without keying, for a drag in progress. |
+| `world` | `wo` | list |  | Joints that blend in world space; default the character's contacts. |
+
 ### stringsZero
 
 Zero joints' rotations in a Strings mode: forward zeroes them as they are, backward keeps what is pinned below still and swings the body, and so on. relativeTo zeroes relative to other joints, which stay where they are. Parents first. Returns what each pose did.
@@ -16488,7 +17561,7 @@ Zero joints' rotations in a Strings mode: forward zeroes them as they are, backw
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `mode` | `m` | str |  | forward, backward, ik or fullBody; default the current Strings mode. |
+| `mode` | `m` | str |  | The Strings mode; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
 | `holds` | `h` | bool | `True` | False ignores pins and locks. |
 | `stretch` | `st` | float | `1.0` | Above 1 lets bones lengthen up to this multiple. |
 | `relativeTo` | `rt` | list |  | Joints that keep their place in the world while the others zero (relative zero). |

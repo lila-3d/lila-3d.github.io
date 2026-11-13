@@ -45,6 +45,7 @@ Which to use:
 | Scans and photogrammetry meshes | OBJ, PLY or FBX with the tool's `.prj` and offset file ([Large worlds](large-worlds.md)) |
 | LiDAR and laser scans | LAS, LAZ, E57 ([Point clouds](point-clouds.md)) |
 | BIM models | IFC ([Large worlds](large-worlds.md)) |
+| City and terrain tilesets | 3D Tiles: tileset.json, b3dm, i3dm, pnts, cmpt ([Large worlds](large-worlds.md)) |
 | CAD models | STEP, IGES, BREP (CadImport extension) |
 | CAD meshes, large worlds, anything that must stay exact | OBJ, FBX or a Lila scene |
 | Niagara flipbooks, cached simulations | Mesh sequences or Alembic (`exportMeshSequence`, `exportAlembic`, `importAlembic`) |

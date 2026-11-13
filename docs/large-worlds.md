@@ -45,6 +45,12 @@ Turn on **Georeference** in the viewport's HUD menu for the cursor's and the sel
 
 `importIfc("site.ifc")` brings each building element in as a mesh with one material per IFC colour (`IFC_RRGGBB`, translucent for glazing) and the colours in the `ifcColor` set, the project, site, building, storeys and spaces as groups, and every property set value as an attribute named `<set>_<property>` (such as `Pset_WallCommon_FireRating`), with `ifcType` and `ifcGlobalId`.
 
+## 3D Tiles
+
+`import3dTiles("D:/city/tileset.json", maxError=2)` brings in a 3D Tiles tileset (1.0 or 1.1) from a local folder: b3dm and glTF tiles as meshes, i3dm as instances, pnts as point clouds. Along each branch it takes the first tile whose geometric error is within `maxError` metres, or the finest with `maxError=0`. `centre=[lat, lon]` with `radius` (metres) keeps only tiles near that point, and `maxTiles` caps the count; the log says when it stopped early. A scene without a georeference takes the UTM zone around the tileset.
+
+Streamed services (Cesium ion, Google Photorealistic 3D Tiles) aren't read; download the tileset first where its terms allow.
+
 ## CAD
 
 The CadImport extension reads STEP, IGES and BREP through OpenCascade: **File > Import...** or `importCad("gearbox.step")`. The assembly tree comes in as groups with the file's names, one material per colour, millimetres converted to cm, normals sharp across the model's face edges. Import the same file again to update its parts where they are; parts the file no longer has are listed in the log and left alone.
