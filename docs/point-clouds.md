@@ -4,7 +4,7 @@ Open LiDAR and laser scans of hundreds of millions of points (LAS, LAZ, E57), se
 
 ## Get it working
 
-To try it with a real georeferenced scan, open **Asiago Drone Survey** under **Examples** on the Welcome screen: an 11 MB download of a drone survey of a forest near Asiago, Italy, at its UTM coordinates (F. Pirotti, CC BY 4.0).
+To try it with a real georeferenced scan, open **Asiago Drone Survey** under **Examples** on the Welcome screen: an 11 MB download of a drone survey of a forest near Asiago, Italy: 2 million points over 220 × 130 m at their UTM coordinates (F. Pirotti, CC BY 4.0).
 
 1. **File > Import...** a `.las`, `.laz` or `.e57` file, or run `importPointCloud("D:/scans/site.laz")`.
 2. The first import sorts the points into a cache, `site.lilapc` beside the scan (about 100 seconds for 100 million points). Later imports of the same scan reuse it and open at once.
