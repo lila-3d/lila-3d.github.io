@@ -79,7 +79,7 @@ Each camera has its own slots, including persp and each ortho view, and they sav
 
 ## Smooth the camera
 
-The view follows your mouse directly, with no easing. To glide instead, raise **Look smoothing** (turning: tumble and the Drone Camera's mouse look) or **Move smoothing** (travel and zoom) in **Preferences > Viewport > Camera**, or Shift-click the drone button on the viewport bar; 0.5 plays the view back about one mouse update behind, around 16 ms, so uneven mouse input comes out as even motion at your display's refresh rate. Picking and tools use the camera as you moved it.
+The view follows your mouse directly, with no easing. To glide instead, raise **Look smoothing** (turning: tumble and the Drone Camera's mouse look) or **Move smoothing** (travel and zoom) in **Preferences > Viewport > Camera**, or Shift-click the drone button on the viewport bar; Smoothing plays the view back a few milliseconds behind the mouse (Medium is about 25 ms), so uneven mouse input comes out as even motion at your display's refresh rate. Picking and tools use the camera as you moved it.
 
 ## Drone Camera
 
