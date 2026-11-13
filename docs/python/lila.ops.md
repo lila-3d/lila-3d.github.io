@@ -8897,6 +8897,8 @@ Move the whole scene (or chosen hierarchies) so a point becomes the world origin
 
 One rigid move M is applied: the roots take it through their channels and keys, and nodes that store world-space data (skin bind matrices, deformer bind matrices, world spaces, world up vectors, measures) are rewritten to match. Every transform and deformed mesh point is then checked at several frames (and in every take) against M times where it was; if anything is off by more than 1e-6 cm, or the scene holds a node type relocateScene doesn't know, nothing changes and the error says why. One undo step.
 
+In a georeferenced scene a whole-scene move shifts the georeference origin the other way, so everything keeps its projected coordinates and place on the Earth; it can't turn the whole scene, since the CRS grid's axes are fixed. Moving chosen hierarchies (nodes=) moves them on the Earth too.
+
 **Objects:** objects the from= point is taken from (default: the selection)
 
 | Flag | Short | Type | Default | Description |
@@ -12035,6 +12037,16 @@ Texture brush presets (.lilabrush) from every tier: built-in, extensions, the us
 
 Not undoable.
 
+### texBuildGraph
+
+Build a material's texture graph from a compact spec, creating its texture set when it doesn't exist: {material, set, settings, description, nodes: [{name, type, params: {...}, values: {...}, position}], links: ['A.out -> Output.baseColor', ...]}. The set defaults to <material>Tex. A Material Output named Output is added when missing; positions are laid out when omitted. Nothing changes unless the whole spec is valid; the error lists every problem with the valid names. Returns the set, the material, the channels the graph drives and any compile error.
+
+**Objects:** spec
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `assign` |  | list |  | Meshes to give the material (created when missing). |
+
 ### texClearLayer
 
 Clear a paint layer: drop its strokes and pixels.
@@ -14246,7 +14258,7 @@ Not undoable.
 
 ### crowdSendToUnreal
 
-Send a crowd to the connected Unreal editor as a Level Sequence: each character's skeletal mesh is imported once, each agent's baked animation becomes its own animation asset on that skeleton, and the sequence holds one skeletal mesh actor per agent playing it, placed in the open level.
+Send a crowd to the connected Unreal editor as a Level Sequence: each character's skeletal mesh is imported once, each agent's baked animation becomes its own animation asset on that skeleton, and the sequence holds one skeletal mesh actor per agent playing it, placed in the open level. With mass=True it goes as a live Mass crowd instead: the network's sidewalks and crossings become ZoneGraph lanes, and the groups walking them a StateTree, Mass entity config and spawner each, so Unreal simulates them (needs the LilaLinkCrowd plugin).
 
 **Objects:** the crowd
 
@@ -14258,11 +14270,27 @@ Send a crowd to the connected Unreal editor as a Level Sequence: each character'
 | `start` | `st` | int |  | First frame. |
 | `end` | `et` | int |  | Last frame. |
 | `keep` | `k` | bool | `False` | Keep the baked characters in the scene afterwards. |
+| `mass` | `ms` | bool | `False` | Send a live Mass crowd on the network's lanes instead of a baked sequence. |
+| `count` | `n` | int |  | mass: agents to spawn; default as many as walk the network in Lila. |
+| `density` | `dn` | float |  | mass: spawn spacing as agents per 100 m of walking lane; default from count. |
+| `crossings` | `cx` | bool | `True` | mass: include the crossings, so agents cross the roads there. |
+| `characters` | `chs` | bool | `True` | mass: agents show as the crowd's characters, walking, near the camera. |
+| `actorDistance` | `ad` | float | `5000.0` | mass: within this many cm of the camera agents show as their characters. |
+| `visibleDistance` | `vd` | float | `15000.0` | mass: past this many cm agents aren't drawn (they still walk). |
+| `maxActors` | `mxa` | int | `200` | mass: at most this many agents show as characters at once. |
+| `phaseSeconds` | `ps` | float | `20.0` | mass: seconds each signal phase lasts; crossings at signals open in the phase that walks them. |
+| `clearSeconds` | `cs` | float | `4.0` | mass: seconds at the end of a walk phase when no one starts across. |
+| `mesh` | `me` | str | `'/Engine/BasicShapes/Cylinder.Cylinder'` | mass: static mesh each agent shows as; empty for none. |
+| `dryRun` | `dr` | bool | `False` | mass: return what would be sent without sending. |
 
 Not undoable.
 
 ```python
 crowdSendToUnreal('crowd', folder='/Game/Crowds/Plaza')
+```
+
+```python
+crowdSendToUnreal('crowd', mass=True, count=200)
 ```
 
 ### crowdSimulate
@@ -16568,7 +16596,7 @@ Not undoable.
 
 ### mergeControlTrack
 
-Merge control tracks into the character keys: each control is keyed at its own keys and its track's keys with the summed pose, and the track goes. Returns per track the keys and the largest difference from the layered result between keys (degrees, units).
+Merge control tracks into the character keys: each control is keyed at its own keys and its track's keys with the summed pose, plus keys wherever the curve would leave the sum between them, and the track goes. Returns per track the keys, the keys added between, and the largest difference left from the layered result on any frame (degrees, units).
 
 **Objects:** tracks or controls (default the selection)
 
@@ -17568,7 +17596,7 @@ Zero joints' rotations in a Strings mode: forward zeroes them as they are, backw
 
 ### unrealStringsRig
 
-Pose the character in Unreal the way Strings poses it here: LilaLink makes or updates a Control Rig on its skeletal mesh: a control on the hips and the end of each line of action and limb (hands, feet, head) and each contact, each posing its bone through a Lila Strings unit given the character's rule web. Each control's Mode and Isolate Rotation channels pick how it poses. Returns {rig, skeletalMesh, unreal}, or {rig, skeletalMesh, payload} with dryRun.
+Pose the character in Unreal the way Strings poses it here: LilaLink makes or updates a Control Rig on its skeletal mesh: a control on the hips and the end of each line of action and limb (hands, feet, head) and each contact, each posing its bone through a Lila Strings unit given the character's rule web. Each control's Mode and Isolate Rotation channels pick how it poses; Pin, Lock and Glue/Attach channels carry pins, locked IK chains and glue, and keyed locks go into a Level Sequence. Returns {rig, skeletalMesh, unreal}, or {rig, skeletalMesh, payload} with dryRun.
 
 **Objects:** character or one of its joints (default the selection)
 
@@ -17578,6 +17606,7 @@ Pose the character in Unreal the way Strings poses it here: LilaLink makes or up
 | `rig` | `r` | str |  | The Control Rig asset to make or update. Default: CR_<mesh>_Strings beside the mesh. |
 | `mode` | `m` | str |  | The mode the controls start in; default the current one. One of `default`, `free`, `forward`, `forwardAll`, `backward`, `backwardAll`, `bidirectional`, `all`, `ik`, `fullBody`. |
 | `isolate` | `iso` | bool |  | The controls start with Isolate Rotation on; default the Isolate Rotation setting. |
+| `sequence` | `sq` | str |  | Level Sequence for the IK chains' lock keys, keyed on the rig's Lock channels. Default: LS_<mesh>_Strings beside the rig when a chain's lock is keyed. |
 | `dryRun` | `dry` | bool | `False` | Return what would be sent without connecting to Unreal. |
 
 Not undoable.

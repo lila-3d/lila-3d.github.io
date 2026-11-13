@@ -532,4 +532,10 @@ The presenter draws in its own windows over Lila, so capture the display in OBS 
 
 ## AI agents
 
-Lila supports AI agents through MCP and skills. Agents drive the same commands you do.
+Lila supports AI agents through MCP and skills. Agents drive the same commands you do: ask for a geometry node setup, a material graph, a terrain or a town and the agent builds it with Lila's nodes and tools.
+
+1. Open your project's folder in Lila (**File > Open Folder**), or a folder inside it such as a `Lila` subfolder of an Unreal project.
+2. Run **Help > Set Up Agent Integration...** and click **Set Up**. It writes `.mcp.json`, a Lila section in `CLAUDE.md` and `AGENTS.md`, and Lila's skills in `.claude/skills`, to the project root: the nearest folder with `.git` or a `.uproject`.
+3. Start Claude Code anywhere in the project, from any terminal, and approve the `lila` server when asked. Lila must be running.
+
+**The `lila` tools are missing.** Lila isn't running, its MCP server is off (the MCP button in the status bar), or the server wasn't approved: run `/mcp` in Claude Code.
