@@ -56,7 +56,7 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 | Count Tolerance | 0.1 | Retries at a corrected size until the count is within this fraction of Target Faces; 0 takes the first try. |
 | Target Edge Length | 0 | Edge length in cm; replaces Target Faces when set. |
 | Adaptivity | 0.25 | 0 sizes faces evenly; 1 makes them much smaller where the surface curves. Painted point `density` multiplies it. |
-| Joint Density | 0.5 | Extra faces round joints, armpits and finger webs, at the cost of faces elsewhere. 1 makes joints about three times as dense. |
+| Joint Density | 0 | Extra faces round joints, armpits and finger webs, at the cost of faces elsewhere. 1 makes joints about three times as dense. |
 | Joint Density Reach | 6 | How far, in faces, Joint Density's extra faces spread from a fold. Lower keeps them tight to the joint and can clear stray poles nearby (around the ears, for example). |
 | Edges Around Thin Parts | 12 | Fingers and other thin round parts get at least this many edges round them; 0 off. |
 
