@@ -17001,11 +17001,52 @@ Aims a held prop's muzzle or tip at a target from time on, weight blending in ov
 puppeteerPropAim("rifle", target="enemy", time=1.0)
 ```
 
-### puppeteerPropClasses
+### puppeteerPropArc
 
-The prop classes and what each sets: id, label, two-handed, hand poses, aim style and holster spot.
+Changes a throw's arc and keys it again: through a world point at a time on it (what dragging its path does), or a new velocity, spin, axis, gravity or time limit, or physics on or off. Returns the arc.
 
-Not undoable.
+**Objects:** the arc (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `through` | `th` | tuple[float, float, float] |  | World point its middle passes through, at at. |
+| `at` | `a` | float |  | Seconds on the arc for through. Default: its end. |
+| `velocity` | `v` | tuple[float, float, float] |  | World launch velocity, cm/s. |
+| `spin` | `sn` | float |  | Degrees a second. |
+| `spinAxis` | `sx` | tuple[float, float, float] |  | World spin axis. |
+| `physics` | `ph` | bool |  | Simulate it instead of keying an arc. |
+| `gravity` | `gr` | float |  | cm/s2. |
+| `until` | `ut` | float |  | Seconds of flight at most. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+
+```python
+puppeteerPropArc("ball_throw", through=(0, 220, 300), at=0.6)
+```
+
+### puppeteerPropCatch
+
+Catches a thrown prop: finds the frame its grip comes nearest a hand (either, or the one given, of the thrower or another character) within that arm's reach, ends the arc there, and the hand reaches for it over reach and takes it. Out of reach, it is caught where it comes closest and says so. Returns when and by which hand.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | Who catches it. Default: whoever threw it. |
+| `hand` | `hd` | str | `'either'` | either, right or left. |
+| `point` | `pt` | str |  | The grip it is caught by. Default: main. |
+| `reach` | `re` | float | `0.3` | Seconds the hand moves to meet it before the catch. |
+| `time` | `t` | float |  | Catches the throw launched by then. Default: now, else the first throw. |
+| `blend` | `b` | float | `0.2` | Seconds it settles into the grip after. |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+
+```python
+puppeteerPropCatch("ball")
+```
+
+```python
+puppeteerPropCatch("ball", character="bob", hand="left")
+```
 
 ### puppeteerPropDrop
 
@@ -17022,9 +17063,13 @@ Lets go of a prop at time: it stays in the world where it is, the hands open ove
 
 ### puppeteerPropFit
 
-Fits a prop's points to its mesh again by its class (points the fit doesn't make are kept). Returns how they were found.
+Fits a prop's points to its shape again, read as its fitShape setting says (points added or moved by hand are kept). Returns how they were found and the shape they were placed for.
 
 **Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shape` | `sh` | str |  | Read the shape as this instead (and keep it as the prop's setting). One of `auto`, `blade`, `haft`, `pole`, `firearm`, `tube`, `plate`, `bow`, `other`. |
 
 ### puppeteerPropHold
 
@@ -17040,6 +17085,8 @@ Puts a prop in a character's hand from time on: it switches into the hand's spac
 | `point` | `pt` | str |  | The grip point the hand takes, by name or role. Default: main. |
 | `offPoint` | `op` | str |  | With two hands: the other hand's grip. Default: off. |
 | `fingers` | `fi` | bool | `True` | Pose and wrap the fingers round the prop. |
+| `reach` | `re` | float | `0.0` | Seconds before time the hand reaches for the prop where it is (on a table, in the air, on the ground) and takes it there; 0 brings the prop to the hand instead. |
+| `event` |  | str |  | What the track calls the hold (take, catch). Default: hold, or take when reaching. |
 | `time` | `t` | float |  | Seconds the change happens at. Default: now. |
 | `blend` | `b` | float | `0.2` | Seconds after time the new hold settles over, so nothing pops. 0 snaps. |
 | `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
@@ -17071,44 +17118,141 @@ Puts a prop away at time: it switches to its holster on the character (made from
 
 ### puppeteerPropInfo
 
-A prop's class, points (world positions), holds over time (who or what holds it from when) and its holder now.
+A prop's settings, points (world positions), holds over time (who or what holds it from when), its keyed events (holds, plants, throws, catches, places, passes) and its holder now.
 
 **Objects:** prop (default the selection)
 
 Not undoable.
 
-### puppeteerPropPoint
+### puppeteerPropPass
 
-Adds a point to a prop: another grip (alt), or a muzzle, tip or stock. It starts on the point of that role, or the main grip, or at position. Returns the point.
+Hands a held prop to another character over duration from time: the receiver's hand takes it by its own grip (off, alt or main, whichever the giver isn't holding), both hands holding it with both arms sharing the reach until the handover halfway through, and the giver lets go by the end. The solve moves both characters. Returns the handover.
 
 **Objects:** prop (default the selection)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `role` | `r` | str | `'alt'` | main, off, alt, muzzle, tip or stock. |
+| `character` | `ch` | str |  | Who gives it. Default: whoever holds it then. |
+| `to` |  | str |  | Who takes it. |
+| `hand` | `hd` | str | `'main'` | The receiver's hand: main (the prop's), right or left. |
+| `point` | `pt` | str |  | The grip the receiver takes. Default: one the giver isn't holding. |
+| `duration` | `du` | float | `0.6` | Seconds from the receiver reaching to the giver letting go. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+
+```python
+puppeteerPropPass("mug", to="bob", time=1.0)
+```
+
+### puppeteerPropPlace
+
+Puts a held prop on an object (a table, a rack, a shelf) at time: over blend the hands carry it onto the object's top below where it is held (or below position), where it settles lying on its thinnest side, or hang it by a point from hook (a transform on a wall hook or rack); then the hands let go. From then on it rides the object, following it when it moves. puppeteerPropHold with reach takes it back. Returns the prop.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `on` |  | str |  | The object it goes on. |
+| `hook` | `hk` | str |  | A transform to hang it from instead of laying it on the top. |
+| `point` | `pt` | str |  | With hook: the point it hangs by. Default: main. |
+| `position` | `p` | tuple[float, float, float] |  | World point on the object to put it at. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `blend` | `b` | float | `0.4` | Seconds it takes to go there and settle. |
+| `release` | `rl` | float | `0.25` | Seconds the hands take to let go once it is down. |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+
+```python
+puppeteerPropPlace("mug", on="table", time=2.0)
+```
+
+```python
+puppeteerPropPlace("sword", on="rack", hook="rack_hook1")
+```
+
+### puppeteerPropPlant
+
+Stands a held prop on its tip or base on the surface below it, a little ahead of the character: over blend the hands carry it down (the arms follow it) and it settles leaning at lean degrees from the surface's normal, then the hands let go and it stays there in the world. Surfaces are the scene's meshes (not props or characters) and the ground. Returns the prop with where it stands.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `standOn` | `so` | str | `'tip'` | The end it stands on: tip (where its tip or muzzle is), base, or a point's name. |
+| `lean` | `ln` | float | `12.0` | Degrees it leans from upright. |
+| `toward` | `tw` | tuple[float, float, float] |  | World direction it leans toward. Default: back toward where it was held. |
+| `ahead` | `ah` | float | `25.0` | cm ahead of the character the surface is looked for below. |
+| `position` | `p` | tuple[float, float, float] |  | World point to plant it below instead. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `blend` | `b` | float | `0.4` | Seconds it takes to go down and settle. |
+| `release` | `rl` | float | `0.25` | Seconds the hands take to let go once it is down. |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+
+```python
+puppeteerPropPlant("sword", time=1.0, lean=10)
+```
+
+```python
+puppeteerPropPlant("staff", standOn="base", lean=0)
+```
+
+### puppeteerPropPoint
+
+Adds, moves or removes a prop's point. Given a prop: adds a point (another grip, a muzzle, tip or stock), starting on the point of that role or the main grip, at position if given. Given a point: moves it to position, turns its +X to aim and its +Z (a grip's palm side) to palm, changes its role, radius or name; remove=True deletes it. Returns the point.
+
+**Objects:** prop, or one of its points (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `role` | `r` | str |  | main, off, alt, muzzle, tip or stock. Adding: default alt. |
 | `name` | `n` | str |  | Name (after the prop's). Default: the role. |
 | `position` | `p` | tuple[float, float, float] |  | World point to put it at. |
-| `radius` | `rd` | float | `1.6` | Grips: the handle's radius, cm. |
+| `aim` | `am` | tuple[float, float, float] |  | World direction of its +X: along a grip's handle toward the thumb, or what a tip aims. |
+| `palm` | `pm` | tuple[float, float, float] |  | World direction of its +Z: the way a hand's palm faces on a grip. |
+| `radius` | `rd` | float |  | Grips: the handle's radius, cm. |
+| `remove` | `rm` | bool | `False` | Delete the point. |
+
+```python
+puppeteerPropPoint("guitar", role="off", position=(10, 120, 30))
+```
+
+```python
+puppeteerPropPoint("guitar_off_point", remove=True)
+```
+
+### puppeteerPropPresets
+
+The prop presets and the settings each fills: id, label, two-handed, hand poses, trigger, aim style, drop, reach, holster spot and how the shape is read.
+
+Not undoable.
 
 ### puppeteerPropSetup
 
-Marks a mesh or group as a prop or weapon of a class and fits its points to the mesh: grips (main, off, alternates), the muzzle or tip that aims, and the stock. Points are transforms under the prop; move and turn them in the viewport. Already a prop: changes its class or hand and fits again. Returns the prop.
+Makes a mesh or group a prop (any object a character holds) and fits its points to its shape: grips (main, off, alternates), the tip or muzzle that aims, the stock, whatever the shape has. Its settings (hands, hand poses, aim, holster spot) come from what the shape reads as, or from a preset. Points are transforms under the prop: move and turn them in the viewport, add or remove them with puppeteerPropPoint. Already a prop: a preset fills its settings and fits again. Returns the prop.
 
 **Objects:** mesh or group (default the selection)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `kind` | `k` | str |  | The kind of prop: generic sword1h sword2h dagger axe spear shield bow pistol rifle shotgun launcher. |
+| `preset` | `pr` | str |  | A preset that fills the prop's settings (hands, hand poses, aim, holster spot, how its shape is read): sword1h sword2h dagger axe spear shield bow pistol rifle shotgun launcher generic. Default: none; a new prop takes its settings from its shape. |
 | `hand` | `hd` | str |  | right or left: the hand that holds it by default. |
-| `twoHanded` | `th` | bool |  | Held in both hands by default. Default by class. |
+| `twoHanded` | `th` | bool |  | Held in both hands by default. Default: by preset or shape. |
 | `fit` | `ft` | bool | `True` | Fit the points to the mesh. |
 
 ```python
-puppeteerPropSetup("rifle", kind="rifle")
+puppeteerPropSetup("bottle")
 ```
 
 ```python
-puppeteerPropSetup("sword", kind="sword2h")
+puppeteerPropSetup("rifle", preset="rifle")
+```
+
+```python
+puppeteerPropSetup("sword", preset="sword2h")
 ```
 
 ### puppeteerPropSolve
@@ -17123,9 +17267,40 @@ Solves the arms and body holding props over a range onto the character's props l
 | `start` |  | int |  | First frame. Default: the playback start. |
 | `end` |  | int |  | Last frame. |
 
+### puppeteerPropThrow
+
+Throws a held prop at time: it leaves the hands with the speed and spin the hand gave it (or speed, angle and direction, or velocity, given) and flies a keyed ballistic arc until it meets a surface, where it settles lying on it. physics=True simulates it with Jolt instead (bouncing, tumbling, coming to rest) and bakes that to keys. The arc is a node under the prop: drag its path in the viewport or change it with puppeteerPropArc; puppeteerPropCatch catches it. Returns the arc.
+
+**Objects:** prop (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `character` | `ch` | str |  | The character. Default: the one holding the prop, else the selected or only one. |
+| `speed` | `sp` | float |  | cm/s at the release. Default: the hand's, else 500. |
+| `angle` | `an` | float |  | Degrees above level it leaves at, with speed. Default 35. |
+| `direction` | `dr` | tuple[float, float, float] |  | World direction it is thrown, levelled, with speed. Default: the character's forward. |
+| `velocity` | `v` | tuple[float, float, float] |  | World launch velocity, cm/s, instead. |
+| `spin` | `sn` | float |  | Degrees a second it turns. Default: the hand's when it turns it, else none. |
+| `spinAxis` | `sx` | tuple[float, float, float] |  | World axis it spins about. Default: across its flight (end over end). |
+| `physics` | `ph` | bool | `False` | Simulate it (Jolt) instead of keying an arc. |
+| `gravity` | `gr` | float | `981.0` | cm/s2. |
+| `until` | `ut` | float | `3.0` | Seconds of flight at most. |
+| `time` | `t` | float |  | Seconds the change happens at. Default: now. |
+| `release` | `rl` | float | `0.15` | Seconds the fingers take to open. |
+| `fingers` | `fi` | bool | `True` | Open the hands that held it. |
+| `solve` | `sv` | bool | `True` | Solve the arms over the playback range afterwards (puppeteerPropSolve). |
+
+```python
+puppeteerPropThrow("ball", time=0.5)
+```
+
+```python
+puppeteerPropThrow("axe", time=0.5, speed=900, spin=720, physics=True)
+```
+
 ### puppeteerPropUnreal
 
-Sets a prop up for Unreal: it attaches to a bone of the character's skeletal mesh (by default the hand holding it, hand_r) through a socket with the offset it is held at, which the Unreal link makes on the mesh when it sends the prop; the character's own bones carry the animation. With ikBones, also keys the skeleton's hand IK bones (by default UE5's ik_hand_gun, ik_hand_r, ik_hand_l) to follow the hands every frame, for projects whose locomotion reads them. Returns the socket, bone, and how far the prop strays against the bone while held.
+Sets a prop up for Unreal: it attaches to a bone of the character's skeletal mesh (by default the hand holding it, hand_r) through a socket with the offset it is held at, which the Unreal link makes on the mesh when it sends the prop; the character's own bones carry the animation. With ikBones, also keys the skeleton's hand IK bones (by default UE5's ik_hand_gun, ik_hand_r, ik_hand_l) to follow the hands every frame, for projects whose locomotion reads them. A prop that leaves the hand in the range (thrown, planted, put down, passed) is baked instead: its motion keyed every frame onto a bone of its own under the skeleton's root (<prop>_motion), which it attaches to with no offset, so the character's animation carries it. Returns the mode, socket and bone, and for a socket how far the prop strays against the bone while held.
 
 **Objects:** prop (default the selection)
 
@@ -17138,6 +17313,7 @@ Sets a prop up for Unreal: it attaches to a bone of the character's skeletal mes
 | `gunBone` |  | str | `'ik_hand_gun'` | ikBones: the bone that follows the holding hand. |
 | `rightBone` |  | str | `'ik_hand_r'` | ikBones: the bone that follows the right hand. |
 | `leftBone` |  | str | `'ik_hand_l'` | ikBones: the bone that follows the left hand. |
+| `mode` | `md` | str | `'auto'` | socket: on the holding bone at the held offset. baked: its motion on a bone of its own under the skeleton's root, every frame. auto: socket while it never leaves the hand, else baked. |
 | `start` | `st` | float |  | Seconds; default the playback start. |
 | `end` | `et` | float |  | Seconds; default the playback end. |
 
