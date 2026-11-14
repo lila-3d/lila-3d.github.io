@@ -21,7 +21,7 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 **Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
 
-**A big smooth part (a head, a belly) has far larger faces than the limbs.** Faces are sized by curvature, and thin parts take their edges first. Lower **Adaptivity** for more even faces, or lower **Edges Around Thin Parts** so the limbs leave more for the rest. To make only that part denser, give it a `densityHandles` entry with `scale` under 1 ([Steering from Python](#steering-from-python)), or paint point `density` above 1 over it.
+**A big smooth part (a head, a belly) has far larger faces than the limbs.** Faces are sized by curvature, and thin parts take their edges first. Lower **Adaptivity** for more even faces, or lower **Edges Around Thin Parts** so the limbs leave more for the rest. To make only that part denser, select its faces and run **Topology > Remesh Density**, or put a sphere over it and pick the sphere in **Density Volumes**.
 
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance**. Lower it if poles crowd onto flat areas nearby.
 
@@ -59,7 +59,7 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 | Target Faces | 3000 | About how many faces to make. |
 | Count Tolerance | 0.1 | Retries at a corrected size until the count is within this fraction of Target Faces; 0 takes the first try. |
 | Target Edge Length | 0 | Edge length in cm; replaces Target Faces when set. |
-| Adaptivity | 0.25 | 0 sizes faces evenly; 1 makes them much smaller where the surface curves. Painted point `density` multiplies it. |
+| Adaptivity | 0.25 | 0 sizes faces evenly; 1 makes them much smaller where the surface curves. |
 | Joint Density | 0 | Extra faces round joints, armpits and finger webs, at the cost of faces elsewhere. 1 makes joints about three times as dense. |
 | Joint Density Reach | 6 | How far, in faces, Joint Density's extra faces spread from a fold. Lower keeps them tight to the joint and can clear stray poles nearby (around the ears, for example). |
 | Edges Around Thin Parts | 12 | Fingers and other thin round parts get at least this many edges round them; 0 off. |
@@ -91,6 +91,17 @@ Draw guides on the mesh with **Curves > Pencil Curve** (press S in the tool to d
 | --- | --- |
 | Flow Curves | The edge flow turns to follow these curves. |
 | Edge Loop Curves | An edge loop lands exactly on each curve, like a hard edge. |
+| Density Volumes | Meshes placed over areas that want another face size, such as a sphere over a head. Each acts from its centre out to its largest half extent, easing out to the edge. |
+| Volume Face Size | Edge length inside the volumes, as a multiple of what it would be. 0.5 halves the edges. |
+
+### Remesh Density
+
+**Topology > Remesh Density** sets how dense Quad Remesh makes the selected faces, or the whole mesh in object mode: 2 is twice the faces there, 0.5 half, 1 clears it. It is stored on the mesh as the point attribute `density`, so it stays for the next remesh.
+
+```python
+selectComponentsWhere("Body", kind="face", box=[[None, 150, None], [None, None, None]])
+remeshDensity(value=2)
+```
 
 ### Steering from Python
 
