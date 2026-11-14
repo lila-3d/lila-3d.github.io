@@ -43,7 +43,7 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 | Mid-Poly | 20000 | Cinematic or close-up characters; 16 edges round fingers. |
 | Hero | 40000 | Hero characters: twice the extra faces at joints, 24 edges round fingers. |
 | Stylized | 5000 | Broad, simple shapes with even spacing. |
-| Hard Surface | 6000 | Machines and props with hard edges: loops on hard edges and creases over 30 degrees, no joint handling. |
+| Hard Surface | 6000 | Machines and props with hard edges: loops on creases over 30 degrees, no joint handling. |
 | Prop | 3000 | Static props: denser at curves, no joint handling. |
 
 A preset fills in the options below; change any of them afterwards. **Edit > Save Preset...** adds your own to the menu ([sharing presets](essentials.md#save-option-box-presets)). From Python, `preset=` also takes a saved preset's name, and flags you pass win over the preset.
@@ -73,7 +73,7 @@ A preset fills in the options below; change any of them afterwards. **Edit > Sav
 | Symmetry | X | Remeshes one half and mirrors it, exactly symmetric. Off for meshes that aren't symmetric about their origin. |
 | Middle Smoothing | 0 | With Symmetry, fills a groove along the middle edge loop so rows cross it level. The faces beside the middle leave the source; a ridge such as a nose is kept. |
 | Method | Flow | Flow: quads follow the shape, loops run unbroken between a few poles and the symmetry line is one loop; use it for characters, props and anything you deform, bake or edit by hand. Grid: straight rows over an open sheet seen from one side (terrain tiles, panels). |
-| Use Hard Edges | on | Lays an edge loop along edges marked hard. |
+| Use Hard Edges | off | Lays an edge loop along edges marked hard. |
 | Sharp Angle | 40 | Also follows creases sharper than this; negative turns it off. |
 | Joint Pole Avoidance | 30 | Keeps poles out of joints, armpits and finger webs, onto flatter parts nearby; 0 off. |
 | Pure Quads | on | All quads; off allows a few triangles and five-sided faces. |
