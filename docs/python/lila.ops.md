@@ -20321,7 +20321,7 @@ Bake a fabric's wrinkle normal maps: a square of it squeezed along U, then along
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
+| `fabric` | `fab` | str |  | A fabric preset; the garment's first fabric when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`, `Glove Leather`, `Boot Leather`, `Sole`, `Knit`, `Felt`, `Satin`. |
 | `size` | `s` | int | `512` | Map width and height, texels. |
 | `tile` | `tl` | float | `20.0` | The square of cloth one map covers, cm. |
 | `compress` | `c` | float | `0.25` | How far the square is squeezed, 0 to 0.6. |
@@ -20386,10 +20386,10 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `tunic`, `robe`, `raglanTee`, `marieBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `tieredSleeveBlouse`, `petalSleeveTop`, `capeSleeveTop`, `dropShoulderTop`, `shirt`, `peasantBlouse`, `puffBlouse`, `poetShirt`, `bellSleeveDress`, `flutterTop`, `capSleeveTop`, `batwingTop`, `legOfMuttonBlouse`, `trousers`, `skirt`, `hood`, `cloak`, `cape`, `poncho`, `tabard`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`, `onesie`, `jumpsuit`, `flightSuit`, `coverall`, `overalls`, `booties`. |
+| `block` | `b` | str | `'tee'` | The block to start from. One of `tee`, `raglanTee`, `shirt`, `poetShirt`, `tunic`, `robe`, `dropShoulderTop`, `batwingTop`, `bellSleeveDress`, `peasantBlouse`, `puffBlouse`, `marieBlouse`, `tieredSleeveBlouse`, `legOfMuttonBlouse`, `flounceSleeveTop`, `slitSleeveTop`, `petalSleeveTop`, `capeSleeveTop`, `flutterTop`, `capSleeveTop`, `trousers`, `skirt`, `onesie`, `jumpsuit`, `flightSuit`, `coverall`, `overalls`, `cloak`, `cape`, `poncho`, `tabard`, `gloves`, `gauntlets`, `operaGloves`, `fingerlessGloves`, `mittens`, `shoes`, `slippers`, `socks`, `ankleBoots`, `boots`, `kneeBoots`, `booties`, `hood`, `belt`, `sack`, `banner`, `tent`, `cloakTunicBelt`. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
-| `fabric` | `fab` | str |  | Fabric preset; the block's own when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
+| `fabric` | `fab` | str |  | Fabric preset; the block's own when left out. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`, `Glove Leather`, `Boot Leather`, `Sole`, `Knit`, `Felt`, `Satin`. |
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the block placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
@@ -20492,7 +20492,7 @@ Adds to the named or selected garment; with none, starts a garment on the select
 | `clearance` | `cl` | float | `1.5` | How far the panel starts outside the body, cm. |
 | `layer` | `l` | int | `0` | Layer: higher layers sit outside lower ones. |
 | `collider` | `c` | str |  | The body, when a new garment is started; the selected mesh otherwise. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset of a new garment. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`, `Glove Leather`, `Boot Leather`, `Sole`, `Knit`, `Felt`, `Satin`. |
 | `particleDistance` | `pd` | float | `2.0` | Cloth edge length of a new garment, cm. |
 | `simulate` | `sim` | bool | `True` | Drape a new garment. |
 | `frames` | `fr` | int | `90` | Solver frames for a new garment. |
@@ -20594,7 +20594,7 @@ Makes a tailorGarment node feeding a new mesh. With no collider, the first selec
 | `file` | `f` | str |  | The pattern specification JSON. |
 | `collider` | `c` | str |  | The body mesh to drape onto; empty for none. |
 | `name` | `n` | str | `'Garment'` | Name of the new mesh. |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`, `Glove Leather`, `Boot Leather`, `Sole`, `Knit`, `Felt`, `Satin`. |
 | `particleDistance` | `pd` | float | `2.0` | Target cloth edge length, cm. |
 | `simulate` | `sim` | bool | `True` | Drape it; off leaves the panels where the file placed them. |
 | `frames` | `fr` | int | `90` | Solver frames run to settle the drape. |
@@ -20778,7 +20778,7 @@ Without panels it sets the garment's fabric preset; with them, those panels get 
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
+| `fabric` | `fab` | str | `'Cotton'` | Fabric preset. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`, `Glove Leather`, `Boot Leather`, `Sole`, `Knit`, `Felt`, `Satin`. |
 | `panel` | `p` | list |  | Panels by name or index; all panels' shared fabric when left out. |
 
 ```python
@@ -20851,7 +20851,7 @@ Add a strap to a garment along a path (a belt, a sash, a bandolier): a strip of 
 | `curve` | `cv` | str |  | A curve to follow instead of points (its points, world space). |
 | `width` | `w` | float | `4.0` | Strap width, cm. |
 | `name` | `n` | str | `'Strap'` | Panel name; made unique. |
-| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`. |
+| `fabric` | `fab` | str | `'Leather'` | Fabric preset of the strap. One of `Cotton`, `Linen`, `Denim`, `Canvas`, `Wool`, `Leather`, `Suede`, `Silk`, `Chiffon`, `Rubber`, `Burlap`, `Heavy`, `Fleece`, `Plush`, `Banner`, `Spandex`, `Neoprene`, `Nylon`, `Twill`, `Glove Leather`, `Boot Leather`, `Sole`, `Knit`, `Felt`, `Satin`. |
 | `closed` | `cl` | bool | `False` | The path closes on itself (a belt round the waist). |
 
 ```python

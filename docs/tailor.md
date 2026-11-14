@@ -42,6 +42,19 @@ tailorCreateBlock(block='jumpsuit', collider=body, params={'kneePatches': 1, 'el
 tailorCreateBlock(block='overalls', collider=body, params={'bibPocket': 0}, wait=True)
 ```
 
+`gloves`, `gauntlets`, `operaGloves`, `fingerlessGloves` and `mittens` are a back and a palm for each hand, pinned at the wrist so they stay on. They share their options: `cuffLength` and `cuffFlare` shape the cuff, `'fingers': 0` cuts a mitten, and a `fingerLength` below 1 leaves the tips open. They're placed thumbs forward, on the hands the body is measured to have, so the body needs its arms held out from its sides (an A-pose or T-pose).
+
+`shoes`, `slippers`, `socks`, `ankleBoots`, `boots` and `kneeBoots` are two sides for each foot, sewn to a sole that's pinned flat under the foot. `height` is floor to opening, `toe` runs from 0 (round) to 1 (pointed), and `'sole': 0` joins the sides under the foot instead, as `socks` and `slippers` do. `length` and `opening` fit the body's foot and leg when left at 0.
+
+```python
+tailorCreateBlock(block='gauntlets', collider=body, params={'cuffLength': 0.2}, wait=True)
+tailorCreateBlock(block='boots', collider=body, params={'toe': 0.6, 'height': 0.38}, frames=240, wait=True)
+```
+
+The pins are ordinary ones: **Tailor > Clear Brushes** removes them.
+
+Hands and feet have their own fabrics: `Glove Leather` is thin enough to follow fingers, `Boot Leather` holds a shaft up, `Sole` stays flat, and `Knit`, `Felt` and `Satin` cover mittens, slippers and opera gloves.
+
 For tight clothes, pick a stretch fabric: `Spandex` for bodysuits and base layers, or `Neoprene` for thick, springy wetsuit-style cloth.
 
 ## Check the pattern
