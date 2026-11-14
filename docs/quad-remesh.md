@@ -21,6 +21,8 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 **Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
 
+**A big smooth part (a head, a belly) has far larger faces than the limbs.** Faces are sized by curvature, and thin parts take their edges first. Lower **Adaptivity** for more even faces, or lower **Edges Around Thin Parts** so the limbs leave more for the rest. To make only that part denser, give it a `densityHandles` entry with `scale` under 1 ([Steering from Python](#steering-from-python)), or paint point `density` above 1 over it.
+
 **A pole sits in a joint (crotch, armpit, between fingers).** Raise **Joint Pole Avoidance**. Lower it if poles crowd onto flat areas nearby.
 
 **Too few faces at the groin, armpits or hands to deform.** Raise **Joint Density**.
