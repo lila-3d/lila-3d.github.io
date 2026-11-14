@@ -19,7 +19,7 @@ To stop it, press **Esc** and confirm with **Abort** on the progress card; the s
 
 ## Troubleshooting
 
-**Far more faces than Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
+**The body is coarse, or the count runs over Target Faces.** Thin parts (fingers, hair locks) get **Edges Around Thin Parts** edges round them whatever the count, and the rest of the shape gets larger faces to pay for them. Lower **Edges Around Thin Parts**, or remesh thin parts separately.
 
 **A big smooth part (a head, a belly) has far larger faces than the limbs.** Faces are sized by curvature, and thin parts take their edges first. Lower **Adaptivity** for more even faces, or lower **Edges Around Thin Parts** so the limbs leave more for the rest. To make only that part denser, select its faces and run **Topology > Remesh Density**, or put a sphere over it and pick the sphere in **Density Volumes**.
 
@@ -91,12 +91,12 @@ Draw guides on the mesh with **Curves > Pencil Curve** (press S in the tool to d
 | --- | --- |
 | Flow Curves | The edge flow turns to follow these curves. |
 | Edge Loop Curves | An edge loop lands exactly on each curve, like a hard edge. |
-| Density Volumes | Meshes placed over areas that want another face size, such as a sphere over a head. Each acts from its centre out to its largest half extent, easing out to the edge. |
+| Density Volumes | Meshes placed over areas that want another face size, such as a sphere over a head. Everything inside a volume gets the size in full; it eases out over a quarter of the volume's size beyond. |
 | Volume Face Size | Edge length inside the volumes, as a multiple of what it would be. 0.5 halves the edges. |
 
 ### Remesh Density
 
-**Topology > Remesh Density** sets how dense Quad Remesh makes the selected faces, or the whole mesh in object mode: 2 is twice the faces there, 0.5 half, 1 clears it. It is stored on the mesh as the point attribute `density`, so it stays for the next remesh.
+**Topology > Remesh Density** sets how dense Quad Remesh makes the selected faces, or the whole mesh in object mode: 2 is twice the faces there, 0.5 half, 1 clears it. The count stays at Target Faces, so the rest of the mesh gets larger faces. It is stored on the mesh as the point attribute `density`, so it stays for the next remesh.
 
 ```python
 selectComponentsWhere("Body", kind="face", box=[[None, 150, None], [None, None, None]])
