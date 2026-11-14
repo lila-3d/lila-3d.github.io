@@ -39,6 +39,7 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 | **Alt**+right-drag from node to node | Connect the best matching sockets |
 | **Ctrl**+drag a linked input | Move its link to another input |
 | **Shift**+drag a linked input | Copy its link to another input |
+| **Alt**+click a socket | Disconnect it |
 | Drag a reroute's rim | Wire it to more inputs (its middle moves it) |
 | Drag a frame's title / corner | Move it with its nodes / resize it |
 | Drop a node inside a frame | It joins; drag it out and it leaves |
