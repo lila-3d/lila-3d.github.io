@@ -931,7 +931,7 @@ Create or edit a bake group: the lows that receive maps and the highs projected 
 | `addHigh` | `ah` | list |  | Add highs. |
 | `removeHigh` | `rh` | list |  | Remove highs. |
 | `self` | `sf` | bool |  | Add (True) or remove (False) the lows themselves as a high. |
-| `modifiers` | `md` | Any |  | Bake-only modifier stack, [{"kind": "subdivision", "params": {"levels": 2}}] or a preset name, for the highs given in this call (else every high). Kinds are modifierKinds(). |
+| `modifiers` | `md` | Any |  | Bake-only modifier stack, [{"kind": "subdivision", "params": {"levels": 2}}] or a preset name, for the highs given in this call (else every high). Kinds are modifierKinds(). A subdivision here blends its uvs unless its params say uvs: 1 (Fit Surface), which takes many times longer on dense highs. |
 | `preset` | `ps` | str |  | A bake modifier preset instead of modifiers=: Smooth x2, Smooth x1-x4, Auto Bevel + Smooth, none. |
 | `cage` | `cg` | str |  | A cage mesh with the low's topology (one low); empty uses the auto cage. |
 | `cageOffset` | `co` | float |  | Scales the auto cage's push (frontal distance). |
@@ -940,7 +940,7 @@ Create or edit a bake group: the lows that receive maps and the highs projected 
 | `ignoreBackfaces` | `ib` | bool |  | Rays only hit high faces facing them. |
 | `aoScope` | `as` | str |  | AO occluders: self, group or all. |
 | `skew` | `sk` | float |  | 0 to 1: tilts rays from the smooth normals toward each low face's normal. |
-| `unlinks` | `ul` | Any |  | Replace the unlinks: [{"lows": [...] (empty: every low), "meshes": [...], "occlusion": True, "projection": False}]. The lows' AO and other occlusion rays pass through those meshes (any high or occluder, a self high by its low's name); projection=True also bakes nothing from them onto the lows. |
+| `unlinks` | `ul` | Any |  | Replace the unlinks: [{"lows": [...] (empty: every low), "meshes": [...], "materials": [...], "occlusion": True, "projection": False}]. The lows' AO and other occlusion rays pass through those meshes (any high or occluder, a self high by its low's name) and through every high with faces of those materials; projection=True also bakes nothing from them onto the lows. |
 | `addHighFile` | `ahf` | list |  | Add highs streamed from files at bake time (.fbx, .obj, .abc), never loaded into the scene. |
 | `removeHighFile` | `rhf` | list |  | Remove file highs. |
 | `fileObject` | `fob` | str |  | With addHighFile: only the file's meshes whose name contains this. |
@@ -959,7 +959,7 @@ One bake group per mesh: each given (or selected) mesh becomes the low of its ow
 
 ### bakeLint
 
-Check a bake project before baking: hard edges off UV seams, overlapping UVs (also across groups writing one texture), missing or collapsed UVs, islands off their mesh's texel density, mirrored islands against tangent signs, lows with no high in range, highs outside the cage and cage topology; non-planar faces whose triangulation depends on the exporter only when checks names triangulation. Problems too small to show in the map are left out. bake runs it first and lists its warnings. Returns {issues: [{check, severity, group, mesh, message, data}], warnings, checks, distances: [{group, frontal, rear, frontalAuto, rearAuto, measured}]} (Auto distances are measured against the highs when highs is on).
+Check a bake project before baking: hard edges off UV seams, overlapping UVs (also across groups writing one texture), missing or collapsed UVs, islands off their mesh's texel density, mirrored islands against tangent signs, lows with no high in range, highs outside the cage, cage topology and lows shown without a modifier their export runs, where the viewport reads texels baked elsewhere (previewMesh); non-planar faces whose triangulation depends on the exporter only when checks names triangulation. Problems too small to show in the map are left out. bake runs it first and lists its warnings. Returns {issues: [{check, severity, group, mesh, message, data}], warnings, checks, distances: [{group, frontal, rear, frontalAuto, rearAuto, measured}]} (Auto distances are measured against the highs when highs is on).
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -10958,6 +10958,12 @@ Show objects. all=True shows every hidden object.
 | --- | --- | --- | --- | --- |
 | `all` |  | bool | `False` | Show everything. |
 
+### showExportMesh
+
+Show meshes as they export: every modifier's viewport state takes its export state, so a Subdivision left off in the viewport but on for export runs in both, and baked maps preview on the mesh they were baked for. Returns the modifiers changed.
+
+**Objects:** meshes
+
 ### showLastHidden
 
 Show the objects the last hide (or hiding toggle) hid. Returns them.
@@ -11863,7 +11869,7 @@ Add the mirror images of the component selection, on each mesh whose symmetry is
 
 ### symmetryCheck
 
-Report how symmetric meshes are across their symmetry plane (or round their radial axis): the largest distance between a point and its partner's reflection (or its orbit's image), and the points without a partner. For radial symmetry also the unmatched point ids and the count the mesh fits best. Changes nothing.
+Report how symmetric meshes are across their symmetry plane (or round their radial axis): the largest distance between a point and its partner's reflection (or its orbit's image), and the points without a partner. For radial symmetry also the unmatched point ids and the count the mesh fits best. For a mirror, planeTilt is how far (degrees) the plane sits off the world axes under the object's transform; a tilted one is warned about. Changes nothing.
 
 **Objects:** objects
 
@@ -12053,7 +12059,7 @@ Not undoable.
 
 ### texBuildGraph
 
-Build a material's texture graph from a compact spec, creating its texture set when it doesn't exist: {material, set, settings, description, nodes: [{name, type, params: {...}, values: {...}, position}], links: ['A.out -> Output.baseColor', ...]}. The set defaults to <material>Tex. A Material Output named Output is added when missing; positions are laid out when omitted. Nothing changes unless the whole spec is valid; the error lists every problem with the valid names. Returns the set, the material, the channels the graph drives and any compile error.
+Build a material's texture graph from a compact spec, creating its texture set when it doesn't exist: {material, set, settings, description, nodes: [{name, type, params: {...}, values: {...}, position}], links: ['A.out -> Output.baseColor', ...]}. The set defaults to the one bound to the material, else <material>Tex without the material's M_ prefix. A Material Output named Output is added when missing; positions are laid out when omitted. Nothing changes unless the whole spec is valid; the error lists every problem with the valid names. Returns the set, the material, the channels the graph drives and any compile error.
 
 **Objects:** spec
 
