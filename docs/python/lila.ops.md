@@ -12325,7 +12325,7 @@ Not undoable.
 
 ### texExportPtex
 
-Write one channel of a texture set to a Ptex file (.ptx): every quad of the mesh gets its own texels, sampled from the set through the mesh's uvs. The mesh must be all quads. Returns {file, faces, channels}.
+Write one channel of a texture set to a Ptex file (.ptx): every face of the mesh gets its own texels, sampled from the set through the mesh's uvs. The mesh must be all quads or all triangles. Returns {file, faces, channels}.
 
 **Objects:** set
 
@@ -12427,7 +12427,7 @@ Not undoable.
 
 ### texImportPtex
 
-Bring a Ptex file (.ptx) onto a texture set: its faces are baked through the mesh's uvs into an image, which becomes a new fill layer on the channel. The mesh must be the quad mesh the file was painted on. Returns {id, image, faces}.
+Bring a Ptex file (.ptx) onto a texture set: its faces are baked through the mesh's uvs into an image, which becomes a new fill layer on the channel. The mesh must be the quad or triangle mesh the file was painted on. Returns {id, image, faces}.
 
 **Objects:** set
 

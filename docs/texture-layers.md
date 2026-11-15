@@ -111,7 +111,7 @@ texExport("Crate", variants=True, folder="C:/Project/Textures")
 
 Open the texture set, select its mesh, and pick **Texture > Export Ptex...** to write one channel as a `.ptx` file with its own texels on every face. **Texture > Import Ptex...** reads one back onto the set as a fill layer, baked through the mesh's uvs.
 
-Both need an all-quad mesh with uvs, and an import needs the mesh the file was painted on.
+Both need a mesh with uvs that is all quads or all triangles (written as Ptex triangle faces), and an import needs the mesh the file was painted on.
 
 ```python
 texExportPtex("Crate", mesh="|crate", file="C:/maps/crate.ptx", faceResolution=7)
@@ -128,7 +128,7 @@ texImportPtex("Crate", mesh="|crate", file="C:/maps/crate.ptx", channel="baseCol
 
 **A text layer shows nothing.** The font has no glyphs for those letters, or the box sits away from the mesh. The stack lists a warning for the first; **Place on Mesh** fixes the second.
 
-**Ptex says the mesh needs to be all quads, or that the face counts differ.** Ptex stores texels per quad. Triangles and n-gons can't be written, and an import only fits the mesh the file was made for, with the same faces in the same order.
+**Ptex says the mesh needs to be all quads or all triangles, or that the face counts differ.** Ptex stores texels per quad or per triangle, one kind per file. A mesh mixing them, or with n-gons, can't be written: triangulate or quadrangulate it first. An import only fits the mesh the file was made for, with the same faces in the same order.
 
 **"is inside a folder; flatten the folder".** Flatten and merge work on the stack's top level. Flatten the folder holding the layer instead.
 
