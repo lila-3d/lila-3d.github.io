@@ -11968,7 +11968,7 @@ Add a generator mask to a layer: edge wear, dirt, dust, cavity grime, AO darken,
 
 ### texAddLayer
 
-Add a layer to a texture set's stack (on top unless placed). Kinds: fill (material + mask), paint (placeholder material, paint buffers and a painted mask), procedural (a graph with outputs named after channels, optionally mask), folder, instance (another layer's values and mask), filter (a filter node applied to the composite below). A graph made by hand joins the stack as its bottom layer. Returns {id}.
+Add a layer to a texture set's stack (on top unless placed). Kinds: fill (material + mask), paint (placeholder material, paint buffers and a painted mask), procedural (a graph with outputs named after channels, optionally mask), folder, instance (another layer's values and mask), filter (a filter node applied to the composite below), decal (pictures per channel placed by projection), text (words drawn in the material's base colour, placed like a decal) and scatter (copies of a pattern over the uvs). A graph made by hand joins the stack as its bottom layer. Returns {id}.
 
 **Objects:** set kind
 
@@ -11985,6 +11985,10 @@ Add a layer to a texture set's stack (on top unless placed). Kinds: fill (materi
 | `filter` |  | str |  | Filter: the node type (blur, hsv, levels...). |
 | `values` |  | Any |  | Filter: its parameter values. |
 | `channels` |  | Any |  | Per-channel {enabled, mode, opacity}. |
+| `projection` |  | Any |  | Fill, procedural, decal and text: layerProjection's values {mode, positionX...}. |
+| `decal` |  | Any |  | Decal: {maps {channel: file}, columns, rows, cell}. |
+| `text` |  | Any |  | Text: {text, font, tracking, outline, outlineColor, resolution}. |
+| `scatter` |  | Any |  | Scatter: {pattern, maps, countX, countY, perCell, size, sizeRandom, rotationRandom, hueRandom, seed, avoidOverlap}. |
 
 ### texAddMask
 
@@ -12017,6 +12021,34 @@ Add a node to a texture set's graph. Returns its name. texNodeTypes lists the ty
 | --- | --- | --- | --- | --- |
 | `position` |  | list |  | [x, y] on the canvas. |
 | `name` |  | str |  | Wanted name; made unique. |
+
+### texAddShadingChannels
+
+Add shading channels to a texture set: sheen, coat, subsurface, anisotropy, transmission, IOR and specular. Each becomes a Material Output input, shades in the viewport and the path-traced view, and exports under the name the preset's renderer uses. The ior channel holds (IOR - 1) / 2. Returns the channels added.
+
+**Objects:** texture set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `channels` | `c` | list |  | Channel names; all of them when left out. One of `sheenColor`, `sheenRoughness`, `coat`, `coatRoughness`, `coatNormal`, `subsurfaceColor`, `subsurfaceRadius`, `anisotropy`, `anisotropyDirection`, `transmission`, `ior`, `specularWeight`, `specularColor`. |
+
+```python
+texAddShadingChannels("RockTex")
+```
+
+```python
+texAddShadingChannels("RockTex", channels=["coat", "coatRoughness"])
+```
+
+### texAddVariant
+
+Add a named variant to a texture set and switch to it: from then on layer and mask edits are its overrides, until texSwitchVariant goes back to the base (name ''). copy= starts it from another variant's overrides.
+
+**Objects:** set name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `copy` |  | str |  | A variant whose overrides it starts with. |
 
 ### texApplySmartMaterial
 
@@ -12055,6 +12087,23 @@ Build a material's texture graph from a compact spec, creating its texture set w
 | --- | --- | --- | --- | --- |
 | `assign` |  | list |  | Meshes to give the material (created when missing). |
 
+### texCaptureView
+
+Write what a view sees of a texture set's channel (the stack's, or one paint layer's with layer=) as a 16-bit PNG, unlit: colour in sRGB, data as it is, transparent where the mesh isn't. Edit it in an image editor and project it back with texPaintStroke (kind project, image the file, the same view). view is a screen view or a saved view's name. Returns {file, width, height, channel}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` |  | Any |  | The screen view, or a texProjectionView name. |
+| `file` |  | str |  | The PNG to write. |
+| `channel` |  | str | `'baseColor'` | The channel. |
+| `layer` |  | str |  | A paint layer's own paint instead of the stack. |
+| `mesh` |  | str |  | The mesh; default the first using the set's material. |
+| `scale` |  | float | `1.0` | Pixels per view pixel. |
+
+Not undoable.
+
 ### texClearLayer
 
 Clear a paint layer: drop its strokes and pixels.
@@ -12081,6 +12130,18 @@ Link an output to an input: texConnect(set, 'Noise.out', 'Output.roughness'). Re
 
 **Objects:** set from to
 
+### texCopyLayers
+
+Copy layers (with their masks, children and paint) as text for texPasteLayers, into this set or another, in this scene or another. Returns the text.
+
+**Objects:** set [layer]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layers` |  | list |  | The layers to copy, bottom first; else the positional one. |
+
+Not undoable.
+
 ### texCopyNodes
 
 Nodes as shareable text (JSON with a format header): their values and the links between them. Paste with texPasteNodes.
@@ -12106,6 +12167,24 @@ Delete nodes from a texture set's graph, with their links.
 
 **Objects:** set nodes...
 
+### texDeleteSnapshot
+
+Drop a texture set's snapshot and the pixels only it held. Returns whether there was one.
+
+**Objects:** texture set, name
+
+Not undoable.
+
+### texDeleteStrokes
+
+Delete strokes from a paint layer and re-rasterise it.
+
+**Objects:** set layer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strokes` |  | list |  | Stroke ids. |
+
 ### texDisconnect
 
 Remove the link into an input, or only the one from `source` when given.
@@ -12125,6 +12204,35 @@ Copy nodes with the links between them. Returns the new names in order.
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `offset` |  | list | `[40, 40]` | [x, y] shift for the copies. |
+
+### texEditPath
+
+Move a path stroke's points (points=, as texPaintPath takes them) or change its radius, and paint it again from them: the layer is rebuilt from its strokes with the path's new dabs. One undo step. Returns {layer, stroke (its new id), dabs}.
+
+**Objects:** set layer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `stroke` |  | int |  | The path stroke's id. |
+| `layer` |  | str |  | The paint layer. |
+| `points` |  | list |  | The path's new points. |
+| `radius` |  | float |  | Dab radius in object units. |
+
+### texEditStroke
+
+Change a painted stroke after the fact and re-rasterise its layer: color (the colour channel), channels {name: value, null drops one}, radius (the widest dab's, the rest in proportion) or sizeScale, strength, brush (a patch over its brush settings). The stroke gets a new id, returned with the rest of it.
+
+**Objects:** set layer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `stroke` |  | int |  | The stroke's id (texStrokes). |
+| `color` |  | Any |  | [r, g, b], linear. |
+| `channels` |  | Any |  | {channel: value}. |
+| `radius` |  | float |  | Object units. |
+| `sizeScale` |  | float |  | Multiplies every dab's radius. |
+| `strength` |  | float |  | 0 to 1. |
+| `brush` |  | Any |  | Brush settings to change (falloff, roundness, alpha...). |
 
 ### texEvaluate
 
@@ -12158,6 +12266,21 @@ Export a texture set's channels through an export preset (a bake target: unreal,
 | `incremental` |  | bool | `False` | Only rewrite files whose inputs or pixels changed since the last export to this folder. |
 | `backend` |  | str |  | gpu or cpu; the GPU when left out and the renderer can run. |
 | `normalFromHeight` |  | bool |  | Write the normal as detail over the height, with the height at 16 bits, for materials that rebuild normals from it; the set's normalFromHeight when left out. |
+| `variants` |  | bool | `False` | Export the base and every variant in one go, each named by the {variant} token (base for the base). |
+
+Not undoable.
+
+### texExportFlattened
+
+Write what flattening root layers would make (the stack with them, every channel they write) as images, leaving the stack alone. Returns {files, warnings}.
+
+**Objects:** set [layer]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layers` |  | list |  | Root layers; else the positional one. |
+| `folder` |  | str |  | Where the files go; textures/<set> by default. |
+| `format` |  | str | `'png'` | png (16 bit, colour as sRGB) or exr (32 bit linear). |
 
 Not undoable.
 
@@ -12200,6 +12323,33 @@ Export a texture set's layer stack as one layered PSD per channel (and tile): a 
 
 Not undoable.
 
+### texExportPtex
+
+Write one channel of a texture set to a Ptex file (.ptx): every quad of the mesh gets its own texels, sampled from the set through the mesh's uvs. The mesh must be all quads. Returns {file, faces, channels}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | The mesh the set paints (node path). |
+| `file` |  | str |  | The .ptx to write; relative paths are under the workspace. |
+| `channel` |  | str | `'baseColor'` | The set's channel. |
+| `faceResolution` |  | int | `6` | Texels per face side as a power of two: 6 is 64 x 64. |
+
+Not undoable.
+
+### texFaceGroup
+
+Save a named face set on a texture set for painting (the faces given, else those selected on the mesh), or remove it. Groups make selection masks (texSelectionMask group=), fill targets (fillBy group) and locks (the paint tool's Lock). Returns every group.
+
+**Objects:** set name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `faces` |  | list |  | Face indices; else the mesh's selected faces. |
+| `mesh` |  | str |  | The mesh; else the selected one. |
+| `remove` |  | bool | `False` | Remove the group. |
+
 ### texFlattenLayer
 
 Flatten a paint layer: keep its pixels and drop its stroke records, so the layer no longer replays or re-rasterises them (the pixels resample instead).
@@ -12209,6 +12359,20 @@ Flatten a paint layer: keep its pixels and drop its stroke records, so the layer
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `layer` |  | str |  | The paint layer. |
+
+### texFlattenLayers
+
+Flatten root layers into one paint layer: what the stack shows with them (the stack below them included, every channel they write, masks baked in) becomes the new layer's pixels, written to folder as EXR. down=True merges the layer into the one below it. keep=True leaves the originals hidden under it. Returns {layer, channels, warnings}.
+
+**Objects:** set [layer]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `layers` |  | list |  | Root layers to flatten together; else the positional one. |
+| `down` |  | bool | `False` | Merge the layer with the one below it. |
+| `keep` |  | bool | `False` | Keep the flattened layers, hidden. |
+| `name` |  | str |  | The new layer's name. |
+| `folder` |  | str |  | Where its pixels go; textures/<set>/flattened by default. |
 
 ### texGraphInfo
 
@@ -12261,6 +12425,22 @@ Convert Substance 3D Painter smart materials (.spsm), smart masks (.spmsk) and b
 
 Not undoable.
 
+### texImportPtex
+
+Bring a Ptex file (.ptx) onto a texture set: its faces are baked through the mesh's uvs into an image, which becomes a new fill layer on the channel. The mesh must be the quad mesh the file was painted on. Returns {id, image, faces}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mesh` |  | str |  | The mesh the file was painted on (node path). |
+| `file` |  | str |  | The .ptx to read. |
+| `channel` |  | str | `'baseColor'` | The set's channel the layer fills. |
+| `name` |  | str |  | Layer name; the file's name when left out. |
+| `folder` |  | str |  | Where the baked image goes; textures/<set> under the workspace by default. |
+
+Not undoable.
+
 ### texLayerStack
 
 A texture set's layer stack as JSON: layers bottom first (with each channel's resolved enable, mode and opacity), masks, anchors, the base values, the mesh maps it reads, and mode: stack, or graph when the graph was edited as nodes beyond what the stack can show (or was never layered).
@@ -12268,6 +12448,21 @@ A texture set's layer stack as JSON: layers bottom first (with each channel's re
 **Objects:** set
 
 Not undoable.
+
+### texMaterialFromMaps
+
+Make materials from texture maps: each file's channel comes from its name (BaseColor, albedo, diff, rough, gloss, metal, nrm or normal with dx or gl, height or disp, ao, emissive, opacity, and packed ORM, ARM, RMA, MRA), files differing only by that token make one material, and a size in the name (200cm, 2m) sets its scale. Packed maps are split, DirectX normals flipped, gloss inverted. Writes a .lilamat per material to the library (tier, category, or path), or with set= adds each as a material layer. Returns one entry per material with its maps and warnings.
+
+**Objects:** [file...]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` |  | str |  | A folder of maps (searched recursively unless recursive=False). |
+| `recursive` |  | bool | `True` | Search the folder's subfolders too. |
+| `tier` |  | str | `'user'` | user or workspace. |
+| `category` |  | str | `'Imported'` | Library category. |
+| `path` |  | str |  | Write the .lilamat files to this folder instead. |
+| `set` |  | str |  | Add them to this texture set as layers instead. |
 
 ### texMoveLayer
 
@@ -12291,6 +12486,17 @@ Move nodes on the canvas: texMoveNodes(set, positions={'Noise': [0, 100]}).
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `positions` |  | Any |  | {node: [x, y]} |
+
+### texMoveStroke
+
+Move a stroke to another place in its layer's order (0 the bottom) and re-rasterise the layer.
+
+**Objects:** set layer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `stroke` |  | int |  | The stroke's id. |
+| `index` |  | int |  | Its new place, 0 the bottom. |
 
 ### texNodeTypes
 
@@ -12317,9 +12523,28 @@ A texture set's paint layers: per layer its strokes, whether it is flattened, it
 
 Not undoable.
 
+### texPaintPath
+
+Paint a stroke along a path on the surface: points [[x, y, z], ...] or [{position, in, out}, ...] in the mesh's object space (Bezier handles; left out, they are smooth), or curve= a scene curve, projected onto the mesh. Dabs are spaced by the brush's spacing at radius (object units, default the brush's world radius). The path stays on the stroke, so texEditPath can move it later. Takes texPaintStroke's payload, brush, stencil and view. Returns texPaintStroke's result plus the path.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | list |  | Path points in the mesh's object space. |
+| `curve` |  | str |  | A scene curve to paint along instead of points. |
+| `layer` |  | str |  | The paint layer. |
+| `mesh` |  | str |  | The painted mesh; default the first using the set's material. |
+| `radius` |  | float |  | Dab radius in object units. |
+| `payload` |  | Any |  | What the stroke writes (texPaintStroke's payload). |
+| `brush` |  | Any |  | Brush settings. |
+| `stencil` |  | Any |  | A stencil, as texPaintStroke takes it (needs view). |
+| `particles` |  | Any |  | Particle brush. |
+| `view` |  | Any |  | The stroke view record {objectToClip, eye, direction, width, height}. |
+
 ### texPaintStroke
 
-Paint a stroke into a texture set's paint layer (layer=, else the active one, else the stack's top paint layer, else a new paint layer). The stroke is a record: {mesh, brush (radius, strength, flow, spacing, falloff, roundness, angle, alpha, strokeMode line, lazyRadius, mirror...), payload {kind, channels {baseColor: [r, g, b], roughness: 0.3, ...}, blend normal|erase|add|subtract|multiply, mask}, occlusion, particles}, plus either space=surface with dabs [{triangle, bary [u, v], radius, pressure, opacity, angle}] or [{position [x, y, z], radius}] (object space), or space=screen with points [[x, y, pressure]] and view {width, height, camera | view + proj | viewProj + eye | eye + lookAt + fov}. Payload kinds: paint; direction (tilt, channel: normal, or another channel for a flow map); smudge (amount), blur and sharpen (filterRadius texels, amount), clone and heal (sourceOffset [du, dv] or cloneFrom [x, y, z]); fill (fillBy mesh|island|material|polygon|triangle|selection with at [x, y, z], triangle, material or faces; no dabs); project (image: a file path, {path, rect [x, y, w, h], opacity}, or {width, height, data}, through view; facingFade, colorChannel; no dabs); normal (normalMode bump|stamp, stampImage, intensity, channel). paint and fill take source {library id | graph | node type, values, resolution, scale} to paint a material's channels, and any kind tip {node | graph, values, resolution} for a texture graph brush tip. particles {kind drips|rain|sparks, count, length, size, spread, rate, seed} adds particle dabs. Each stroke is one undo step and is kept, so texRasterize can replay it. Returns {layer, stroke, dabs, pages}.
+Paint a stroke into a texture set's paint layer (layer=, else the active one, else the stack's top paint layer, else a new paint layer). The stroke is a record: {mesh, brush (radius, strength, flow, spacing, falloff, roundness, angle, alpha, strokeMode line, lazyRadius, mirror...), payload {kind, channels {baseColor: [r, g, b], roughness: 0.3, ...}, blend normal|erase|add|subtract|multiply, mask}, occlusion, particles}, plus either space=surface with dabs [{triangle, bary [u, v], radius, pressure, opacity, angle}] or [{position [x, y, z], radius}] (object space), or space=screen with points [[x, y, pressure]] and view {width, height, camera | view + proj | viewProj + eye | eye + lookAt + fov}. Payload kinds: paint; direction (tilt, channel: normal, or another channel for a flow map); smudge (amount), blur and sharpen (filterRadius texels, amount), clone and heal (sourceOffset [du, dv] or cloneFrom [x, y, z]); fill (fillBy mesh|island|material|polygon|triangle|selection with at [x, y, z], triangle, material or faces; no dabs); project (image: a file path, {path, rect [x, y, w, h], opacity}, or {width, height, data}, through view; facingFade, colorChannel; no dabs); normal (normalMode bump|stamp, stampImage, intensity, channel). paint and fill take source {library id | graph | node type, values, resolution, scale} to paint a material's channels, and any kind tip {node | graph, values, resolution} for a texture graph brush tip. particles {kind drips|rain|sparks, count, length, size, spread, rate, seed} adds particle dabs. stencil {image (file, image key or {width, height, data}), offset [x, y] view pixels, scale, rotation radians, invert, tile, mode mask|color, colorChannel} paints through a picture pinned to the stroke's view: mask scales the amount by its luminance, color paints its rgb into colorChannel. Each stroke is one undo step and is kept, so texRasterize can replay it. Returns {layer, stroke, dabs, pages}.
 
 **Objects:** set [layer]
 
@@ -12334,7 +12559,29 @@ Paint a stroke into a texture set's paint layer (layer=, else the active one, el
 | `view` |  | Any |  | Screen view, when stroke has none. |
 | `space` |  | str |  | surface or screen (default: screen when there are points). |
 | `particles` |  | Any |  | Particle brush {kind, count, length, size, spread, rate, seed}, when stroke has none. |
+| `stencil` |  | Any |  | Stencil {image, offset, scale, rotation, invert, tile, mode, colorChannel}, when stroke has none. |
 | `id` |  | int |  | The stroke id the paint tool painted live under. |
+
+### texPaintStrokes
+
+Paint one stroke that crosses several meshes or texture sets: strokes [{set, layer, stroke}], each as texPaintStroke takes it, all in one undo step. The paint tool commits a stroke dragged over several meshes this way. Returns each one's result.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `strokes` |  | list |  | [{set, layer, stroke}, ...]. |
+
+### texPasteLayers
+
+Paste layers texCopyLayers copied, with fresh layer and mask ids, unique anchor names and their own copies of the paint. Placed like texAddLayer (above, below, parent, index). Returns {layers, warnings}.
+
+**Objects:** set text
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `above` |  | str |  | Insert right above this layer. |
+| `below` |  | str |  | Insert right below this layer. |
+| `parent` |  | str |  | Folder to put them in. |
+| `index` |  | int |  | Position in the root or parent, 0 the bottom. |
 
 ### texPasteNodes
 
@@ -12345,6 +12592,50 @@ Add nodes from texCopyNodes text, centred at position; names are made unique. Re
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `position` |  | list | `[0, 0]` | [x, y] canvas centre for the pasted nodes. |
+
+### texPatchFill
+
+Patch Fill a texture set in uv space: the hole (holeUv, a uv polygon, or hole, a mask image) is rebuilt from patches of its surroundings, every channel matched together, and lands as a new fill layer masked to the hole. With mesh=, each piece of the hole draws only from the uv islands it sits on. Returns {id, pieces, mask, channels}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `holeUv` |  | list |  | The hole: a polygon in uv space, [[u, v], ...]. |
+| `hole` |  | str |  | The hole: a mask image, white to fill. |
+| `sourceUv` |  | list |  | Only take patches from inside this uv polygon. |
+| `source` |  | str |  | Only take patches from where this mask image is white. |
+| `mesh` |  | str |  | The set's mesh: keeps each piece of the hole to its own uv islands. |
+| `patch` |  | int | `7` | Patch side in texels (odd). |
+| `seed` |  | int | `1` | Random seed. |
+| `name` |  | str | `'Patch Fill'` | Layer name. |
+| `folder` |  | str |  | Where the filled images go; textures/<set> under the workspace by default. |
+
+Not undoable.
+
+### texPickStroke
+
+The topmost stroke of a paint layer with a dab over a surface point, as texStrokes lists it; None when no stroke covers it.
+
+**Objects:** set layer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | list |  | [x, y, z] in the mesh's object space. |
+| `mesh` |  | str |  | Only strokes on this mesh. |
+
+Not undoable.
+
+### texProjectionView
+
+Save a projection view on a texture set by name (view=, a screen view as texPaintStroke takes it), remove it (remove=True), or recall it (neither): projecting from a saved view lands the same every time. texPaintStroke and texCaptureView take the name as view. Returns the view, or every saved view after a change.
+
+**Objects:** set name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` |  | Any |  | The view to save. |
+| `remove` |  | bool | `False` | Remove it. |
 
 ### texRasterize
 
@@ -12374,6 +12665,28 @@ Remove layers (folders with their contents) from a texture set's stack.
 Remove masks from a layer.
 
 **Objects:** set layer mask...
+
+### texRemoveVariant
+
+Remove a texture set's variant; the set goes back to the base when it was active.
+
+**Objects:** set name
+
+### texSampleChannels
+
+Pick a texture set's channel values at a point: uv=[u, v], or mesh= and position=[x, y, z] in its object space. source=set reads every channel as the stack evaluates it; source=layer reads one paint layer's own paint (layer=, else the active one), leaving out channels it didn't paint there. Values are linear: [r, g, b] for colour and vector channels, a number for gray ones. Returns {uv, udim, source, channels}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `uv` |  | list |  | [u, v]. |
+| `mesh` |  | str |  | The mesh position is on. |
+| `position` |  | list |  | [x, y, z] in the mesh's object space. |
+| `source` |  | str | `'set'` | set or layer. |
+| `layer` |  | str |  | The paint layer, for source=layer. |
+
+Not undoable.
 
 ### texSaveBrushPreset
 
@@ -12405,6 +12718,23 @@ Save a layer (a folder, usually) as a smart material, or its masks as a smart ma
 | `mask` |  | bool | `False` | Save the layer's mask stack as a smart mask. |
 
 Not undoable.
+
+### texSelectionMask
+
+Make a layer's selection mask from a shape: a lasso or polygon (points, screen pixels) or a rectangle (rect [x0, y0, x1, y1]) through view, projected into the texels the view sees (occlusion=False reaches hidden ones too); a polygon in uv space (uvPoints, the triangles whose middle is inside); or a face group (group). mode replace, add or subtract. A paint layer's own mask takes it; any other layer gets a paint mask named Selection. Returns texPaintStroke's result.
+
+**Objects:** set layer
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` |  | list |  | Lasso or polygon, [[x, y], ...] screen pixels. |
+| `rect` |  | list |  | [x0, y0, x1, y1] screen pixels. |
+| `view` |  | Any |  | The screen view, as texPaintStroke takes it. |
+| `uvPoints` |  | list |  | A polygon in uv space. |
+| `group` |  | str |  | A face group (texFaceGroup). |
+| `mode` |  | str | `'replace'` | replace, add or subtract. |
+| `occlusion` |  | bool | `True` | Only what the view sees. |
+| `mesh` |  | str |  | The painted mesh. |
 
 ### texSetBookmarks
 
@@ -12486,6 +12816,12 @@ Set a parameter or an unlinked input: texSetValue(set, 'Noise.scale', 8), texSet
 
 **Objects:** set node.id value
 
+### texSetVariant
+
+Set or clear a variant's override for one layer without switching to it: props is merged into the override (as texSetLayer takes it, plus maskOverrides {mask id: patch}); props null clears the layer's override.
+
+**Objects:** set name layer props
+
 ### texSmartMaterials
 
 The smart materials and masks in the libraries: name, kind, description, tags, tier and file. tags= keeps those with every tag given.
@@ -12495,6 +12831,46 @@ The smart materials and masks in the libraries: name, kind, description, tags, t
 | `tags` |  | list |  | Only those carrying all of these tags. |
 
 Not undoable.
+
+### texSnapshot
+
+Keep a texture set's evaluated channels as they are now, to compare later work against (texCompare). Unchanged regions share their pixels with earlier snapshots. Snapshots last the session. Returns {set, name, channels, newPages}.
+
+**Objects:** texture set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Its name; Snapshot N when left out. An existing snapshot of that name is replaced. |
+| `resolution` | `r` | int | `1024` | Largest side of each tile's images; 0 keeps the tiles' own sizes. |
+| `backend` |  | str |  | gpu or cpu; the GPU when left out and the renderer can run. |
+
+Not undoable.
+
+```python
+texSnapshot("RockTex", name="before rust")
+```
+
+### texSnapshots
+
+A texture set's snapshots, oldest first, and the memory every snapshot holds. Returns {snapshots: [{set, name, channels, newPages}], pages, bytes}.
+
+**Objects:** texture set
+
+Not undoable.
+
+### texStrokes
+
+A paint layer's strokes, bottom first: [{id, index, kind, mesh, channels, radius, strength, dabs, path}].
+
+**Objects:** set layer
+
+Not undoable.
+
+### texSwitchVariant
+
+Show a texture set as one of its variants ('' for the base). Layer and mask edits go to the variant shown.
+
+**Objects:** set name
 
 ### textCurves
 
@@ -12572,6 +12948,20 @@ Make text as a solid mesh in one step: a curveText node feeding a bevelPlus, bot
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
+### texTransferSet
+
+Move a texture set's look from one mesh onto another (an old version onto a new one, a high mesh onto its low one): each texel of the target takes the set's evaluated channels at the closest point of the source surface, as a new paint layer of the set into= (else the same set). Texels with no source within maxDistance stay empty and are counted. Returns {layer, texels, missed, channels}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` |  | str |  | The mesh the set paints now. |
+| `onto` |  | str |  | The mesh to move it onto. |
+| `into` |  | str |  | The set that gets the layer; else the same set. |
+| `maxDistance` |  | float |  | How far a target texel may be from the source surface. |
+| `folder` |  | str |  | Where the pixels go; textures/<target>/transferred by default. |
+
 ### textureDeformer
 
 Add a texture deformer: displaces the meshes by an image file or a texture set's channel, read through a uv set. rebindDeformer reads the image again. Returns the deformers.
@@ -12600,6 +12990,14 @@ Which project images the material editor's texture lists show. Globs relative to
 | `exclude` | `e` | list |  | Exclude globs; [] clears them. |
 | `scene` | `s` | bool | `False` | Set the scene's override instead of the workspace's lists. |
 | `clear` | `c` | bool | `False` | Remove the lists at that level (with scene, the scene falls back to the workspace). |
+
+### texVariants
+
+A texture set's variants: {active, variants {name: {layer id: override}}}. An override patches the layer's settings (enabled, opacity, material, params...) and maskOverrides {mask id: patch} its masks.
+
+**Objects:** set
+
+Not undoable.
 
 ### timeRange
 
@@ -14043,7 +14441,7 @@ Not undoable.
 
 ### viewportStats
 
-The active viewport's last finished frame as the GPU measured it: {frames, gpuMs, aoMs, cpuMs, meshDrawCalls, meshUploads, renderer}. frames counts frames drawn so far, so two calls apart give the frame rate; meshUploads counts GPU mesh copies the same way. Unlike measureView it times what the view really draws, components and highlights included. When an external renderer such as a Hydra delegate draws the view, rendererStats holds what it reports.
+The active viewport's last finished frame as the GPU measured it: {frames, gpuMs, aoMs, cpuMs, meshDrawCalls, meshUploads, pathSamples, renderer}; pathSamples is how many samples the path-traced view has added up (0 when it is off). frames counts frames drawn so far, so two calls apart give the frame rate; meshUploads counts GPU mesh copies the same way. Unlike measureView it times what the view really draws, components and highlights included. When an external renderer such as a Hydra delegate draws the view, rendererStats holds what it reports.
 
 Not undoable.
 
