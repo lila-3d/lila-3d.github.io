@@ -132,6 +132,23 @@ Limits every colour channel to a range.
 | `low` |  | `0` |  |
 | `high` |  | `1` |  |
 
+### Color Mask
+
+Type `colorMask`.
+
+White where the input is near a colour, fading to black by softness past the tolerance: picks out an ID or a hue.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `color` |  | `[1, 0, 0, 1]` |  |
+| `tolerance` |  | `0.1` | Distance in rgb that still counts. |
+| `softness` |  | `0.05` |  |
+
 ### Colorize
 
 Type `colorize`.
@@ -371,6 +388,27 @@ Arithmetic on two values.
 | --- | --- | --- | --- |
 | `operation` | `add`, `subtract`, `multiply`, `divide`, `minimum`, `maximum`, `power`, `absolute`, `oneMinus`, `step`, `modulo`, `sine`, `cosine`, `floor`, `fraction`, `clamp` | `add` |  |
 
+### Multi Color Mask
+
+Type `multiColorMask`.
+
+Color Mask for up to four colours at once: white wherever the input is near any of the first count.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `count` |  | `2` |  |
+| `color1` |  | `[1, 0, 0, 1]` |  |
+| `color2` |  | `[0, 1, 0, 1]` |  |
+| `color3` |  | `[0, 0, 1, 1]` |  |
+| `color4` |  | `[1, 1, 0, 1]` |  |
+| `tolerance` |  | `0.1` |  |
+| `softness` |  | `0.05` |  |
+
 ### Sharpen
 
 Type `sharpen`.
@@ -593,6 +631,21 @@ Object-space position from the texture set's mesh maps; (u, v, 0) when no mesh m
 | --- | --- | --- | --- | --- |
 | `position` | vector | output |  |  |
 
+### Random per Island
+
+Type `randomPerIsland`.
+
+A random value (and colour) per uv island, from the set's island map: each plank, bolt or panel gets its own variation.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | gray | output |  |  |
+| `color` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `seed` |  | `0` |  |
+
 ### Rest Position
 
 Type `restPosition`.
@@ -614,6 +667,25 @@ The mesh's object-space tangent frame per texel from the mesh maps (unit vectors
 | `tangent` | vector | output |  |  |
 | `bitangent` | vector | output |  |  |
 | `normal` | vector | output |  |  |
+
+### Tri-Planar Tiled
+
+Type `triplanarTiled`.
+
+Triplanar projection with each axis tiled at its own random turn and offset, so the three projections don't line up into a visible grid.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `space` | `object`, `world` | `object` |  |
+| `scale` |  | `1` | Repeats per unit. |
+| `sharpness` |  | `4` |  |
+| `rotation` |  | `180` | How far each axis's projection may turn, degrees. |
+| `seed` |  | `0` |  |
 
 ### Triplanar
 
@@ -690,6 +762,44 @@ Composites a layer's tangent-space normal over the normals below: rnm reorients 
 | `mode` | `rnm`, `normal` | `rnm` |  |
 | `opacity` |  | `1` |  |
 
+### Layer Decal
+
+Type `layerDecal`.
+
+Places one picture (or one cell of an atlas) on the mesh from a box in object space: out is the picture there, mask its alpha inside the box and 0 outside.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 0]` |  |
+| `out` | color | output |  |  |
+| `mask` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `planar`, `triplanar`, `spherical`, `cylindrical`, `warp` | `planar` | How the content lands on the mesh. |
+| `positionX` |  | `0` | Projector centre, object units. |
+| `positionY` |  | `0` |  |
+| `positionZ` |  | `0` |  |
+| `rotationX` |  | `0` | Projector turn, degrees. |
+| `rotationY` |  | `0` |  |
+| `rotationZ` |  | `0` |  |
+| `sizeX` |  | `20` | Projector box, object units: one repeat of the content. |
+| `sizeY` |  | `20` |  |
+| `sizeZ` |  | `20` |  |
+| `sharpness` |  | `4` | Triplanar: how quickly the three projections hand over. |
+| `follow` |  | `1` | Planar and warp: carry the content over edges that turn away from the projector. |
+| `warp00X` |  | `0` | Warp: corner offsets, in repeats. |
+| `warp00Y` |  | `0` |  |
+| `warp10X` |  | `0` |  |
+| `warp10Y` |  | `0` |  |
+| `warp01X` |  | `0` |  |
+| `warp01Y` |  | `0` |  |
+| `warp11X` |  | `0` |  |
+| `warp11Y` |  | `0` |  |
+| `columns` |  | `1` | Atlas: cells across. |
+| `rows` |  | `1` | Atlas: cells down. |
+| `cell` |  | `0` | Atlas: the cell shown, left to right, top to bottom. |
+
 ### Layer Height Mask
 
 Type `layerHeightMask`.
@@ -736,6 +846,58 @@ One channel of a paint layer: the painted value (rgb) and its coverage (alpha), 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `file` |  |  |  |
+
+### Layer Projection
+
+Type `layerProjection`.
+
+Places a layer's content on the mesh: by uv, or projected from a box (planar, triplanar, spherical, cylindrical, warp) placed in the mesh's object space, so it ignores seams. coord is the coordinate it reads the content at.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | color | output |  |  |
+| `coord` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `uv`, `planar`, `triplanar`, `spherical`, `cylindrical`, `warp` | `uv` | How the content lands on the mesh. |
+| `positionX` |  | `0` | Projector centre, object units. |
+| `positionY` |  | `0` |  |
+| `positionZ` |  | `0` |  |
+| `rotationX` |  | `0` | Projector turn, degrees. |
+| `rotationY` |  | `0` |  |
+| `rotationZ` |  | `0` |  |
+| `sizeX` |  | `100` | Projector box, object units: one repeat of the content. |
+| `sizeY` |  | `100` |  |
+| `sizeZ` |  | `100` |  |
+| `sharpness` |  | `4` | Triplanar: how quickly the three projections hand over. |
+| `follow` |  | `0` | Planar and warp: carry the content over edges that turn away from the projector. |
+| `warp00X` |  | `0` | Warp: corner offsets, in repeats. |
+| `warp00Y` |  | `0` |  |
+| `warp10X` |  | `0` |  |
+| `warp10Y` |  | `0` |  |
+| `warp01X` |  | `0` |  |
+| `warp01Y` |  | `0` |  |
+| `warp11X` |  | `0` |  |
+| `warp11Y` |  | `0` |  |
+
+### Layer Sample At
+
+Type `layerSampleAt`.
+
+Reads the input at a coordinate from another node (xy; z 0 reads nothing), turning its hue by random times hue: a scatter's instances.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 0]` |  |
+| `coord` | vector | input | `[0, 0, 0]` |  |
+| `random` | gray | input | `0.5` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `hue` |  | `0` | How far each instance's hue turns, at most. |
 
 ### Layer Tiling
 
@@ -1592,6 +1754,23 @@ Rows of boards, each row shifted by a random amount: a mask with gaps and bevell
 | `bevel` |  | `0.1` | Edge falloff, in board widths. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
+### Random per Cell
+
+Type `randomPerCell`.
+
+A random value (and colour) per cell of a grid across the texture, from a seed: varies tiles, planks or anything laid out on a grid.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | gray | output |  |  |
+| `color` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `cellsX` |  | `4` |  |
+| `cellsY` |  | `4` |  |
+| `seed` |  | `0` |  |
+
 ### Scales
 
 Type `scales`.
@@ -1931,6 +2110,27 @@ Shifts the input along an angle by the intensity input's value times the amount 
 | `angle` |  | `0` | Degrees. |
 | `amount` |  | `0.05` |  |
 
+### Hex Tile
+
+Type `hexTile`.
+
+Tiles the input with no visible repeat: hex cells each with a random offset, turn, size and hue, blended (by height too when Height Blend is up).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `scale` |  | `4` | Tiles per uv unit. |
+| `rotation` |  | `180` | How far each cell may turn, degrees. |
+| `sizeJitter` |  | `0.1` |  |
+| `hueJitter` |  | `0` |  |
+| `sharpness` |  | `4` | How narrow the blends between cells are. |
+| `heightBlend` |  | `0` | Blend by the input's brightness: high parts win. |
+| `seed` |  | `0` |  |
+
 ### Kaleidoscope
 
 Type `kaleidoscope`.
@@ -2080,6 +2280,58 @@ Caches its input in a texture, so what feeds it is computed once and not per rea
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
 | `out` | color | output |  |  |
 
+### Compare
+
+Type `compare`.
+
+A before-and-after wipe for looking at two versions side by side: a left of the line, b right of it. For previewing; wire a or b on, not this.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | color | input | `[0, 0, 0, 1]` |  |
+| `b` | color | input | `[1, 1, 1, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `position` |  | `0.5` | Where the line crosses, across u. |
+| `angle` |  | `0` | The line's lean, degrees. |
+| `lineWidth` |  | `0.004` | The line's width; 0 hides it. |
+
+### Condition
+
+Type `condition`.
+
+Chooses between two inputs by comparing two values: if a compares to b as asked, the result is ifTrue, else ifFalse.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | float | input | `0` |  |
+| `b` | float | input | `0.5` |  |
+| `ifTrue` | color | input | `[1, 1, 1, 1]` |  |
+| `ifFalse` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `comparison` | `greater`, `greaterOrEqual`, `less`, `lessOrEqual`, `equal`, `notEqual` | `greater` |  |
+| `epsilon` |  | `0.001` | How close counts as equal. |
+
+### Extract Channel
+
+Type `extractChannel`.
+
+One component of a colour as gray: r, g, b or a. For packed maps (ORM: occlusion, roughness, metallic).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `channel` | `r`, `g`, `b`, `a` | `r` |  |
+
 ### Pixel Processor
 
 Type `pixelProcessor`.
@@ -2120,6 +2372,25 @@ One random value and colour for the whole texture, from a seed: expose the seed 
 | `low` |  | `0` |  |
 | `high` |  | `1` |  |
 
+### Remap
+
+Type `remap`.
+
+Maps a value from one range to another: fromLow to toLow, fromHigh to toHigh, clamped to the new range when clamp is on.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | float | input | `0` |  |
+| `out` | float | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `fromLow` |  | `0` |  |
+| `fromHigh` |  | `1` |  |
+| `toLow` |  | `0` |  |
+| `toHigh` |  | `1` |  |
+| `clamp` |  | `true` |  |
+
 ### Switch
 
 Type `switch`.
@@ -2135,6 +2406,22 @@ Passes on input a or b, for toggling variations without relinking.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `selected` | `a`, `b` | `a` |  |
+
+### Trig
+
+Type `trig`.
+
+Trigonometry on a value (radians): tangent, inverse sine, cosine and tangent, atan2 of a over b, and hyperbolic tangent.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | float | input | `0` |  |
+| `b` | float | input | `1` |  |
+| `out` | float | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `tangent`, `arcsine`, `arccosine`, `arctangent`, `arctangent2`, `hyperbolicTangent` | `tangent` |  |
 
 ## TrimSheets extension
 
