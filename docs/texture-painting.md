@@ -70,7 +70,7 @@ texSampleChannels("Crate", mesh="crate", position=[0, 10, 0], source="layer", la
 
 A paint layer takes the selection in its own mask; any other layer gets a paint mask named Selection.
 
-**Quick Mask** (Limit row) limits painting without touching any layer: turn it on and paint the area, turn it off, and every later stroke and fill stays inside it. The clear button removes it.
+**Quick Mask** (Limit row) limits painting without touching any layer: turn it on and paint the area, turn it off, and every later stroke and fill stays inside it. The clear button removes it. While it holds an area, a red tint covers what strokes can't reach, on the mesh and in the 2D View; the eye button beside Quick Mask hides it. Set its colour and opacity in **Preferences > General > Textures**.
 
 **Groups** are named face sets saved on the texture set. Select faces, then **...** > **New Group from Selected Faces**. From there a group can mask the active layer, be filled, or be locked: with **Lock** on, strokes and fills leave its faces alone.
 
