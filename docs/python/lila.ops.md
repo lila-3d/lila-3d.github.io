@@ -8708,7 +8708,7 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
-| `useHardEdges` |  | bool | `False` | Follow edges marked hard. |
+| `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'x'` | off, x, y or z: remesh half and mirror, exactly symmetric. The mesh has to be symmetric across that plane through its origin. |
 | `middleSmoothing` |  | float | `0.0` | With symmetry, fills a groove along the middle edge loop (a sternum, a spine) so the rows cross it level: 0 follows the source, 1 smooths six faces either side. |
@@ -8716,8 +8716,6 @@ Auto quad remesh: a new all-quad mesh whose edge flow follows curvature, hard ed
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
 | `featureGuides` |  | list |  | Curves, or meshes whose edges trace lines, that get an edge loop laid exactly on them, like a hard edge. Draw them as for guides. |
 | `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
-| `densityVolumes` |  | list |  | Meshes placed over the areas that want a different face size: each acts from its centre out to its largest half extent, easing out to the edge. A sphere over a head, say. |
-| `volumeFaceSize` |  | float | `0.5` | Edge length inside the density volumes, as a multiple of what it would be: under 1 is denser. |
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `jointDensity` |  | float | `0.0` | Extra faces at joints, armpits and finger webs, where the mesh bends: 0 none, 1 about three times as dense there. |
@@ -8922,14 +8920,6 @@ relocateScene("Ground", from="bottom")
 ```python
 relocateScene("Hero", from="Hero", rotation="yaw", nodes=["Hero"])
 ```
-
-### remeshDensity
-
-Set how dense Quad Remesh makes the selected faces, or the whole of the selected meshes in object mode: the point attribute density, a multiple of the faces they would get otherwise. 1 clears it.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `value` | `v` | float | `2.0` | Density: 2 is twice the faces there, 0.5 half. |
 
 ### removeAnimLayerMembers
 
@@ -9470,7 +9460,7 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `timeout` |  | float | `0.0` | Seconds before giving up with an error saying how far it got, leaving the scene as it was; 0 waits until done or aborted. |
 | `targetEdgeLength` |  | float | `0.0` | Edge length, cm; overrides targetFaces when positive. |
 | `adaptivity` |  | float | `0.25` | 0 uniform, 1 much denser where curved; painted point 'density' multiplies. |
-| `useHardEdges` |  | bool | `False` | Follow edges marked hard. |
+| `useHardEdges` |  | bool | `True` | Follow edges marked hard. |
 | `sharpAngle` |  | float | `40.0` | Also follow creases sharper than this, degrees; negative disables. |
 | `symmetry` |  | str | `'off'` | off, x, y or z: remesh half and mirror, exactly symmetric. The mesh has to be symmetric across that plane through its origin. |
 | `middleSmoothing` |  | float | `0.0` | With symmetry, fills a groove along the middle edge loop (a sternum, a spine) so the rows cross it level: 0 follows the source, 1 smooths six faces either side. |
@@ -9478,8 +9468,6 @@ The poles quadRemesh's edge flow would turn at with these options, without remes
 | `guidePoints` |  | list |  | Guide polylines as lists of world [x, y, z]. |
 | `featureGuides` |  | list |  | Curves, or meshes whose edges trace lines, that get an edge loop laid exactly on them, like a hard edge. Draw them as for guides. |
 | `featureGuidePoints` |  | list |  | Feature guide polylines as lists of world [x, y, z]. |
-| `densityVolumes` |  | list |  | Meshes placed over the areas that want a different face size: each acts from its centre out to its largest half extent, easing out to the edge. A sphere over a head, say. |
-| `volumeFaceSize` |  | float | `0.5` | Edge length inside the density volumes, as a multiple of what it would be: under 1 is denser. |
 | `densityHandles` |  | list |  | Local face size as {position: world [x, y, z], radius, scale}: scale times the edge length at the centre (0.35 to 2.8), easing out to the radius. |
 | `pureQuads` |  | bool | `True` | All quads; false allows a few triangles and pentagons. |
 | `jointDensity` |  | float | `0.0` | Extra faces at joints, armpits and finger webs, where the mesh bends: 0 none, 1 about three times as dense there. |
@@ -12259,6 +12247,19 @@ Bring images into a texture set's stack as layers, bottom to top: each image (a 
 | `parent` |  | str |  | Folder to put them in. |
 | `folder` |  | str |  | Where the copies go; textures/<set>/imported by default. |
 
+### texImportPainterSmartMaterials
+
+Convert Substance 3D Painter smart materials (.spsm files, or folders of them) into Lila smart materials, written as .lilasmart beside their embedded images. Painter's generators, noises and filters become their nearest Lila nodes; custom Substance graphs and painted strokes can't come across. Returns per file {file, materials, approximated, dropped, error}.
+
+**Objects:** file|folder [file|folder...]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` |  | str |  | Where they go; your smart materials folder by default. |
+| `overwrite` |  | bool | `True` | Replace smart materials of the same name there. |
+
+Not undoable.
+
 ### texLayerStack
 
 A texture set's layer stack as JSON: layers bottom first (with each channel's resolved enable, mode and opacity), masks, anchors, the base values, the mesh maps it reads, and mode: stack, or graph when the graph was edited as nodes beyond what the stack can show (or was never layered).
@@ -12458,6 +12459,20 @@ Change a texture set's settings: the keys given replace the set's (channels, wid
 
 **Objects:** set settings
 
+### texSetSmartMaterialTags
+
+Set, add or remove a smart material's or mask's tags, for you only (built-in ones too). Returns its tags.
+
+**Objects:** smartMaterial
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tags` |  | list |  | Replace its tags with these. |
+| `add` |  | list |  | Tags to add. |
+| `remove` |  | list |  | Tags to remove. |
+
+Not undoable.
+
 ### texSetTies
 
 Replace a texture set's zip ties, shaped as gnSetTies takes them. Display only; links not in the graph are dropped, and so is a tie left with fewer than two. Returns how many ties the graph has.
@@ -12472,7 +12487,11 @@ Set a parameter or an unlinked input: texSetValue(set, 'Noise.scale', 8), texSet
 
 ### texSmartMaterials
 
-The smart materials and masks in the libraries: name, kind, description, tier and file.
+The smart materials and masks in the libraries: name, kind, description, tags, tier and file. tags= keeps those with every tag given.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tags` |  | list |  | Only those carrying all of these tags. |
 
 Not undoable.
 

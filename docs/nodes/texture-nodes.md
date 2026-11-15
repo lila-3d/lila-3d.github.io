@@ -658,7 +658,7 @@ World-space position from the texture set's mesh maps; (u, v, 0) when no mesh ma
 
 Type `layerBlend`.
 
-Composites a layer's channel over the stack below it: the blend mode result, mixed in by mask times opacity. addSigned adds around 0.5 (heights).
+Composites a layer's channel over the stack below it: the blend mode result, mixed in by mask times opacity. addSigned adds around 0.5 (heights); saturation, color and value take that part from the layer, the rest from below.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -669,7 +669,7 @@ Composites a layer's channel over the stack below it: the blend mode result, mix
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `mode` | `normal`, `add`, `subtract`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `difference`, `softLight`, `addSigned` | `normal` |  |
+| `mode` | `normal`, `add`, `subtract`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `difference`, `softLight`, `addSigned`, `colorBurn`, `linearBurn`, `colorDodge`, `hardLight`, `vividLight`, `linearLight`, `pinLight`, `exclusion`, `divide`, `saturation`, `color`, `value` | `normal` |  |
 | `opacity` |  | `1` |  |
 
 ### Layer Blend Normal

@@ -59,6 +59,7 @@
     - [Quad Remesh](quad-remesh.md)
   - [UVs](uvs.md)
   - [Baking](baking.md)
+  - [Painter smart materials](painter-smart-materials.md)
   - [Turntable](turntable.md)
   - [3D printing](3d-printing.md)
 - <span class="nav-label">Nodes</span>
