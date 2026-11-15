@@ -90,6 +90,23 @@ texMaterialFromMaps("C:/maps/Rock_BaseColor.png", "C:/maps/Rock_ORM.png", set="C
 texExport("Crate", preset="unityHdrp", folder="C:/Project/Assets/Textures")
 ```
 
+## Variants
+
+Variants are versions of one texture set, such as a clean and a worn crate or team colours, kept as setting changes on its layers rather than copies of pixels.
+
+1. In the Texture Set panel, open the variant list beside the set (it shows **Base**) and pick **New Variant...**.
+2. Change layers as usual: hide one, change a fill's colour, move an opacity, reseed a mask. While a variant shows, every such change belongs to it and the base stays as it was.
+3. Switch between **Base** and the variants from the same list.
+4. **Texture > Export All Variants** writes the maps once per variant. The export preset's names take a `{variant}` token (`base` for the base); a preset without one gets `_{variant}` added.
+
+Painted pixels are shared by every variant. To give a variant different paint, put the paint on its own layer and hide it in the others.
+
+```python
+texAddVariant("Crate", "Worn")
+texSetVariant("Crate", "Worn", "L4", {"enabled": True})
+texExport("Crate", variants=True, folder="C:/Project/Textures")
+```
+
 ## Ptex
 
 Open the texture set, select its mesh, and pick **Texture > Export Ptex...** to write one channel as a `.ptx` file with its own texels on every face. **Texture > Import Ptex...** reads one back onto the set as a fill layer, baked through the mesh's uvs.
