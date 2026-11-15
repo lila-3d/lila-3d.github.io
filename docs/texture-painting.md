@@ -45,6 +45,19 @@ The **Path** tool paints one clean stroke along points you place: seams, panel l
 texPaintPath("Crate", curve="seamCurve", radius=0.5, payload={"channels": {"baseColor": [0.1, 0.1, 0.1]}})
 ```
 
+## Picking channel values
+
+The **Picker** tile takes every channel's value from the mesh (colour, roughness, metallic, height and the rest at once), as the texture set evaluates them, not as the screen shows them under lights.
+
+1. Pick the **Picker** tile and click the mesh, the 2D View or the UV editor. The brush takes the values and goes back to the tool you had.
+2. **Shift+click** keeps the values as a swatch under **Swatches** instead. Click a swatch to paint with it; right-click removes it.
+3. Turn on **Layer only** to pick the active paint layer's own paint, ignoring the layers above and below.
+
+```python
+texSampleChannels("Crate", uv=[0.25, 0.5])
+texSampleChannels("Crate", mesh="crate", position=[0, 10, 0], source="layer", layer="paint1")
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
@@ -54,6 +67,8 @@ texPaintPath("Crate", curve="seamCurve", radius=0.5, payload={"channels": {"base
 **"its stencil needs the view it was painted in" in the log.** The stroke was scripted with dabs in surface space and no view. Give it screen `points` and a `view`.
 
 **Colour mode looks washed out.** 8-bit images are read as sRGB and painted as linear colour; EXR and HDR files are taken as linear already.
+
+**Layer only picks nothing.** The active layer has no paint at that spot; the log says so.
 
 ## Options
 
