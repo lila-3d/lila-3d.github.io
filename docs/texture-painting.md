@@ -94,6 +94,16 @@ texPaintStroke("Crate", "L2", stroke={"mesh": "crate", "payload": {"kind": "fill
     "stops": [{"position": 0, "channels": {"roughness": 0.2}}, {"position": 1, "channels": {"roughness": 0.9}}]}}})
 ```
 
+## When the mesh changes
+
+Strokes remember where on the surface they were, so paint survives a new unwrap, a remesh or added edge loops: when the mesh's triangles or uvs change, each stroke is found again at the closest surface point and the layer repaints. Brush strokes and whole-mesh fills follow; fills of an island, polygon or selection don't, because those parts no longer exist as they were. The log counts anything left out.
+
+To move a look onto a different mesh (an old version onto a new one, a high mesh onto its low one), select the source mesh, then the target, and run **Texture > Transfer Texture Set**. The target gets a paint layer with every channel taken from the closest point of the source.
+
+```python
+texTransferSet("Crate", source="crate_v1", onto="crate_v2")
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
@@ -107,6 +117,10 @@ texPaintStroke("Crate", "L2", stroke={"mesh": "crate", "payload": {"kind": "fill
 **Layer only picks nothing.** The active layer has no paint at that spot; the log says so.
 
 **A selection masks nothing.** No layer is selected in the Texture Set dock; the log says so. Select one and draw again.
+
+**"dabs found no surface on the changed mesh".** Part of the surface a stroke painted was deleted or moved further than the brush's radius. Repaint it there.
+
+**Transfer leaves parts empty.** Those texels found no source surface within maxDistance; the log counts them. Raise maxDistance or line the meshes up first.
 
 ## Options
 
