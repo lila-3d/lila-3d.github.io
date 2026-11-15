@@ -90,6 +90,19 @@ texMaterialFromMaps("C:/maps/Rock_BaseColor.png", "C:/maps/Rock_ORM.png", set="C
 texExport("Crate", preset="unityHdrp", folder="C:/Project/Assets/Textures")
 ```
 
+## Ptex
+
+Open the texture set, select its mesh, and pick **Texture > Export Ptex...** to write one channel as a `.ptx` file with its own texels on every face. **Texture > Import Ptex...** reads one back onto the set as a fill layer, baked through the mesh's uvs.
+
+Both need an all-quad mesh with uvs, and an import needs the mesh the file was painted on.
+
+```python
+texExportPtex("Crate", mesh="|crate", file="C:/maps/crate.ptx", faceResolution=7)
+texImportPtex("Crate", mesh="|crate", file="C:/maps/crate.ptx", channel="baseColor")
+```
+
+`faceResolution` is the texels per face side as a power of two: 7 is 128 x 128.
+
 ## Troubleshooting
 
 **A projection shows the content stretched or flat.** The texture set has no position and normal maps to project with. Set its bake project (**Baking**) so the mesh maps exist.
@@ -97,6 +110,8 @@ texExport("Crate", preset="unityHdrp", folder="C:/Project/Assets/Textures")
 **The projection lands in the wrong place.** Position, rotation and size are in the mesh's object space, not world space; **Place on Mesh** sets them from a click.
 
 **A text layer shows nothing.** The font has no glyphs for those letters, or the box sits away from the mesh. The stack lists a warning for the first; **Place on Mesh** fixes the second.
+
+**Ptex says the mesh needs to be all quads, or that the face counts differ.** Ptex stores texels per quad. Triangles and n-gons can't be written, and an import only fits the mesh the file was made for, with the same faces in the same order.
 
 **"is inside a folder; flatten the folder".** Flatten and merge work on the stack's top level. Flatten the folder holding the layer instead.
 
