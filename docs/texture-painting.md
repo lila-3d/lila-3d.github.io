@@ -96,6 +96,26 @@ texPaintStroke("Crate", "L2", stroke={"mesh": "crate", "payload": {"kind": "fill
     "stops": [{"position": 0, "channels": {"roughness": 0.2}}, {"position": 1, "channels": {"roughness": 0.9}}]}}})
 ```
 
+## Patch Fill
+
+Patch Fill removes a scratch, seam or logo by rebuilding it from what is around it.
+
+**On the texture:**
+
+1. Pick **Selection** and draw around what to remove, on the mesh or as a lasso in the UV editor.
+2. Select the mesh too, so patches come only from the uv islands the selection is on.
+3. Click **Patch Fill** (beside **Shape**), or **Texture > Patch Fill Selection**.
+
+Every channel is filled from the same patches, so colour, roughness and normal stay in step. The result is a new **Patch Fill** layer masked to the selection; hide or delete it to undo the look.
+
+**From the view:** with **Projection**, paint over what to remove, click **Patch Fill** in the buffer row, then **Project** (`Enter`). The fill comes from what the view shows around the strokes.
+
+```python
+texPatchFill("Crate", holeUv=[[0.4, 0.4], [0.6, 0.4], [0.6, 0.6], [0.4, 0.6]], mesh="|crate")
+```
+
+`patch` sets the patch size in texels: larger copies bigger structures, smaller follows fine detail.
+
 ## When the mesh changes
 
 Strokes remember where on the surface they were, so paint survives a new unwrap, a remesh or added edge loops: when the mesh's triangles or uvs change, each stroke is found again at the closest surface point and the layer repaints. Brush strokes and whole-mesh fills follow; fills of an island, polygon or selection don't, because those parts no longer exist as they were. The log counts anything left out.
@@ -172,6 +192,8 @@ The **Reveal** tile paints a picture in through the brush, as if scratching away
 These work for every brush that uses the shared brush settings; Airbrush builds up over time in Texture Paint.
 
 ## Troubleshooting
+
+**Patch Fill says no patch fits.** The area around the selection is smaller than a patch, for example a hole filling most of a small uv island. Select less, or lower `patch`.
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
 
