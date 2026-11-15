@@ -147,6 +147,14 @@ The library's Particles brushes set these up with fitting colours. The particles
 
 **UV mirror** in the Brush page mirrors every stroke in uv space as well: **U** across the left and right halves of the unwrap, **V** across top and bottom. **Per island** mirrors within each uv island instead, for parts unwrapped symmetric on their own. It works on top of **Mirror**, and on meshes that aren't symmetric in shape.
 
+## Tiling textures
+
+For a texture that repeats (a trim sheet, a tiling material), tick **Tileable** in the texture set's settings. Strokes that reach past an edge of the uv square come in on the opposite edge, in the 3D view and the UV editor, so the texture tiles without seams. The 2D View tiles it 3 x 3 so you see the wrap as you paint.
+
+```python
+texSetSettings("Trim", {"tileable": True})
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
