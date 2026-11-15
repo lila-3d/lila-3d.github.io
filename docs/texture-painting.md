@@ -58,6 +58,26 @@ texSampleChannels("Crate", uv=[0.25, 0.5])
 texSampleChannels("Crate", mesh="crate", position=[0, 10, 0], source="layer", layer="paint1")
 ```
 
+## Selections, quick mask and locked faces
+
+**Selection** draws a mask for the layer selected in the Texture Set dock:
+
+1. Pick the **Selection** tile and a **Shape**: lasso, polygon (click corners, **Enter** closes) or rectangle.
+2. Draw on the mesh. Only what the view sees is masked, unless **Only what the view sees** is off. **Shift** adds to the mask, **Ctrl** subtracts.
+3. In the UV editor, drag a lasso in uv space to mask whole triangles.
+
+A paint layer takes the selection in its own mask; any other layer gets a paint mask named Selection.
+
+**Quick Mask** (Limit row) limits painting without touching any layer: turn it on and paint the area, turn it off, and every later stroke and fill stays inside it. The clear button removes it.
+
+**Groups** are named face sets saved on the texture set. Select faces, then **...** > **New Group from Selected Faces**. From there a group can mask the active layer, be filled, or be locked: with **Lock** on, strokes and fills leave its faces alone.
+
+```python
+texFaceGroup("Crate", "lid", faces=[4, 5, 6])
+texSelectionMask("Crate", "L3", group="lid", mode="add")
+texSelectionMask("Crate", "L3", rect=[100, 100, 400, 300], view={"camera": "persp", "width": 1920, "height": 1080})
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
@@ -69,6 +89,8 @@ texSampleChannels("Crate", mesh="crate", position=[0, 10, 0], source="layer", la
 **Colour mode looks washed out.** 8-bit images are read as sRGB and painted as linear colour; EXR and HDR files are taken as linear already.
 
 **Layer only picks nothing.** The active layer has no paint at that spot; the log says so.
+
+**A selection masks nothing.** No layer is selected in the Texture Set dock; the log says so. Select one and draw again.
 
 ## Options
 
