@@ -1,13 +1,13 @@
 # Painter smart materials
 
-Convert Substance 3D Painter smart materials (`.spsm`) into Lila smart materials you drag from the smart material shelf onto meshes.
+Convert Substance 3D Painter smart materials (`.spsm`), smart masks (`.spmsk`) and brush presets (`.sppr`) into their Lila equivalents on the Texture Set panel's shelf.
 
 ## Get it working
 
-1. Drag `.spsm` files from Explorer onto the **Materials** tab of the Texture Set panel's shelf. Or choose **Texture > Import Painter Smart Materials...**, which opens in Painter's smart material folder and previews each file.
-2. A toast reports how many came across. They appear on the shelf tagged **Imported**.
+1. Drag the files (or a whole folder of brush presets) from Explorer onto the Texture Set panel's shelf. Or choose **Texture > Import from Painter...**, which opens in Painter's smart material folder and previews each smart material.
+2. A toast reports how many came across. Smart materials and masks appear tagged **Imported**; brush presets appear in the **Imported** brush category.
 
-Each becomes a `.lilasmart` in your smart materials folder (`smartmaterials` under Lila's preferences folder), with its embedded images in a `<name>.images` folder beside it.
+Smart materials and masks become `.lilasmart` files in your smart materials folder (`smartmaterials` under Lila's preferences folder), with embedded images in a `<name>.images` folder beside them. Brush presets go to `brushes/Imported` there.
 
 ```python
 texImportPainterSmartMaterials("D:/Painter/smart-materials")
@@ -21,6 +21,7 @@ To find them in a large library, use the shelf's filter button: pick tags such a
 
 - Custom Substance materials (`.sbsar`) used as a fill, such as a vendor's base material. The layer keeps its other channels; refill the missing ones with a Lila material.
 - Painted strokes. Painter stores brush strokes, not pixels; repaint those masks in Lila.
+- Brush tips. A brush preset's settings come across, but its tip becomes the library alpha closest to it by name, or a round tip when none is close.
 - Channels Lila has no counterpart for: specular, diffuse, translucency, user channels.
 - Filters with no Lila counterpart, such as Baked Lighting Stylized.
 
