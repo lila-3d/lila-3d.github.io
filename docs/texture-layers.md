@@ -46,6 +46,19 @@ texAddLayer("Crate", "text", text={"text": "FRAGILE", "outline": 0.05}, material
 texAddLayer("Crate", "scatter", scatter={"pattern": "textures/leaf.png", "countX": 8, "seed": 3, "avoidOverlap": True})
 ```
 
+## Copy, merge and flatten
+
+Right-click a layer in the stack:
+
+- **Copy Layer** and **Paste Layers** move layers (masks, children, paint and all) between texture sets and scenes through the clipboard. Pasted layers get their own copy of the paint.
+- **Merge Down** bakes the layer and the one below it into one paint layer. **Flatten Layer** bakes a layer or folder, with everything under it, into one. Either way the result looks the same as before, and undo brings the layers back.
+- **Export Flattened...** writes what flattening would make as images, without changing the stack.
+
+```python
+texFlattenLayers("Crate", layers=["L1", "L2", "L3"], keep=True)
+texExportFlattened("Crate", "L4", folder="C:/out", format="png")
+```
+
 ## Troubleshooting
 
 **A projection shows the content stretched or flat.** The texture set has no position and normal maps to project with. Set its bake project (**Baking**) so the mesh maps exist.
@@ -53,3 +66,7 @@ texAddLayer("Crate", "scatter", scatter={"pattern": "textures/leaf.png", "countX
 **The projection lands in the wrong place.** Position, rotation and size are in the mesh's object space, not world space; **Place on Mesh** sets them from a click.
 
 **A text layer shows nothing.** The font has no glyphs for those letters, or the box sits away from the mesh. The stack lists a warning for the first; **Place on Mesh** fixes the second.
+
+**"is inside a folder; flatten the folder".** Flatten and merge work on the stack's top level. Flatten the folder holding the layer instead.
+
+**Flatten warns about UDIM tiles.** Only the first tile is baked; the others keep showing the layers below.
