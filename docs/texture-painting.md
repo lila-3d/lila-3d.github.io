@@ -155,6 +155,22 @@ For a texture that repeats (a trim sheet, a tiling material), tick **Tileable** 
 texSetSettings("Trim", {"tileable": True})
 ```
 
+## Reveal
+
+The **Reveal** tile paints a picture in through the brush, as if scratching away a cover. Pick the picture in its row, then **Screen** to pin it to the view (paint it onto whatever is under it) or **UV** to lay it on the uvs, tiled by **Scale**.
+
+## Stroke methods
+
+**Stroke** in the brush's stroke options sets how dabs are laid:
+
+| Stroke | What it does |
+| --- | --- |
+| Airbrush | Keeps adding while the button is held, even without moving: paint builds up over time at **Air rate** dabs a second. |
+| Anchored | One dab at the press; drag outward to size it, release to lay it. |
+| Drag Dot | One dab that follows the drag and lands where you let go. |
+
+These work for every brush that uses the shared brush settings; Airbrush builds up over time in Texture Paint.
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
