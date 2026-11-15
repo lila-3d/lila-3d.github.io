@@ -104,6 +104,20 @@ To move a look onto a different mesh (an old version onto a new one, a high mesh
 texTransferSet("Crate", source="crate_v1", onto="crate_v2")
 ```
 
+## Painting in an image editor
+
+From the **Projection** tile:
+
+1. Click **Edit...**. What the view shows of Base Color opens in your image editor (the system's, or the one set with **...** > **Image Editor...** in the Brush page), unlit, at the buffer's resolution.
+2. Paint in the editor and save. Each save projects the picture back onto the mesh from the view it was taken in, into the active paint layer.
+
+Keep a view to project from again: click the camera button by **View** and name it. Picking it later moves the viewport there, and projections and edits use it exactly.
+
+```python
+texProjectionView("Crate", "front", view={"camera": "persp", "width": 1920, "height": 1080})
+texCaptureView("Crate", view="front", file="C:/edits/front.png")
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
