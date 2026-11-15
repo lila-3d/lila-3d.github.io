@@ -60,6 +60,7 @@
     - [Quad Remesh](quad-remesh.md)
   - [UVs](uvs.md)
   - [Baking](baking.md)
+  - [Texture layers](texture-layers.md)
   - [Texture painting](texture-painting.md)
   - [Displacement preview](displacement-preview.md)
   - [Painter smart materials](painter-smart-materials.md)
