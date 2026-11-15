@@ -119,7 +119,7 @@ Patch Fill removes a scratch, seam or logo by rebuilding it from what is around 
 **On the texture:**
 
 1. Pick **Selection** and draw around what to remove, on the mesh or as a lasso in the UV editor.
-2. Select the mesh too, so patches come only from the uv islands the selection is on.
+2. Select the mesh too, so patches come only from the uv islands the selection is on. A selection that runs up to a uv seam then fills from both sides of it: the fill sees what lies across the seam on the mesh, so the pattern carries over. `acrossSeams=False` keeps each island to itself.
 3. Click **Patch Fill** (beside **Shape**), or **Texture > Patch Fill Selection**.
 
 Every channel is filled from the same patches, so colour, roughness and normal stay in step. The result is a new **Patch Fill** layer masked to the selection; hide or delete it to undo the look.

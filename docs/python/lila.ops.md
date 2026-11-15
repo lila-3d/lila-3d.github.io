@@ -12595,7 +12595,7 @@ Add nodes from texCopyNodes text, centred at position; names are made unique. Re
 
 ### texPatchFill
 
-Patch Fill a texture set in uv space: the hole (holeUv, a uv polygon, or hole, a mask image) is rebuilt from patches of its surroundings, every channel matched together, and lands as a new fill layer masked to the hole. With mesh=, each piece of the hole draws only from the uv islands it sits on. Returns {id, pieces, mask, channels}.
+Patch Fill a texture set in uv space: the hole (holeUv, a uv polygon, or hole, a mask image) is rebuilt from patches of its surroundings, every channel matched together, and lands as a new fill layer masked to the hole. With mesh=, each piece of the hole draws only from the uv islands it sits on, and sees across their seams to the content on the other side. Returns {id, pieces, mask, channels}.
 
 **Objects:** set
 
@@ -12606,6 +12606,7 @@ Patch Fill a texture set in uv space: the hole (holeUv, a uv polygon, or hole, a
 | `sourceUv` |  | list |  | Only take patches from inside this uv polygon. |
 | `source` |  | str |  | Only take patches from where this mask image is white. |
 | `mesh` |  | str |  | The set's mesh: keeps each piece of the hole to its own uv islands. |
+| `acrossSeams` |  | bool | `True` | With mesh: match across uv seams, each island padded with what lies on the other side. |
 | `patch` |  | int | `7` | Patch side in texels (odd). |
 | `seed` |  | int | `1` | Random seed. |
 | `name` |  | str | `'Patch Fill'` | Layer name. |
