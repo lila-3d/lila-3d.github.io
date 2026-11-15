@@ -36,6 +36,16 @@ Every brush's **Stroke > Alpha** picker lists the images in the alpha folders (t
 
 Dropping an image file on the field uses it without copying it. PNG, EXR, TGA, TIFF and PSD load; JPG doesn't.
 
+## Pen tilt and rotation
+
+Every brush (sculpt, texture paint, vertex colour, weights, grooming) reads the pen's tilt and barrel rotation. Open **Tilt** in the brush's stroke options:
+
+- **Size** and **Opacity** grow as the pen leans, from **Minimum** when upright.
+- **Roundness** flattens the tip as the pen leans, like the side of a pencil.
+- **Angle** turns the tip toward where the pen leans; **Rotation** turns it with an art pen's barrel.
+
+Texture strokes keep each dab's tilt, so a layer rebuilt from its strokes gives the same pixels.
+
 ## Extension brushes
 
 A brush with new behaviour is C++ in a [C++ extension](cpp-extensions.md). `sculpt::registerBrush` adds a button to the Sculpt panel and a brush name that presets and `sculptStroke` take. `displace` returns each point's move for one dab; Lila applies the mask, freeze, symmetry, polypaint and undo around it. It runs on many threads at once, so it may only read.
