@@ -120,6 +120,14 @@ texProjectionView("Crate", "front", view={"camera": "persp", "width": 1920, "hei
 texCaptureView("Crate", view="front", file="C:/edits/front.png")
 ```
 
+## Brush limits
+
+Limits in the Brush page keep the brush where it belongs, whatever the stroke covers: tick **Cavity**, **AO** or **Height** and set the range it may paint in, pick a face group under **Only group**, or raise **Facing** to fade out surfaces turned away from the view. Cavity and AO read the set's bake project maps; height reads the set itself. Limits are saved with brush presets and with each stroke.
+
+```python
+texSaveBrushPreset("Edge Rust", payload={"channels": {"baseColor": [0.4, 0.15, 0.05]}, "limits": {"cavity": [0.6, 1.0]}})
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
@@ -137,6 +145,8 @@ texCaptureView("Crate", view="front", file="C:/edits/front.png")
 **"dabs found no surface on the changed mesh".** Part of the surface a stroke painted was deleted or moved further than the brush's radius. Repaint it there.
 
 **Transfer leaves parts empty.** Those texels found no source surface within maxDistance; the log counts them. Raise maxDistance or line the meshes up first.
+
+**A limit does nothing and the log says the map is missing.** Cavity and AO need the set's bake project to have those maps. Bake them (**Baking**) or untick the limit.
 
 ## Options
 
