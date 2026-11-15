@@ -96,6 +96,22 @@ texPaintStroke("Crate", "L2", stroke={"mesh": "crate", "payload": {"kind": "fill
     "stops": [{"position": 0, "channels": {"roughness": 0.2}}, {"position": 1, "channels": {"roughness": 0.9}}]}}})
 ```
 
+## Editing strokes
+
+Every stroke on a paint layer stays editable. Open **Strokes** at the bottom of the texture paint panel; it lists the active paint layer's strokes, newest first.
+
+1. Select a stroke in the list, or click the pick button and then click it on the mesh.
+2. Change its colour, its size (in percent) or its strength. The layer repaints from its strokes with the change.
+3. The arrows move it up or down the layer's order; the bin deletes it.
+
+Each change is one undo step.
+
+```python
+texStrokes("Crate", "L2")
+texEditStroke("Crate", "L2", stroke=14, color=[0.8, 0.1, 0.1], sizeScale=1.5)
+texDeleteStrokes("Crate", "L2", strokes=[15, 16])
+```
+
 ## Patch Fill
 
 Patch Fill removes a scratch, seam or logo by rebuilding it from what is around it.
