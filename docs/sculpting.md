@@ -59,6 +59,12 @@ To bake, name the high poly `<low>_high` and pick **Auto Group by Name** in **Ba
 2. Exit. The mesh gets a `polypaint` color set at its current level.
 3. To bake it, set the Base Colour map's **Source** to `vertexColor` in the baker.
 
+## Texture painting
+
+Paint the mesh's texture set without leaving Sculpt: click **Paint > Paint Texture** in the Sculpt panel. The sculpt switches to **Mesh Material** and the [texture paint](texture-painting.md) tool takes over; strokes land on the sculpted surface. Press `Esc` to go back to the sculpt brush.
+
+Strokes are kept on the level you paint at. After a level change, they are moved onto the new surface as when the [mesh changes](texture-painting.md#when-the-mesh-changes).
+
 ## Troubleshooting
 
 **Sculpt does nothing and the log says `select a mesh`.** Nothing selected is a mesh. Select the mesh itself, not its group.
