@@ -78,6 +78,22 @@ texSelectionMask("Crate", "L3", group="lid", mode="add")
 texSelectionMask("Crate", "L3", rect=[100, 100, 400, 300], view={"camera": "persp", "width": 1920, "height": 1080})
 ```
 
+## Gradients
+
+The **Gradient** tile fills the mesh with the brush's channel values, fading out along a drag.
+
+1. Pick **Gradient** and a type: **Linear**, **Radial**, **Reflected** or **Angle**.
+2. Drag on the mesh from where it should paint fully to where it fades out. **Ctrl** reverses it. In the 2D View or UV editor the drag is in uv space.
+3. **Dither** breaks up banding in long, subtle gradients.
+
+It paints into the active paint layer, or into the quick mask while Quick Mask is on. Locked groups stay untouched. Scripts can give a full ramp of values:
+
+```python
+texPaintStroke("Crate", "L2", stroke={"mesh": "crate", "payload": {"kind": "fill", "fillBy": "mesh", "gradient": {
+    "type": "linear", "space": "uv", "start": [0, 0.5], "end": [1, 0.5],
+    "stops": [{"position": 0, "channels": {"roughness": 0.2}}, {"position": 1, "channels": {"roughness": 0.9}}]}}})
+```
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
