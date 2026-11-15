@@ -737,6 +737,24 @@ One channel of a paint layer: the painted value (rgb) and its coverage (alpha), 
 | --- | --- | --- | --- |
 | `file` |  |  |  |
 
+### Layer Tiling
+
+Type `layerTiling`.
+
+Repeats a layer's content: tiles across the texture, turned around the centre (degrees) and shifted (in tiles).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `tiles` |  | `1` |  |
+| `rotation` |  | `0` |  |
+| `offsetX` |  | `0` |  |
+| `offsetY` |  | `0` |  |
+
 ### Mask Blend
 
 Type `layerMaskBlend`.
