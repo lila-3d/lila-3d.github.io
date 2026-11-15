@@ -31,7 +31,23 @@ texPaintStroke("Crate", points=[[300, 300, 1], [500, 300, 1]], view={"camera": "
                stencil={"image": "C:/textures/grunge.png", "mode": "color", "tile": True})
 ```
 
+## Path strokes
+
+The **Path** tool paints one clean stroke along points you place: seams, panel lines, cables.
+
+1. Pick the **Path** tile and click points on the mesh. Drag while placing a point to curve the path through it; **Backspace** removes the last point.
+2. Press **Enter** to paint it.
+3. Drag any point afterwards to move the path; the stroke repaints from the new points as one undo step. Clicking away starts a new path.
+
+**Texture > Paint Along Curve** paints along the selected scene curve instead, projected onto the mesh, with the current brush and channels. The Path tool can then edit it like any other path.
+
+```python
+texPaintPath("Crate", curve="seamCurve", radius=0.5, payload={"channels": {"baseColor": [0.1, 0.1, 0.1]}})
+```
+
 ## Troubleshooting
+
+**Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
 
 **The stroke paints nothing with a stencil on.** The stencil is dark (or transparent) under the stroke, or it was moved off screen. Turn on **Tile** or hold **S** and drag it back.
 
