@@ -72,6 +72,24 @@ texMaterialFromMaps("C:/maps/Rock_BaseColor.png", "C:/maps/Rock_ORM.png", set="C
 
 `set=` adds them straight to a texture set as material layers instead.
 
+## Exporting maps
+
+**Export Maps** in the Texture Graph (or `texExport`) writes the set's channels the way an engine reads them, by the set's export preset:
+
+| Preset | What it writes |
+| --- | --- |
+| `unreal` | BaseColor, Normal (DirectX), ORM (occlusion, roughness, metallic). |
+| `unrealCrm` | The same with cavity in place of occlusion. |
+| `unityUrp` | Base Map, Metallic Map (smoothness in alpha), Normal, Occlusion. |
+| `unityHdrp` | Base Map, Mask Map (metallic, occlusion, detail mask, smoothness), Normal. |
+| `gltf` | baseColor, occlusionRoughnessMetallic, normal (OpenGL), emissive. |
+| `godot` | albedo, orm, normal (OpenGL), height, emission. |
+| `openpbr` | One map per OpenPBR parameter: base_color, base_metalness, specular_roughness, geometry_normal. |
+
+```python
+texExport("Crate", preset="unityHdrp", folder="C:/Project/Assets/Textures")
+```
+
 ## Troubleshooting
 
 **A projection shows the content stretched or flat.** The texture set has no position and normal maps to project with. Set its bake project (**Baking**) so the mesh maps exist.
