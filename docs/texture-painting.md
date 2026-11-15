@@ -10,6 +10,8 @@ Paint material channels straight onto a mesh, in texture space and across UV sea
 
 Each stroke is one undo step. **Rasterize Layer** in the brush page's **...** menu rebuilds the layer from its strokes.
 
+A stroke can run across several meshes, even with different texture sets: each gets its part, and one undo takes the whole stroke back.
+
 ## Stencils
 
 A stencil is a picture pinned to the screen that every stroke paints through: a mask for grunge, a decal shape or a photo colour.
