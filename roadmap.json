@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-13",
+  "updated": "2026-11-15",
   "sections": [
     {
       "id": "alpha",
@@ -168,13 +168,38 @@
         {
           "id": "material-nodes",
           "title": "Material nodes",
-          "status": "dev",
+          "status": "ready",
           "docs": "nodes/texture-nodes",
           "icon": "node-editor",
           "body": [
             "A texture graph for procedural materials, feeding the layer stack and exporting to Unreal."
           ]
         },
+        {
+          "id": "rendering",
+          "title": "Rendering",
+          "status": "dev",
+          "docs": "rendering",
+          "body": [
+            "Stills, turntables and video from the real-time renderer you work in: supersampled, with post process, depth of field and motion blur, in seconds."
+          ]
+        },
+        {
+          "id": "installer",
+          "title": "Installer and updates",
+          "status": "planned",
+          "icon": "requirements",
+          "body": [
+            "An installer, and updates delivered from inside Lila."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "during-alpha",
+      "title": "During Alpha",
+      "goal": "Arriving in updates while the alpha runs.",
+      "cards": [
         {
           "id": "plating",
           "title": "Plating",
@@ -221,15 +246,6 @@
           ]
         },
         {
-          "id": "rendering",
-          "title": "Rendering",
-          "status": "dev",
-          "docs": "rendering",
-          "body": [
-            "Stills, turntables and video from the real-time renderer you work in: supersampled, with post process, depth of field and motion blur, in seconds."
-          ]
-        },
-        {
           "id": "weight-painting",
           "title": "Weight painting",
           "status": "dev",
@@ -265,78 +281,6 @@
             "Audio in the time slider with waveforms and scrubbing, video on image planes and reference images, Import Footage for a reference video and its sound in one step, and a media lane to slide, trim and bind footage to takes."
           ],
           "docs": "sound-and-video"
-        },
-        {
-          "id": "destruction",
-          "title": "Destruction",
-          "status": "dev",
-          "docs": "destruction",
-          "body": [
-            "Break meshes apart, simulate the fall, and bake it for Unreal so nothing simulates at runtime."
-          ]
-        },
-        {
-          "id": "terrain",
-          "title": "Terrain and cliffs",
-          "status": "dev",
-          "docs": "terrain",
-          "body": [
-            "Heightfield terrain from noise, a real place or a painting: eroded, with roads, rivers and caves, painted with material layers, cliffs that don't stretch, and sent to Unreal, Unity or Godot."
-          ]
-        },
-        {
-          "id": "settlement",
-          "title": "Settlement",
-          "status": "dev",
-          "docs": "settlement",
-          "body": [
-            "Villages, towns and cities laid out inside an outline on any ground: roads, streets, walls and gates, blocks and lots, and a building on each lot."
-          ]
-        },
-        {
-          "id": "stagehand",
-          "title": "Stagehand",
-          "status": "dev",
-          "docs": "stagehand",
-          "body": [
-            "Push, drop and settle props into place with physics, fill shelves and scatter debris, place assets from a prop library, and snap modular kit pieces together."
-          ]
-        },
-        {
-          "id": "masonry",
-          "title": "Masonry",
-          "status": "dev",
-          "docs": "masonry",
-          "body": [
-            "Brick and stone walls and whole buildings laid stone by stone, with arches, columns, stairs and vaults, then ruined, aged and sent to Unreal as instanced stones."
-          ]
-        },
-        {
-          "id": "seamwork",
-          "title": "Seamwork",
-          "status": "dev",
-          "docs": "seamwork",
-          "body": [
-            "Find every place a wall meets the terrain or two meshes cut through each other, then cover the joins with rubble, grime strips, material blends or a blend mesh."
-          ]
-        },
-        {
-          "id": "3d-printing",
-          "title": "3D printing",
-          "status": "dev",
-          "docs": "3d-printing",
-          "body": [
-            "Get a mesh ready for the slicer: closed, thick enough, sized for your printer, hollowed or split if it needs to be, then out as STL or 3MF."
-          ]
-        },
-        {
-          "id": "installer",
-          "title": "Installer and updates",
-          "status": "planned",
-          "icon": "requirements",
-          "body": [
-            "An installer, and updates delivered from inside Lila."
-          ]
         }
       ]
     },
@@ -376,6 +320,69 @@
           "note": "Please don't try it yet, not even to experiment.",
           "body": [
             "Follow-through, overlap and physically driven secondary motion layered on your animation."
+          ]
+        },
+        {
+          "id": "3d-printing",
+          "title": "3D printing",
+          "status": "dev",
+          "docs": "3d-printing",
+          "body": [
+            "Get a mesh ready for the slicer: closed, thick enough, sized for your printer, hollowed or split if it needs to be, then out as STL or 3MF."
+          ]
+        },
+        {
+          "id": "seamwork",
+          "title": "Seamwork",
+          "status": "dev",
+          "docs": "seamwork",
+          "body": [
+            "Find every place a wall meets the terrain or two meshes cut through each other, then cover the joins with rubble, grime strips, material blends or a blend mesh."
+          ]
+        },
+        {
+          "id": "masonry",
+          "title": "Masonry",
+          "status": "dev",
+          "docs": "masonry",
+          "body": [
+            "Brick and stone walls and whole buildings laid stone by stone, with arches, columns, stairs and vaults, then ruined, aged and sent to Unreal as instanced stones."
+          ]
+        },
+        {
+          "id": "stagehand",
+          "title": "Stagehand",
+          "status": "dev",
+          "docs": "stagehand",
+          "body": [
+            "Push, drop and settle props into place with physics, fill shelves and scatter debris, place assets from a prop library, and snap modular kit pieces together."
+          ]
+        },
+        {
+          "id": "settlement",
+          "title": "Settlement",
+          "status": "dev",
+          "docs": "settlement",
+          "body": [
+            "Villages, towns and cities laid out inside an outline on any ground: roads, streets, walls and gates, blocks and lots, and a building on each lot."
+          ]
+        },
+        {
+          "id": "terrain",
+          "title": "Terrain and cliffs",
+          "status": "dev",
+          "docs": "terrain",
+          "body": [
+            "Heightfield terrain from noise, a real place or a painting: eroded, with roads, rivers and caves, painted with material layers, cliffs that don't stretch, and sent to Unreal, Unity or Godot."
+          ]
+        },
+        {
+          "id": "destruction",
+          "title": "Destruction",
+          "status": "dev",
+          "docs": "destruction",
+          "body": [
+            "Break meshes apart, simulate the fall, and bake it for Unreal so nothing simulates at runtime."
           ]
         }
       ]
