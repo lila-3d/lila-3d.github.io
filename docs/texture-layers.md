@@ -59,6 +59,19 @@ texFlattenLayers("Crate", layers=["L1", "L2", "L3"], keep=True)
 texExportFlattened("Crate", "L4", folder="C:/out", format="png")
 ```
 
+## Materials from maps
+
+Turn downloaded texture maps into library materials: **Texture > Material from Maps...** for some files, **Texture > Materials from Maps Folder...** for a whole folder tree.
+
+Each file's channel comes from its name: base colour (BaseColor, Albedo, Diff, Color), roughness (Rough, or Gloss inverted), metallic, normal (Normal, Nrm; with DX it is flipped to OpenGL), height (Height, Disp), AO, emissive, opacity, and packed maps (ORM, ARM, RMA, MRA) split into their channels. Files that differ only by that word make one material, and a size in the name (200cm, 2m) sets its real-world scale. The materials land in the library under Imported.
+
+```python
+texMaterialFromMaps(folder="C:/textures/downloads")
+texMaterialFromMaps("C:/maps/Rock_BaseColor.png", "C:/maps/Rock_ORM.png", set="Crate")
+```
+
+`set=` adds them straight to a texture set as material layers instead.
+
 ## Troubleshooting
 
 **A projection shows the content stretched or flat.** The texture set has no position and normal maps to project with. Set its bake project (**Baking**) so the mesh maps exist.
@@ -70,3 +83,5 @@ texExportFlattened("Crate", "L4", folder="C:/out", format="png")
 **"is inside a folder; flatten the folder".** Flatten and merge work on the stack's top level. Flatten the folder holding the layer instead.
 
 **Flatten warns about UDIM tiles.** Only the first tile is baked; the others keep showing the layers below.
+
+**A map is left out.** Its name has no channel word; the command lists it in the warnings. Rename it (Rock_Roughness.png) and run it again.
