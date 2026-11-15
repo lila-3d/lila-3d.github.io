@@ -27,6 +27,7 @@
 - [Credits](credits.md)
 - [Performance](performance.md)
 - [Progress](progress.md)
+- [Changelog](changelog.md)
 - [File formats](formats.md)
 - [Studio setup](studio-setup.md)
 - [Telemetry and privacy](privacy.md)
