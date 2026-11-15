@@ -2,6 +2,8 @@
 
 Pose a character by grabbing any joint and choosing how the body answers: the joint turns its children, the body swings from it, its limb reaches, or the whole body follows. Nothing is set up first and nothing is left behind; every drag is ordinary keys on the joints.
 
+> **Not ready for use:** the Puppeteer extension stays off until you turn on **Auto Load** for it in **Windows > Extension Manager**. Expect broken tools and lost work.
+
 <!-- media: strings-modes.mp4, Manny posed in each mode from the Spinner arc -->
 
 ## Get it working

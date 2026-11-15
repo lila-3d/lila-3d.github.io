@@ -2,6 +2,8 @@
 
 Fill a scene with hundreds of people who wander, queue, chat in groups, walk the sidewalks of a settlement or run from a monster, each with generated motion, then bake them onto real characters or send them to Unreal.
 
+> **Not ready for use:** the Crowds extension stays off until you turn on **Auto Load** for it in **Windows > Extension Manager**. Expect broken tools and lost work.
+
 <!-- media: a plaza with a hundred agents wandering, a queue at a stall and an idle group, Crowds panel open -->
 
 ## Get it working

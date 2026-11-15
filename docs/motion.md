@@ -2,6 +2,8 @@
 
 Generate human motion on any humanoid character: fill the frames between your keys, walk or run a path, perform interactions such as picking something up, or steer the character live. The result is ordinary keys and takes, so it edits, layers and exports like hand-keyed animation.
 
+> **Not ready for use:** the Puppeteer extension stays off until you turn on **Auto Load** for it in **Windows > Extension Manager**. Expect broken tools and lost work.
+
 <!-- media: Motion panel beside a character walking a drawn path into a Pick Up spot -->
 
 ## Get it working
