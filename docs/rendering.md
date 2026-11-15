@@ -22,6 +22,7 @@ renderTurntable(video="turntable.mp4", frames=120, spin="object")
 - **Video** is an `.mp4`, H.264 or HEVC, encoded on the GPU where it can be.
 - `renderPass="wireframe"` draws every edge over the picture, for breakdowns; `renderPass="id"` gives each object a flat colour from its name, for mattes.
 - Settings save with the scene; script flags override them for that call.
+- `passes="all"` writes depth, normals, motion and Cryptomatte beside the picture in one multilayer `.exr`; see [Compositing passes](compositing-passes.md).
 
 ## Look
 
@@ -29,15 +30,48 @@ renderTurntable(video="turntable.mp4", frames=120, spin="object")
 
 A material's **Bevel** (cm) rounds its hard edges as it shades, traced against the real geometry, like a high-poly bevel without the polygons (GPUs with ray tracing). Bake a **roundedNormal** map to keep the look in a game engine.
 
+**Render > Colour Management** switches the picture from Lila's tonemapper to an OpenColorIO display and view (ACES, AgX, your studio's config); see [Colour management](colour-management.md).
+
+**Render > Reflections** (or **Display > Reflections**) lets glossy surfaces reflect the scene instead of only the environment: **Ray-Traced Reflections** on GPUs with ray tracing, **Screen Space Reflections** anywhere. They need environment lighting. When the view can't give what you asked for, the top right says what it used instead.
+
 **Render > Three-Point Light Rig**, **Rim Light Rig** or **Product Light Rig** puts area lights around the selection, aimed and sized to fit it.
 
 For framing, **Render > Safe Frames** and **Rule of Thirds** draw inside the resolution gate.
 
+## Grading
+
+Select the post process (**Render > Post Process**). Its **Grade** section in the Attribute Editor has:
+
+- **Wheels**: drag a wheel's puck toward a colour to tint shadows (Lift), mid-tones (Gamma), highlights (Gain) or everything (Offset); the field under each moves brightness. Double-click a wheel to reset it.
+- **Tonal Balance**: the same for shadows, mid-tones and highlights split by brightness; the fields under Shadows and Highlights set where each range ends.
+- **Curves**: click to add a point, drag to move it, double-click to remove it. Master and R, G, B are tone curves; **Hue vs Sat**, **Hue vs Hue** and **Luma vs Sat** sit at the middle line when they change nothing.
+- **Looks**: built-in grades to start from, and **Save Look** for your own.
+
+Every grade number keys like any attribute, so a grade can change over a shot. **Render > Scopes** shows the waveform, parade, histogram and vectorscope of the viewport or the last render.
+
+**Render > Export Grade LUT...** bakes the grade into a `.cube` for Resolve or Nuke, or a `.png` strip for Unreal's colour grading LUT. Lens effects, grain and vignette don't go into a LUT.
+
+```python
+gradePreset("Ember")
+exportGradeLut("shot010.cube", size=33)
+exportGradeLut("shot010_full.cube", includeView=True)  # from scene light, tonemapper or view included
+```
+
+## Lens and film
+
+The post process's **Lens** section picks a lens type for its flare, streaks and lens dirt; a light's **Lens Flare** gives it its own glare and ghosts, which fade as things pass in front of it. See [Lens flares](lens-flares.md).
+
+**Halation** bleeds a warm glow round bright edges, **grain** takes a size, colour and how much it favours mid-tones, and **letterbox aspect** (2.39 for scope) mattes the picture; renders include the bars.
+
+**Per-shot looks.** A camera's **Post Process** field names a post process it uses instead of the scene's. A post process set to a **box** or **sphere** volume applies only while the camera is inside it, fading over its **volume blend** distance; where volumes overlap, the higher **volume priority** wins.
+
 ## Depth of field and motion blur
 
-On a camera, turn on **depth of field** and set **f-stop** and **focus distance**; **aperture blades** shape the bokeh. Look through the camera and hold still: the view settles into the blur. Renders always show it.
+On a camera, turn on **depth of field** and set **f-stop** and **focus distance**; **aperture blades** shape the bokeh and **anamorphic squeeze** stretches it tall. **Render > Pick Focus**, then click a surface, focuses the camera you look through on it. The view blurs as it moves (**Display > Live Depth of Field**) and refines when it holds still. Renders always show it.
 
-**Motion blur** in Render Output blurs across the camera's **shutter angle** (180 is half the frame).
+**Motion blur** in Render Output blurs across the camera's **shutter angle** (180 is half the frame). **Display > Live Motion Blur** blurs the camera's own movement in the view and in playblasts.
+
+**Physical exposure** on a camera exposes by its f-stop, shutter angle and **ISO** as a real camera does: one stop wider is twice as bright. The default camera (f/5.6, 180 degrees at 24 fps, ISO 100) keeps the scene's exposure.
 
 ## Show it on the web
 
@@ -48,6 +82,12 @@ On a camera, turn on **depth of field** and set **f-stop** and **focus distance*
 **Rendering needs a viewport.** Renders use the Lila window's view; they don't run in lilabatch.
 
 **The render is noisy or the blur grainy.** Raise **samples**. Depth of field and motion blur need 64 or more.
+
+**Reflections show only the environment.** They need environment lighting (**Display > Lighting > Environment Lighting**) and a surface smoother than the roughness cutoff. Screen space reflections can't show what's off screen or hidden; switch to ray-traced where the GPU has it.
+
+**The picture changed after turning on OCIO.** A view such as ACES rolls off highlights and desaturates differently from Lila's tonemapper; choose the view in the colour management node's **OCIO** section. If the top right of the view says OCIO failed, the config didn't load; see [Colour management](colour-management.md).
+
+**A light's flare doesn't show.** It only draws while the light itself is on screen and not hidden behind something, with the view's post effects on.
 
 **HEVC fails.** Windows needs the HEVC Video Extensions; use H.264 otherwise.
 
@@ -66,3 +106,7 @@ On a camera, turn on **depth of field** and set **f-stop** and **focus distance*
 | Preferences > Viewport > Frame Rate > **Max frame rate** (`/viewport/frameCap`) | Display refresh | -1 follows the monitor, 0 is unlimited, any other number is frames a second. "Play Every Frame" playback steps no faster than this. |
 | Preferences > Viewport > Frame Rate > **In background** (`/viewport/backgroundFrameCap`) | Same as above | Cap while another app has focus. |
 | Preferences > Viewport > Frame Rate > **VSync** (`/viewport/vsync`) | off | Waits for each display refresh. Turn on if the view tears. |
+| `/viewport/post/reflections` | off | `off`, `screenSpace` or `rayTraced`. Ray-traced falls back to screen space without ray tracing. |
+| `/viewport/post/reflectionCutoff` | 0.6 | Surfaces rougher than this reflect the environment only. |
+| `/viewport/post/depthOfField` | on | Live depth of field in the view (when the camera's own is on). |
+| `/viewport/post/motionBlur` | off | Live motion blur of the camera's movement in the view and playblasts. |
