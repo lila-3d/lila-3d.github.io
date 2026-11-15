@@ -143,6 +143,10 @@ With the Paint tile, **Particles** makes each dab release particles that move ov
 
 The library's Particles brushes set these up with fitting colours. The particles come from the stroke's seed, so a layer rebuilt from its strokes repaints them exactly.
 
+## Mirroring in uv space
+
+**UV mirror** in the Brush page mirrors every stroke in uv space as well: **U** across the left and right halves of the unwrap, **V** across top and bottom. **Per island** mirrors within each uv island instead, for parts unwrapped symmetric on their own. It works on top of **Mirror**, and on meshes that aren't symmetric in shape.
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
