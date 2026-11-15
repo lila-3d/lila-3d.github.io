@@ -30,8 +30,26 @@ texSetLayer("Crate", "L2", {"material": {"baseColor": "textures/label.png"},
                             "projection": {"mode": "planar", "positionY": 12, "sizeX": 20, "sizeY": 10, "follow": 1}})
 ```
 
+## Decals, text and scatter
+
+Three layer kinds place pictures on the mesh. Add them from the stack's **+** menu.
+
+- **Decal Layer**: pick a picture; it lands where you place it (**Place on Mesh**), planar and following the surface over edges. Give it more pictures per channel (height, normal, roughness) in its properties. For an atlas, set **Atlas** columns, rows and the cell to show.
+- **Text Layer**: type the words, pick a font, set tracking and outline. The letters take the layer's Base Color; the text stays editable.
+- **Scatter Layer**: pick a pattern (its brightness is the shape) and optionally a picture each copy shows. Set how many across and down, size, jitter and seed. **Avoid overlap** keeps one copy per cell.
+
+Masks on the layer limit where any of them show.
+
+```python
+texAddLayer("Crate", "text", text={"text": "FRAGILE", "outline": 0.05}, material={"baseColor": [0.8, 0.1, 0.05]},
+            projection={"mode": "planar", "positionY": 30, "sizeY": 8})
+texAddLayer("Crate", "scatter", scatter={"pattern": "textures/leaf.png", "countX": 8, "seed": 3, "avoidOverlap": True})
+```
+
 ## Troubleshooting
 
 **A projection shows the content stretched or flat.** The texture set has no position and normal maps to project with. Set its bake project (**Baking**) so the mesh maps exist.
 
 **The projection lands in the wrong place.** Position, rotation and size are in the mesh's object space, not world space; **Place on Mesh** sets them from a click.
+
+**A text layer shows nothing.** The font has no glyphs for those letters, or the box sits away from the mesh. The stack lists a warning for the first; **Place on Mesh** fixes the second.
