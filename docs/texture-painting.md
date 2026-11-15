@@ -128,6 +128,21 @@ Limits in the Brush page keep the brush where it belongs, whatever the stroke co
 texSaveBrushPreset("Edge Rust", payload={"channels": {"baseColor": [0.4, 0.15, 0.05]}, "limits": {"cavity": [0.6, 1.0]}})
 ```
 
+## Particle brushes
+
+With the Paint tile, **Particles** makes each dab release particles that move over the surface and paint as they go. **Drips**, **Rain** and **Sparks** run simple paths; the rest simulate on the mesh: gravity pulls them down in world space, they crawl along the surface, stick where it is too flat to slide, and pool where they stop.
+
+| Particles | Looks like |
+| --- | --- |
+| Rust Run | Rust streaks pooling on ledges. |
+| Leak | A wet run from each dab. |
+| Rain Streaks | Thin grime washed down. |
+| Dust Settle | Dust that slides off steep faces and stays on flat ones. |
+| Burn | Charring clustered where you paint. |
+| Scorch | Marks spreading out from a ring, fading at the tips. |
+
+The library's Particles brushes set these up with fitting colours. The particles come from the stroke's seed, so a layer rebuilt from its strokes repaints them exactly.
+
 ## Troubleshooting
 
 **Paint Along Curve paints the wrong mesh.** It paints the first mesh using the texture set's material. From Python, pass `mesh=` to pick one.
