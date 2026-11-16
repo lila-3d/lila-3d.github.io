@@ -998,7 +998,7 @@ footer p { margin: 0 0 6px; }
 
 <main>
   <figure class="shot wrap frame" data-slot="hero-video" data-watch>
-    <video src="assets/clips/lila-showcase.mp4" poster="assets/clips/lila-showcase.webp" autoplay muted loop playsinline width="1920" height="1080" aria-label="Lila November showcase: clay blockout, automatic and hand retopology, sculpting, symmetry, grooming, cloth, modeling tools, UVs, trim sheets, baking and the live link to Unreal"></video>
+    <video src="assets/clips/lila-showcase.mp4" poster="assets/clips/lila-showcase.webp" muted loop playsinline width="1920" height="1080" aria-label="Lila November showcase: clay blockout, automatic and hand retopology, sculpting, symmetry, grooming, cloth, modeling tools, UVs, trim sheets, baking and the live link to Unreal"></video>
   </figure>
 
   <section class="intro wrap">
@@ -1286,8 +1286,9 @@ footer p { margin: 0 0 6px; }
       <h2 id="sim">Destruction and crowds</h2>
       <p class="lede">Deterministic simulations you can art-direct, baked and sent to your engine.</p>
     </div>
-    <figure class="media frame" data-slot="clip-sim">
-      <video src="assets/clips/lila-destruction.mp4" poster="assets/clips/lila-destruction.webp" autoplay muted loop playsinline aria-label="A wall fracturing and falling with Jolt physics in Lila"></video>
+    <!-- TODO media [clip-sim] Clip: destruction and crowds: A wall fracturing and falling, then a baked crowd -->
+    <figure class="media" data-slot="clip-sim">
+      <div class="ph"><b>Clip: destruction and crowds</b><span>A wall fracturing and falling, then a baked crowd</span></div>
     </figure>
     <ul>
       <li>
@@ -1489,7 +1490,6 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     enlarge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'
   };
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function iconButton(label, icon) {
     var b = document.createElement("button");
@@ -1547,7 +1547,7 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     }
   });
 
-  // The most visible clip plays and starting one pauses the rest, so only one runs. Off-screen clips pause, reduced motion never plays, and a clip the viewer paused stays paused.
+  // The most visible clip plays and starting one pauses the rest, so only one runs. Off-screen clips pause, and a clip the viewer paused stays paused.
   var clips = document.querySelectorAll(".frame video");
   var seen = new Map();
   var watcher = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
@@ -1555,7 +1555,6 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
       seen.set(en.target, en.intersectionRatio);
       if (!en.isIntersecting) en.target.pause();
     });
-    if (reduce.matches) return;
     var best = null, bestRatio = 0;
     seen.forEach(function (r, v) {
       if (r >= .25 && r > bestRatio && !v.dataset.userPaused) { best = v; bestRatio = r; }
@@ -1612,8 +1611,10 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     enlarge.addEventListener("click", function () { open(v, enlarge); });
     v.addEventListener("click", function () { open(v, enlarge); });
 
+    // A clip without autoplay waits for the viewer to start it.
+    if (!v.autoplay) v.dataset.userPaused = "1";
     // With an observer to start them, clips wait to be seen rather than all starting on load.
-    if (reduce.matches || watcher) {
+    if (watcher) {
       v.removeAttribute("autoplay");
       v.pause();
     }
