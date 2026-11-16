@@ -2,6 +2,10 @@
 
 What changed in each Lila release, newest first. The welcome screen shows the latest entry under **What's New**.
 
+## 0.1.1 - 2026-11-16
+
+- Lila opens after installing when **Launch Lila** is ticked, and after an update installs
+
 ## 0.1.0 - 2026-11-16
 
 - First alpha release, with a Windows installer on the [releases page](https://github.com/lila-3d/Lila/releases)
