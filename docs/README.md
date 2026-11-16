@@ -1,6 +1,6 @@
 # Lila Docs
 
-Lila has no public build yet. These pages cover what's built so far. [Back to the Lila site](https://lila-3d.github.io/ ':ignore')
+New here? [Install Lila](install.md), then follow [Getting started](getting-started.md). [Back to the Lila site](https://lila-3d.github.io/ ':ignore')
 
 ## Start here
 

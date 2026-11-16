@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "page": "https://github.com/lila-3d/Lila/releases/tag/v0.1.0",
+  "platforms": {
+    "windows": {
+      "label": "Windows",
+      "requires": "Windows 10 or 11, 64-bit",
+      "installer": "https://github.com/lila-3d/Lila/releases/download/v0.1.0/Lila-0.1.0-Setup.exe",
+      "size": 739796848,
+      "sha256": "944866c0f5d2b193dee363f0943d89dcc53a518f291b8845e4b32cd0c78c77e1"
+    }
+  }
+}

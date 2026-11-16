@@ -201,6 +201,79 @@ button:focus-visible {
 
 .lightbox .close svg { width: 18px; height: 18px; }
 
+/* ---- Download dialog ---- */
+
+.getbox {
+  width: min(520px, calc(100% - 32px));
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 24px 60px -12px rgba(0,0,0,.7);
+}
+
+.getbox::backdrop { background: rgba(12,13,15,.8); }
+
+.getbox h2 { margin: 0 40px 6px 0; font-size: 1.375rem; line-height: 1.2; text-wrap: balance; }
+.getbox h3 { margin: 22px 0 8px; font-size: 1rem; }
+.getbox p { margin: 0 0 8px; color: var(--muted); }
+.getbox ol { margin: 0; padding-left: 1.25em; color: var(--muted); }
+.getbox li { margin-bottom: 4px; }
+.getbox b { color: var(--text); font-weight: 600; }
+.getbox a { color: var(--accent-soft); text-underline-offset: 3px; }
+
+.getbox .plats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; }
+.getbox .plats li { margin: 0; }
+.getbox .plats a,
+.getbox .plats span {
+  display: block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text);
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.getbox .plats a:hover { background: var(--ground); }
+.getbox .plats [aria-current] { background: var(--accent-strong); box-shadow: none; color: #fff; }
+.getbox .plats span { color: var(--quiet); font-weight: 400; }
+
+.getbox .sum {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: .8125rem;
+}
+
+.getbox code {
+  display: block;
+  margin-top: 4px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .75rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.getbox .close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ground);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.getbox .close svg { width: 16px; height: 16px; }
+
 /* ---- The scene ---- */
 
 .scene {
@@ -988,11 +1061,11 @@ footer p { margin: 0 0 6px; }
     </ol>
     <p class="tagline">Maya-style workflow. Works with any engine, with a live link to Unreal.</p>
     <div class="actions">
-      <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 for the release</a>
+      <a class="button" href="https://github.com/lila-3d/Lila/releases/latest" data-download>Download Lila</a>
       <a class="button quiet" href="roadmap.html">See the roadmap</a>
       <a class="button quiet" href="docs/">Read the docs</a>
     </div>
-    <p class="status">In development, not released yet. See what's ready on the <a href="roadmap.html">roadmap</a>.</p>
+    <p class="status"><span data-download-meta>Windows 10 or 11, 64-bit.</span> Free. An early build: see what's ready on the <a href="roadmap.html">roadmap</a>.</p>
   </div>
 </header>
 
@@ -1464,14 +1537,15 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   </section>
 
   <section class="closing wrap" aria-labelledby="follow">
-    <h2 id="follow">Follow it to release</h2>
-    <p>Lila is in active development with no public build yet. New tools, clips and the first release go out on X first.</p>
+    <h2 id="follow">Get Lila</h2>
+    <p>Free, and an early build: new tools arrive in updates that install themselves. Tools and clips go out on X first.</p>
     <div class="actions">
-      <a class="button" href="https://x.com/Vaei00">Follow @Vaei00 on X</a>
+      <a class="button" href="https://github.com/lila-3d/Lila/releases/latest" data-download>Download Lila</a>
+      <a class="button quiet" href="https://x.com/Vaei00">Follow @Vaei00 on X</a>
       <a class="button quiet" href="docs/">Read the docs</a>
       <a class="button quiet" href="https://github.com/lila-3d/Lila">Source on GitHub</a>
     </div>
-    <p class="platforms">Windows first, then macOS and Linux. See what is ready and what comes next on the <a href="roadmap.html">roadmap</a>.</p>
+    <p class="platforms"><span data-download-meta>Windows 10 or 11, 64-bit.</span> macOS and Linux come later. See what is ready and what comes next on the <a href="roadmap.html">roadmap</a>.</p>
   </section>
 </main>
 
@@ -1481,6 +1555,23 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
   <p>Lila is not affiliated with Autodesk or Epic Games. Maya is a registered trademark of Autodesk, Inc. Unreal Engine is a trademark of Epic Games, Inc.</p>
   <p>&copy; 2026 Jared Taylor</p>
 </footer>
+
+<dialog class="getbox" aria-labelledby="getbox-title">
+  <button type="button" class="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <ul class="plats" aria-label="Platform"></ul>
+  <h2 id="getbox-title">Downloading Lila</h2>
+  <p data-started>Not started? <a data-direct href="https://github.com/lila-3d/Lila/releases/latest">Download it directly</a>.</p>
+  <p data-none hidden>macOS and Linux come later. On a Windows PC, choose <b>Windows</b> above to download it.</p>
+  <div data-os="windows">
+    <h3>Windows asks before it runs</h3>
+    <p>The installer isn't code-signed yet, so Windows shows <b>Windows protected your PC</b>.</p>
+    <ol>
+      <li>Click <b>More info</b>.</li>
+      <li>Click <b>Run anyway</b>.</li>
+    </ol>
+  </div>
+  <p class="sum">Stuck? See <a href="docs/#/install">installing Lila</a>. <span data-sum hidden>To check the file, its SHA-256 is:<code></code></span></p>
+</dialog>
 
 <script>
 (function () {
@@ -1546,6 +1637,61 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
       else if (document.activeElement === v) { e.preventDefault(); closeBtn.focus(); }
     }
   });
+
+  // Download buttons read download.json (written by the release script). On a platform Lila has a build for, a click
+  // downloads it and opens a dialog with what the OS asks next; on any other the dialog opens without a download.
+  var PLATFORMS = [["windows", "Windows"], ["macos", "macOS"], ["linux", "Linux"]];
+  var getbox = document.querySelector(".getbox");
+  if (getbox && getbox.showModal && window.fetch) fetch("download.json").then(function (r) { return r.json(); }).then(function (d) {
+    var builds = d.platforms || {};
+    if (!Object.keys(builds).length) return;
+    var ua = navigator.userAgent;
+    var mine = /Android|iPhone|iPad|Mobile/.test(ua) ? "" : /Mac/.test(ua) ? "macos" : /Linux|X11/.test(ua) ? "linux" : "windows";
+
+    // name is the platform being downloaded, or empty when the visitor's own has no build yet.
+    function show(name) {
+      var build = builds[name];
+      getbox.querySelector("h2").textContent = build ? "Downloading Lila " + d.version : "Lila runs on Windows for now";
+      getbox.querySelector("[data-started]").hidden = !build;
+      getbox.querySelector("[data-none]").hidden = !!build;
+      if (build) getbox.querySelector("[data-direct]").href = build.installer;
+      getbox.querySelectorAll("[data-os]").forEach(function (el) { el.hidden = el.dataset.os !== name; });
+      var sum = getbox.querySelector("[data-sum]");
+      sum.hidden = !build || !build.sha256;
+      sum.querySelector("code").textContent = build && build.sha256 || "";
+      var row = getbox.querySelector(".plats");
+      row.replaceChildren();
+      PLATFORMS.forEach(function (pl) {
+        var li = document.createElement("li");
+        var item = document.createElement(builds[pl[0]] ? "a" : "span");
+        item.textContent = builds[pl[0]] ? pl[1] : pl[1] + " \u00b7 later";
+        if (builds[pl[0]]) {
+          item.href = builds[pl[0]].installer;
+          if (pl[0] === name) item.setAttribute("aria-current", "true");
+          item.addEventListener("click", function () { show(pl[0]); });
+        }
+        li.appendChild(item);
+        row.appendChild(li);
+      });
+    }
+
+    var own = builds[mine];
+    var listed = own || builds.windows || builds[Object.keys(builds)[0]];
+    document.querySelectorAll("[data-download]").forEach(function (b) {
+      if (own) b.href = own.installer;
+      b.addEventListener("click", function (e) {
+        if (!own) e.preventDefault();
+        show(own ? mine : "");
+        getbox.showModal();
+      });
+    });
+    var meta = ["Version " + d.version, listed.requires, listed.size ? Math.round(listed.size / 1048576) + " MB" : ""].filter(Boolean).join(" \u00b7 ") + ".";
+    document.querySelectorAll("[data-download-meta]").forEach(function (el) { el.textContent = meta; });
+  }).catch(function () {});
+  if (getbox) {
+    getbox.querySelector(".close").addEventListener("click", function () { getbox.close(); });
+    getbox.addEventListener("click", function (e) { if (e.target === getbox) getbox.close(); });
+  }
 
   // The most visible clip plays and starting one pauses the rest, so only one runs. Off-screen clips pause, and a clip the viewer paused stays paused.
   var clips = document.querySelectorAll(".frame video");

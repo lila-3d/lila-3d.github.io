@@ -20,6 +20,7 @@
 ---
 
 - [Start here](/)
+- [Install](install.md)
 - [Getting started](getting-started.md)
 - [System requirements](requirements.md)
 - [FAQ](faq.md)
