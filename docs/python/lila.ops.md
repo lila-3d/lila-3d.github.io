@@ -9284,6 +9284,18 @@ Move a display layer to a row of the Display Layers panel (0 is the top).
 | --- | --- | --- | --- | --- |
 | `index` | `i` | int | `0` | Row it moves to. |
 
+### reorderMaterials
+
+Reorder the Material Editor's list: the named materials first, in the order given, the rest after them. Returns the new order.
+
+**Objects:** material [material...]
+
+### reorderMaterialSlots
+
+Reorder an object's material slots, the order exporters write them in: the named slots first, in the order given, the rest after them. Returns the new slot order.
+
+**Objects:** object slot [slot...]
+
 ### reportIssue
 
 Attaches info, a warning or an error to an object, one of its components or an attribute.
