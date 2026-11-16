@@ -1547,14 +1547,27 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     }
   });
 
-  // Clips autoplay from markup; here they also pause off screen, never play under reduced motion, and stay paused once the viewer pauses them.
+  // The most visible clip plays and starting one pauses the rest, so only one runs. Off-screen clips pause, reduced motion never plays, and a clip the viewer paused stays paused.
+  var clips = document.querySelectorAll(".frame video");
+  var seen = new Map();
   var watcher = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
-      var v = en.target;
-      if (en.isIntersecting && !v.dataset.userPaused && !reduce.matches) v.play().catch(function () {});
-      else if (!en.isIntersecting) v.pause();
+      seen.set(en.target, en.intersectionRatio);
+      if (!en.isIntersecting) en.target.pause();
     });
-  }, { threshold: .25 }) : null;
+    if (reduce.matches) return;
+    var best = null, bestRatio = 0;
+    seen.forEach(function (r, v) {
+      if (r >= .25 && r > bestRatio && !v.dataset.userPaused) { best = v; bestRatio = r; }
+    });
+    if (best && best.paused) best.play().catch(function () {});
+  }, { threshold: [0, .25, .5, .6, .75, .9, 1] }) : null;
+
+  clips.forEach(function (v) {
+    v.addEventListener("play", function () {
+      clips.forEach(function (o) { if (o !== v && !o.paused) o.pause(); });
+    });
+  });
 
   document.querySelectorAll(".frame video").forEach(function (v) {
     var frame = v.closest(".frame");
@@ -1599,7 +1612,8 @@ cmds.<span class="f">parent</span>(<span class="s">"arm_l"</span>, <span class="
     enlarge.addEventListener("click", function () { open(v, enlarge); });
     v.addEventListener("click", function () { open(v, enlarge); });
 
-    if (reduce.matches) {
+    // With an observer to start them, clips wait to be seen rather than all starting on load.
+    if (reduce.matches || watcher) {
       v.removeAttribute("autoplay");
       v.pause();
     }
