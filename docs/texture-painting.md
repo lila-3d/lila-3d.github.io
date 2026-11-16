@@ -17,7 +17,7 @@ A stroke can run across several meshes, even with different texture sets: each g
 A stencil is a picture pinned to the screen that every stroke paints through: a mask for grunge, a decal shape or a photo colour.
 
 1. Click the **Stencil** row in the Brush page (or **Texture > Load Stencil...**) and pick an image.
-2. Hold **S** and drag to move it. Add **Shift** to rotate, **Ctrl** to scale.
+2. Hold **S** and drag to move it. Add **Shift** to rotate, **Ctrl** to scale. While rotating, hold **Ctrl** as well to snap to 15 degree steps.
 3. Paint. **Mask** paints only where the picture is bright. **Colour** paints the picture's own colours into Base Color, its alpha as the amount.
 
 The stencil is stored with each stroke, so rebuilding the layer gives the same pixels even after you move or remove the stencil.
