@@ -195,6 +195,25 @@ texSetSettings("Trim", {"tileable": True})
 
 The **Reveal** tile paints a picture in through the brush, as if scratching away a cover. Pick the picture in its row, then **Screen** to pin it to the view (paint it onto whatever is under it) or **UV** to lay it on the uvs, tiled by **Scale**.
 
+## Painting a material
+
+With the **Paint**, **Fill** or **Path** tile, **Material** in the Brush page paints a whole material's channels through the stroke instead of flat values. Only the ticked channels are painted.
+
+To paint something you built from nodes:
+
+1. Click **+** beside **Material** and name it. A texture set of its own opens in the Texture Graph, already picked as the brush's material.
+2. Build the material in the Texture Graph and paint. Each stroke uses the graph as it is when the stroke starts.
+
+The node button beside **Material** opens the picked material's nodes. A library material is first copied into the scene, and the brush then paints the copy. Any texture set in the scene appears in the list as **Scene: name**.
+
+**Varied** (beside **Scale**) stops a tiling material or texture from showing its repeat. Hex cells each take it at a random offset and turn, blended at the seams. When Height is ticked, the higher cell wins at each seam, so the joins follow the content. Lower **Turn** for patterns with a direction, such as bricks or planks.
+
+```python
+texPaintStroke("Crate", stroke={"mesh": "crate", "payload": {"kind": "fill", "fillBy": "mesh",
+    "channels": {"baseColor": [1, 1, 1], "height": 0.5},
+    "source": {"library": "scene/MossBrush", "scale": 4, "tiling": {"rotate": 0.5, "contrast": 0.5, "jitter": 0.2}}}})
+```
+
 ## Stroke methods
 
 **Stroke** in the brush's stroke options sets how dabs are laid:
@@ -218,6 +237,8 @@ These work for every brush that uses the shared brush settings; Airbrush builds 
 **"its stencil needs the view it was painted in" in the log.** The stroke was scripted with dabs in surface space and no view. Give it screen `points` and a `view`.
 
 **Colour mode looks washed out.** 8-bit images are read as sRGB and painted as linear colour; EXR and HDR files are taken as linear already.
+
+**"can't paint through itself" in the log.** The brush's material is the texture set being painted. Pick another material, or paint on another set.
 
 **Layer only picks nothing.** The active layer has no paint at that spot; the log says so.
 
