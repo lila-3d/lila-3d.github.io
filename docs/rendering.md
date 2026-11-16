@@ -8,17 +8,20 @@ Lila has no offline path tracer: it renders with the real-time renderer you work
 
 ## Get it working
 
-1. **Render > Render Output** sets the camera, samples and output paths.
-2. **Render > Render Frame** for a still, **Render Sequence** for the frame range, **Render Turntable** for a loop around the selection.
+1. Pick the **Render** layout (between Bake and Rig).
+2. In the **Render** panel, pick **Frame**, **Range** or **Turntable**, and under **Output** set **Write** to **Images**, **Video** or **Both**.
+3. Click the **Render** button. The viewport confirms the file; **Open** and **Show in Folder** under the button reach it.
+
+**Render > Render Frame**, **Render Range** and **Render Turntable** do the same from any layout. A turntable writes beside the range as `<name>_turntable`, so it never overwrites the shot.
 
 ```python
 render(path="hero.png", camera="shotCam", samples=128)
-renderSequence(video="shot.mp4", samples=64, motionBlur=True)
+renderSequence(write="both", samples=64, motionBlur=True)
 renderTurntable(video="turntable.mp4", frames=120, spin="object")
 ```
 
 - **Images** take `####` for the frame number. `.exr` keeps the scene's light before tonemapping, for compositing.
-- **Transparent background** gives PNG, TIFF and EXR an alpha channel.
+- **Transparent** gives PNG, TIFF and EXR an alpha channel.
 - **Video** is an `.mp4`, H.264 or HEVC, encoded on the GPU where it can be.
 - `renderPass="wireframe"` draws every edge over the picture, for breakdowns; `renderPass="id"` gives each object a flat colour from its name, for mattes.
 - Settings save with the scene; script flags override them for that call.
@@ -69,7 +72,7 @@ The post process's **Lens** section picks a lens type for its flare, streaks and
 
 On a camera, turn on **depth of field** and set **f-stop** and **focus distance**; **aperture blades** shape the bokeh and **anamorphic squeeze** stretches it tall. **Render > Pick Focus**, then click a surface, focuses the camera you look through on it. The view blurs as it moves (**Display > Live Depth of Field**) and refines when it holds still. Renders always show it.
 
-**Motion blur** in Render Output blurs across the camera's **shutter angle** (180 is half the frame). **Display > Live Motion Blur** blurs the camera's own movement in the view and in playblasts.
+**Motion Blur** in the Render panel blurs across the camera's **shutter angle** (180 is half the frame). **Display > Live Motion Blur** blurs the camera's own movement in the view and in playblasts.
 
 **Physical exposure** on a camera exposes by its f-stop, shutter angle and **ISO** as a real camera does: one stop wider is twice as bright. The default camera (f/5.6, 180 degrees at 24 fps, ISO 100) keeps the scene's exposure.
 
@@ -81,9 +84,11 @@ On a camera, turn on **depth of field** and set **f-stop** and **focus distance*
 
 **Rendering needs a viewport.** Renders use the Lila window's view; they don't run in lilabatch.
 
+**A render fails.** The viewport shows why in red, and the Script Editor logs it.
+
 **The render is noisy or the blur grainy.** Raise **samples**. Depth of field and motion blur need 64 or more.
 
-**Reflections show only the environment.** They need environment lighting (**Display > Lighting > Environment Lighting**) and a surface smoother than the roughness cutoff. Screen space reflections can't show what's off screen or hidden; switch to ray-traced where the GPU has it.
+**Reflections show only the environment.** They need environment lighting (**Display > Lighting > Environment Lighting**) and a surface smoother than the roughness cutoff. Screen space reflections can't show what's off screen or hidden; set **Reflections** to **Traced** (the viewport's **Lighting** menu, or **Look** in the Render panel) where the GPU has ray tracing.
 
 **The picture changed after turning on OCIO.** A view such as ACES rolls off highlights and desaturates differently from Lila's tonemapper; choose the view in the colour management node's **OCIO** section. If the top right of the view says OCIO failed, the config didn't load; see [Colour management](colour-management.md).
 

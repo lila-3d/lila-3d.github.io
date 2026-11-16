@@ -31,7 +31,7 @@ renderSequence(path="renders/shot010.####.exr", passes="depth,cryptoObject")
 
 **Matte edges are rough.** Cryptomatte coverage comes from up to 16 samples a pixel; render at a larger size for smoother edges.
 
-**Motion vectors are zero on moving objects.** The motion pass holds the camera's movement only. For object motion blur, turn on **Motion blur** in Render Output instead.
+**Motion vectors are zero on moving objects.** The motion pass holds the camera's movement only. For object motion blur, turn on **Motion Blur** in the Render panel instead.
 
 ## Options
 
