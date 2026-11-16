@@ -614,6 +614,7 @@ An image file sampled in uv, wrapping at the edges, repeated tiles times. Relati
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
+| `coord` | vector | input |  | Where to read the image: the mesh's uvs unless linked (Projection, Mapping). |
 | `out` | color | output |  |  |
 
 | Property | Options | Default | Description |
@@ -630,6 +631,23 @@ Object-space position from the texture set's mesh maps; (u, v, 0) when no mesh m
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `position` | vector | output |  |  |
+
+### Projection
+
+Type `projection`.
+
+Texture coordinates projected onto the mesh instead of its uvs: flat, wrapped around a cylinder or around a sphere (an equirectangular map such as an earth texture). Link it into an Image's UV, through Mapping to move it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `shape` | `planar`, `cylindrical`, `spherical` | `planar` |  |
+| `axis` | `x`, `y`, `z` | `y` | Planar: the direction it projects along. Cylindrical and spherical: the pole. |
+| `space` | `object`, `world` | `object` |  |
+| `size` |  | `100` | Planar and cylindrical: cm per repeat (height for cylindrical). |
 
 ### Random per Island
 
@@ -2149,6 +2167,25 @@ Repeats a wedge of the input around a centre, mirroring alternate wedges so the 
 | `centerX` |  | `0.5` |  |
 | `centerY` |  | `0.5` |  |
 
+### Mapping
+
+Type `mapping`.
+
+Moves, rotates and scales texture coordinates. Feed it UV or Projection and link it into an Image's UV.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `coord` | vector | input |  | The coordinates to change: the mesh's uvs unless linked. |
+| `out` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `offsetX` |  | `0` |  |
+| `offsetY` |  | `0` |  |
+| `rotation` |  | `0` | Degrees, around 0.5, 0.5. |
+| `scaleX` |  | `1` | Repeats across. |
+| `scaleY` |  | `1` | Repeats down. |
+
 ### Mirror
 
 Type `mirror`.
@@ -2249,6 +2286,8 @@ Moves, rotates and scales the input around the texture's centre.
 | `offsetY` |  | `0` |  |
 | `rotation` |  | `0` | Degrees. |
 | `scale` |  | `1` |  |
+| `scaleX` |  | `1` | Width, times Scale. |
+| `scaleY` |  | `1` | Height, times Scale. |
 
 ### Warp
 

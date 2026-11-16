@@ -8350,6 +8350,7 @@ Knife / multi-cut: cut a mesh along a path of points, splitting the faces betwee
 | `loopEdge` |  | int | `-1` | Insert an edge loop across this edge's ring instead of cutting a path. |
 | `fraction` |  | float | `0.5` | Where along loopEdge the loop crosses it, from its first point. |
 | `deleteEdge` |  | int | `-1` | Dissolve this edge, joining its two faces, instead of cutting. |
+| `deleteLoop` |  | bool | `False` | With deleteEdge, dissolve the whole edge loop through it. |
 | `select` |  | bool | `True` | Select the new edges. |
 
 ### polyLockNormals
