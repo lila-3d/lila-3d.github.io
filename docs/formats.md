@@ -152,6 +152,8 @@ addAttr("Crate", longName="health:max", attributeType="double", defaultValue=100
 
 **An unlit material exports with a warning.** glTF's unlit materials have no emissive, so Lila drops it. A texture set to **black** wrap exports as clamp to glTF and FBX, which have no black border, and mirror exports as repeat to FBX.
 
+**A Maya mesh comes in as an earlier shape, or empty.** Its construction history has steps Lila can't replay yet, such as bevels, splits, edge loops and extrudes. Lila replays combine, separate, extract, duplicate face, delete faces, merge vertices, reverse normals and fill hole. The mesh is flagged in the Outliner and the **Validation** panel says which steps. In Maya, select it, choose **Edit > Delete by Type > History**, save, and import again.
+
 **A Maya blendShape weight doesn't move in Lila.** Weights driven by expressions, by several set driven keys at once (a `blendWeighted` node), or by custom attributes on a control don't convert, and the import report lists each one. Rebuild those with a pose driver or a driven channel.
 
 **A Maya character with a blendShape after its skinCluster poses differently.** Lila applies morphs before skinning, as Unreal does, and the import warns. In Maya, move the blendShape ahead of the skinCluster in the object's List of Input Operations before importing.
