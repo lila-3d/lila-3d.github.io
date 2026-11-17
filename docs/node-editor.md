@@ -24,6 +24,7 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 | **Alt+S** | Swap a node's two inputs of the same type |
 | **Alt+W** | Show only the selected nodes' wires |
 | **Shift+M** | Minimap |
+| **Tab** / **Shift+A** | Add a node. Typing an operation's name (Greater Than, Smooth Step, Xor) lists it under its node and adds the node with that operation set |
 | **Ctrl+F** | Find a node by name or type |
 | **Ctrl+1..5** / **1..5** | Save the view / go back to it |
 
@@ -40,6 +41,9 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 | **Ctrl**+drag a linked input | Move its link to another input |
 | **Shift**+drag a linked input | Copy its link to another input |
 | **Alt**+click a socket | Disconnect it |
+| Drag a number on a node | Change it. **Shift** goes ten times faster, **Ctrl** ten times slower; double-click to type |
+| Click a check or colour swatch on a node | Toggle it / open the colour picker |
+| Right-click a node > **Hide Preview** | Hide that node's image preview. **Node Previews** in the same menu hides them all |
 | Drag a reroute's rim | Wire it to more inputs (its middle moves it) |
 | Drag a frame's title / corner | Move it with its nodes / resize it |
 | Drop a node inside a frame | It joins; drag it out and it leaves |

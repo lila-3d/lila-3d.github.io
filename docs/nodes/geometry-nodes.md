@@ -5772,7 +5772,7 @@ Float math on values or fields.
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `operation` | `absolute`, `add`, `arccosine`, `arcsine`, `arctan2`, `arctangent`, `ceil`, `compare`, `cosh`, `cosine`, `degrees`, `divide`, `exponent`, `floor`, `flooredModulo`, `fraction`, `greaterThan`, `inverseSqrt`, `lessThan`, `logarithm`, `maximum`, `minimum`, `modulo`, `multiply`, `multiplyAdd`, `pingpong`, `power`, `radians`, `round`, `sign`, `sine`, `sinh`, `smoothMax`, `smoothMin`, `snap`, `sqrt`, `subtract`, `tangent`, `tanh`, `truncate`, `wrap` | `add` |  |
+| `operation` | `absolute`, `add`, `arccosine`, `arcsine`, `arctan2`, `arctangent`, `ceil`, `compare`, `cosh`, `cosine`, `degrees`, `divide`, `exponent`, `floor`, `flooredModulo`, `fraction`, `greaterThan`, `inverseSqrt`, `lessThan`, `logarithm`, `maximum`, `minimum`, `modulo`, `multiply`, `multiplyAdd`, `pingpong`, `power`, `radians`, `round`, `sign`, `sine`, `sinh`, `smoothMax`, `smoothMin`, `smoothStep`, `snap`, `sqrt`, `step`, `subtract`, `tangent`, `tanh`, `truncate`, `wrap` | `add` |  |
 | `clamp` | `false`, `true` | `false` | Clamp the result to 0..1. |
 
 ### Matrix Determinant

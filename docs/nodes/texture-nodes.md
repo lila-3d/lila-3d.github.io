@@ -120,17 +120,14 @@ Gaussian blur, its radius a fraction of the texture width. Runs as its own pass.
 
 Type `clamp`.
 
-Limits every colour channel to a range.
+Limits every colour channel to a range. Low and High each take a value or a link.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `low` | float | input | `0` |  |
+| `high` | float | input | `1` |  |
 | `out` | color | output |  |  |
-
-| Property | Options | Default | Description |
-| --- | --- | --- | --- |
-| `low` |  | `0` |  |
-| `high` |  | `1` |  |
 
 ### Color Mask
 
@@ -153,11 +150,13 @@ White where the input is near a colour, fading to black by softness past the tol
 
 Type `colorize`.
 
-Maps a gray value through a gradient.
+Maps a gray value through a gradient: Low reads the gradient's left end, High its right. Each bound takes a value or a link. The gradient's own setting picks linear, smooth or constant blending between stops.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | gray | input | `0.5` |  |
+| `low` | float | input | `0` | The value that reads the gradient's left end. |
+| `high` | float | input | `1` | The value that reads the gradient's right end. |
 | `out` | color | output |  |  |
 
 | Property | Options | Default | Description |
@@ -606,6 +605,29 @@ A single value.
 | --- | --- | --- | --- |
 | `value` |  | `0.5` |  |
 
+### Fresnel
+
+Type `fresnel`.
+
+Brighter where the surface turns away from the viewer, from the mesh's world normal map. A texture has no camera of its own, so the view comes from View Direction, or per texel from Camera Position through the bake's position map. Pick a camera or take the active view in the panel to fill them.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `viewDirection` | vector | input | `[0, 0, -1]` | The way the camera looks, in world space. Used when View is direction. |
+| `cameraPosition` | vector | input | `[0, 0, 500]` | Where the camera is, in world space (cm). Used when View is cameraPosition. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax in world space. Picking a camera or taking the view fills both from the last bake. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `view` | `direction`, `cameraPosition` | `direction` | direction: one view direction everywhere, as an orthographic camera sees it. cameraPosition: from the camera to each texel's surface, as a perspective camera sees it; needs the position map. |
+| `camera` | `camera` |  | The camera whose pose fills View Direction and Camera Position. Pick it again after moving it. |
+| `model` | `schlick`, `power` | `schlick` | schlick: physical reflectance from the index of refraction. power: one minus the facing ratio, raised to Power. |
+| `ior` |  | `1.5` | Index of refraction, for schlick: 1.33 water, 1.5 glass and plastic, 2.4 diamond. |
+| `power` |  | `5` | For power: higher pulls the effect to the silhouette. |
+| `bias` |  | `0` | Lifts the result where the surface faces the viewer. |
+
 ### Image
 
 Type `image`.
@@ -695,12 +717,13 @@ Triplanar projection with each axis tiled at its own random turn and offset, so 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax. Adding the node fills both from the set's last bake, so the pattern keeps its proportions on a mesh that isn't a cube. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | color | output |  |  |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `space` | `object`, `world` | `object` |  |
-| `scale` |  | `1` | Repeats per unit. |
+| `scale` |  | `1` | Repeats across the longest side of the bake's bounds. |
 | `sharpness` |  | `4` |  |
 | `rotation` |  | `180` | How far each axis's projection may turn, degrees. |
 | `seed` |  | `0` |  |
@@ -709,17 +732,18 @@ Triplanar projection with each axis tiled at its own random turn and offset, so 
 
 Type `triplanar`.
 
-Projects the input onto the mesh from three axes in object or world space, blended by the surface normal, so it needs no uvs and has no seams.
+Projects the input onto the mesh from three axes, blended by the surface normal, so it needs no uvs and has no seams.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax. Adding the node fills both from the set's last bake, so the pattern keeps its proportions on a mesh that isn't a cube. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | color | output |  |  |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `space` | `object`, `world` | `object` |  |
-| `scale` |  | `1` | Repeats per unit. |
+| `scale` |  | `1` | Repeats across the longest side of the bake's bounds. |
 | `sharpness` |  | `4` | How quickly the projections hand over. |
 
 ### UV
@@ -2364,6 +2388,23 @@ A before-and-after wipe for looking at two versions side by side: a left of the 
 | `angle` |  | `0` | The line's lean, degrees. |
 | `lineWidth` |  | `0.004` | The line's width; 0 hides it. |
 
+### Comparison
+
+Type `comparison`.
+
+Compares a with b: white where the test holds, black where it doesn't. Every input takes a value or a link.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | float | input | `0.5` |  |
+| `b` | float | input | `0.5` |  |
+| `tolerance` | float | input | `0.001` | How close counts as equal, for equal and notEqual. |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `greaterThan`, `lessThan`, `greaterOrEqual`, `lessOrEqual`, `equal`, `notEqual` | `greaterThan` |  |
+
 ### Condition
 
 Type `condition`.
@@ -2397,6 +2438,22 @@ One component of a colour as gray: r, g, b or a. For packed maps (ORM: occlusion
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `channel` | `r`, `g`, `b`, `a` | `r` |  |
+
+### Logic
+
+Type `logic`.
+
+Combines masks as true (white) and false (black): and, or, not, xor and their inverses. Soft masks blend: and takes the smaller, or the larger, xor the difference.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | gray | input | `0` |  |
+| `b` | gray | input | `0` | Not used by not. |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `and`, `or`, `not`, `xor`, `nand`, `nor`, `xnor` | `and` |  |
 
 ### Pixel Processor
 
@@ -2457,6 +2514,24 @@ Maps a value from one range to another: From Low to To Low, From High to To High
 | --- | --- | --- | --- |
 | `clamp` |  | `true` |  |
 
+### Select
+
+Type `select`.
+
+Picks ifTrue where the condition is at or above the threshold, else ifFalse. Feed it a Comparison or Logic node for an if-then-else. With soft on, the condition blends the two instead.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `condition` | gray | input | `0` |  |
+| `ifTrue` | color | input | `[1, 1, 1, 1]` |  |
+| `ifFalse` | color | input | `[0, 0, 0, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `threshold` |  | `0.5` |  |
+| `soft` |  | `false` | Blend ifFalse to ifTrue by the condition, for soft masks. |
+
 ### Separate RGB
 
 Type `separateRgb`.
@@ -2483,6 +2558,35 @@ Splits a vector into its x, y and z values. Unlinked, it splits the mesh's uvs.
 | `x` | float | output |  |  |
 | `y` | float | output |  |  |
 | `z` | float | output |  |  |
+
+### Smooth Step
+
+Type `smoothStep`.
+
+Eases from black at Low to white at High. Every input takes a value or a link.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | float | input | `0.5` |  |
+| `low` | float | input | `0.25` |  |
+| `high` | float | input | `0.75` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `curve` | `smooth`, `smoother`, `linear` | `smooth` | smooth: the classic smoothstep. smoother: flatter at both ends. linear: a straight ramp. |
+
+### Step
+
+Type `step`.
+
+Black below the edge, white from it up. Both inputs take a value or a link.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | float | input | `0.5` |  |
+| `edge` | float | input | `0.5` |  |
+| `out` | gray | output |  |  |
 
 ### Switch
 

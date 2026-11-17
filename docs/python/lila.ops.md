@@ -4786,7 +4786,7 @@ Move nodes on the canvas: gnMoveNodes(group, positions={'Grid': [0, 100]}).
 
 ### gnNodeTypes
 
-The node library: type, label, category and description of each node. With linkType, only nodes that can take a link from (or, with linkInput, give one to) a socket of that type, each with the socket it would use.
+The node library: type, label, category and description of each node, and for a node with an operation its options as variants ({label, values} to set on the new node). With linkType, only nodes that can take a link from (or, with linkInput, give one to) a socket of that type, each with the socket it would use.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -4931,7 +4931,7 @@ Set the items a zone, bundle node or Evaluate Closure carries: gnSetItems(group,
 
 ### gnSetNodeFlags
 
-Set how nodes draw and run: gnSetNodeFlags(group, 'Math', 'Noise', muted=True). muted bypasses a node (its first input of a matching type passes through to each output); collapsed draws only its header; hideUnused draws only its linked sockets. Flags left out stay as they are.
+Set how nodes draw and run: gnSetNodeFlags(group, 'Math', 'Noise', muted=True). muted bypasses a node (its first input of a matching type passes through to each output); collapsed draws only its header; hideUnused draws only its linked sockets; hidePreview leaves out its image preview. Flags left out stay as they are.
 
 **Objects:** group nodes...
 
@@ -4940,6 +4940,7 @@ Set how nodes draw and run: gnSetNodeFlags(group, 'Math', 'Noise', muted=True). 
 | `muted` |  | bool |  | Bypass the nodes. |
 | `collapsed` |  | bool |  | Draw only their headers. |
 | `hideUnused` |  | bool |  | Draw only their linked sockets. |
+| `hidePreview` |  | bool |  | Draw them without their image previews. |
 
 ### gnSetTies
 
@@ -9930,7 +9931,7 @@ Store, query or remove a JSON value saved in the scene file, for tools and scrip
 
 ### sceneGraphAddNode
 
-Create a scene node from the node editor and add it to the selection, so the view shows it. Returns its path.
+Create a scene node from the node editor and add it to the selection, so the view shows it. Returns its path. A modifier added with a mesh (or one of its modifiers) selected goes on top of that mesh's stack, as addModifier puts it, and is laid out in the stack's columns rather than at position.
 
 **Objects:** view type
 
@@ -9938,6 +9939,7 @@ Create a scene node from the node editor and add it to the selection, so the vie
 | --- | --- | --- | --- | --- |
 | `position` |  | list |  | [x, y] on the canvas. |
 | `name` |  | str |  | Wanted name; made unique. |
+| `insert` |  | bool | `True` | Put a modifier into the selected mesh's stack; off leaves it unlinked. |
 
 ### sceneGraphConnect
 
@@ -9980,6 +9982,12 @@ Not undoable.
 sceneGraphInfo("Upstream", depth=3)
 ```
 
+### sceneGraphInsertNode
+
+Drop an unlinked modifier into a link of a mesh's stack from the node editor: sceneGraphInsertNode(view, 'bevel1', 'polyCube1.outMesh', 'Cube.inMesh') wires it in as addModifier does. Returns False, changing nothing, for any other node or link; the editor then wires the node through its matching sockets.
+
+**Objects:** view node from to
+
 ### sceneGraphMoveNodes
 
 Move nodes on the node editor's canvas: sceneGraphMoveNodes(view, positions={'Box': [0, 100]}). Kept per view with the scene.
@@ -10003,14 +10011,14 @@ Not undoable.
 
 ### sceneGraphSetNodeFlags
 
-Show nodes collapsed, or with every plug (hideUnused=False) rather than only the connected ones. Kept with the scene.
+Show nodes collapsed, or with every plug (hideUnused=False) rather than only the connected ones and their meshes. A node with neither shows every plug. Kept with the scene.
 
 **Objects:** view nodes...
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `collapsed` |  | bool |  | Only the header. |
-| `hideUnused` |  | bool |  | Only the connected plugs; on for every node until turned off. |
+| `hideUnused` |  | bool |  | Only the connected plugs and meshes; on for every node but modifiers until turned off. |
 | `muted` |  | bool |  | Accepted for the editor's mute key; scene nodes don't mute. |
 
 ### sceneGraphSetValue
@@ -12556,7 +12564,7 @@ Move a stroke to another place in its layer's order (0 the bottom) and re-raster
 
 ### texNodeTypes
 
-The texture node library: type, label, category, kind, tier and description of each. With linkType, only nodes that can take a link from (or, with linkInput, give one to) a port of that type, each with the socket it would use.
+The texture node library: type, label, category, kind, tier, description, search keywords and variants (an operation's options, each {label, values} to set on the new node) of each. With linkType, only nodes that can take a link from (or, with linkInput, give one to) a port of that type, each with the socket it would use.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -12825,7 +12833,7 @@ Change a layer's mask: props is a merge patch over its JSON (name, enabled, mode
 
 ### texSetNodeFlags
 
-Set how nodes draw and run, as gnSetNodeFlags does: muted, collapsed, hideUnused. Flags left out stay as they are.
+Set how nodes draw and run, as gnSetNodeFlags does: muted, collapsed, hideUnused, hidePreview. Flags left out stay as they are.
 
 **Objects:** set nodes...
 
@@ -12834,6 +12842,7 @@ Set how nodes draw and run, as gnSetNodeFlags does: muted, collapsed, hideUnused
 | `muted` |  | bool |  | Bypass the nodes. |
 | `collapsed` |  | bool |  | Draw only their headers. |
 | `hideUnused` |  | bool |  | Draw only their linked sockets. |
+| `hidePreview` |  | bool |  | Draw them without their image previews. |
 
 ### texSets
 
@@ -20434,7 +20443,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
