@@ -29,6 +29,12 @@ setMaterialTexture("M_Wing", channel="roughness", textureSet="HullTex")
 
 With **Follow** on, the Texture Set dock shows the set of the selected meshes, or no set when their materials have none.
 
+## Raised and sunken shapes
+
+Pick the **Normal** tool. **Raise** (the default) paints a raised plate: overlapping strokes merge into one flat level, and the brush's falloff is the bevel. **Lower** cuts a recess. The number beside it sets how far, where 1 is the set's Height Depth. For a crisp rectangle, draw it with **Selection** first, then paint over it.
+
+The shape goes into the set's height, which the layer stack turns into normals; a set without a height channel takes none. **Bump** and **Stamp** press a bump per dab or lay a normal map instead.
+
 ## Stencils
 
 A stencil is a picture pinned to the screen that every stroke paints through: a mask for grunge, a decal shape or a photo colour.
