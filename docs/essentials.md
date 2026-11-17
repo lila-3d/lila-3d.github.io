@@ -332,7 +332,8 @@ To add loops around a band, select its faces all the way round, such as the fron
 
 Turns a triangle fan, such as a cylinder cap, into clean quads: a grid in the middle, joined to the border by a ring of quads. Select the fan's centre vertex, or the faces to rebuild. With edges selected, it fills the holes they border the same way.
 
-- **Grid Size** sets how much of the hole the grid takes; at 1 there's no ring.
+- **Style** set to **Radial** fills the hole with rings of quads that follow the border inward, to a pole of kite-shaped quads in the middle. Dense borders halve their spokes as the rings shrink. Borders under 6 edges get the grid instead.
+- **Grid Size** sets how much of the hole the grid takes; at 1 there's no ring. With **Radial** it sets the size of the pole in the middle: the smaller it is, the more rings.
 - **Rotate** turns the grid's corners round the border.
 - An odd number of border edges leaves one triangle in the ring.
 

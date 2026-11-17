@@ -8284,7 +8284,8 @@ Rebuild triangle fans and other patches as a quad grid inside a ring of quads: s
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `gridSize` |  | float | `0.4` | The grid's size against the hole; 1 grids right to the border with no ring. |
+| `style` |  | str | `'grid'` | grid: one ring of quads round a grid. radial: rings following the border inward to a pole of kite quads, dense rings halving their spokes as they shrink. Borders under 6 points take grid. |
+| `gridSize` |  | float | `0.4` | The grid's size against the hole; 1 grids right to the border with no ring. With radial, the pole's size: smaller adds rings. |
 | `rotate` |  | int | `0` | Steps the grid's corners round the border. |
 
 ### polyIcoSphere
@@ -8359,7 +8360,7 @@ Store the current shading normals of the selected meshes as split normals, so la
 
 ### polyMerge
 
-Weld selected vertices closer than a distance (all of a mesh's points if it has no component selection). Exactly two selected vertices weld whatever the distance.
+Weld selected vertices closer than a distance (all of a mesh's points if it has no component selection). Exactly two selected vertices weld at their centre whatever the distance.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |

@@ -3737,7 +3737,7 @@ Fills holes, or replaces disc patches of faces such as a pole's fan, with a quad
 | --- | --- | --- | --- | --- |
 | `mesh` | geometry | input |  |  |
 | `selection` | bool | input, field | `true` | Elements to affect. |
-| `gridSize` | float | input | `0.4` | The grid's size against the hole. Range 0 to 1. |
+| `gridSize` | float | input | `0.4` | The grid's size against the hole. With radial, the pole's size: smaller adds rings. Range 0 to 1. |
 | `rotate` | int | input | `0` | Steps the grid's corners round the border. |
 | `mesh` | geometry | output |  |  |
 | `fill` | bool | output, field |  | The new faces. |
@@ -3745,6 +3745,7 @@ Fills holes, or replaces disc patches of faces such as a pole's fan, with a quad
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `mode` | `holes`, `faces` | `holes` | Holes bordered by the selected edges, or patches of selected faces. |
+| `style` | `grid`, `radial` | `grid` | One ring round a grid, or rings following the border inward to a pole of kite quads. |
 
 ### Inset Faces
 
