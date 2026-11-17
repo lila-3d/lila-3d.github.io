@@ -779,11 +779,13 @@ Composites a layer's tangent-space normal over the normals below: rnm reorients 
 
 Type `layerDecal`.
 
-Places one picture (or one cell of an atlas) on the mesh from a box in object space: out is the picture there, mask its alpha inside the box and 0 outside.
+Places one picture (or one cell of an atlas) on the mesh from a box in world space, where the set's bake is: out is the picture there, mask its alpha inside the box and 0 outside.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0, 0, 0, 0]` |  |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's last bake. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | color | output |  |  |
 | `mask` | gray | output |  |  |
 
@@ -864,11 +866,13 @@ One channel of a paint layer: the painted value (rgb) and its coverage (alpha), 
 
 Type `layerProjection`.
 
-Places a layer's content on the mesh: by uv, or projected from a box (planar, triplanar, spherical, cylindrical, warp) placed in the mesh's object space, so it ignores seams. coord is the coordinate it reads the content at.
+Places a layer's content on the mesh: by uv, or projected from a box (planar, triplanar, spherical, cylindrical, warp) placed in world space, where the set's bake is, so it ignores seams. coord is the coordinate it reads the content at.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0, 0, 0, 1]` |  |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's last bake. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | color | output |  |  |
 | `coord` | vector | output |  |  |
 
