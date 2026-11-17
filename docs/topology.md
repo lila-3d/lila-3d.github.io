@@ -54,4 +54,6 @@ Retopologize by hand or automatically, from the **Topology** menu or the **Topol
 
 **A region doesn't join its border.** Its edge length is far from the border's; set the toolkit's Edge length closer to the retopo mesh's.
 
+**The reference shows through the retopo mesh.** Raise **Draw Offset** in the toolkit's Session section. It only changes how the retopo mesh draws; exports and snapping use the real positions.
+
 **"Over the region limit".** The edge length would make more than 50,000 faces. Set the region's **Faces**, or raise its **Edge Length**.
