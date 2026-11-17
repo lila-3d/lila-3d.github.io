@@ -1,6 +1,6 @@
 # Node editor
 
-Keys and gestures for the node canvas, in geometry nodes and the texture graph. Every edit undoes, and the layout (reroutes, portals, frames, ties, muting, collapsed nodes, saved views) saves with the scene. Most of these are also on the canvas right-click menu; rebind keys under **Node Editor** in the hotkey editor.
+Keys and gestures for the node canvas, in geometry nodes and the texture graph. Every edit undoes, and the layout (reroutes, portals, frames, notes, ties, node titles, muting, collapsed nodes, saved views) saves with the scene. Most of these are also on the canvas right-click menu; rebind keys under **Node Editor** in the hotkey editor.
 
 <!-- TODO image: a tidy graph with a frame, a zip tie, a reroute and a portal pair (images/node-editor/overview.png) -->
 
@@ -16,6 +16,7 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 | **M** | Mute the selection |
 | **H** / **Ctrl+H** | Collapse nodes / hide their unlinked sockets |
 | **Ctrl+J** | Frame the selection |
+| **F2** | Rename the selected node; **Enter** keeps, **Esc** cancels. Geometry and texture nodes keep their name for links and scripts, and an empty title shows the type's again. Scene nodes are renamed |
 | **Q** | Straighten the wires into the selection |
 | **Ctrl+L** | Auto layout the selection, or the whole graph with nothing selected |
 | **Alt+Arrows**, **Alt+C**, **Alt+Shift+M** | Align left, right, top, bottom, centre, middle |
@@ -48,7 +49,10 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 | Drag a frame's title / corner | Move it with its nodes / resize it |
 | Drop a node inside a frame | It joins; drag it out and it leaves |
 | Click a frame's arrow | Collapse it |
+| Double-click a node's title | Rename it, as **F2** does. A Group node opens instead |
 | Double-click a frame's title | Rename it |
+| Right-click > **Add Note**, or **Tab** and type `note` | Type a note at the cursor; **Ctrl+Enter** or clicking away adds it, **Esc** drops it |
+| Double-click a note's text | Edit it |
 | Double-click a Receive | Jump to its Send |
 | Drag a zip tie / **Shift**+drag | Move it / turn it (**Ctrl** turns freely) |
 | Right-click a tie or frame title | Colour, rename, remove |
@@ -63,7 +67,7 @@ Keys and gestures for the node canvas, in geometry nodes and the texture graph. 
 
 - Several ties can sit along the same wires.
 - A tie is removed when fewer than two of its wires are left.
-- Ties and frames copy and paste with their nodes.
+- Ties, frames and notes copy and paste with the nodes they hold. A note is a frame with text, so it moves, resizes and collapses like one.
 
 ## Troubleshooting
 
