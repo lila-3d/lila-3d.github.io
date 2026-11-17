@@ -223,7 +223,7 @@ To paint something you built from nodes:
 
 A material or texture paints at its real-world size on every part of the mesh, however dense the part's UVs. **Scale** repeats it more often: 2 is half size. The node button beside **Material** opens the picked material's nodes. A library material is first copied into the scene, and the brush then paints the copy. Any texture set in the scene appears in the list as **Scene: name**.
 
-To get back to the default round brush after a preset, pick **Default** at the start of the brush presets, or **Reset Brush** in the Paint section's **...** menu.
+To get back to the default round brush after a preset, pick **Default** at the start of the brush presets, or **Reset Brush** in the Paint section's **...** menu. A brush preset keeps the tool you're on (Smudge, Blur, Clone...) unless it was made for another tool. Click the star on a preset, smart material, alpha, texture or library material to keep it at the top of its list.
 
 **Varied** (beside **Scale**) stops a tiling material or texture from showing its repeat. Hex cells each take it at a random offset and turn, blended at the seams. When Height is ticked, the higher cell wins at each seam, so the joins follow the content. Lower **Turn** for patterns with a direction, such as bricks or planks.
 
