@@ -529,6 +529,14 @@ button:focus-visible {
   background: linear-gradient(90deg, var(--line), var(--accent));
 }
 
+.chain a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+
+.chain a:hover { color: var(--accent-soft); }
+
 .chain li.end a {
   padding: 3px 12px;
   border: 1px solid rgba(61,139,255,.5);
@@ -1050,13 +1058,13 @@ footer p { margin: 0 0 6px; }
 
   <div class="below">
     <ol class="chain" aria-label="What Lila does">
-      <li>Model</li>
-      <li>Retopo</li>
-      <li>Unwrap</li>
-      <li>Texture</li>
-      <li>Rig</li>
-      <li>Animate</li>
-      <li>Build worlds</li>
+      <li><a href="#modeling">Model</a></li>
+      <li><a href="#retopo">Retopo</a></li>
+      <li><a href="#uvs">Unwrap</a></li>
+      <li><a href="#texturing">Texture</a></li>
+      <li><a href="#rigging">Rig</a></li>
+      <li><a href="#animation">Animate</a></li>
+      <li><a href="#worlds">Build worlds</a></li>
       <li class="end"><a href="#pipeline">Your engine</a></li>
     </ol>
     <p class="tagline">Maya-style workflow. Works with any engine, with a live link to Unreal.</p>
