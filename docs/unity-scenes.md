@@ -2,7 +2,7 @@
 
 A `.lila` file in your Unity project with a model beside it that updates each time you save in Lila, the way Unity treats `.blend` files.
 
-This is a small example script for the community to build on, not a supported plugin. Lila's only official engine plugin is LilaLink for Unreal.
+This is a small example script for the community to build on, not a supported plugin. Lila's only official engine plugin is LilaLink for Unreal. To write one from scratch, follow the [tutorial](unity-plugin-tutorial.md).
 
 ## Get it working
 
@@ -19,15 +19,24 @@ lilabatch -c "openScene('crate.lila', force=True); exportFbx('crate.fbx', select
 
 `profile='ue6'` writes a Y-up file facing +Z, which Unity imports with no rotation on the root. `units='m'` gives a scale of 1.
 
+## Send and Sync
+
+- **Send to Unity:** copy `unity_link.py` from `resources/engines/unity` into `%APPDATA%\Lila\extensions`, run `loadExtension("unity_link", autoload=True)` in Lila's script editor and restart Lila. Choose **File > Connect to Unity...**, pick the Unity project, then **File > Send to Unity** writes each selected object to `Assets/Lila/<name>.fbx`.
+- **Sync:** copy `LilaSync.cs` into the same `Editor` folder, turn on **Preferences > General > Change Stream** in Lila, then choose **Tools > Lila > Sync** in Unity. Objects in models from `Assets/Lila` or beside a `.lila` file move as you move them in Lila.
+
+The [tutorial](unity-plugin-tutorial.md) explains how both work.
+
 ## Troubleshooting
 
 **"Lila: lilabatch wasn't found".** Lila isn't in its default install folder. Choose **Tools > Lila > Set lilabatch Location...** and pick `lilabatch.exe`, then right-click the `.lila` file and choose **Reimport**.
 
-**"Lila: lilabatch couldn't export".** The rest of the Console message is Lila's log, and its last lines say why. Run the command above in a terminal to try it outside Unity.
+**"Lila: lilabatch couldn't export".** The rest of the Console message is Lila's log, and its `[error]` lines say why. Run the command above in a terminal to try it outside Unity.
 
 **The FBX doesn't update after a save.** Unity looks for changed files when its window gets focus, and only with **Preferences > Asset Pipeline > Auto Refresh** on. Click the Unity window, or press Ctrl+R.
 
 **Unity waits on "Exporting" for a long time.** The export runs before Unity carries on, and an animated scene is evaluated at every frame of its playback range. Shorten the range in Lila, or turn animation off (see Build on it).
+
+**"Lila: nothing on port 8742".** The change stream is off in Lila, or on another port: set `Port` in `LilaSync.cs` to match.
 
 **The `.lila` file shows a blank icon and can't be dragged into the scene.** That's expected: use the FBX beside it.
 

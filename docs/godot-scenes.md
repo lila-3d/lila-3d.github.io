@@ -2,12 +2,12 @@
 
 A `.lila` file in your Godot 4 project that works as a scene, and updates each time you save it in Lila.
 
-This is a small example importer for the community to build on, not a supported plugin. Lila's only official engine plugin is LilaLink for Unreal.
+This is a small example importer for the community to build on, not a supported plugin. Lila's only official engine plugin is LilaLink for Unreal. To write one from scratch, follow the [tutorial](godot-plugin-tutorial.md).
 
 ## Get it working
 
 1. Copy the `addons/lila_scene` folder from `resources/engines/godot` in Lila's install folder (or from [the Lila repository](https://github.com/lila-3d/Lila/tree/main/resources/engines/godot)) into your project's `addons` folder.
-2. In Godot, open **Project > Project Settings > Plugins** and enable **Lila Scene Import**.
+2. In Godot, open **Project > Project Settings > Plugins** and enable **Lila**.
 3. In Lila, save a scene somewhere in the Godot project, for example `res://models/crate.lila`.
 4. Switch to Godot. `crate.lila` appears in the FileSystem dock as a scene. Drag it into a 3D scene.
 5. Change the scene in Lila and save. Switch back to Godot: it re-imports the file and every instance updates.
@@ -18,15 +18,24 @@ The importer runs `lilabatch`, which is installed beside `lila`, to export the s
 lilabatch -c "openScene('crate.lila', force=True); exportGltf('crate.glb', selectionOnly=False, unrealCheck=False)"
 ```
 
+## Send and Sync
+
+- **Send to Godot:** copy `godot_link.py` from `resources/engines/godot` into `%APPDATA%\Lila\extensions`, run `loadExtension("godot_link", autoload=True)` in Lila's script editor and restart Lila. Choose **File > Connect to Godot...**, pick the Godot project, then **File > Send to Godot** writes each selected object to `res://lila/<name>.glb`.
+- **Sync:** turn on **Preferences > General > Change Stream** in Lila, then **Lila Sync** in Godot's toolbar. Objects in scenes from `res://lila/` and `.lila` files move as you move them in Lila.
+
+The [tutorial](godot-plugin-tutorial.md) explains how both work.
+
 ## Troubleshooting
 
 **"Lila: lilabatch wasn't found."** Lila isn't in its default install folder. Set the path to `lilabatch.exe` in **Editor > Editor Settings > Lila > Batch Path**, then right-click the file in the FileSystem dock and choose **Reimport**.
 
-**"Lila: lilabatch couldn't export".** The lines under the error in the Output panel are Lila's log, and the last ones say why. Run the command above in a terminal to try it outside Godot.
+**"Lila: lilabatch couldn't export".** The lines under the error in the Output panel are Lila's log, and its `[error]` lines say why. Run the command above in a terminal to try it outside Godot.
 
 **The file doesn't update after a save.** Godot looks for changed files when its window gets focus. Click the Godot window.
 
 **Godot freezes while a scene imports.** The export runs on the editor's main thread, and an animated scene is evaluated at every frame of its playback range. Shorten the range in Lila, or turn animation off (see Build on it).
+
+**Lila Sync turns itself off and the Output panel says "can't reach Lila".** The change stream is off in Lila, or on a port other than 8742: set `port` in `lila_sync.gd` to match.
 
 **Materials look different from Lila.** They arrive as glTF metallic-roughness materials with their textures inside the imported scene.
 

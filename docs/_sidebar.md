@@ -107,6 +107,8 @@
   - [File translators](file-translators.md)
   - [Lila scenes in Unity](unity-scenes.md)
   - [Lila scenes in Godot](godot-scenes.md)
+  - [Tutorial: Unity script](unity-plugin-tutorial.md)
+  - [Tutorial: Godot plugin](godot-plugin-tutorial.md)
 
 ---
 
