@@ -2557,6 +2557,7 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `emissiveMapColorSpace` |  | Any |  | How emissiveMap's 8- and 16-bit values are read: auto (sRGB, as a colour map), sRGB, or linear (raw data). EXR and HDR files are always linear. |
 | `baseColorMapOcioSpace` |  | str |  | With OCIO colour management on: the config colour space the map is in (Utility - sRGB - Texture, ACEScg); empty reads it by its ColorSpace. |
 | `emissiveMapOcioSpace` |  | str |  | With OCIO colour management on: the config colour space the map is in (Utility - sRGB - Texture, ACEScg); empty reads it by its ColorSpace. |
+| `textureSet` |  | str |  | Texture set whose maps draw this material, in place of the maps it has. Any number of materials can use one set; painting a mesh with this material paints the set. |
 
 ### createMesh
 
@@ -10775,7 +10776,7 @@ Make the last key of each curve a loop key: it mirrors the first key's value and
 
 ### setMaterialTexture
 
-Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal, ambientOcclusion, orm, mro (the packed map with the MRO layout) or emissive. Stored relative to the workspace root (or the scene folder without one). wrap, wrapU, wrapV and filter set how it is sampled; given without path they change only that.
+Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal, ambientOcclusion, orm, mro (the packed map with the MRO layout) or emissive. Stored relative to the workspace root (or the scene folder without one). textureSet takes the channel's map from a texture set instead ('' stops). wrap, wrapU, wrapV and filter set how it is sampled; given without path they change only that.
 
 **Objects:** material
 
@@ -10783,6 +10784,7 @@ Set or clear (path='') a texture: channel baseColor, metallic, roughness, normal
 | --- | --- | --- | --- | --- |
 | `channel` | `c` | str |  | Texture channel. |
 | `path` | `p` | str |  | Image file; empty clears. |
+| `textureSet` | `ts` | str |  | Take this map from a texture set; empty stops. |
 | `wrap` |  | str |  | Both wrap modes. One of `repeat`, `clamp`, `mirror`, `black`. |
 | `wrapU` |  | str |  | Wrap along U. One of `repeat`, `clamp`, `mirror`, `black`. |
 | `wrapV` |  | str |  | Wrap along V. One of `repeat`, `clamp`, `mirror`, `black`. |
@@ -12205,14 +12207,15 @@ Not undoable.
 
 ### texCreateSet
 
-Create a texture set: a texture graph with a Material Output, and the channels, tile sizes and export preset its maps use. Returns its name.
+Create a texture set: a texture graph with a Material Output, and the channels, tile sizes and export preset its maps use. materials= points those materials at it. Returns its name.
 
 **Objects:** name
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `settings` |  | Any |  | Settings dict: channels [{name, type, bits}], width, height, tiles [udim or {udim, width, height}], normalConvention (opengl/directx), bakeProject, exportPreset, material. |
+| `settings` |  | Any |  | Settings dict: channels [{name, type, bits}], width, height, tiles [udim or {udim, width, height}], normalConvention (opengl/directx), bakeProject, exportPreset. |
 | `resolution` |  | int |  | Width and height of every tile. |
+| `materials` |  | list |  | Materials that use the set (their Texture Set), created when missing. |
 
 ### texDeleteNode
 
@@ -12840,7 +12843,7 @@ Not undoable.
 
 ### texSetSettings
 
-Change a texture set's settings: the keys given replace the set's (channels, width, height, tiles, normalConvention, bakeProject, exportPreset, material, heightDepth, uvWidth, uvHeight, normalFromHeight, normalFade, heightSource). Returns the full settings.
+Change a texture set's settings: the keys given replace the set's (channels, width, height, tiles, normalConvention, bakeProject, exportPreset, heightDepth, uvWidth, uvHeight, normalFromHeight, normalFade, heightSource). Returns the full settings.
 
 **Objects:** set settings
 

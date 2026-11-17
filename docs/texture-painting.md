@@ -4,7 +4,7 @@ Paint material channels straight onto a mesh, in texture space and across UV sea
 
 ## Get it working
 
-1. Select a mesh and run **Texture > New Texture Set**.
+1. Select the meshes to paint and run **Texture > New Texture Set**. Their materials pick the new set; meshes still on Default share a new material first.
 2. Run **Texture > Texture Paint**. The Texture Set dock opens its Brush page.
 3. Pick a tool tile, set the channel values, and drag on the mesh.
 
@@ -15,6 +15,13 @@ A stroke can run across several meshes, even with different texture sets: each g
 ## Painting several meshes
 
 Strokes reach the selected meshes and the meshes under selected groups, in the viewport and the 2D View; with nothing selected they reach every mesh. The status line's **meshes** field shows which: a count of selected meshes, or all.
+
+A material picks its texture set the way it picks a texture file: **Texture Set** in the Material Editor. Any number of materials can pick one set; their uvs then share it, so lay them out side by side. A single map can come from a set too: the **Texture Sets** rows in that map's picker.
+
+```python
+texCreateSet("HullTex", materials=["M_Hull", "M_Canopy"])
+setMaterialTexture("M_Wing", channel="roughness", textureSet="HullTex")
+```
 
 With **Follow** on, the Texture Set dock shows the set of the selected meshes, or no set when their materials have none.
 
@@ -235,6 +242,10 @@ These work for every brush that uses the shared brush settings; Airbrush builds 
 ## Troubleshooting
 
 **Only some of the meshes take paint.** Strokes reach the selected meshes only. Select them all, or select nothing.
+
+**Two meshes take the same stroke.** Their materials pick the same set and their uvs overlap. Lay them out side by side, or pick separate sets.
+
+**The brush says "material has no texture set".** The material under the brush picks none. Pick one in its **Texture Set**, or run **New Texture Set** with the mesh selected.
 
 **Patch Fill says no patch fits.** The area around the selection is smaller than a patch, for example a hole filling most of a small uv island. Select less, or lower `patch`.
 
