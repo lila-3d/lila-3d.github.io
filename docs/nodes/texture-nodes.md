@@ -648,27 +648,30 @@ An image file sampled in uv, wrapping at the edges, repeated tiles times. Relati
 
 Type `position`.
 
-Object-space position from the texture set's mesh maps; (u, v, 0) when no mesh map is supplied.
+The surface position from the set's baked position map, in the bake's space: in cm once Bounds Min and Max hold the bake's bounds, 0 to 1 across them otherwise. (u, v, 0) when the set has no bake.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. Adding the node fills both from the set's last bake. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `position` | vector | output |  |  |
 
 ### Projection
 
 Type `projection`.
 
-Texture coordinates projected onto the mesh instead of its uvs: flat, wrapped around a cylinder or around a sphere (an equirectangular map such as an earth texture). Link it into an Image's UV, through Mapping to move it.
+Texture coordinates projected onto the mesh from the middle of its bake bounds instead of its uvs: flat, wrapped around a cylinder or around a sphere (an equirectangular map such as an earth texture). Link it into an Image's UV, through Mapping to move it.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. Adding the node fills both from the set's last bake, so the projection sits on the mesh's middle. |
+| `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | vector | output |  |  |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `shape` | `planar`, `cylindrical`, `spherical` | `planar` |  |
 | `axis` | `x`, `y`, `z` | `y` | Planar: the direction it projects along. Cylindrical and spherical: the pole. |
-| `space` | `object`, `world` | `object` |  |
 | `size` |  | `100` | Planar and cylindrical: cm per repeat (height for cylindrical). |
 
 ### Random per Island
@@ -685,28 +688,6 @@ A random value (and colour) per uv island, from the set's island map: each plank
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `seed` |  | `0` |  |
-
-### Rest Position
-
-Type `restPosition`.
-
-Bind-pose (rest) object position from the mesh maps, so patterns stick to skinned and deformed meshes; (u, v, 0) when not supplied.
-
-| Socket | Type | Kind | Default | Description |
-| --- | --- | --- | --- | --- |
-| `position` | vector | output |  |  |
-
-### Tangent Space
-
-Type `tangentSpace`.
-
-The mesh's object-space tangent frame per texel from the mesh maps (unit vectors); (u, v, 0) when not supplied.
-
-| Socket | Type | Kind | Default | Description |
-| --- | --- | --- | --- | --- |
-| `tangent` | vector | output |  |  |
-| `bitangent` | vector | output |  |  |
-| `normal` | vector | output |  |  |
 
 ### Tri-Planar Tiled
 
@@ -755,16 +736,6 @@ The texture coordinate: u, v and 0. Feed it through math or transforms for custo
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uv` | vector | output |  |  |
-
-### World Position
-
-Type `worldPosition`.
-
-World-space position from the texture set's mesh maps; (u, v, 0) when no mesh map is supplied.
-
-| Socket | Type | Kind | Default | Description |
-| --- | --- | --- | --- | --- |
-| `position` | vector | output |  |  |
 
 ## Layer
 
