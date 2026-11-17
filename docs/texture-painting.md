@@ -221,7 +221,7 @@ To paint something you built from nodes:
 1. Click **+** beside **Material** and name it. A texture set of its own opens in the Texture Graph, already picked as the brush's material.
 2. Build the material in the Texture Graph and paint. Each stroke uses the graph as it is when the stroke starts.
 
-The node button beside **Material** opens the picked material's nodes. A library material is first copied into the scene, and the brush then paints the copy. Any texture set in the scene appears in the list as **Scene: name**.
+A material or texture paints at its real-world size on every part of the mesh, however dense the part's UVs. **Scale** repeats it more often: 2 is half size. The node button beside **Material** opens the picked material's nodes. A library material is first copied into the scene, and the brush then paints the copy. Any texture set in the scene appears in the list as **Scene: name**.
 
 **Varied** (beside **Scale**) stops a tiling material or texture from showing its repeat. Hex cells each take it at a random offset and turn, blended at the seams. When Height is ticked, the higher cell wins at each seam, so the joins follow the content. Lower **Turn** for patterns with a direction, such as bricks or planks.
 
