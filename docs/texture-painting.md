@@ -4,7 +4,7 @@ Paint material channels straight onto a mesh, in texture space and across UV sea
 
 ## Get it working
 
-1. Select the meshes to paint and run **Texture > New Texture Set**. Their materials pick the new set; meshes still on Default share a new material first.
+1. Select the meshes to paint and run **Texture > New Texture Set**. Their materials pick the new set, which comes with a paint layer; meshes still on Default share a new material first. **Texture > New Texture Set per Material** makes one set for each material instead, for the whole scene when nothing is selected.
 2. Run **Texture > Texture Paint**. The Texture Set dock opens its Brush page.
 3. Pick a tool tile, set the channel values, and drag on the mesh.
 
