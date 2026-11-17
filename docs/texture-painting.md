@@ -16,6 +16,10 @@ A stroke can run across several meshes, even with different texture sets: each g
 
 Strokes reach the selected meshes and the meshes under selected groups, in the viewport and the 2D View; with nothing selected they reach every mesh. The status line's **meshes** field shows which: a count of selected meshes, or all.
 
+A stroke paints every texture set under the brush. **Sets: Shown** in the Brush page limits it to the set the Texture Set dock shows.
+
+**Symmetry** in the Brush page is painting's own, apart from the mesh's symmetry for modelling and UVs. **Mesh** paints with the mesh's symmetry, radial included.
+
 A material picks its texture set the way it picks a texture file: **Texture Set** in the Material Editor. Any number of materials can pick one set; their uvs then share it, so lay them out side by side. A single map can come from a set too: the **Texture Sets** rows in that map's picker.
 
 ```python
@@ -242,6 +246,8 @@ These work for every brush that uses the shared brush settings; Airbrush builds 
 ## Troubleshooting
 
 **Only some of the meshes take paint.** Strokes reach the selected meshes only. Select them all, or select nothing.
+
+**Another set's mesh takes no paint.** **Sets** is on **Shown**. Switch it to **All**.
 
 **Two meshes take the same stroke.** Their materials pick the same set and their uvs overlap. Lay them out side by side, or pick separate sets.
 
