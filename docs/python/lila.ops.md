@@ -9474,7 +9474,7 @@ Retopo Draw: move points (base mesh ids) to world positions; mirror partners fol
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `mesh` |  | str |  | Retopo mesh. |
-| `points` |  | list |  | Point ids. |
+| `points` |  | list |  | Point ids. With symmetry, a point that is an earlier listed point's mirror image follows that point. |
 | `positions` |  | list |  | World [x, y, z] per point. |
 | `weld` |  | float | `0.0` | Merge a moved point into another point closer than this, cm. |
 
