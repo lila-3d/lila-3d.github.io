@@ -15,7 +15,7 @@ Check your PC against the [system requirements](requirements.md) first: Lila nee
 
 ## Updates
 
-Lila checks for a new version each time it starts. When there is one, click **Install When Lila Closes**: Lila downloads it, and installs it without asking again once you close Lila.
+Lila checks for a new version each time it starts. When there is one, click **Install Now**, or **Install When Lila Closes** to keep working: Lila downloads it in the background and installs it once you close Lila. Usually it downloads only the files that changed, and an interrupted download picks up where it stopped.
 
 To check now, choose **Help > Check for Updates...**.
 
@@ -33,7 +33,11 @@ In Windows, open **Settings > Apps > Installed apps**, find **Lila** and choose 
 Get-FileHash .\Lila-0.1.0-Setup.exe
 ```
 
-**"The update couldn't be downloaded."** Click **Download Lila** on the site and run the new installer over the old one. Your preferences and scenes aren't touched.
+**"The update couldn't be downloaded."** Lila already retried. What it downloaded is kept, so **Help > Check for Updates...** later resumes from there. Or click **Download Lila** on the site and run the new installer over the old one. Your preferences and scenes aren't touched.
+
+**"Lila files differ from the release, so this update needs the full installer."** Something changed Lila's files since they were installed, often antivirus. **Show Details...** lists them. Download the full installer, or click **Cancel** and update later.
+
+**Lila is broken after an update, or files are missing.** Choose **Help > Reinstall Lila...**. It downloads the full installer and replaces every Lila program file. Your preferences and scenes aren't touched.
 
 **Lila starts, but the viewport is black or missing.** Your GPU driver is too old: see [system requirements](requirements.md).
 
