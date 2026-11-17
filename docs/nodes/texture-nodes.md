@@ -2319,6 +2319,33 @@ Caches its input in a texture, so what feeds it is computed once and not per rea
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
 | `out` | color | output |  |  |
 
+### Combine RGB
+
+Type `combineRgb`.
+
+Builds a colour from red, green, blue and alpha values.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `r` | float | input | `0` |  |
+| `g` | float | input | `0` |  |
+| `b` | float | input | `0` |  |
+| `a` | float | input | `1` |  |
+| `out` | color | output |  |  |
+
+### Combine XYZ
+
+Type `combineXyz`.
+
+Builds a vector from x, y and z values, for example a UV for an Image's UV input.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | float | input | `0` |  |
+| `y` | float | input | `0` |  |
+| `z` | float | input | `0` |  |
+| `out` | vector | output |  |  |
+
 ### Compare
 
 Type `compare`.
@@ -2415,20 +2442,47 @@ One random value and colour for the whole texture, from a seed: expose the seed 
 
 Type `remap`.
 
-Maps a value from one range to another: fromLow to toLow, fromHigh to toHigh, clamped to the new range when clamp is on.
+Maps a value from one range to another: From Low to To Low, From High to To High, clamped to the new range when clamp is on. Each bound takes a value or a link.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | float | input | `0` |  |
+| `fromLow` | float | input | `0` |  |
+| `fromHigh` | float | input | `1` |  |
+| `toLow` | float | input | `0` |  |
+| `toHigh` | float | input | `1` |  |
 | `out` | float | output |  |  |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `fromLow` |  | `0` |  |
-| `fromHigh` |  | `1` |  |
-| `toLow` |  | `0` |  |
-| `toHigh` |  | `1` |  |
 | `clamp` |  | `true` |  |
+
+### Separate RGB
+
+Type `separateRgb`.
+
+Splits a colour into its red, green, blue and alpha values.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, 0, 1]` |  |
+| `r` | float | output |  |  |
+| `g` | float | output |  |  |
+| `b` | float | output |  |  |
+| `a` | float | output |  |  |
+
+### Separate XYZ
+
+Type `separateXyz`.
+
+Splits a vector into its x, y and z values. Unlinked, it splits the mesh's uvs.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `vec` | vector | input |  | The vector to split: the mesh's uvs unless linked. |
+| `x` | float | output |  |  |
+| `y` | float | output |  |  |
+| `z` | float | output |  |  |
 
 ### Switch
 
@@ -2461,6 +2515,24 @@ Trigonometry on a value (radians): tangent, inverse sine, cosine and tangent, at
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `operation` | `tangent`, `arcsine`, `arccosine`, `arctangent`, `arctangent2`, `hyperbolicTangent` | `tangent` |  |
+
+### Vector Math
+
+Type `vectorMath`.
+
+Arithmetic on vectors per component, such as UV, Mapping or Projection coordinates. Value gives Dot, Length and Distance as a single number.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | vector | input | `[0, 0, 0]` |  |
+| `b` | vector | input | `[0, 0, 0]` |  |
+| `scale` | float | input | `1` | The factor for Scale. |
+| `out` | vector | output |  |  |
+| `value` | float | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `add`, `subtract`, `multiply`, `divide`, `scale`, `minimum`, `maximum`, `absolute`, `floor`, `fraction`, `modulo`, `sine`, `cosine`, `normalize`, `cross`, `dot`, `length`, `distance` | `add` |  |
 
 ## TrimSheets extension
 
