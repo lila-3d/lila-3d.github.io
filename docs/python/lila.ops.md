@@ -4895,7 +4895,7 @@ Replace a group's whole definition (JSON as gnGroupInfo returns under 'definitio
 
 ### gnSetFrames
 
-Replace a group's frames: gnSetFrames(group, [{label: 'Inputs', position: [x, y], size: [w, h], color: '', collapsed: false, nodes: [names]}]). Frames only change the canvas; names not in the group are dropped. Returns how many frames there are.
+Replace a group's frames: gnSetFrames(group, [{label: 'Inputs', position: [x, y], size: [w, h], color: '', collapsed: false, nodes: [names], text: ''}]). A frame with text is a note, its text shown in its body. Frames only change the canvas; names not in the group are dropped. Returns how many frames there are.
 
 **Objects:** group frames
 
@@ -4941,6 +4941,12 @@ Set how nodes draw and run: gnSetNodeFlags(group, 'Math', 'Noise', muted=True). 
 | `collapsed` |  | bool |  | Draw only their headers. |
 | `hideUnused` |  | bool |  | Draw only their linked sockets. |
 | `hidePreview` |  | bool |  | Draw them without their image previews. |
+
+### gnSetNodeLabel
+
+Show a node under its own title on the canvas: gnSetNodeLabel(group, 'Math', 'Height Scale'). Display only; the node keeps its name, which links, scripts and exposed inputs use. An empty label shows the node type's again.
+
+**Objects:** group node label
 
 ### gnSetTies
 
@@ -9460,7 +9466,7 @@ Retopo Draw: delete faces and points (base mesh ids) of the retopo mesh, mirrore
 
 ### retopoDrawInsertLoop
 
-Retopo Draw: insert an edge loop across the ring through an edge (base mesh id), mirrored with symmetry.
+Retopo Draw: insert an edge loop across the ring through an edge (base mesh id), mirrored with symmetry. The new points land on the reference surface.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -10008,6 +10014,18 @@ Node types the node editor's Scene backend adds: the rig math nodes first, then 
 | `linkInput` |  | bool | `False` | The drag started at an input, so the node needs a matching output. |
 
 Not undoable.
+
+### sceneGraphRenameNode
+
+Rename a scene node from the node editor, as rename does, keeping its place, flags and frames in every view: sceneGraphRenameNode(view, 'pCube1', 'Crate'). Returns its new path.
+
+**Objects:** view node name
+
+### sceneGraphSetFrames
+
+Replace a view's frames and notes, shaped as gnSetFrames takes them: sceneGraphSetFrames(view, [{label: 'Arm', position: [x, y], size: [w, h], nodes: ['L_arm'], text: ''}]). Members that name no node are dropped. Kept with the scene.
+
+**Objects:** view frames
 
 ### sceneGraphSetNodeFlags
 
@@ -12815,7 +12833,7 @@ Replace a set's whole graph (JSON as texGraphInfo returns under 'definition'). T
 
 ### texSetFrames
 
-Replace a texture set's frames, shaped as gnSetFrames takes them. Display only; names not in the graph are dropped. Returns how many frames there are.
+Replace a texture set's frames, shaped as gnSetFrames takes them (a frame with text is a note). Display only; names not in the graph are dropped. Returns how many frames there are.
 
 **Objects:** set frames
 
@@ -12843,6 +12861,12 @@ Set how nodes draw and run, as gnSetNodeFlags does: muted, collapsed, hideUnused
 | `collapsed` |  | bool |  | Draw only their headers. |
 | `hideUnused` |  | bool |  | Draw only their linked sockets. |
 | `hidePreview` |  | bool |  | Draw them without their image previews. |
+
+### texSetNodeLabel
+
+Show a node under its own title on the canvas, as gnSetNodeLabel does: texSetNodeLabel(set, 'Noise', 'Rust Breakup'). The node keeps its name; an empty label shows the node type's again.
+
+**Objects:** set node label
 
 ### texSets
 

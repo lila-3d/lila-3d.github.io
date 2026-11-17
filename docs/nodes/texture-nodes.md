@@ -638,11 +638,13 @@ An image file sampled in uv, wrapping at the edges, repeated tiles times. Relati
 | --- | --- | --- | --- | --- |
 | `coord` | vector | input |  | Where to read the image: the mesh's uvs unless linked (Projection, Mapping). |
 | `out` | color | output |  |  |
+| `alpha` | gray | output |  | The file's alpha; 1 where the file has none. |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `file` |  |  |  |
 | `tiles` |  | `1` | Repeats across the texture. |
+| `colorSpace` | `linear`, `srgb` | `linear` | How the file's colour values are read. linear: as stored, for data maps (roughness, normal, height) and EXR. srgb: decoded from sRGB to linear, for colour maps saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
 
 ### Position
 
