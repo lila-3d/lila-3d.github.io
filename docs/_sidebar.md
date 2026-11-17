@@ -105,6 +105,8 @@
   - [Viewport toasts](viewport-toasts.md)
   - [C++ extensions](cpp-extensions.md)
   - [File translators](file-translators.md)
+  - [Lila scenes in Unity](unity-scenes.md)
+  - [Lila scenes in Godot](godot-scenes.md)
 
 ---
 
