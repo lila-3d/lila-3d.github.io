@@ -12,6 +12,12 @@ Each stroke is one undo step. **Rasterize Layer** in the brush page's **...** me
 
 A stroke can run across several meshes, even with different texture sets: each gets its part, and one undo takes the whole stroke back.
 
+## Painting several meshes
+
+Strokes reach the selected meshes and the meshes under selected groups, in the viewport and the 2D View; with nothing selected they reach every mesh. The status line's **meshes** field shows which: a count of selected meshes, or all.
+
+With **Follow** on, the Texture Set dock shows the set of the selected meshes, or no set when their materials have none.
+
 ## Stencils
 
 A stencil is a picture pinned to the screen that every stroke paints through: a mask for grunge, a decal shape or a photo colour.
@@ -227,6 +233,8 @@ texPaintStroke("Crate", stroke={"mesh": "crate", "payload": {"kind": "fill", "fi
 These work for every brush that uses the shared brush settings; Airbrush builds up over time in Texture Paint.
 
 ## Troubleshooting
+
+**Only some of the meshes take paint.** Strokes reach the selected meshes only. Select them all, or select nothing.
 
 **Patch Fill says no patch fits.** The area around the selection is smaller than a patch, for example a hole filling most of a small uv island. Select less, or lower `patch`.
 
