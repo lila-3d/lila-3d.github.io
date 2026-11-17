@@ -10325,9 +10325,9 @@ Grow the face selection across edges where neighbouring faces bend less than an 
 
 ### selectByMaterial
 
-Select what a material is assigned to: whole objects when it covers every face of each, otherwise just the faces it is assigned to. Default also takes faces on slots with no material. faces=true always selects faces, faces=false always whole objects. Returns the objects.
+Select what the materials are assigned to: whole objects when they cover every face of each, otherwise just the faces they are assigned to. Default also takes faces on slots with no material. faces=true always selects faces, faces=false always whole objects. Returns the objects.
 
-**Objects:** material
+**Objects:** material...
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
