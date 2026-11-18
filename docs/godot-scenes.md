@@ -15,8 +15,10 @@ This is a small example importer for the community to build on, not a supported 
 The importer runs `lilabatch`, which is installed beside `lila`, to export the scene as glTF, then loads that with Godot's glTF loader:
 
 ```
-lilabatch -c "openScene('crate.lila', force=True); exportGltf('crate.glb', selectionOnly=False, unrealCheck=False)"
+lilabatch --quiet --export crate.lila crate.glb
 ```
+
+**No script:** in Lila, choose **File > Export on Save...** and set **File** to `crate.glb`. Every save then writes the glTF, and Godot imports it like any other ([File formats](formats.md#export-on-every-save)).
 
 ## Send and Sync
 
@@ -54,7 +56,7 @@ The [tutorial](godot-plugin-tutorial.md) explains how both work.
 
 Everything is in `addons/lila_scene/lila_scene_import.gd`, about 150 lines.
 
-- **Export settings:** add flags to the `exportGltf` call in `_import`: `animation=False`, `kind='static'`, `draco=True`. The [exportGltf](python/lila.ops.md) reference lists them all.
+- **Export settings:** add `"--export-args", "animation=False, draco=True"` to the `OS.execute` arguments in `_import`. The [exportGltf](python/lila.ops.md) reference lists them all.
 - **Per-file options:** return entries from `_get_import_options` and read them in `_import`. They show in Godot's Import dock.
 - **Collision:** in `_import`, call `create_trimesh_collision()` or `create_convex_collision()` on the `MeshInstance3D` nodes you choose, for example by name.
 - **LODs:** call `generate_lods` on each `ImporterMesh` before `_to_mesh_instances` turns it into a mesh.

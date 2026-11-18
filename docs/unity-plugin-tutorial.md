@@ -12,10 +12,10 @@ Every engine integration comes down to one command: `lilabatch` opens the scene 
 2. In a terminal in that `Models` folder, run:
 
 ```
-"%LOCALAPPDATA%\Programs\Lila\lilabatch.exe" -c "openScene('crate.lila', force=True); exportFbx('crate.fbx', selectionOnly=False, profile='ue6', units='m', textures=True, unrealCheck=False)"
+"%LOCALAPPDATA%\Programs\Lila\lilabatch.exe" --quiet --export crate.lila crate.fbx --export-args "profile='unity', units='m', textures=True"
 ```
 
-`crate.fbx` appears beside `crate.lila`, and Unity imports it when you switch back. `profile='ue6'` writes Y up facing +Z, which Unity imports with no rotation on the root, and `units='m'` gives a scale of 1. Delete the FBX: the script makes its own from now on.
+`crate.fbx` appears beside `crate.lila`, and Unity imports it when you switch back. `--export` picks FBX from the extension, and `--export-args` passes flags to `exportFbx`: `profile='unity'` writes Y up facing +Z, which Unity imports with no rotation on the root, and `units='m'` gives a scale of 1. Delete the FBX: the script makes its own from now on.
 
 ## 2. Notice .lila files
 
@@ -53,18 +53,16 @@ Add `Convert` to the class and call it in place of `Debug.Log`. It runs the comm
 ```csharp
     static void Convert(string asset)
     {
-        string scene = Path.GetFullPath(asset).Replace("\\", "/");
+        string scene = Path.GetFullPath(asset);
         string temp = Path.Combine(Path.GetFullPath("Temp"), "Lila", Guid.NewGuid().ToString("N") + ".fbx");
         Directory.CreateDirectory(Path.GetDirectoryName(temp));
 
-        string script = "openScene('" + scene + "', force=True); "
-            + "exportFbx('" + temp.Replace("\\", "/") + "', selectionOnly=False, profile='ue6', units='m', textures=True, unrealCheck=False)";
         string batch = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Lila", "lilabatch.exe");
 
         var info = new ProcessStartInfo
         {
             FileName = batch,
-            Arguments = "-c \"" + script + "\"",
+            Arguments = "--quiet --export \"" + scene + "\" \"" + temp + "\" --export-args \"profile='unity', units='m', textures=True\"",
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardError = true,
@@ -86,7 +84,7 @@ Add `Convert` to the class and call it in place of `Debug.Log`. It runs the comm
     }
 ```
 
-The script holds no double quotes, so it survives as one quoted argument. `LILA_CRASH_NO_UI` stops a crash from opening a dialog that nobody sees. Lila writes its errors to standard error, so a failed export says why.
+The paths are quoted for spaces. `LILA_CRASH_NO_UI` stops a crash from opening a dialog that nobody sees. Lila writes its errors to standard error, so a failed export says why.
 
 ## 4. Hand the FBX to Unity
 
@@ -144,8 +142,8 @@ def unity_send():
     sent = []
     for obj in objects:
         path = os.path.join(folder, obj.split("|")[-1] + ".fbx")
-        # ue6 is Y up facing +Z, which Unity imports with no rotation on the root.
-        exportFbx(path, obj, profile="ue6", units="m", textures=True, unrealCheck=False)
+        # The unity profile is Y up facing +Z, which Unity imports with no rotation on the root.
+        exportFbx(path, obj, profile="unity", units="m", textures=True, unrealCheck=False)
         sent.append(path)
     return sent
 

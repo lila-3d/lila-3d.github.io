@@ -12,7 +12,7 @@ Every engine integration comes down to one command: `lilabatch` opens the scene 
 2. In a terminal in that `models` folder, run:
 
 ```
-"%LOCALAPPDATA%\Programs\Lila\lilabatch.exe" -c "openScene('crate.lila', force=True); exportGltf('crate.glb', selectionOnly=False, unrealCheck=False)"
+"%LOCALAPPDATA%\Programs\Lila\lilabatch.exe" --quiet --export crate.lila crate.glb
 ```
 
 `crate.glb` appears beside `crate.lila`. Delete it: the plugin makes its own from now on.
@@ -83,11 +83,10 @@ func _import(source_file: String, save_path: String, _options: Dictionary, _vari
 	var glb := temp_dir.path_join("%s.glb" % source_file.md5_text())
 	var scene := ProjectSettings.globalize_path(source_file)
 
-	var script := "openScene('%s', force=True); exportGltf('%s', selectionOnly=False, unrealCheck=False)" % [scene, glb]
 	var batch := OS.get_environment("LOCALAPPDATA").path_join("Programs/Lila/lilabatch.exe")
 	OS.set_environment("LILA_CRASH_NO_UI", "1")
 	var output: Array = []
-	var code := OS.execute(batch, PackedStringArray(["-c", script]), output, true)
+	var code := OS.execute(batch, PackedStringArray(["--quiet", "--export", scene, glb]), output, true)
 	if code != 0 or not FileAccess.file_exists(glb):
 		push_error("Lila: lilabatch couldn't export %s\n%s" % [source_file, "\n".join(output)])
 		return ERR_CANT_CREATE

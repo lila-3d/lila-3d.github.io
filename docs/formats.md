@@ -52,6 +52,27 @@ Which to use:
 
 COLLADA carries the hierarchy, meshes with their UV and color sets, material slots and simple materials, skeletons, skin weights and animation. Export writes the layout of Maya's COLLADA exporter: translate, jointOrient, rotate and scale on every node, each channel sampled every frame, so engines and tools built on Maya's `.dae` files read it.
 
+### Export on every save
+
+For an engine or tool that watches a plain FBX or glTF, with no importer script:
+
+1. Choose **File > Export on Save...**. The **Export on Save** section of **Scene Settings** opens.
+2. Set **File** to the file to write, for example `Exports/crate.fbx`. A relative path is relative to the scene file, and the extension picks the format. For FBX into Unity, Godot or Unreal 6, set **Axes** to **Unity, Godot, Unreal 6 (Y up)**.
+3. Save the scene. Every save in Lila now also exports the whole scene to that file.
+
+The setting is saved with the scene. Scripts use `exportOnSave(path="Exports/crate.fbx", options={"profile": "unity", "units": "m"})`, where `options` are the format's export flags.
+
+### Convert from the command line
+
+`lilabatch`, installed beside `lila`, opens a scene and exports all of it in the format the output's extension names:
+
+```
+lilabatch --quiet --export crate.lila crate.glb
+lilabatch --quiet --export crate.lila crate.fbx --export-args "profile='unity', units='m', textures=True"
+```
+
+`--export-args` takes the format's export flags as Python keyword arguments (`exportFbx`, `exportGltf` and the rest in the [Python reference](python/lila.ops.md)). `--quiet` prints only warnings and errors. The exit code is 0 when the file was written, 1 with an `[error]` line saying why when it wasn't. `lilabatch --help` lists every option.
+
 ### COLLADA animation for a game engine
 
 Engines that take Maya's COLLADA animations (PhyreEngine games among them) want the skeleton and its animation, without meshes:
@@ -117,6 +138,8 @@ addAttr("Crate", longName="health:max", attributeType="double", defaultValue=100
 **A stage warns that an instance was made non-instanceable.** An edit landed inside an instance, which USD only allows once the instance is no longer instanced. The other instances of its prototype stay instanced.
 
 **Houdini or Maya loads payloads that the shot left unloaded.** USD keeps payload load state per open stage, not in layers, so neither reads the state `usdStageWriteShot` records. Set it where you open the shot: in Houdini, a Configure Stage LOP's load options or the Scene Graph Tree; in Maya, the Load Payloads option when creating the stage, or Unload on the prim.
+
+**Export on Save doesn't write the file.** The Script Editor log has an `Export on save: ... was not written` line with the reason, and the save itself still succeeds. Scene Settings shows **No exporter for this extension** when the file's extension isn't one Lila exports.
 
 **A mesh far from the origin moves slightly after export.** STL, glTF, USD, Alembic and PLY round positions to 32-bit floats. Export as OBJ or FBX to keep them exact.
 

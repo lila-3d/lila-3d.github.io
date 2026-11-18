@@ -14,10 +14,12 @@ This is a small example script for the community to build on, not a supported pl
 The script runs `lilabatch`, which is installed beside `lila`, to export the scene as FBX, and Unity's model importer does the rest:
 
 ```
-lilabatch -c "openScene('crate.lila', force=True); exportFbx('crate.fbx', selectionOnly=False, profile='ue6', units='m', textures=True, unrealCheck=False)"
+lilabatch --quiet --export crate.lila crate.fbx --export-args "profile='unity', units='m', textures=True"
 ```
 
-`profile='ue6'` writes a Y-up file facing +Z, which Unity imports with no rotation on the root. `units='m'` gives a scale of 1.
+`profile='unity'` writes a Y-up file facing +Z, which Unity imports with no rotation on the root. `units='m'` gives a scale of 1.
+
+**No script:** in Lila, choose **File > Export on Save...**, set **File** to `crate.fbx` and **Axes** to **Unity, Godot, Unreal 6 (Y up)**. Every save then writes the FBX, and Unity imports it like any other ([File formats](formats.md#export-on-every-save)).
 
 ## Send and Sync
 
@@ -57,7 +59,7 @@ Rig, material and animation settings are the FBX's own, in the Inspector. They l
 
 Everything is in `LilaSceneImporter.cs`, about 120 lines.
 
-- **Export settings:** add flags to the `exportFbx` call in `Convert`: `animation=False`, `kind='static'`, `maxInfluences=4`. The [exportFbx](python/lila.ops.md) reference lists them all.
+- **Export settings:** add flags to `--export-args` in `Convert`: `animation=False`, `kind='static'`, `maxInfluences=4`. The [exportFbx](python/lila.ops.md) reference lists them all.
 - **Team without Lila:** commit the FBX and its `.meta` with the scene. People without `lilabatch` get a warning and keep the committed FBX.
 - **Moves and deletes:** a moved or deleted `.lila` leaves its FBX behind. Handle `movedAssets` and `deletedAssets` in `OnPostprocessAllAssets`.
 - **Collision:** add an `OnPostprocessModel` method that puts a `MeshCollider` on the meshes you choose, for example by name.
