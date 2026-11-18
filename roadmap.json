@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15",
+  "updated": "2026-11-18",
   "sections": [
     {
       "id": "alpha",
@@ -329,6 +329,15 @@
           "docs": "3d-printing",
           "body": [
             "Get a mesh ready for the slicer: closed, thick enough, sized for your printer, hollowed or split if it needs to be, then out as STL or 3MF."
+          ]
+        },
+        {
+          "id": "blockwork",
+          "title": "Blockwork",
+          "status": "dev",
+          "body": [
+            "Block out levels on a grid the way Hammer and TrenchBroom do: draw boxes, ramps, stairs, arches and cylinders, then extend, clip, carve and hollow them into rooms.",
+            "Textures stay put through every edit. Paint and align them face by face or hotspot them onto a trim sheet, place entities and prefabs, hide work with visgroups, and merge the level into one mesh with collision for Unreal."
           ]
         },
         {
