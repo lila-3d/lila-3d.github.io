@@ -14,7 +14,7 @@ A fill or material layer, and a generator or paint mask, can land on the mesh by
 
 1. Select the layer (or mask) and set **Projection > Mode**: Planar, Triplanar, Spherical, Cylindrical or Warp.
 2. Click **Place on Mesh**, then click the mesh where the projection should sit. Drag to move it over the surface, **Shift**+drag turns it, **Ctrl**+drag scales it. Press **Enter** when done.
-3. Fine-tune the numbers under **Projection**: position, rotation and size are in world space, in cm.
+3. Fine-tune the numbers under **Projection**: position, rotation and size are in the mesh's object space, in cm.
 
 | Mode | Use it for |
 | --- | --- |
@@ -23,7 +23,7 @@ A fill or material layer, and a generator or paint mask, can land on the mesh by
 | Spherical, Cylindrical | Round props: barrels, pipes, domes. |
 | Warp | Planar with its four corners pulled, to bend content onto a curved panel. |
 
-Projections read where the surface is from the set's bake, so the set needs a bake project with the **Position** and **Object Normal** maps baked. Without them a projection falls back to the uvs. A projection stays where you placed it: after moving the mesh, bake again and place it again.
+Projections read where the surface is from the set's bake, so the set needs a bake project with the **Position** and **Object Normal** maps baked. Without them a projection falls back to the uvs. A projection moves with the mesh it was placed on: after moving the mesh, bake again and it lands on the same part of the surface.
 
 A fill layer's channel can be an image file instead of a value; it is read through the layer's projection.
 
@@ -126,7 +126,7 @@ texImportPtex("Crate", mesh="|crate", file="C:/maps/crate.ptx", channel="baseCol
 
 **A projection shows the content stretched or flat.** The texture set has no position and normal maps to project with. Set its bake project (**Baking**) so the mesh maps exist.
 
-**The projection lands in the wrong place.** Position, rotation and size are in the mesh's object space, not world space; **Place on Mesh** sets them from a click.
+**The projection lands in the wrong place.** Position, rotation and size are in the mesh's object space, not world space; **Place on Mesh** sets them from a click. After moving the mesh, bake again.
 
 **A text layer shows nothing.** The font has no glyphs for those letters, or the box sits away from the mesh. The stack lists a warning for the first; **Place on Mesh** fixes the second.
 
