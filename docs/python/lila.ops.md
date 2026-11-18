@@ -14684,6 +14684,482 @@ Line the pivots' axes up with the world (or with the object's own axes), leaving
 | --- | --- | --- | --- | --- |
 | `space` |  | str | `'world'` | Axes to line up with. One of `world`, `object`. |
 
+## Blockwork extension
+
+Available when the Blockwork extension is loaded.
+
+### blockworkAlignEdge
+
+Line a texture's side up with one of a face's edges: the texture runs along the edge and starts at it. Returns the block.
+
+**Objects:** block (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `face` | `f` | int |  | The face. |
+| `edge` | `e` | int | `0` | Which of the face's edges, counted round it from its first corner. |
+| `side` | `s` | str | `'bottom'` | The texture side on the edge: bottom, top, left or right. |
+| `fit` |  | str | `'none'` | Also make one repeat span the face: none, width or height. |
+
+```python
+blockworkAlignEdge('wall', face=2, edge=0, side='bottom', fit='height')
+```
+
+### blockworkBlock
+
+Build a block: a box, wedge, cylinder, arch, stairs or prism standing on a rectangle, as a mesh whose points are in world space with a Texture Lock modifier. Returns the block's path.
+
+The rectangle runs from origin along uAxis by size[0] and across by size[1]; the block rises along normal by size[2]. A zero height makes a floor face; a footprint with one zero side makes a wall face (box only).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `shape` | `s` | str | `'box'` | box, wedge, cylinder, arch, stairs or prism. |
+| `origin` | `o` | tuple[float, float, float] | `[0, 0, 0]` | A corner of the footprint, world cm. |
+| `size` | `sz` | tuple[float, float, float] | `[128, 128, 128]` | Extent along uAxis, across it, and up the normal, cm; negative goes the other way. |
+| `normal` | `n` | tuple[float, float, float] | `[0, 1, 0]` | The direction the block rises: the surface it stands on faces this way. |
+| `uAxis` | `u` | tuple[float, float, float] |  | The footprint's first side direction; default the world axis that lies in the plane. |
+| `sides` |  | int | `12` | Cylinder and arch sides. |
+| `radiusToCorners` |  | bool | `True` | Cylinder: corners on the drawn radii; off puts side centres there. |
+| `skipCaps` |  | bool | `False` | Cylinder: leave the ends open. |
+| `ngonCaps` |  | bool | `True` | Cylinder: each end as one face; off fans triangles to a centre point. |
+| `steps` |  | int | `8` | Stairs: number of steps; 0 takes it from stepHeight. |
+| `stepHeight` |  | float | `0.0` | Stairs: rise per step, cm, when steps is 0. |
+| `thickness` |  | float | `25.0` | Arch: frame width around the opening, cm. |
+| `opening` |  | bool | `False` | Arch: the opening instead of the frame, round at the far end of the footprint, run through the height; for carving doorways. |
+| `direction` | `d` | int | `0` | Quarter turns of the stairs' climb, the wedge's slope or the arch's opening. |
+| `profile` | `p` | list |  | Prism: the outline as [[u, v], ...] from origin, cm; concave works. |
+| `name` |  | str | `'block1'` | Node name. |
+| `parent` |  | str | `'Level'` | Group to put it under, made when missing; empty for the world. |
+| `material` | `m` | str |  | Material slot for every face; empty keeps the default. |
+| `suffix` |  | str |  | Appended to the name, such as _col for engines that take collision by name. |
+| `flip` |  | bool | `False` | Faces point inward, for a room you stand inside. |
+| `removeOverlap` |  | bool | `False` | Remove faces pressed against other blocks' faces, from both, so no hidden faces remain. |
+
+```python
+blockworkBlock(origin=[0, 0, 0], size=[512, 384, 256])
+```
+
+```python
+blockworkBlock(shape='stairs', size=[128, 256, 128], steps=8)
+```
+
+```python
+blockworkBlock(shape='prism', profile=[[0, 0], [256, 0], [256, 128], [128, 128], [128, 256], [0, 256]], size=[0, 0, 64])
+```
+
+### blockworkCarve
+
+Cut the cutter's shape out of every block it overlaps, then delete the cutter. Returns the blocks that were cut.
+
+**Objects:** cutter (default the selection's last mesh)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `keep` |  | bool | `False` | Keep the cutter. |
+| `blocks` | `b` | list |  | Only these blocks; default every block it overlaps. |
+
+```python
+blockworkCarve('doorCutter')
+```
+
+### blockworkClip
+
+Cut blocks along a plane and close the cut. keep picks the side the normal points to (front), the other (back), or both, which splits each block in two. Returns the blocks, new ones last.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `point` | `p` | tuple[float, float, float] |  | A point on the plane, world cm. |
+| `normal` | `n` | tuple[float, float, float] |  | The plane's normal, pointing to the front side. |
+| `keep` | `k` | str | `'front'` | front, back or both. |
+
+```python
+blockworkClip('block1', point=[0, 64, 0], normal=[1, 1, 0], keep='front')
+```
+
+### blockworkCopyTexture
+
+Copy one face's material and mapping onto other faces. A face sharing an edge with the source carries the texture on round the corner. Returns the blocks changed.
+
+**Objects:** blocks to copy onto (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` | `src` | str |  | The block the texture comes from. |
+| `sourceFace` | `sf` | int |  | The face on it. |
+| `faces` | `f` | list |  | Face ids to copy onto; default the selected faces, or all. |
+| `what` | `w` | str | `'both'` | material, mapping or both. |
+| `wrap` |  | bool | `True` | Carry the texture round shared edges instead of copying the mapping as is. |
+
+```python
+blockworkCopyTexture('room', source='room', sourceFace=2, faces=[3, 4])
+```
+
+### blockworkEntity
+
+Place an entity. A point class becomes an entity node at position; a volume class a block filling origin and size. Its properties become attributes. Returns the node.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `class` | `c` | str |  | The entity class (blockworkEntityClasses lists them). |
+| `position` | `p` | tuple[float, float, float] | `[0, 0, 0]` | Point classes: where it stands, world cm. |
+| `turn` | `t` | float | `0.0` | Point classes: turn around up, degrees. |
+| `origin` | `o` | tuple[float, float, float] | `[0, 0, 0]` | Volume classes: the box's low corner, world cm. |
+| `size` | `sz` | tuple[float, float, float] | `[256, 256, 256]` | Volume classes: the box's size, cm. |
+| `name` | `n` | str |  | Node name; default the class's. |
+| `parent` |  | str | `'Level'` | Group it goes under, made when missing; empty for the world. |
+
+```python
+blockworkEntity(class='PlayerStart', position=[0, 0, 0], turn=90)
+```
+
+```python
+blockworkEntity(class='Trigger', origin=[0, 0, 0], size=[256, 192, 256])
+```
+
+### blockworkEntityClasses
+
+The entity classes from the starter definitions and the files added with blockworkEntityFile: name, kind (point or volume), Unreal class, size, colour and properties.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `reload` | `r` | bool | `False` | Read the files again. |
+
+Not undoable.
+
+### blockworkEntityFile
+
+Add an entity definition file (.lilaentities JSON: {classes: [{name, kind, unreal, size, color, properties: [{name, type, default, unreal, choices}]}]}) or remove one. Classes in later files replace same-named earlier ones. Returns the files.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `remove` |  | bool | `False` | Remove the file instead. |
+
+Not undoable.
+
+### blockworkExtend
+
+Push faces along their normals: move resizes the block, extrude grows new geometry from the faces, copy builds a new block from them. Returns the block (or the new one).
+
+**Objects:** block (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `distance` | `d` | float | `16.0` | How far, cm; negative pulls in. |
+| `mode` | `m` | str | `'move'` | move, extrude or copy. |
+| `faces` | `f` | list |  | Faces to push; default the selected faces. |
+
+```python
+blockworkExtend('block1', faces=[1], distance=64)
+```
+
+```python
+blockworkExtend('block1', faces=[1], distance=128, mode='copy')
+```
+
+### blockworkFlip
+
+Turn blocks inside out (or the given faces), for rooms seen from inside. Returns the blocks.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `faces` | `f` | list |  | Only these faces; default every face, or the selected faces when there are some. |
+
+### blockworkGrid
+
+Set or read the Blockwork grid: the step every Blockwork tool and Lila's move snapping use. Returns {step, absolute}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `step` | `s` | float |  | Grid step, cm (1/8 to 4096). |
+| `finer` |  | bool | `False` | Halve the step. |
+| `coarser` |  | bool | `False` | Double the step. |
+| `absolute` | `a` | bool |  | Snap moves onto grid lines; off snaps them by whole steps from where they start. |
+
+Not undoable.
+
+```python
+blockworkGrid(step=32)
+```
+
+```python
+blockworkGrid(finer=True)
+```
+
+### blockworkHollow
+
+Turn each block into walls of the given thickness around its old volume (a room), or outside it. The block's selected faces, or the faces flag, are left open with their rims closed. Returns the blocks.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `thickness` | `t` | float | `16.0` | Wall thickness, cm. |
+| `inward` | `i` | bool | `True` | Walls inside the block, so it becomes the room's outside; off builds them outside it. |
+| `faces` | `f` | list |  | Faces to leave open; default the selected faces. |
+
+```python
+blockworkHollow('block1', thickness=16)
+```
+
+### blockworkHotspot
+
+Map blocks' faces onto the current trim sheet: each face region gets the trim whose shape and size fit it best. live keeps whole blocks hotspotted as they change; otherwise the selected faces are mapped once and keep those uvs. Needs the Trim Sheets extension. Returns what the trim command returned.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `live` | `l` | bool | `True` | Refit whenever the block changes (whole blocks). |
+| `faces` | `f` | list |  | Face ids for a one-off fit; default the selected faces. |
+| `seed` | `s` | int | `0` | Variation seed. |
+
+```python
+blockworkHotspot('room')
+```
+
+```python
+blockworkHotspot('room', live=False, faces=[2, 3])
+```
+
+### blockworkJoin
+
+Merge blocks into one: the first keeps its name and takes in the rest, with faces where they meet removed. With one block, it joins every block touching it. Returns the joined block.
+
+**Objects:** blocks (default the selection)
+
+```python
+blockworkJoin(['room1', 'corridor1'])
+```
+
+### blockworkMaterial
+
+Put a material, or an image (made into a material once and reused), on blocks' faces, scaled to the texel density from its base colour image. Returns the material.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `material` | `m` | str |  | A material in the scene. |
+| `image` | `i` | str |  | An image file; a material showing it is made or reused. |
+| `faces` | `f` | list |  | Face ids; default the selected faces, or all. |
+| `keepScale` |  | bool | `False` | Leave the faces' scale as it is. |
+
+```python
+blockworkMaterial('room', image='X:/Textures/T_Brick_D.png')
+```
+
+```python
+blockworkMaterial(material='Concrete')
+```
+
+### blockworkMerge
+
+Merge a group's blocks into one mesh for the engine: faces with tool materials left out, entities and volumes skipped, and a UCX_ convex collision hull per block. Concave blocks can't be hulls: with collision auto, any concave block makes the mesh collide as itself instead, and the result says so. The blocks stay; merging again replaces the mesh. Returns {mesh, collision, hulls, concave}.
+
+**Objects:** group (default Level)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | The merged mesh's name; default the group's name with Mesh after it. |
+| `collision` | `c` | str | `'auto'` | auto, hulls (UCX_ per convex block), mesh (the render mesh) or none. |
+
+```python
+blockworkMerge('Level')
+```
+
+```python
+blockworkMerge('Level', collision='hulls')
+```
+
+### blockworkPlaceholder
+
+Make a placeholder texture, a flat colour with a label and a grid, saved as a PNG in folder, and a material showing it. Returns the material.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | `l` | str |  | Text written on it; default the name. |
+| `name` | `n` | str | `'Placeholder'` | File and material name. |
+| `color` | `c` | list | `[0.5, 0.5, 0.5]` | [r, g, b], 0 to 1. |
+| `folder` | `d` | str |  | Where the PNG goes; default the workspace's textures folder, or the temp folder. |
+| `size` | `s` | int | `512` | Pixels square. |
+
+```python
+blockworkPlaceholder(name='Floor_Dev', label='FLOOR', color=[0.35, 0.4, 0.45])
+```
+
+### blockworkPrefabPlace
+
+Place a prefab: its blocks and entities in a group that remembers the file, stood on the point and turned to the normal. Returns the group.
+
+**Objects:** prefab file, or a name in the prefab folder
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` | `p` | tuple[float, float, float] | `[0, 0, 0]` | Where it stands, world cm. |
+| `normal` | `n` | tuple[float, float, float] | `[0, 1, 0]` | The surface's normal; the prefab's up turns to it. |
+| `turn` | `t` | float | `0.0` | Turn around its up, degrees. |
+| `parent` |  | str | `'Level'` | Group it goes under, made when missing; empty for the world. |
+
+```python
+blockworkPrefabPlace('Doorway', position=[512, 0, 0])
+```
+
+### blockworkPrefabs
+
+The prefab files in the prefab folder, or set the folder. Returns {folder, prefabs}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str |  | Use this folder; empty goes back to the default. |
+
+Not undoable.
+
+### blockworkPrefabSave
+
+Save blocks and entities as a prefab file (.lilaprefab) other scenes can place. Positions are kept relative to the first object's pivot, or the group's when a placed prefab group is given. Returns the file.
+
+**Objects:** objects or a placed prefab group (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | File name in the prefab folder; default the first object's name. |
+| `path` | `p` | str |  | Write here instead of the prefab folder. |
+
+Not undoable.
+
+```python
+blockworkPrefabSave(['doorway', 'torch1'], name='Doorway')
+```
+
+### blockworkPrefabUpdate
+
+Save a placed prefab group's contents back to its file, then rebuild every other group placed from that file in place. Returns the groups rebuilt.
+
+**Objects:** placed prefab group (default the selection)
+
+### blockworkSendEntities
+
+Send entities to the open Unreal level: each becomes its class's actor (volumes sized to their block's bounds), its properties set on it. Sending again moves and updates the same actors. Returns what Unreal placed, updated and any problems; dryRun returns what would be sent.
+
+**Objects:** entities (default the selection, or every entity)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `dryRun` |  | bool | `False` | Return the data instead of sending it. |
+
+Not undoable.
+
+```python
+blockworkSendEntities()
+```
+
+```python
+blockworkSendEntities(dryRun=True)
+```
+
+### blockworkTexture
+
+Change how textures lie on blocks' faces: shift, scale, rotate, fit, justify, or align to the world or the face. Acts on the selected faces, or every face of the selected blocks. Returns the blocks.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `faces` | `f` | list |  | Face ids; default the selected faces, or all. |
+| `shift` | `sh` | list |  | Add [u, v] to the offset, in repeats. |
+| `offset` | `o` | list |  | Set the offset [u, v], in repeats. |
+| `scale` | `s` | list |  | Set cm per repeat [u, v]; 0 uses the block's tile size. |
+| `rotate` | `r` | float |  | Set the rotation, degrees. |
+| `turn` | `t` | float |  | Add to the rotation, degrees. |
+| `align` | `a` | str |  | face (on the face's own plane) or world (along the nearest world axis). |
+| `fit` |  | str |  | Make one repeat cover the face: width, height or both. |
+| `justify` | `j` | str |  | Line the texture's edge up with the face's: left, right, top, bottom or center. |
+| `reset` |  | bool | `False` | Back to face aligned at the tile size, no offset or rotation. |
+
+```python
+blockworkTexture('room', faces=[0, 1], shift=[0.25, 0])
+```
+
+```python
+blockworkTexture('door', fit='both')
+```
+
+### blockworkTextureLock
+
+Turn blocks' Texture Lock on or off. Off keeps the uvs as they are now, which then stretch with edits; on lays them out from the faces' mappings again. Returns the blocks.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool | `True` | On or off. |
+
+### blockworkTextureStrip
+
+Lay a texture along a strip of connected faces (a road, a curved trim), running on from face to face and across the strip once. Returns the block.
+
+**Objects:** block (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `faces` | `f` | list |  | The strip's faces; default the selected faces. |
+| `fitWidth` |  | bool | `True` | One repeat spans the strip's width; off keeps the scale. |
+
+```python
+blockworkTextureStrip('road', faces=[4, 5, 6, 7, 8])
+```
+
+### blockworkToolMaterials
+
+Make the tool materials: ToolNodraw (never drawn, still collides), ToolClip (invisible collision) and ToolSkip (dropped). blockworkMerge leaves their faces out of the render mesh. Returns their names.
+
+### blockworkVisgroup
+
+Visgroups: named sets of objects to hide and show together; an object can be in several and stays hidden while any of its hidden groups is. With a name and no other flag, makes the group from the selection. Returns every visgroup as {name, hidden, members}.
+
+**Objects:** visgroup name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `add` | `a` | list |  | Objects to add; empty list adds the selection. |
+| `remove` | `r` | list |  | Objects to take out; empty list takes the selection out. |
+| `hidden` | `h` | bool |  | Hide or show the group. |
+| `delete` |  | bool | `False` | Delete the group (its objects stay). |
+| `select` | `s` | bool | `False` | Select its objects. |
+
+```python
+blockworkVisgroup('Upstairs')
+```
+
+```python
+blockworkVisgroup('Upstairs', hidden=True)
+```
+
+```python
+blockworkVisgroup('Upstairs', add=['stairs1'])
+```
+
+### blockworkVolume
+
+Turn blocks into volume entities of a class (a trigger, a blocking volume), keeping their shape; clear=True turns them back into plain blocks. Returns the blocks.
+
+**Objects:** blocks (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `class` | `c` | str |  | A volume class. |
+| `clear` |  | bool | `False` | Make them plain blocks again. |
+
+```python
+blockworkVolume('block3', class='Trigger')
+```
+
 ## CadImport extension
 
 Available when the CadImport extension is loaded.
@@ -20486,7 +20962,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
