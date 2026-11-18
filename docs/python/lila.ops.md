@@ -14934,7 +14934,7 @@ blockworkHollow('block1', thickness=16)
 
 ### blockworkHotspot
 
-Map blocks' faces onto the current trim sheet: each face region gets the trim whose shape and size fit it best. live keeps whole blocks hotspotted as they change; otherwise the selected faces are mapped once and keep those uvs. Needs the Trim Sheets extension. Returns what the trim command returned.
+Map blocks' faces onto the current trim sheet: each face region gets the trim whose shape and size fit it best. live keeps whole blocks hotspotted as they change; otherwise the selected faces are mapped once and keep those uvs. Faces that texture edits took off a live hotspot go back on it. Needs the Trim Sheets extension. Returns what the trim command returned.
 
 **Objects:** blocks (default the selection)
 
