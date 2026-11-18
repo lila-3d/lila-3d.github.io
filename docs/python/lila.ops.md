@@ -9863,7 +9863,7 @@ Mark new files for add. Returns {files, warnings}.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `changelist` |  | str |  | Perforce changelist number; default changelist when omitted. |
+| `changelist` |  | str |  | Perforce changelist number or svn changelist name; default changelist when omitted. |
 
 Not undoable.
 
@@ -9911,23 +9911,23 @@ List pending changelists with their files, or create one, move files into one, s
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `create` |  | str |  | Create a changelist with this description; returns its number. |
+| `create` |  | str |  | Create a changelist with this description; returns its number (svn: its name). |
 | `move` |  | str |  | Move the given files into this changelist. |
-| `shelve` |  | str |  | Shelve this changelist (Perforce), optionally only the given files. |
-| `unshelve` |  | str |  | Unshelve this changelist into itself (Perforce). |
+| `shelve` |  | str |  | Shelve this changelist (Perforce; svn: to <shelfRoot>/<user>/<name> in the repository), optionally only the given files. |
+| `unshelve` |  | str |  | Unshelve this changelist into itself (Perforce; svn: a shelf name, or user/name for someone else's). |
 | `path` |  | str |  | Directory that picks the provider when no files are given. Default: the workspace root. |
 
 Not undoable.
 
 ### scCheckout
 
-Check files out for edit. Perforce: p4 edit. Git: git lfs lock for LFS files, otherwise nothing to do. Returns {files, warnings}.
+Check files out for edit. Perforce: p4 edit. Git: git lfs lock for LFS files. svn: svn lock for svn:needs-lock files. Otherwise nothing to do. Returns {files, warnings}.
 
 **Objects:** files
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `changelist` |  | str |  | Perforce changelist number; default changelist when omitted. |
+| `changelist` |  | str |  | Perforce changelist number or svn changelist name; default changelist when omitted. |
 
 Not undoable.
 
@@ -9939,7 +9939,7 @@ Mark files for delete (removes the local copies).
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `changelist` |  | str |  | Perforce changelist number; default changelist when omitted. |
+| `changelist` |  | str |  | Perforce changelist number or svn changelist name; default changelist when omitted. |
 
 Not undoable.
 
@@ -10112,7 +10112,7 @@ Not undoable.
 
 ### scLock
 
-Lock files so nobody else can submit them (git: git lfs lock). unlock releases.
+Lock files so nobody else can submit them (git: git lfs lock, svn: svn lock). unlock releases.
 
 **Objects:** files
 
@@ -10170,7 +10170,7 @@ Submit a changelist (git: commit; never pushes). Files limit it to those files. 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `description` |  | str |  | Change description / commit message. |
-| `changelist` |  | str |  | Perforce changelist number; default changelist when omitted. |
+| `changelist` |  | str |  | Perforce changelist number or svn changelist name; default changelist when omitted. |
 | `path` |  | str |  | Directory that picks the provider when no files are given. Default: the workspace root. |
 
 Not undoable.
