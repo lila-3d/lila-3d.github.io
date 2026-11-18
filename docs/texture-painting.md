@@ -269,7 +269,7 @@ These work for every brush that uses the shared brush settings; Airbrush builds 
 
 **"its stencil needs the view it was painted in" in the log.** The stroke was scripted with dabs in surface space and no view. Give it screen `points` and a `view`.
 
-**Colour mode looks washed out.** 8-bit images are read as sRGB and painted as linear colour; EXR and HDR files are taken as linear already.
+**A picture paints washed out or too dark.** An 8-bit picture (brush texture, stencil, reveal or projection) is read as sRGB where it paints Base Color or Emissive, and as stored where it paints data such as Roughness or Height. EXR and HDR files are always read as linear.
 
 **"can't paint through itself" in the log.** The brush's material is the texture set being painted. Pick another material, or paint on another set.
 
