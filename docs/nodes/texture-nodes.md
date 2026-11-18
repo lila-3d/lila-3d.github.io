@@ -615,7 +615,7 @@ Brighter where the surface turns away from the viewer, from the mesh's world nor
 | --- | --- | --- | --- | --- |
 | `viewDirection` | vector | input | `[0, 0, -1]` | The way the camera looks, in world space. Used when View is direction. |
 | `cameraPosition` | vector | input | `[0, 0, 500]` | Where the camera is, in world space (cm). Used when View is cameraPosition. |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax in world space. Picking a camera or taking the view fills both from the last bake. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax in world space. Picking a camera or taking the view fills both from the last bake; they follow live mesh maps while those run. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | gray | output |  |  |
 
@@ -654,7 +654,7 @@ The surface position from the set's baked position map, in the bake's space: in 
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. Adding the node fills both from the set's last bake. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. Adding the node fills both from the set's last bake, and they follow live mesh maps while those run. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `position` | vector | output |  |  |
 
@@ -666,7 +666,7 @@ Texture coordinates projected onto the mesh from the middle of its bake bounds i
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. Adding the node fills both from the set's last bake, so the projection sits on the mesh's middle. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. Adding the node fills both from the set's last bake, and they follow live mesh maps while those run, so the projection sits on the mesh's middle. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | vector | output |  |  |
 
@@ -700,7 +700,7 @@ Triplanar projection with each axis tiled at its own random turn and offset, so 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax. Adding the node fills both from the set's last bake, so the pattern keeps its proportions on a mesh that isn't a cube. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax. Adding the node fills both from the set's last bake, and they follow live mesh maps while those run, so the pattern keeps its proportions on a mesh that isn't a cube. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | color | output |  |  |
 
@@ -720,7 +720,7 @@ Projects the input onto the mesh from three axes, blended by the surface normal,
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax. Adding the node fills both from the set's last bake, so the pattern keeps its proportions on a mesh that isn't a cube. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax. Adding the node fills both from the set's last bake, and they follow live mesh maps while those run, so the pattern keeps its proportions on a mesh that isn't a cube. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
 | `out` | color | output |  |  |
 
@@ -786,9 +786,9 @@ Places one picture (or one cell of an atlas) on the mesh from a box in the mesh'
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0, 0, 0, 0]` |  |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's last bake. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's bake, live mesh maps while those run. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
-| `objectX` | vector | input | `[1, 0, 0]` | The first column of the matrix from the bake's world space to the mesh's object space: the inverse of the world matrix the mesh had when it baked. The layer stack fills it and the next three from the set's last bake. |
+| `objectX` | vector | input | `[1, 0, 0]` | The first column of the matrix from the bake's world space to the mesh's object space: the inverse of the world matrix the mesh had when it baked. The layer stack fills it and the next three from the set's bake, live mesh maps while those run. |
 | `objectY` | vector | input | `[0, 1, 0]` | The world-to-object matrix's second column. |
 | `objectZ` | vector | input | `[0, 0, 1]` | The world-to-object matrix's third column. |
 | `objectW` | vector | input | `[0, 0, 0]` | The world-to-object matrix's translation. |
@@ -878,9 +878,9 @@ Places a layer's content on the mesh: by uv, or projected from a box (planar, tr
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0, 0, 0, 1]` |  |
-| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's last bake. |
+| `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's bake, live mesh maps while those run. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
-| `objectX` | vector | input | `[1, 0, 0]` | The first column of the matrix from the bake's world space to the mesh's object space: the inverse of the world matrix the mesh had when it baked. The layer stack fills it and the next three from the set's last bake. |
+| `objectX` | vector | input | `[1, 0, 0]` | The first column of the matrix from the bake's world space to the mesh's object space: the inverse of the world matrix the mesh had when it baked. The layer stack fills it and the next three from the set's bake, live mesh maps while those run. |
 | `objectY` | vector | input | `[0, 1, 0]` | The world-to-object matrix's second column. |
 | `objectZ` | vector | input | `[0, 0, 1]` | The world-to-object matrix's third column. |
 | `objectW` | vector | input | `[0, 0, 0]` | The world-to-object matrix's translation. |
