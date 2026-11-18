@@ -14705,6 +14705,31 @@ Line a texture's side up with one of a face's edges: the texture runs along the 
 blockworkAlignEdge('wall', face=2, edge=0, side='bottom', fit='height')
 ```
 
+### blockworkBevel
+
+Bevel blocks' exposed edges with a live Block Bevel modifier: only convex edges, and none lying on another block's face (resting on it or butting it), so no groove opens where blocks meet. It sits under a Hotspot modifier so the bevels are trimmed too. Run it again after moving blocks to find the touching edges afresh. Returns the modifiers.
+
+**Objects:** blocks (default the selection, or every block)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `width` | `w` | float | `2.0` | cm from each edge to the bevel's edges. |
+| `segments` | `sg` | int | `1` | 1 is a chamfer; more round it. |
+| `angle` | `an` | float | `30.0` | Only edges whose faces meet sharper than this, degrees. |
+| `remove` | `rm` | bool | `False` | Take the bevel off instead. |
+
+```python
+blockworkBevel(width=2)
+```
+
+```python
+blockworkBevel('arch1', width=4, segments=3)
+```
+
+```python
+blockworkBevel(remove=True)
+```
+
 ### blockworkBlock
 
 Build a block: a box, wedge, cylinder, arch, stairs or prism standing on a rectangle, as a mesh whose points are in world space with a Texture Lock modifier. Returns the block's path.
@@ -14918,6 +14943,8 @@ Map blocks' faces onto the current trim sheet: each face region gets the trim wh
 | `live` | `l` | bool | `True` | Refit whenever the block changes (whole blocks). |
 | `faces` | `f` | list |  | Face ids for a one-off fit; default the selected faces. |
 | `seed` | `s` | int | `0` | Variation seed. |
+| `sheet` | `sh` | str |  | The .lilatrim file; default the current sheet. |
+| `palette` | `pal` | str |  | Palette the faces use (trimPaletteList); default the sheet's own. |
 
 ```python
 blockworkHotspot('room')
@@ -14925,6 +14952,10 @@ blockworkHotspot('room')
 
 ```python
 blockworkHotspot('room', live=False, faces=[2, 3])
+```
+
+```python
+blockworkHotspot('house1', palette='Plaster')
 ```
 
 ### blockworkJoin
