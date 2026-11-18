@@ -17,7 +17,7 @@ The scene's geometry stays near the origin; the georeference only says where tha
 
 ## Fly with the Drone Camera
 
-Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited. Its keys show in the corner of the view while it's on.
+Fly through large scenes with Unreal's viewport controls. Turn it on with the drone button on the viewport bar or **Display > Drone Camera**. It has no hotkey until you bind one in **Edit > Hotkey Editor**: tap the key to toggle, or hold it to fly until you let go. While it's on, nothing in the scene can be edited, except with Blockwork: hold the right button to fly, and the left button and keys keep building. Pick **Drone** for **Camera** in the Blockwork toolkit to fly whenever Blockwork is on. Its keys show in the corner of the view while it's on.
 
 | Press | To |
 | --- | --- |
