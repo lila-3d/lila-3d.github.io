@@ -3667,7 +3667,7 @@ Export the evaluated meshes and transforms to a binary FBX 7.4 file. Objects def
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `profile` |  | str | `'ue5'` | Axis profile: ue5 (Z up), ue6 (Y up) or generic (the scene's own axes). |
+| `profile` |  | str | `'ue5'` | Axis profile: ue5 (Z up), ue6 (Y up, +Z forward; unity is the same axes) or generic (the scene's own axes). |
 | `kind` | `k` | str | `'auto'` | auto \| static \| skeletal \| animation \| sequence. auto is skeletal when a skinned mesh is exported, sequence when only cameras are. |
 | `maxInfluences` | `mi` | int | `8` | Skin influences per vertex, heaviest kept and renormalised (4 for mobile). |
 | `animation` | `anim` | bool | `True` | Write the take for skeletal and sequence exports (always for kind=animation). |
@@ -3824,6 +3824,25 @@ Export meshes to an OBJ file in world space. Defaults to the selection.
 **Objects:** path objects...
 
 Not undoable.
+
+### exportOnSave
+
+Query or set the scene's export on save: while enabled, every save also exports the whole scene to path, relative to the scene file, in the format its extension names (.fbx, .glb, .gltf, .obj, ...). Saved with the scene. Returns the setting and, for a saved scene, the file it writes.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `p` | str |  | File to write, relative to the scene file or absolute. Giving it turns the setting on. |
+| `enable` | `e` | bool |  | Turn export on save on or off, keeping the path. |
+| `options` | `o` | Any |  | {flag: value} for the format's export command, e.g. {'profile': 'unity', 'units': 'm'}. |
+| `query` | `q` | bool | `False` |  |
+
+```python
+exportOnSave(path='Exports/Ship.fbx', options={'profile': 'unity', 'units': 'm'})
+```
+
+```python
+exportOnSave(enable=False)
+```
 
 ### exportPicker
 
@@ -12066,7 +12085,7 @@ Add a layer to a texture set's stack (on top unless placed). Kinds: fill (materi
 | `filter` |  | str |  | Filter: the node type (blur, hsv, levels...). |
 | `values` |  | Any |  | Filter: its parameter values. |
 | `channels` |  | Any |  | Per-channel {enabled, mode, opacity}. |
-| `projection` |  | Any |  | Fill, procedural, decal and text: layerProjection's values {mode, positionX...}. |
+| `projection` |  | Any |  | Fill, procedural, decal and text: layerProjection's values {mode, positionX...} in the object space of mesh (a node path; the bake's first low when unset). |
 | `decal` |  | Any |  | Decal: {maps {channel: file}, columns, rows, cell}. |
 | `text` |  | Any |  | Text: {text, font, tracking, outline, outlineColor, resolution}. |
 | `scatter` |  | Any |  | Scatter: {pattern, maps, countX, countY, perCell, size, sizeRandom, rotationRandom, hueRandom, seed, avoidOverlap}. |
@@ -20467,7 +20486,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |

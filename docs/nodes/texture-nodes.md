@@ -781,13 +781,17 @@ Composites a layer's tangent-space normal over the normals below: rnm reorients 
 
 Type `layerDecal`.
 
-Places one picture (or one cell of an atlas) on the mesh from a box in world space, where the set's bake is: out is the picture there, mask its alpha inside the box and 0 outside.
+Places one picture (or one cell of an atlas) on the mesh from a box in the mesh's object space, so it moves with the mesh: out is the picture there, mask its alpha inside the box and 0 outside. The bake's world-space position and normal maps are taken back to object space with the world matrix the mesh had when it baked.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0, 0, 0, 0]` |  |
 | `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's last bake. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
+| `objectX` | vector | input | `[1, 0, 0]` | The first column of the matrix from the bake's world space to the mesh's object space: the inverse of the world matrix the mesh had when it baked. The layer stack fills it and the next three from the set's last bake. |
+| `objectY` | vector | input | `[0, 1, 0]` | The world-to-object matrix's second column. |
+| `objectZ` | vector | input | `[0, 0, 1]` | The world-to-object matrix's third column. |
+| `objectW` | vector | input | `[0, 0, 0]` | The world-to-object matrix's translation. |
 | `out` | color | output |  |  |
 | `mask` | gray | output |  |  |
 
@@ -839,7 +843,7 @@ Height-aware layer mask: the layer shows first where its height stands above the
 
 Type `layerImage`.
 
-A paint layer's buffer: an image file sampled in uv (black when there is none yet).
+A layer's image file (a paint buffer, an image fill, a decal or scatter picture) sampled in uv (black when there is none yet).
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -848,6 +852,7 @@ A paint layer's buffer: an image file sampled in uv (black when there is none ye
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `file` |  |  |  |
+| `colorSpace` | `linear`, `srgb` | `linear` | How the file's colour values are read. linear: as stored, for paint buffers, data maps and EXR. srgb: decoded from sRGB to linear, for colour pictures saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
 
 ### Layer Paint
 
@@ -868,13 +873,17 @@ One channel of a paint layer: the painted value (rgb) and its coverage (alpha), 
 
 Type `layerProjection`.
 
-Places a layer's content on the mesh: by uv, or projected from a box (planar, triplanar, spherical, cylindrical, warp) placed in world space, where the set's bake is, so it ignores seams. coord is the coordinate it reads the content at.
+Places a layer's content on the mesh: by uv, or projected from a box (planar, triplanar, spherical, cylindrical, warp) placed in the mesh's object space, so it moves with the mesh and ignores seams. The bake's world-space position and normal maps are taken back to object space with the world matrix the mesh had when it baked. coord is the coordinate it reads the content at.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0, 0, 0, 1]` |  |
 | `boundsMin` | vector | input | `[0, 0, 0]` | The bake's position map spans boundsMin to boundsMax, in cm. The layer stack fills both from the set's last bake. |
 | `boundsMax` | vector | input | `[1, 1, 1]` | The far corner of the position map's bounds. |
+| `objectX` | vector | input | `[1, 0, 0]` | The first column of the matrix from the bake's world space to the mesh's object space: the inverse of the world matrix the mesh had when it baked. The layer stack fills it and the next three from the set's last bake. |
+| `objectY` | vector | input | `[0, 1, 0]` | The world-to-object matrix's second column. |
+| `objectZ` | vector | input | `[0, 0, 1]` | The world-to-object matrix's third column. |
+| `objectW` | vector | input | `[0, 0, 0]` | The world-to-object matrix's translation. |
 | `out` | color | output |  |  |
 | `coord` | vector | output |  |  |
 
