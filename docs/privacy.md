@@ -2,7 +2,7 @@
 
 What Lila sends when you opt in, and how to turn it off.
 
-Usage statistics and crash reports are separate checkboxes, shown when Lila first starts and in **Help > Telemetry and Privacy** or **Preferences > General > Telemetry**. Usage statistics start ticked in that first dialog; crash reports start off. **What's Sent...** shows the exact data queued on your machine.
+Usage statistics and crash reports are separate settings, in **Help > Telemetry and Privacy** or **Preferences > General > Telemetry**. Usage statistics are a checkbox on the first-run screen, and start ticked there. Crash reports are asked about once, in their own dialog: **Send automatically** (preselected), **Ask me each time** or **Never send**. **What's Sent...** shows the exact data queued on your machine.
 
 ## What it's used for
 
@@ -26,7 +26,7 @@ Usage statistics, once per session:
 | Lila closes | Session length, minutes you were actively using it, whether it crashed, how many times each built-in command ran and whether from the UI, Python or an AI agent, how many extension or script commands ran (counted, never named), how often the Unreal link was used and the Unreal version |
 | You answer the optional questions | Your role, team size and the 3D app you used before Lila |
 
-Crash reports, when Lila crashes and you click **Send Crash Report** in the crash dialog (or every time, if you tick **Always send crash reports without asking**, also in **Preferences > General > Telemetry**):
+Crash reports, every time Lila crashes with **Crash reports** set to **Send automatically**. With **Ask me each time**, nothing is sent unless you choose **Send Report and Restart Lila** or **Send Report and Close** in the crash dialog. With **Never send**, the crash dialog doesn't offer it:
 
 - The crash report: the call stack, Lila and Windows versions, your GPU and driver, and the names of the last commands you ran. Your username, computer name, file paths, log and command arguments are removed before it's sent.
 - A minidump: a snapshot of the memory Lila was using around the crash (the crashed code and the data it was working on). Sentry reads the call stack out of it and then discards it.
@@ -44,9 +44,9 @@ Everything is tied to a random ID made when Lila is installed, not to you, your 
 
 ## Turn it off
 
-- Untick the boxes in **Preferences > General > Telemetry**. Anything not yet sent is deleted.
+- In **Preferences > General > Telemetry**, untick **Send anonymous usage statistics** and set **Crash reports** to **Never send**. Anything not yet sent is deleted.
 - Or set the environment variable `DO_NOT_TRACK=1` or `LILA_NO_TELEMETRY=1`. Nothing is collected or sent while either is set, whatever the preferences say.
-- Studios can lock it off for everyone: put `{"telemetry": {"usage": false, "crashReports": false}, "$locked": ["/telemetry"]}` in the studio folder's `general.json` (see [Studio setup](studio-setup.md)).
+- Studios can lock it off for everyone, which also takes sending out of the crash dialog: put `{"telemetry": {"usage": false, "crashSend": "off"}, "$locked": ["/telemetry"]}` in the studio folder's `general.json` (see [Studio setup](studio-setup.md)).
 
 Nothing is sent from `lilabatch`.
 

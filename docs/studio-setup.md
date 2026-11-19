@@ -88,4 +88,4 @@ Settings resolve in this order, later winning: Lila's built-in defaults, studio 
 | --- | --- | --- |
 | `/support/allowScene` | `true` | Lets **Help > Save Support Bundle** include the open scene. Lock it `false` to keep scenes out of bundles. |
 | `/telemetry/usage` | Ticked at first run | Usage statistics (see [Telemetry and privacy](privacy.md)). |
-| `/telemetry/crashReports` | `false` | Sending crash reports. |
+| `/telemetry/crashSend` | Asked once | Crash reports: `"auto"` sends them, `"ask"` offers it in the crash dialog, `"off"` never sends. Locked, artists aren't asked. |
