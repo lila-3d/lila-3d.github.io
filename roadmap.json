@@ -159,7 +159,7 @@
         {
           "id": "texturing",
           "title": "Texture painting",
-          "status": "dev",
+          "status": "ready",
           "icon": "reference-images",
           "body": [
             "Paint textures directly on the model in layers, with masks and smart materials built on your baked maps."
@@ -178,7 +178,7 @@
         {
           "id": "rendering",
           "title": "Rendering",
-          "status": "dev",
+          "status": "ready",
           "docs": "rendering",
           "body": [
             "Stills, turntables and video from the real-time renderer you work in: supersampled, with post process, depth of field and motion blur, in seconds."
