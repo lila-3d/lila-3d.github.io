@@ -145,6 +145,10 @@ setUserMenu(menu={"title": "Kit", "parent": "Mesh", "as": "section", "items": [{
 
 Menus are saved in `userMenus.json` in your prefs folder (**Help > Open Prefs Folder**).
 
+## Edit a marking menu
+
+With a marking menu open, press **Ctrl+E** to open it in the **Marking Menu Editor**, with the item under your cursor selected. Or open the editor from **Windows > Marking Menu Editor**.
+
 ## Snapping
 
 Hold a key while moving to snap:
