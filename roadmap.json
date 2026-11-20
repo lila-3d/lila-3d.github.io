@@ -187,7 +187,8 @@
         {
           "id": "installer",
           "title": "Installer and updates",
-          "status": "planned",
+          "status": "ready",
+          "docs": "install",
           "icon": "requirements",
           "body": [
             "An installer, and updates delivered from inside Lila."
