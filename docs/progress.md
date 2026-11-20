@@ -1,6 +1,6 @@
 # Progress
 
-Where each area of Lila stands before release. Updated 12 November 2026. What comes when is on the [roadmap](https://lila-3d.github.io/roadmap.html ':ignore').
+Where each area of Lila stands before release. Updated 20 November 2026. What comes when is on the [roadmap](https://lila-3d.github.io/roadmap.html ':ignore').
 
 | Area | Done | Status |
 |---|---|---|
@@ -19,6 +19,9 @@ Where each area of Lila stands before release. Updated 12 November 2026. What co
 | Python scripting | 95% | Ready for user feedback |
 | C++ extensions | 95% | Ready for user feedback |
 | File formats | 95% | Ready for user feedback, uncommon formats need further testing |
+| Rendering | 90% | Ready for user feedback |
+| Material nodes | 90% | Ready for user feedback |
+| 3D painting | 85% | Ready for user feedback |
 | Deformers and morph targets | 85% | Pending further testing |
 | Destruction physics | 85% | Pending further testing |
 | Rigging | 80% | Pending further testing |
@@ -26,11 +29,8 @@ Where each area of Lila stands before release. Updated 12 November 2026. What co
 | Sound and video | 80% | Pending further testing |
 | Weight painting | 80% | Pending further testing |
 | Level Toolkit | 80% | Pending further testing |
-| Rendering | 70% | Pending further testing |
 | Plating toolkit | 70% | Pending further testing |
 | Grooms | 70% | Pending further testing |
 | Tailor (cloth) | 70% | Pending further testing |
-| 3D painting | 60% | Pending further testing |
-| Material nodes | 60% | Pending further testing |
 | Puppeteer and physics animation | 40% | Not ready for use, after the alpha |
 | Generated motion and crowds | 40% | Not ready for use, after the alpha |
