@@ -1784,6 +1784,31 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 | `coordinates` |  | str |  | meanValue (default) \| green \| somigliana \| harmonic |
 | `name` |  | str |  | Name for the deformer. |
 
+### cameraBookmark
+
+Jump the active view to a camera bookmark, or set, clear or list them.
+
+Each camera has its own slots 1 to 9: every camera node, and each built-in view (persp, top, front ...). Bookmarks act on the camera the active view shows. Jumping is a camera undo step, not a scene one. Setting and clearing are scene undo steps. Returns whether it jumped, the slot set, or with query the slots in use.
+
+**Objects:** slot
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `s` | bool |  | Save the view's camera in the slot instead of jumping to it. |
+| `clear` | `c` | bool |  | Remove the slot's bookmark; with no slot, every one on the camera. |
+| `query` | `q` | bool |  | Return the slots holding a bookmark. |
+
+Not undoable.
+
+```python
+cameraBookmark(1, set=True)
+cameraBookmark(1)
+```
+
+```python
+cameraBookmark(query=True)
+```
+
 ### cameraSettings
 
 Query or set a camera's gate display, film fit and near clip. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
@@ -2069,6 +2094,12 @@ Not undoable.
 Throw away simulation caches, so the next simulate starts from the start frame.
 
 **Objects:** simulation nodes (default all)
+
+Not undoable.
+
+### clearSnapSurface
+
+Clear the snap surface, so surface snapping hits every visible mesh again and moves stop conforming.
 
 Not undoable.
 
@@ -3050,6 +3081,14 @@ Delete display layers; their objects stay, in no layer.
 
 **Objects:** layers
 
+### deleteKeymap
+
+Delete a keymap. Deleting the current one switches to Default.
+
+**Objects:** name
+
+Not undoable.
+
 ### deleteLayout
 
 Delete a saved layout (the workspace copy first, when both exist). Built-ins can't be deleted; deleting a saved layout that shadows one brings the built-in back.
@@ -3110,6 +3149,20 @@ Delete a saved theme. Built-ins can't be deleted; deleting the current theme swi
 
 Not undoable.
 
+### deleteUserMenu
+
+Removes the user menu with this title. Returns whether there was one.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `title` | `t` | str |  | The menu's title. |
+
+Not undoable.
+
+```python
+deleteUserMenu(title="Kit")
+```
+
 ### deltaMush
 
 Add a delta mush to the meshes: smooths out deformation artefacts (from skinning or other deformers) while keeping the rest shape's detail. Above a skinCluster the rest shape is the bind shape. Returns the deformers.
@@ -3143,6 +3196,35 @@ disconnectAttr('dst.attr'), or (src, dst). A whole array input loses every eleme
 Stop deformers reading their field.
 
 **Objects:** deformers
+
+### displacementHeatmap
+
+Show how far deformation moves each point as a grayscale overlay (white the most moved point) on the selected meshes, or on every deformed mesh when none is selected. A display setting, so not undoable.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool |  | Default: toggle. |
+
+Not undoable.
+
+### displacementPreview
+
+Turn displacement preview on or off for meshes: in the viewport they subdivide and move by their texture sets' height channel (Height Depth from each set's settings), updating live as height is painted. With no flags, reports each mesh's state. Returns [{object, enabled, detail, status}].
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | On or off. |
+| `detail` | `d` | float |  | Target edge length in screen pixels: smaller subdivides more. |
+
+```python
+displacementPreview("rock", enable=True)
+```
+
+```python
+displacementPreview("rock", detail=3)
+```
 
 ### displayLayer
 
@@ -3180,6 +3262,18 @@ Live distance between two points. Each point is an object name or [x, y, z] (a l
 | `attach` | `at` | bool | `True` | From selected vertices: parent the locators to their meshes. |
 | `name` | `n` | str |  | Name for the measure node. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new node. |
+
+### docsInfo
+
+Where the docs are read from: {root, source (override | cache | bundled), ref, sha, refs, cacheRoot, autoUpdate}. root is null when there are none yet.
+
+Not undoable.
+
+### docsUpdate
+
+Download the latest docs for this version in the background; the result shows in the status line.
+
+Not undoable.
 
 ### dominantInfluence
 
@@ -3378,6 +3472,14 @@ Change a driven channel: replace its keys, infinity, interpolation of every key,
 | `postInfinity` |  | str |  | After the last key. One of `constant`, `linear`, `cycle`, `cycleRelative`, `oscillate`. |
 | `curveName` |  | str |  | Unreal curve to bake into; empty for none. |
 | `driver` | `d` | str |  | A new driving plug; empty disconnects it. |
+
+### editMaterial
+
+Show a material in the Material Editor, without assigning it.
+
+**Objects:** material
+
+Not undoable.
 
 ### editMorphTarget
 
@@ -3752,6 +3854,19 @@ draco=True compresses every primitive with KHR_draco_mesh_compression (then requ
 
 Not undoable.
 
+### exportGradeLut
+
+Bake the active post process's grade into a LUT file for Resolve, Nuke or Unreal. .cube (Resolve, Nuke): display code values in and out, for after the view; with includeView, scene-linear light in through a log2 shaper, the tonemapper or OCIO view and the grade out. .png: a 256 by 16 strip in Unreal's colour grading LUT layout (display in and out). Lens effects, bloom, grain and vignette are not in a LUT. Returns the path.
+
+**Objects:** path: where to write, .cube or .png
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `size` | `sz` | int | `33` | Points per axis of a .cube (17 to 129). |
+| `includeView` | `iv` | bool | `False` | Also bake exposure and the tonemapper or OCIO view (.cube only). |
+
+Not undoable.
+
 ### exportGroom
 
 Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* attributes, its primary guides to simulate) or Unity, .usd/.usda/.usdc curves, or .groom (GroomLab's file: guides, graph, parts, flow, maps and the scalp). Frames start to end (scene frames; the current one by default). Returns {file, frames, strands}.
@@ -3767,6 +3882,18 @@ Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* at
 | `step` |  | float | `1.0` | Frames between written frames. |
 | `guides` |  | bool | `True` | Unreal: write the primary guides it simulates. |
 | `groups` |  | bool | `False` | One groom group per groupId (the Attribute node's groups). |
+
+### exportKeymap
+
+Write a keymap to a .lilakeys file to share. Returns the file.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | The keymap; the current one when not given. |
+
+Not undoable.
 
 ### exportMeshSequence
 
@@ -5016,6 +5143,17 @@ Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
 
+### gradePreset
+
+Put a look on a post process (the active one by default): its grade attrs (white balance, contrast, saturation, wheels, tonal balance, curves) take the look's values, the rest of the grade goes back to neutral. With save, store the post process's grade as a look under that name instead. With no name, list the looks. Returns the look names.
+
+**Objects:** look: the look's name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `node` | `n` | str |  | The post process; the active one (created if needed) when left out. |
+| `save` | `s` | bool | `False` | Store the post process's grade as this look, in the user's looks. |
+
 ### grappleAim
 
 Aim what a joint holds at a target: the axis (a muzzle, a blade's tip; its +X) is turned onto the target about the pivot, moving the joint and, through the grapple's solve, the arms and body with it. style places the pivot first: shoulder on the anchor (rifles, launchers), extend out toward the target (pistols), guard below that line (blades). Key weight to blend it. Returns the aim.
@@ -5833,6 +5971,32 @@ IfcMapConversion places it: it sets the scene's georeference or moves the model 
 importIfc("D:/bim/school.ifc")
 ```
 
+### importKeymap
+
+Add the keymap in a .lilakeys file (or a hotkeys.json). Returns its name.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name it this rather than the name in the file. |
+| `use` |  | bool | `False` | Switch to it. |
+
+Not undoable.
+
+### importMayaHotkeys
+
+Imports a Maya hotkey set (.mhk) or userHotkeys.mel into a new keymap on Lila's defaults and switches to it. Returns {keymap, imported, skipped: [{key, command, reason}]}.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Maya hotkey file |
+| `keymap` | `k` | str | `'Maya'` | Name for the new keymap; a number is added when it's taken. |
+
+Not undoable.
+
 ### importObj
 
 Import an OBJ file; one mesh per object. Returns the new mesh names.
@@ -6106,6 +6270,12 @@ Query or edit keys. query=True returns key times (valueChange=True: values; keyC
 | `valueChange` | `vc` | Any |  | Value to set (or offset), or True with query. |
 | `timeChange` | `tc` | Any |  | Time to set (or offset), or True with query. |
 | `relative` | `r` | bool | `False` | Offset instead of set. |
+
+### keymaps
+
+The hotkey keymaps: {active, keymaps: [{name, studio}]}.
+
+Not undoable.
 
 ### keyTangent
 
@@ -6482,6 +6652,14 @@ Make a looker: the joint aims at it (aimAxis at the looker, upAxis toward upVect
 | `weight` | `w` | float | `1.0` | Blend of the aim over the joint's own rotation. |
 | `name` | `n` | str |  | Name; default <joint>_looker. |
 | `parent` | `p` | str |  | Node to put the element under, such as a character. |
+
+### lookThru
+
+Make the active view look through a camera node, or switch it to a view (persp, top, front, side, ...). Returns the name of what the active view looks through; with no argument it only returns it.
+
+**Objects:** camera
+
+Not undoable.
 
 ### ls
 
@@ -7245,6 +7423,18 @@ Naming rules for this workspace (.lila/naming.json). Query with no flags; check 
 | `check` | `c` | bool | `False` | Return [[node, expectedName], ...] for names that break the rules. |
 | `fix` | `f` | bool | `False` | Rename every node that breaks the rules. |
 
+### newKeymap
+
+Make a keymap, a copy of the current one, and switch to it.
+
+**Objects:** name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `empty` |  | bool | `False` | Start from Lila's defaults instead of a copy. |
+
+Not undoable.
+
 ### newScene
 
 Clear the scene. Not undoable.
@@ -7357,6 +7547,19 @@ Open closed curves at parameter (span units, default their start), keeping the s
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `parameter` | `p` | float | `0.0` | Where to open, in spans from the start. |
+
+### openDocs
+
+Show the Docs panel at a page: "essentials", "curves?id=pipe", "python/". Empty for the docs home. UI only.
+
+**Objects:** page
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `page` | `p` | str |  | Page id as in the docs site's URL after #/, optionally with ?id=<heading> |
+| `api` | `a` | str |  | A Python symbol (lila.ops.polyCube) whose API page to open instead |
+
+Not undoable.
 
 ### openExample
 
@@ -7698,6 +7901,53 @@ Fill four boundary curves (in any order and direction, end to end) with a Coons 
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
+### pathTracedView
+
+Show every viewport path traced: light bounces through the scene (environment, lights, materials and texture sets) and the image refines while nothing changes, starting over on any camera, scene or paint change. Needs a GPU with ray tracing; without one the views stay shaded and say so. With no flags, reports the settings. Returns {enabled, bounces, samples, denoise, supported}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | On or off. |
+| `bounces` | `b` | int |  | Most surfaces a path bounces off. |
+| `samples` | `s` | int |  | Samples per pixel the image refines to, then stops. |
+| `denoise` | `d` | bool |  | Smooth the noise of the first samples, guided by the surfaces' colours, normals and depth. |
+
+Not undoable.
+
+```python
+pathTracedView(enable=True)
+```
+
+```python
+pathTracedView(bounces=8, samples=4096)
+```
+
+### perfTraceDialog
+
+Open Help > Record Performance Trace.
+
+Not undoable.
+
+### perfTraceRecord
+
+Start recording a performance trace (Help > Record Performance Trace) for `seconds` once the recorder connects. Returns the zip it will write; perfTraceStatus says when it is done.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seconds` | `s` | int | `10` | How long to record. |
+
+Not undoable.
+
+```python
+lila.ops.perfTraceRecord(seconds=10)
+```
+
+### perfTraceStatus
+
+The performance trace recording: state (idle, connecting, recording, saving, done, failed), secondsLeft, path (the zip), error, elevated and systemTracing (call-stack sampling and context switches, only when running as administrator).
+
+Not undoable.
+
 ### pickerRun
 
 Run a picker item's action on its targets resolved in a namespace: select them, toggle an attr (every target follows the first), apply a pose to their character, or run a command (args default to the targets). Returns what the action returned.
@@ -7767,6 +8017,10 @@ pin("Button", "Jacket", source="face", index=12)
 ```python
 pin("Bead", "Wire", curveMode="fraction", along=0.25)
 ```
+
+### pinComponentPivot
+
+Pin the component manipulator where it is and how it is turned, so it stays through selection and component mode changes until resetComponentPivot. It follows the selection's centre unless moved with Edit Pivot.
 
 ### pipe
 
@@ -8876,11 +9130,120 @@ Redo the last undone command.
 
 Not undoable.
 
+### referenceImage
+
+Add, replace, edit, remove or list reference images.
+
+Reference images show as tabs in the Reference windows and as overlays in the viewports (referenceOverlay). Files given are added as tabs of a window (the first one unless window is set) and their ids returned. With edit, the flags change one image; replace swaps its file and keeps every other setting.
+
+**Objects:** files
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edit` | `e` | str |  | Id of the image the flags change. |
+| `replace` | `rp` | str |  | Id of an image whose file becomes the one given. |
+| `remove` | `rm` | list |  | Ids of images to remove, with their overlays. |
+| `query` | `q` | bool |  | Return the images (or the one named by edit) as dicts. |
+| `name` | `n` | str |  | Tab label. |
+| `window` | `w` | str |  | Reference window id the images are tabs of ("main" is the first); empty takes them out of every window. |
+| `index` | `i` | int |  | Tab position for added images; default the end. |
+| `current` | `c` | bool |  | Make the (first) image its window's shown tab. |
+| `flipH` | `fh` | bool |  | Mirror left to right. |
+| `flipV` | `fv` | bool |  | Mirror top to bottom. |
+| `grayscale` | `g` | bool |  | Show without color, to judge values. |
+| `quarterTurns` | `qt` | int |  | Clockwise quarter turns, 0 to 3. |
+| `brightness` | `b` | float |  | Added in display space, -1 to 1. |
+| `contrast` | `ct` | float |  | Around mid gray, 0 to 4. |
+| `embed` | `em` | bool |  | Keep the file's bytes in the set, so it travels without the file; False links to the file again. Videos always stay linked. |
+| `videoOffset` | `vo` | int |  | Video: frames added to the frame shown. |
+| `videoFps` | `vf` | float |  | Video: playback rate; 0 for the file's own. |
+| `paused` | `pa` | bool |  | Video: hold the frame showing now instead of following the time. |
+| `pausedFrame` | `pf` | int |  | Video: the frame a paused video holds. |
+
+```python
+referenceImage("refs/front.jpg", "refs/side.jpg")
+```
+
+```python
+referenceImage("refs/front_v2.jpg", replace="ref1")
+```
+
+```python
+referenceImage(edit="ref2", flipH=True, grayscale=True)
+```
+
+### referenceOverlay
+
+Show a reference image glued to a view's screen, or edit, remove or list overlays.
+
+The positional argument is a reference image id or an image file (added to the set without a tab). The overlay draws in front of the model at low opacity by default; depth behind puts it under the model. Placement is in view heights from the anchor, so a parked overlay stays parked when the view resizes. bind remembers the view's camera: goTo returns to it, and the overlay fades as the view turns away.
+
+**Objects:** image
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` | `v` | str |  | View name the overlay shows in; default the active view. |
+| `edit` | `e` | str |  | Id of the overlay the flags change. |
+| `remove` | `rm` | list |  | Ids of overlays to remove. |
+| `query` | `q` | bool |  | Return the overlays (of view, when given) as dicts. |
+| `opacity` | `o` | float |  | 0 to 1. |
+| `depth` | `d` | str |  | Over the model or under it. One of `front`, `behind`. |
+| `mode` | `m` | str |  | outline draws only the image's edges, leaving the model visible. One of `normal`, `grayscale`, `outline`. |
+| `anchor` | `an` | str |  | The view point offset is measured from. One of `center`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`. |
+| `offset` | `of` | list |  | [x, y] from the anchor to the image centre, in view heights, y down. |
+| `scale` | `s` | float |  | Shown height in view heights. |
+| `rotation` | `r` | float |  | Degrees clockwise. |
+| `crop` | `cr` | list |  | [u0, v0, u1, v1]: the part of the image shown, 0 to 1 from its top left. The image stays where it is on screen. |
+| `visible` | `vis` | bool |  | Shown or hidden. |
+| `ghost` | `gh` | bool |  | Draw the meshes see-through while the overlay shows. |
+| `outlineColor` | `oc` | tuple[float, float, float] |  | Line color of outline mode, display RGB 0 to 1. |
+| `fadeAngle` | `fa` | float |  | Degrees from the bound view at which it has faded out. |
+| `focalLength` | `fl` | float |  | The lens the photo was taken with, in mm. |
+| `bind` | `b` | bool |  | Remember the view's camera now; False forgets it. |
+| `matchLens` | `ml` | bool |  | With bind, set the view's lens to focalLength first. |
+| `goTo` | `g` | bool |  | Move the view back to the bound camera. |
+| `park` | `p` | bool |  | Lay the view's overlays out opaque down its right edge. |
+| `active` | `a` | bool |  | Make it the overlay the O keys and handles act on. |
+
+```python
+referenceOverlay("refs/front.jpg", view="persp", opacity=0.25)
+```
+
+```python
+referenceOverlay(edit="overlay1", mode="outline", bind=True, matchLens=True)
+```
+
+```python
+referenceOverlay(edit="overlay2", goTo=True)
+```
+
 ### references
 
 Every reference: namespace, path, loaded, and its local edits.
 
 Not undoable.
+
+### referenceSet
+
+Save, load, clear the reference image set, or say where it is kept.
+
+Storage scene keeps the set in the scene file; project in references.lilaref in the project folder; user in Lila's config folder, shared by every scene. Changing storage carries the current set over.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `save` | `s` | str |  | Write the set to a .lilaref file. |
+| `load` | `l` | str |  | Replace the set with a .lilaref file's. |
+| `clear` | `c` | bool |  | Remove every image and overlay. |
+| `storage` | `st` | str |  | Where the set is kept. One of `scene`, `project`, `user`. |
+| `query` | `q` | bool |  | Return the storage and the whole set. |
+
+```python
+referenceSet(save="refs/hero.lilaref")
+```
+
+```python
+referenceSet(storage="project")
+```
 
 ### refreshClay
 
@@ -9132,6 +9495,14 @@ Rename an added attribute. Connections, keys and drivers stay on it. Returns the
 
 **Objects:** plug newName
 
+### renameKeymap
+
+Rename a keymap.
+
+**Objects:** name, new name
+
+Not undoable.
+
 ### renameLayout
 
 Rename a saved layout, keeping where it is saved.
@@ -9357,6 +9728,10 @@ Make a joint the root of its skeleton by reversing the parent chain above it. Jo
 
 **Objects:** joint
 
+### resetComponentPivot
+
+Put the component manipulator back on the selection's centre and the tool's own axes, ending a pinned pivot.
+
 ### resetCorrection
 
 Clear a correction's offsets: all of them, or just points=.
@@ -9366,6 +9741,14 @@ Clear a correction's offsets: all of them, or just points=.
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `points` |  | list |  | Point ids to clear. |
+
+### resetKeymap
+
+Drop every change a keymap makes, back to Lila's default hotkeys.
+
+**Objects:** name (the current keymap when not given)
+
+Not undoable.
 
 ### resetPivot
 
@@ -10191,6 +10574,17 @@ Not undoable.
 
 Subdivide the sculpt once more and sculpt the new level (from a lower level, the finest is subdivided). Returns {level, levels, points, faces}.
 
+### sculptBrush
+
+Pick the sculpt tool's brush: a built-in or registered brush by name, or a brush preset by id (see brushPresets). Returns {brush, preset}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `brush` |  | str |  | A brush name: draw, clayStrips, damStandard, ... or a registered brush's. |
+| `preset` |  | str |  | A brush preset id, such as user/Skin Pores. |
+
+Not undoable.
+
 ### sculptCancel
 
 Leave sculpt mode without changing the mesh or its stored levels, discarding this session's sculpting.
@@ -10939,6 +11333,14 @@ Set where a weight layer shows: values per point (0 hides it, 1 shows it), or on
 | `value` | `val` | float | `1.0` | The value set on the vertices, without values. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
+### setSnapSurface
+
+Make meshes the snap surface for this session: surface snapping hits only them, and the move tool keeps moved objects and components on them. Returns the snap surface.
+
+**Objects:** meshes (default: the selection)
+
+Not undoable.
+
 ### setSymmetry
 
 Object-space symmetry for component edits on meshes: 'off', a mirror plane 'x', 'y' or 'z', or 'radial': count wedges repeated round radialAxis (with mirror=True also mirrored within each wedge), every edit applied to all of them.
@@ -11012,6 +11414,20 @@ target=pose aims each vertex at a delta mush of the posed mesh (smoothed, with t
 | `contact` | `ct` | bool | `True` | simulate: keep folds from passing through themselves. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
+### setUserMenu
+
+Adds a user menu, or replaces the one with the same title. parent empty puts it on the menu bar; a menu path such as "Mesh" puts it in that menu, as a submenu or, with as="section", as a titled section. Items take an action id, {"python": code} or {"command": name, "args": {}} as their action, or separator, section or submenu. Returns the stored menu.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `menu` | `m` | Any |  | The menu: {title, parent, as, before, after, sets, items}. |
+
+Not undoable.
+
+```python
+setUserMenu(menu={"title": "Kit", "parent": "Mesh", "items": [{"action": "mesh.bevel"}]})
+```
+
 ### setVertexColorData
 
 Set a color set from a flat [r, g, b, a, ...] list per face-vertex, in getVertexColorData's order. Creates the set when missing. One undo step.
@@ -11055,6 +11471,18 @@ Show meshes as they export: every modifier's viewport state takes its export sta
 ### showLastHidden
 
 Show the objects the last hide (or hiding toggle) hid. Returns them.
+
+### showPanel
+
+Show a panel by its id, or hide it with hide. With no id, returns every panel id.
+
+**Objects:** panel
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `hide` | `h` | bool |  | Hide the panel instead. |
+
+Not undoable.
 
 ### shrinkSelection
 
@@ -11403,6 +11831,12 @@ Put reverse foot controls on the sole of the current pose with roll, twist and b
 | --- | --- | --- | --- | --- |
 | `align` | `al` | bool | `False` | Level the control instead. |
 | `key` | `k` | bool | `True` | Key the control's channels at the current time. |
+
+### snapSurface
+
+The meshes set as the snap surface; empty when none is set.
+
+Not undoable.
 
 ### snapToComponentCenter
 
@@ -12214,6 +12648,26 @@ Clear a paint layer: drop its strokes and pixels.
 | --- | --- | --- | --- | --- |
 | `layer` |  | str |  | The paint layer. |
 
+### texCompare
+
+Wipe-compare a texture set snapshot (texSnapshot) against the live set or another snapshot, in the 3D viewports and the 2D View: the snapshot shows left of the wipe line, drag the line to move it. With no flags, reports the state. Returns {enabled, set, snapshot, against, wipe}.
+
+**Objects:** texture set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | On or off. |
+| `snapshot` | `s` | str |  | The snapshot on the left; the newest when left out. |
+| `against` | `a` | str |  | live, or another snapshot's name, on the right. |
+| `wipe` | `w` | float |  | Where the line sits across the view, 0 (all live) to 1 (all snapshot). |
+
+Not undoable.
+
+```python
+texSnapshot("RockTex", name="before")
+texCompare("RockTex", enable=True, snapshot="before", wipe=0.5)
+```
+
 ### texCompileStats
 
 CPU kernel cache counters: compiles, cache hits and failures since start (or the last clear).
@@ -12261,6 +12715,14 @@ Create a texture set: a texture graph with a Material Output, and the channels, 
 | `settings` |  | Any |  | Settings dict: channels [{name, type, bits}], width, height, tiles [udim or {udim, width, height}], normalConvention (opengl/directx), bakeProject, exportPreset. |
 | `resolution` |  | int |  | Width and height of every tile. |
 | `materials` |  | list |  | Materials that use the set (their Texture Set), created when missing. |
+
+### texCreateSetForSelection
+
+Make a texture set with a paint layer and pick it in the materials of the selected meshes (and the meshes under selected groups) that use no set yet. Meshes only on Default first share a new material. Returns the set.
+
+### texCreateSetPerMaterial
+
+Make a texture set, with a paint layer, for each material of the selected meshes (every mesh when nothing is selected) that uses no set yet, and pick it in that material. Meshes only on Default first share a new material. Returns the sets made.
 
 ### texDeleteNode
 
@@ -12550,6 +13012,12 @@ A texture set's layer stack as JSON: layers bottom first (with each channel's re
 
 Not undoable.
 
+### texLiveStatus
+
+The viewport's live texture sets: per set its material, warm-ups compiled ahead, tiles and evaluation levels (size, idle, plans, passes, compiles, GPU milliseconds) and the last error; idle is whether every set has finished its latest edit.
+
+Not undoable.
+
 ### texMaterialFromMaps
 
 Make materials from texture maps: each file's channel comes from its name (BaseColor, albedo, diff, rough, gloss, metal, nrm or normal with dx or gl, height or disp, ao, emissive, opacity, and packed ORM, ARM, RMA, MRA), files differing only by that token make one material, and a size in the name (200cm, 2m) sets its scale. Packed maps are split, DirectX normals flipped, gloss inverted. Writes a .lilamat per material to the library (tier, category, or path), or with set= adds each as a material layer. Returns one entry per material with its maps and warnings.
@@ -12642,6 +13110,23 @@ Paint a stroke along a path on the surface: points [[x, y, z], ...] or [{positio
 | `stencil` |  | Any |  | A stencil, as texPaintStroke takes it (needs view). |
 | `particles` |  | Any |  | Particle brush. |
 | `view` |  | Any |  | The stroke view record {objectToClip, eye, direction, width, height}. |
+
+### texPaintStencil
+
+The texture paint tool's stencil: a picture pinned to the screen that strokes and the projection buffer paint through. A file sets it (an empty one clears it); the flags change it. mode mask scales each stroke by the picture's brightness, color paints its colours into Base Color. Returns {file, mode, invert, tile, offset, scale, rotation}.
+
+**Objects:** [file]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str |  | mask or color. |
+| `invert` |  | bool |  | Paint where the picture is dark. |
+| `tile` |  | bool |  | Repeat the picture past its edges. |
+| `offset` |  | list |  | [x, y] screen pixels from the view's centre. |
+| `scale` |  | float |  | 1 spans the view's height. |
+| `rotation` |  | float |  | Degrees. |
+
+Not undoable.
 
 ### texPaintStroke
 
@@ -12738,6 +13223,16 @@ Save a projection view on a texture set by name (view=, a screen view as texPain
 | --- | --- | --- | --- | --- |
 | `view` |  | Any |  | The view to save. |
 | `remove` |  | bool | `False` | Remove it. |
+
+### texQuickMaskOverlay
+
+Show or hide the Quick Mask overlay, the tint over what the quick mask leaves out (show=), and report it: {shown, set (the set the quick mask limits, empty when it holds nothing), tint {width, height, version, tinted (the share of its texels tinted)} or None, draws (tinted mesh draws in the last viewport frame)}. Colour and opacity are the general prefs /texture/quickMaskColor and /texture/quickMaskOpacity.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `show` | `s` | bool |  | Show the overlay, or hide it. |
+
+Not undoable.
 
 ### texRasterize
 
@@ -13857,6 +14352,24 @@ Stop Explorer opening any file type with Lila, for the current user, restoring t
 
 Not undoable.
 
+### useKeymap
+
+Switch to a keymap. The current one keeps the edits made to it.
+
+**Objects:** name
+
+Not undoable.
+
+### userMenus
+
+The user menus, as stored: a list of {title, parent, as, before, after, sets, items}.
+
+Not undoable.
+
+```python
+userMenus()
+```
+
 ### uvAlignToEdge
 
 Rotate each island with selected edges so their direction lies along U or V: axis=u or v aligns an island side, nearest orients the island by the edge.
@@ -14524,6 +15037,17 @@ One vertex paint stroke: dabs is a list of {center, radius, opacity, view, eye} 
 | `dabs` |  | list |  | The stamps, in order. |
 | `live` |  | int | `0` | Internal: adopts the stroke the viewport tool already applied. |
 
+### viewCamera
+
+The active view's camera: with eye and lookAt, put its perspective camera there (scenes save it, so a scene opens on that view). Returns the view's state {view, persp: {target, distance, yaw, pitch, orthoWidth, focalLength}}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `eye` |  | tuple[float, float, float] |  | Where the camera stands, cm. |
+| `lookAt` | `la` | tuple[float, float, float] |  | The point it looks at, cm. |
+
+Not undoable.
+
 ### viewPlace
 
 Place a camera node: eye is its world position, lookAt the point it aims at, up the world direction its top leans to. Flags left out keep the camera's current value; with eye alone it moves without turning. Fails on a locked camera.
@@ -14547,6 +15071,46 @@ What the active viewport draws and counts now: {hud: {scene, objects, components
 | `path` | `p` | str |  | Also render the view's live frame (tools and their drawing included) offscreen to this PNG. |
 
 Not undoable.
+
+### viewportRenderer
+
+Pick the renderer a viewport draws with: "lila" for Lila's own, or one an extension registered (viewportRenderers lists them). Lila still draws selection, gizmos and the HUD over another renderer's image. With no renderer, only returns the viewport's current one.
+
+**Objects:** renderer id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | int |  | The viewport, numbered in the order they were made; default the active one. Example: `viewportRenderer("lila", panel=1)` |
+
+Not undoable.
+
+```python
+viewportRenderer("cpuShaded")  # the active view draws with the example renderer
+viewportRenderer("lila")
+```
+
+### viewportRenderers
+
+The renderers a viewport can draw with, Lila's own first: [{id, name, doc}].
+
+Not undoable.
+
+### viewportRendererSetting
+
+Read or change a setting of the renderer a viewport draws with (a Hydra delegate's render settings). With no key, returns them all as [{key, name, value}]; with a key, its value; with a key and a value, sets it. A set value is saved and given to every viewport using that renderer, now and whenever it starts.
+
+**Objects:** key, value
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | int |  | The viewport; default the active one. |
+
+Not undoable.
+
+```python
+viewportRendererSetting()  # [{key, name, value}, ...]
+viewportRendererSetting("myEngine:metersPerUnit", 0.01)
+```
 
 ### viewportStats
 
@@ -16104,6 +16668,8 @@ The building is a geometry-nodes modifier around a Masonry Building node holding
 | `spec` |  | Any |  | The building: a JSON object (or its text). See the lila://masonry/spec-schema resource; masonrySpec reads one back. |
 | `name` | `n` | str | `'MasonryBuilding'` | Name of the mesh made to hold a new building. |
 | `node` |  | str |  | An existing building (its mesh or modifier) to rebuild with this spec and these flags instead of making one. |
+| `weather` | `wt` | str |  | A weathering preset (weatherPresets lists them) to age a new building with: dressing at its foot, grunge, ivy. |
+| `weatherStyle` | `ws` | str | `'realistic'` | Style of that preset: realistic or toon. |
 | `bevel` |  | float |  | Stone edge chamfer, cm. |
 | `wear` |  | float |  | How knocked about stone corners are, 0 to 1. |
 | `jitter` |  | float |  | How far stones wander and tilt inside their joints, 0 to 1. |
@@ -18438,6 +19004,24 @@ Not undoable.
 [p['name'] for p in arrangementPresets()]
 ```
 
+### arrangementRegister
+
+Add a built-in arrangement preset for this session, as an extension does at load: the spec's shape is arrangementSave's. A saved user or workspace preset of the same name still wins. Optional spec fields shown in the library's Presets tab: category, style (realistic, toon), tags, thumbnail (an image path).
+
+**Objects:** preset name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `sp` | Any |  | {description, slots: {...}, steps: [{command, args, flags, needs}]}. |
+| `source` | `src` | str | `'extension'` | Who added it, shown as the preset's source. |
+| `remove` | `rm` | bool | `False` | Remove the preset of that name instead. |
+
+Not undoable.
+
+```python
+arrangementRegister('Crate Row', spec={'category': 'Storage', 'slots': {'floor': {'kind': 'mesh'}}, 'steps': [{'command': 'scatterProps', 'args': ['$floor'], 'flags': {'items': ['Industrial/Crate'], 'realize': True}}]})
+```
+
 ### arrangementSave
 
 Save an arrangement preset: a spec of slots and steps (see arrangementPresets for the shape), so arrangePreset can dress any place with it. Saved to the user's presets, or the workspace's ArrangementPresets folder to share it with the project. Returns the file.
@@ -18456,6 +19040,27 @@ Not undoable.
 arrangementSave('Crate Row', spec={'slots': {'floor': {'kind': 'mesh'}}, 'steps': [{'command': 'scatterProps', 'args': ['$floor'], 'flags': {'items': ['Industrial/Crate'], 'density': 2, 'realize': True}}]})
 ```
 
+### arrangementThumbnails
+
+Draw thumbnails for arrangement presets: each preset run on a stand-in block and ground, captured to the user's arrangement-presets/thumbs folder, and taken out again without a trace in the scene or undo. Presets that already have one are skipped unless force=True. Returns drawn (preset, thumbnail) and skipped (preset, note).
+
+**Objects:** preset names (default all)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `force` | `f` | bool | `False` | Draw them again even when they exist. |
+| `clear` | `cl` | bool | `False` | Delete their thumbnails instead, so they are drawn again the next time the library shows them. |
+
+Not undoable.
+
+```python
+arrangementThumbnails()
+```
+
+```python
+arrangementThumbnails('Abandoned', force=True)
+```
+
 ### arrangePreset
 
 Dress a place from an arrangement preset: fill its slots (the floor, the boards, the books) and it runs its steps as one undo step, gathering what they make into one group. Slots left out take their defaults; an optional slot left unset skips the steps that need it. Returns group, preset and each step's result.
@@ -18466,6 +19071,7 @@ Dress a place from an arrangement preset: fill its slots (the floor, the boards,
 | --- | --- | --- | --- | --- |
 | `slots` | `sl` | Any |  | Slot values: {slot: mesh name, [meshes] or [items]}. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement; each step adds its index to it. |
+| `skipCommands` | `sc` | list |  | Steps running these commands are skipped and reported, e.g. when what they need is off. |
 | `name` | `n` | str |  | Name of the group made (default the preset's name). |
 
 ```python
@@ -18494,6 +19100,51 @@ Group placed objects into an assembly: a group that goes to Unreal as one Level 
 
 ```python
 assemblyCreate(['Gate_Left', 'Gate_Right', 'Gate_Arch'], name='Gate', kind='packedLevelActor')
+```
+
+### baseDressing
+
+Dress the foot of things: items in a band round where objects meet the ground (rubble at a wall's foot, planks leaning on a shed, weeds round a rock), densest and biggest at the wall, thinning and shrinking outward. Tall, thin items lean on the wall. The footprint comes from the objects' own geometry, so any outline works, and the default live arrangement follows the objects when they are edited.
+
+Live by default; realize=True places scene instances for the Push tool and hand edits; settle=True drops them with physics. Returns the same as fillShelf, plus ground (the meshes used, or 'plane').
+
+**Objects:** objects to dress round (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
+| `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
+| `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
+| `settle` | `st` | bool | `False` | Let them come to rest with physics. |
+| `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
+| `massDensity` |  | float | `600.0` | kg/m3 of the items, for the settle. |
+| `friction` |  | float | `0.6` | Friction of the items, for the settle. |
+| `seed` | `s` | int | `1` | Another seed gives another arrangement. |
+| `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes (default the starter library's stone chunks). |
+| `weights` | `wt` | list |  | How often each item is picked, in the order of items (missing ones are 1). |
+| `ground` | `gr` | list |  | Ground meshes; default the meshes the objects stand on, or a plane at their lowest point. |
+| `blockers` | `bl` | list |  | Neighbouring objects nothing is put on, though no band grows round them (when dressing a level in parts). |
+| `width` | `w` | float | `80.0` | How far out from the footprint the band reaches, cm. |
+| `density` | `de` | float | `6.0` | Per square metre, at the wall. |
+| `falloff` | `fo` | float | `1.5` | 0 even across the band; higher keeps it close to the wall. |
+| `contactHeight` | `ch` | float | `40.0` | Geometry this close above the ground counts as the footprint, cm. |
+| `spacing` | `spc` | float | `0.9` | Footprints kept clear, times each item's own. |
+| `scaleNear` | `sn` | float | `1.15` | Scale at the wall. |
+| `scaleFar` | `sf` | float | `0.6` | Scale at the band's outer edge. |
+| `scaleJitter` | `sj` | float | `0.2` | Random scale either way, 0 to 1. |
+| `leanChance` | `lc` | float | `0.6` | Chance a tall, thin item (plank, beam, pipe) leans on the wall. |
+| `leanMin` | `lmn` | float | `8.0` | Least lean, degrees. |
+| `leanMax` | `lmx` | float | `24.0` | Most lean, degrees. |
+| `turn` | `tu` | float | `180.0` | Random turn about up for items that stand, degrees either way. |
+| `maxCount` | `mc` | int | `400` | At most this many. |
+
+```python
+baseDressing('Shed', items=['Weathering/Planks/Plank1', 'Debris/StoneChunkS1'], width=120)
+```
+
+```python
+baseDressing(['Tower', 'Wall'], items=['Rubble'], weights=[3], realize=True, settle=True)
 ```
 
 ### debrisProps
@@ -18628,7 +19279,7 @@ Each positional is a board (a mesh): the row runs along its longer horizontal si
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `items` | `it` | list |  | What to place: library asset ids, scene meshes, or tag:<a+b> (every asset with those tags); each is picked at random. |
 | `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
 | `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
 | `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
@@ -18711,6 +19362,16 @@ Not undoable.
 libraryAdd('Crate', collection='Props/Storage', tags=['crate', 'wood'], material='wood', role='dynamic')
 ```
 
+### libraryMaster
+
+A library asset's hidden master in the scene, loaded on first use: what instances and arrangements copy. For other tools that build from library pieces. Returns root and meshes (paths).
+
+**Objects:** asset id
+
+```python
+libraryMaster('Debris/StoneChunkM1')['meshes'][0]
+```
+
 ### libraryPaths
 
 The library folders searched, in the order they win, with collections, tags and load errors.
@@ -18750,6 +19411,23 @@ Delete an asset's folder from the library. Not undoable; placed copies in scenes
 **Objects:** asset id
 
 Not undoable.
+
+### libraryRoot
+
+Add a library folder for this session under a tier of its own, searched after every other tier: how an extension ships placeholder pieces without touching the user's library paths. remove=True takes it out.
+
+**Objects:** folder
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tier` | `t` | str | `'placeholder'` | Tier name shown on its assets. |
+| `remove` | `rm` | bool | `False` | Remove the folder instead. |
+
+Not undoable.
+
+```python
+libraryRoot('D:/Pieces/Weathering', tier='placeholder')
+```
 
 ### librarySearch
 
@@ -18817,7 +19495,7 @@ Place items along curves: litter along a kerb, cones down a road, posts along a 
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `items` | `it` | list |  | What to place: library asset ids, scene meshes, or tag:<a+b> (every asset with those tags); each is picked at random. |
 | `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
 | `settle` | `st` | bool | `False` | Let them come to rest with physics. |
 | `seconds` |  | float | `10.0` | Longest the settle runs; it stops sooner once everything rests. |
@@ -18878,7 +19556,7 @@ Heap items up: dropped tumbling into a footprint (a crate of junk, a rubble heap
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `items` | `it` | list |  | What to place: library asset ids, scene meshes, or tag:<a+b> (every asset with those tags); each is picked at random. |
 | `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
 | `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
 | `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
@@ -19012,7 +19690,7 @@ Live by default (a geometry-nodes arrangement on a new mesh); realize=True place
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `items` | `it` | list |  | What to place: library asset ids, scene meshes, or tag:<a+b> (every asset with those tags); each is picked at random. |
 | `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
 | `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
 | `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
@@ -19131,7 +19809,7 @@ Stack items one on another (plates, crates, books lying flat), each turned and n
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | `it` | list |  | What to place: library asset ids and/or scene meshes; each is picked at random. |
+| `items` | `it` | list |  | What to place: library asset ids, scene meshes, or tag:<a+b> (every asset with those tags); each is picked at random. |
 | `realize` | `rz` | bool | `False` | Place scene instances of the items instead of a live geometry-nodes arrangement. |
 | `mode` | `m` | str | `'instance'` | With realize: instance (shared meshes) or copy. |
 | `variants` | `va` | str | `'pool'` | Live only: pool (a few bowed variants, shared), unique (one each) or none. |
@@ -20993,7 +21671,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
@@ -22427,9 +23105,9 @@ trimDecalPlace('TempleWords', position=[0, 400, -2500], normal=[0, 0, 1])
 
 ### trimDecalSend
 
-Send placed unique decals to Unreal as deferred decals: each decal's maps (its painted texture set's base colour and normal when it has one, else the baked ones, and its opacity mask) go to <folder>/Textures, the decal master M_LilaDecal on MF_LilaDecal is generated (or rebuilt with regenerateMaster), each decal gets an instance MI_<decal>Decal, and each placement becomes a decal actor at the quad's place, size and facing, projecting its decalDepth into the surface. Sending again moves the same actors. Returns what Unreal made; dryRun=True returns the plan without connecting.
+Send placed unique decals to Unreal as deferred decals: each decal's maps (its painted texture set's base colour and normal when it has one, else the baked ones, and its opacity mask) go to <folder>/Textures, the decal master M_LilaDecal on MF_LilaDecal is generated (or rebuilt with regenerateMaster), each decal gets an instance MI_<decal>Decal, and each placement becomes a decal actor at the quad's place, size and facing, projecting its decalDepth into the surface. Sending again moves the same actors. Mesh decals (meshes whose trimDecalMesh names a sheet, such as Weathering's edge decal strips) are sent as static meshes (<folder>/Meshes/SM_<mesh> unless already mapped) with the sheet's instance on their slot, rendering as Unreal mesh decals. Returns what Unreal made; dryRun=True returns the plan without connecting.
 
-**Objects:** decal nodes (default every placed decal)
+**Objects:** decal nodes or mesh decals (default every placed decal and mesh decal)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -22834,4 +23512,752 @@ trimShift(steps=1)
 
 ```python
 trimShift(steps=-2)
+```
+
+## Weathering extension
+
+Available when the Weathering extension is loaded.
+
+### curveToTruss
+
+Build a lattice truss along curves (a mast, pylon, crane jib, girder): a mesh with a geometry-nodes group around the Curve to Truss node, live as the curves change. Returns group, mesh, modifier, gnGroup.
+
+**Objects:** curves (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `chords` | `ch` | int | `4` | Chords round the section. |
+| `width` | `w` | float | `60.0` | Side of the section at the start, cm. |
+| `endWidth` | `ew` | float | `-1.0` | Side at the end, cm; negative keeps width. |
+| `member` | `m` | float | `4.0` | Side of each member, cm. |
+| `segment` | `sg` | float | `80.0` | Distance between levels, cm. |
+| `bracing` | `b` | str | `'x'` | Diagonals: x (both), zigzag or none. |
+| `unite` | `u` | bool | `True` | One closed mesh; off leaves overlapping beams (faster). |
+| `name` | `n` | str |  | Name of the group made (default <curve>_Truss). |
+
+```python
+curveToTruss('MastLine', chords=3, width=90, endWidth=30, member=5)
+```
+
+### edgeChip
+
+Chip meshes' convex edges with a live Edge Chip modifier: chunks broken out along every edge sharper than angle, size cm long and up to depth cm deep, on amount of the edge. shape runs from noisy realistic breaks (0) to clean faceted toon chunks (1); the style picks one when shape isn't given. cutters= uses your own meshes as chip shapes (fitted to size along X and to depth around it). The mesh stays closed; cut faces get uvs projected in world space and the material of the face they break (or material=). Blockwork tool faces, hidden faces and edges where blocks touch never chip. Live: the chips rebuild when a block is extended, clipped or carved. Running it again on a chipped mesh changes its modifier. Returns modifiers, chips per mesh and group (empty: chips live on the meshes).
+
+**Objects:** meshes or groups (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` | `a` | float | `40.0` | Faces must meet at more than this many degrees for their edge to chip. |
+| `size` | `sz` | float | `8.0` | Chunk size along the edge, cm. |
+| `depth` | `d` | float | `2.5` | Deepest cut into the solid from the edge, cm. |
+| `amount` | `am` | float | `0.5` | Share of the edge chipped, 0 to 1. |
+| `shape` | `sh` | float |  | 0 noisy realistic breaks to 1 clean faceted chunks; 0 for realistic, 1 for toon when not given. |
+| `bevel` | `bv` | float | `0.0` | Bevel the chipped edges first, cm; 0 for none. |
+| `uvScale` | `uv` | float | `100.0` | cm per uv unit on the cut faces. |
+| `material` | `mt` | str |  | Material slot for the cut faces; the broken face's own when not given. |
+| `cutters` | `ct` | Any |  | Your own chip shapes (closed meshes, sets, library ids, tag:<word>), fitted to each chip. |
+| `seed` | `s` | int | `1` | Another seed chips other places. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+
+```python
+edgeChip('Level', size=10, depth=3, amount=0.6)
+```
+
+```python
+edgeChip('pillar1', style='toon', size=14, depth=4)
+```
+
+```python
+edgeChip('wall1', cutters=['ChipShape1', 'ChipShape2'], material='M_Brick')
+```
+
+### edgeDecals
+
+Lay decal strips along meshes' sharp edges: chipped paint and worn corners on convex edges, dirt, cracks and moss in concave ones. Edges count when their faces meet at more than angle degrees; Blockwork tool faces (nodraw, clip, skip), hidden faces and edges where blocks touch are skipped. Runs of edges follow curved loops until they turn by more than splitAngle. Each run is cut into pieces, each mapped onto a strip picked at random from the sheet (tags chips, worn, crack for convex edges, dirt, moss, crack for concave ones), with gaps (coverage) and runs narrowing away at their ends (fade). The sheet is any trim or decal sheet, your own painted ones included; without one the placeholder sheet for the style is used. mode='mesh' sweeps your own meshes along the edges instead (stylized trims, toon outlines, moss lips): X along the edge, +Y out of the surface. Live: strips rebuild when a mesh changes (Blockwork extend, clip, carve). trimDecalSend sends the strips to Unreal as mesh decals on M_LilaDecal (MF_LilaDecal). Returns group, meshes, nodes, sheet, material, stats and notes.
+
+**Objects:** meshes or groups (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` | `m` | str | `'decal'` | decal (strips from a sheet) or mesh (your meshes swept along). |
+| `edges` | `e` | str | `'both'` | Which sharp edges: convex, concave or both. |
+| `angle` | `a` | float | `35.0` | Faces must meet at more than this many degrees. |
+| `splitAngle` | `sa` | float | `40.0` | A run breaks where it turns by more than this many degrees. |
+| `width` | `w` | float | `8.0` | Strip width across the edge, cm. |
+| `offset` | `of` | float | `0.05` | Lift off the surface, cm. |
+| `segment` | `sg` | float | `0.0` | cm of strip per decal piece; 0 keeps each strip's own aspect. |
+| `coverage` | `cv` | float | `0.8` | Share of the edge length covered, 0 to 1. |
+| `fade` | `fd` | float | `6.0` | cm over which a run narrows away at its ends. |
+| `jitter` | `j` | float | `0.25` | Each piece's width varies by up to this fraction. |
+| `sheet` | `sh` | str |  | Trim or decal sheet (.lilatrim or its name); the style's placeholder sheet when not given. |
+| `trims` | `tr` | list |  | Only these strips of the sheet (names or indices), for both edge kinds. |
+| `convexTags` | `cxt` | list | `['chips', 'worn', 'crack']` | Strip tags for convex edges. |
+| `concaveTags` | `cct` | list | `['dirt', 'moss', 'crack']` | Strip tags for concave edges. |
+| `pieces` | `pc` | Any |  | mode='mesh': meshes to sweep (scene meshes, groups, sets, library ids, tag:<word>, weighted); the style's placeholder edge trims when not given. |
+| `pieceScale` | `ps` | float | `1.0` | mode='mesh': scale of the pieces across the edge. |
+| `seed` | `s` | int | `1` | Another seed gives other gaps and other strips. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `realize` | `r` | bool | `False` | Bake to plain meshes instead of live strips. |
+| `name` | `n` | str | `'EdgeDecals'` | Name of the group made. |
+
+```python
+edgeDecals('Level', edges='both', width=10)
+```
+
+```python
+edgeDecals('wall1', sheet='T_MyGrunge', convexTags=['chips'], concaveTags=['moss'])
+```
+
+```python
+edgeDecals('ruin', mode='mesh', pieces=['MossLip1', {'piece': 'MossLip2', 'weight': 2}], edges='convex', style='toon')
+```
+
+### edgeDecalSheets
+
+Write the placeholder edge decal sheets (realistic and hand-painted toon: chipped paint, worn corners, cracks, dirt and moss strips), which edgeDecals uses when no sheet is given. Built on first use; force=True rewrites them. Returns dir, built and the two sheet files.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `force` | `f` | bool | `False` | Rewrite even when they are up to date. |
+
+Not undoable.
+
+```python
+edgeDecalSheets()['toon']
+```
+
+### edgeFind
+
+The sharp edges of a mesh as edgeDecals and edgeChip see them: convex and concave edge ids past angle (tool faces, hidden faces and block contacts skipped) and the runs they join into. Returns convex, concave and chains [{kind, edges, closed}].
+
+**Objects:** mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `angle` | `a` | float | `35.0` | Faces must meet at more than this many degrees. |
+| `splitAngle` | `sa` | float | `40.0` | A run breaks where it turns by more than this many degrees. |
+
+Not undoable.
+
+```python
+len(edgeFind('wall1', angle=60)['convex'])
+```
+
+### fitWindows
+
+Fill the openings in walls with windows: a frame along each side, a sill, glass (intact, cracked, broken, boarded or mixed) and an interior behind (a generated room, a card with your image, or your own mesh).
+
+Openings are found in the walls themselves: a Blockwork carve, a Masonry opening, any hole through a wall; arches get a frame along their outline. Openings reaching the ground are doors, left alone unless doors=True. Pieces are yours (frames=, sills=, panes=, cracked=, broken=, boards=, interiors=) else placeholders, fitted by their bounds: frame members along X, sills along X out of the wall along Z, panes and boards X across. Live: carving another hole adds a window. windowInteriorSend sends card interiors to Unreal as MF_LilaInterior instances. Returns group, mesh, modifier, gnGroup, count, windows, openings (center, width, height, depth, normal, door), doorsSkipped, panes, cracked, broken, boarded, cardMaterial, used.
+
+**Objects:** walls: meshes, Blockwork blocks, Masonry walls or groups (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `glass` | `gl` | str | `'intact'` | intact, cracked, broken, boarded, none or mixed (by damage). |
+| `interior` | `in` | str | `'room'` | room (generated), card (interiorImage), mesh (interiors) or none. |
+| `interiorImage` | `ii` | str |  | Image of a room for interior='card' (parallax interior in Unreal). |
+| `interiors` | `ins` | Any |  | Interior meshes for interior='mesh'. |
+| `frames` | `fr` | Any |  | Frame members, along X. |
+| `sills` | `sl` | Any |  | Sills, along X. |
+| `panes` | `pn` | Any |  | Intact panes. |
+| `cracked` | `cr` | Any |  | Cracked panes. |
+| `broken` | `br` | Any |  | Broken panes. |
+| `boards` | `bd` | Any |  | Boards nailed across. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `columns` | `co` | int | `1` | Panes across. |
+| `rows` | `ro` | int | `1` | Panes up. |
+| `sill` | `si` | bool | `True` | A sill under each window. |
+| `sillProject` | `sp` | float | `4.0` | How far the sill stands out of the wall, cm. |
+| `frameInset` | `fi` | float | `4.0` | How far in from the outer face the frame sits, cm. |
+| `frameScale` | `fs` | float | `1.0` | Scale of frame and sill sections. |
+| `damage` | `dm` | float | `0.3` | 0 to 1: mixed glass breaks more, boards go missing. |
+| `neatness` | `nt` | float |  | 1 lays boards straight and even (default 0.3, toon 1). |
+| `boardOverhang` | `bo` | float | `8.0` | How far boards reach past the opening each side, cm. |
+| `interiorDepth` | `id` | float | `300.0` | Depth of the room behind the wall, cm. |
+| `doors` | `do` | bool | `False` | Fill openings that reach the ground too. |
+| `flip` | `fl` | bool | `False` | Outside is the other side of the walls. |
+| `minSize` | `mn` | float | `15.0` | Smaller holes are not openings, cm. |
+| `maxThickness` | `mt` | float | `150.0` | Faces further apart than this are different walls, cm. |
+| `seed` | `s` | int | `1` | Another seed gives another result; the same seed always the same. |
+| `realize` | `rz` | bool | `False` | Scene objects instead of a live result (the instances turned into objects). |
+| `name` | `n` | str |  | Name of the group made (default <wall>_Windows). |
+
+```python
+fitWindows('Facade', glass='mixed', damage=0.6)
+```
+
+```python
+fitWindows('Shop', interior='card', interiorImage='D:/refs/shop_room.png', columns=2)
+```
+
+```python
+fitWindows('Tower', glass='boarded', style='toon')
+```
+
+### groundDressing
+
+Dress a ground in one step: scatter pieces over it (a live Stagehand scatter), give it a ground material, and tint it darker round walls and the scattered pieces, wetter in the dips. Presets: Rubble Ground, Asphalt Crack, Dirt and Litter, Grass Patches, Moss Floor, each in realistic or toon. items= swaps in your own pieces and material= your own material. Returns group (the scatter), scatter (Stagehand's result), tint (the modifier) and material.
+
+**Objects:** ground mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str | `'Rubble Ground'` | Rubble Ground, Asphalt Crack, Dirt and Litter, Grass Patches or Moss Floor. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `items` | `it` | Any |  | Pieces to scatter (meshes, library ids, tag:a+b); default the preset's roles from the library. |
+| `density` | `de` | float |  | Pieces per square metre (default the preset's). |
+| `material` | `mat` | str |  | Your own material for the ground; default a new one in the preset's colour. |
+| `tint` | `ti` | bool | `True` | Darken the ground round walls and pieces, and wet the dips. |
+| `wetness` | `we` | float |  | How wet the dips get, 0 to 1 (default the preset's). |
+| `mask` | `mk` | str |  | Point attribute (0 to 1) on the ground that thins the scatter. |
+| `seed` | `s` | int | `1` | Another seed gives another scatter. |
+| `name` | `n` | str |  | Name of the scatter made. |
+
+```python
+groundDressing('Ground', preset='Asphalt Crack')
+```
+
+```python
+groundDressing('Yard', preset='Grass Patches', style='toon')
+```
+
+```python
+groundDressing('Floor', preset='Moss Floor', items=['MyMoss_grp'], material='M_Stone')
+```
+
+### groundTint
+
+Darken a ground under and round what stands on it, and wet its low spots, live: a Ground Tint modifier fed by the sources, so moving a wall or rescattering moves the tint. Sources that read the ground themselves (a scatter on it, grunge that sees it) can't feed it live and are taken as they stand. Writes the 'weathering' colour set (R tint, G wet) for materials and MF_LilaGroundTint in Unreal. Returns modifier, live and static (source paths) and a note when anything is static.
+
+**Objects:** ground mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sources` | `src` | list |  | Meshes to darken round; default every visible mesh standing on the ground. |
+| `spotsFrom` | `sp` | list |  | Meshes lying on the ground (a scatter's output): spots under them darken as they lie now. |
+| `spotRadius` | `spr` | float | `25.0` | How far round those spots the ground darkens, cm. |
+| `reach` | `r` | float | `60.0` | How far out each source darkens the ground, cm. |
+| `strength` | `st` | float | `0.8` | How dark at contact, 0 to 1. |
+| `wetness` | `we` | float | `0.5` | How wet low spots get, 0 to 1. |
+| `wetDepth` | `wd` | float | `8.0` | Depth of a fully wet dip, cm. |
+| `wetRadius` | `wr` | float | `150.0` | Area a dip is measured against, cm. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+
+```python
+groundTint('Ground')
+```
+
+```python
+groundTint('Street', sources=['Wall', 'Rubble_Base'], reach=80, wetness=0.8)
+```
+
+### grungeBake
+
+Bake meshes' live grunge masks into texture layers: one fill layer per shown mask, coloured as the mask, masked by its twin generator (genEdgeWear, genDirt, genAoDarken, genDust, genDrips, genPositionGradient) with the mask's level, softness, breakup and seed. Goes into the set the mesh's material picks, or a new <mesh>_Grunge set. Bands, cuts and outlines have no generator twin and are listed in skipped. The live masks turn off unless keepLive. Needs UVs. Returns {set, layers, skipped, created} per mesh.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `ts` | str |  | Texture set to add the layers to. |
+| `keepLive` | `kl` | bool | `False` | Leave the live masks on as well. |
+
+```python
+grungeBake('Crate')
+```
+
+```python
+grungeBake('Crate', set='CrateSet', keepLive=True)
+```
+
+### grungeFromLayers
+
+The reverse of grungeBake: live masks from a texture set's generator layers. Each layer masked by genEdgeWear, genDirt or genCavityGrime, genAoDarken, genDust, genDrips or genPositionGradient sets the matching live mask's level, softness, breakup and seed, and takes the layer's base colour and roughness. Masks with no such layer turn off. Returns the masks set per mesh.
+
+**Objects:** set meshes...
+
+```python
+grungeFromLayers('CrateSet', 'Crate')
+```
+
+### grungeInfo
+
+A mesh's grunge masks: per mask the mean, the largest value and how many samples it covers (above 0.5), plus the samples evaluated, the geometric passes run, its neighbours and where the masks go for Unreal.
+
+**Objects:** mesh
+
+Not undoable.
+
+### grungeMask
+
+Add live grunge masks to meshes, or update the ones they have: edge wear, cavity dirt, occlusion, dust, streaks below openings and ledges, and fade near the ground, found from the geometry and the meshes around it, with no UVs and no bake. The look draws live in the viewport's materials; style=toon gives posterized bands, hard cuts, outlines and painted colours. Sends to Unreal as vertex colours or UV sets for MF_LilaGrunge (grungeSend). Run it again to pick up new neighbours. Returns {group, modifiers, objects, neighbours}.
+
+**Objects:** meshes (or groups)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `seed` | `s` | int |  | Another seed gives other occlusion sampling and breakup noise. |
+| `edgeWidth` | `ew` | float |  | How far wear runs from a convex edge, cm. |
+| `edgeAngle` | `ea` | float |  | Edges turning more than this, degrees, count as edges. |
+| `cavityWidth` | `cw` | float |  | How far dirt runs from a concave edge, a touching object or the ground, cm. |
+| `aoRadius` | `ar` | float |  | How far occlusion looks, cm. |
+| `streakLength` | `sl` | float |  | How far streaks run down from sills and overhangs, cm. |
+| `fadeHeight` | `fh` | float |  | How high sides fade above the ground, cm. |
+| `groundPlane` | `gp` | bool |  | Treat the ground plane as ground as well as objects below. |
+| `groundHeight` | `gh` | float |  | The ground plane's height, cm. |
+| `masks` | `m` | Any |  | The masks to show: any of edge, cavity, ao, dust, streak, fade (default all). |
+| `neighbours` | `nb` | bool | `True` | Let each mesh's masks see the meshes near it (dirt where a wall meets a floor). |
+| `radius` | `r` | float | `100.0` | Meshes within this far of a mesh's bounds are its neighbours, cm. |
+| `unreal` | `u` | str |  | Where the masks go for Unreal: auto, color, uv or off. |
+| `look` | `lk` | Any |  | Look settings by attribute name: {'edgeLevel': 0.4, 'dustColor': [0.6, 0.55, 0.5], ...}. |
+
+```python
+grungeMask('Wall', 'Floor')
+```
+
+```python
+grungeMask('Blocks', style='toon', masks=['edge', 'cavity', 'fade'])
+```
+
+```python
+grungeMask('Tower', look={'streakStrength': 1.0, 'streakColor': [0.05, 0.05, 0.04]}, streakLength=300)
+```
+
+### grungeSend
+
+Send meshes' grunge looks to Unreal: builds MF_LilaGrunge with its materials (M_LilaGrunge reads vertex colour and UV 3, M_LilaGrungeUV reads UV 3 to 5; edge wear takes the per-pixel distance to sharp edges from UV 4-5, or 6-7) when missing or older, and a material instance per mesh (MI_Grunge_<mesh> in /Game/LilaLink/Grunge) with the mesh's levels, bands, cuts, outlines and colours. The masks travel with the mesh itself on any mesh send. To use your own material, drop MF_LilaGrunge into it and feed BaseColor and Roughness through. dryRun returns the instances without sending. Returns {materials, instances, warnings}; dryRun instances name the channels they read.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `regenerate` | `rg` | bool | `False` | Rebuild the function and materials even when current. |
+| `dryRun` | `dr` | bool | `False` | Only return what would be sent. |
+
+Not undoable.
+
+```python
+grungeSend('Wall')
+```
+
+```python
+grungeSend('Wall', dryRun=True)
+```
+
+### ivy
+
+Grow ivy over meshes: strands climb from seed points, a painted mask, brush strokes or where the meshes meet the ground; they branch, follow the surface into crevices and round edges, hang over ledges and droop from overhangs, and carry leaves and flowers from your pieces (library assets tagged weathering and ivy-leaf, vine-leaf, moss-tuft or ivy-flower until you give your own). Any growing plant: plant=vine, roots, moss or tendril.
+
+Live: one ivy node per call, fed by the hosts' meshes and transforms, so the ivy regrows when a host is edited, deterministically for its seed. Change it afterwards with setAttr on the node (length, gravity, smoothness...). Returns {group, ivy: [meshes], nodes: [ivy nodes], strands, leaves, warnings}.
+
+**Objects:** host meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seeds` | `sp` | Any |  | World points the ivy starts from, [[x, y, z], ...]; each sticks to the host it lies on. |
+| `strokes` | `sk` | Any |  | World polylines the ivy grows along, [[[x, y, z], ...], ...], as the Ivy brush paints them. |
+| `mask` | `mk` | str |  | A painted point attribute or colour set (red) on the hosts: seeds where it is high. |
+| `ground` | `gd` | bool |  | Seed where the hosts meet the ground. Default on when no seeds, strokes or mask are given. |
+| `count` | `c` | int | `6` | Seeds taken from the ground contact or the mask. |
+| `surfaces` | `sf` | Any |  | More meshes the ivy may climb onto (the ground, a neighbouring wall). |
+| `name` | `n` | str | `'Ivy'` | The group holding the ivy meshes. |
+| `realize` | `rz` | bool | `False` | Bake to a plain mesh instead of staying live. |
+| `plant` | `pl` | str | `'ivy'` | Preset the other settings start from: ivy (climbing, leafy), vine (long, drapes), roots (bare, spreads every way), moss (flat dense strands) or tendril (smooth curling arcs). |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `seed` | `sd` | int | `1` | Random seed: the same seed grows the same ivy. |
+| `length` | `len` | float |  | Longest path from a seed, hanging strands included, cm. |
+| `branchiness` | `br` | float |  | Sparse single strands (0) to dense mats of side shoots (1). |
+| `climb` | `cl` | float |  | Spreads every way (0) to heads straight up (1). |
+| `gravity` | `gr` | float |  | How much hangs over ledges and droops from overhangs, 0 to 1. |
+| `adhesion` | `ad` | float |  | Farthest a clinging stem sits from the surface, cm (default 2). |
+| `smoothness` | `sm` | float |  | Curve smoothness: natural wander (0) to smooth stylized arcs (1). Toon starts at 0.85. |
+| `stemRadius` | `sr` | float |  | Stem radius at the base, cm. |
+| `profile` | `pr` | str |  | Stem cross-section: round, ribbon (flat on the surface), or the name of a curve whose shape is the profile. |
+| `leafDensity` | `ld` | float |  | Leaves per metre of stem; 0 for bare stems. |
+| `leafSize` | `ls` | float |  | Leaf length, cm. |
+| `leafSizeJitter` | `lj` | float |  | How much leaf sizes vary, 0 to 1. |
+| `leafOrient` | `lo` | str |  | Which way leaves point: surface (up and out, splayed), up, stem (along it) or random. |
+| `flowerDensity` | `fd` | float |  | Flowers per metre of stem. |
+| `flowerSize` | `fs` | float |  | Flower size, cm. |
+| `leaves` | `lv` | Any |  | Leaf pieces: meshes, groups, sets, library ids, tag:<word> or {piece, weight}. Laid out like a Foliage leaf card (along +Z from the stem end, face +Y) and fitted by their bounds. Default: library assets tagged weathering and the plant's leaf role (ivy-leaf, vine-leaf, moss-tuft). |
+| `flowers` | `fl` | Any |  | Flower pieces, as leaves; default the ivy-flower role. Used when flowerDensity is above 0. |
+| `stems` | `st` | Any |  | Stem segment pieces laid along the strands (along +Z) instead of a swept profile. |
+
+```python
+ivy('Wall')
+```
+
+```python
+ivy('Wall', seeds=[[0, 0, 50]], length=400, gravity=0.6)
+```
+
+```python
+ivy('Tower', plant='vine', style='toon', leaves=['MyLeafA', {'piece': 'MyLeafB', 'weight': 0.3}])
+```
+
+```python
+ivy('Ruin', mask='ivyMask', count=12, flowerDensity=4)
+```
+
+```python
+ivy('Pillar', plant='roots', climb=0.0, profile='RootProfile')
+```
+
+### ivyInfo
+
+An ivy's state: its mesh, hosts, plant, strand, leaf and flower counts, the longest growth (cm), seeds, strokes and warnings.
+
+**Objects:** ivy node or its mesh
+
+Not undoable.
+
+### ivyPaint
+
+Paint ivy: grow it along a stroke on a mesh, as the Ivy brush does. Strokes collect on the host's brush ivy (made on the first stroke with these settings), so they regrow together. erase=True removes strokes and seeds within radius of the points instead. Returns what ivy returns.
+
+**Objects:** host mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | Any |  | The stroke, world points [[x, y, z], ...]. |
+| `erase` | `e` | bool | `False` | Remove strokes and seeds near the points. |
+| `radius` | `r` | float | `20.0` | Erase radius, cm. |
+| `name` | `n` | str | `'Ivy'` | The group a new brush ivy goes in. |
+| `plant` | `pl` | str | `'ivy'` | Preset the other settings start from: ivy (climbing, leafy), vine (long, drapes), roots (bare, spreads every way), moss (flat dense strands) or tendril (smooth curling arcs). |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `seed` | `sd` | int | `1` | Random seed: the same seed grows the same ivy. |
+| `length` | `len` | float |  | Longest path from a seed, hanging strands included, cm. |
+| `branchiness` | `br` | float |  | Sparse single strands (0) to dense mats of side shoots (1). |
+| `climb` | `cl` | float |  | Spreads every way (0) to heads straight up (1). |
+| `gravity` | `gr` | float |  | How much hangs over ledges and droops from overhangs, 0 to 1. |
+| `adhesion` | `ad` | float |  | Farthest a clinging stem sits from the surface, cm (default 2). |
+| `smoothness` | `sm` | float |  | Curve smoothness: natural wander (0) to smooth stylized arcs (1). Toon starts at 0.85. |
+| `stemRadius` | `sr` | float |  | Stem radius at the base, cm. |
+| `profile` | `pr` | str |  | Stem cross-section: round, ribbon (flat on the surface), or the name of a curve whose shape is the profile. |
+| `leafDensity` | `ld` | float |  | Leaves per metre of stem; 0 for bare stems. |
+| `leafSize` | `ls` | float |  | Leaf length, cm. |
+| `leafSizeJitter` | `lj` | float |  | How much leaf sizes vary, 0 to 1. |
+| `leafOrient` | `lo` | str |  | Which way leaves point: surface (up and out, splayed), up, stem (along it) or random. |
+| `flowerDensity` | `fd` | float |  | Flowers per metre of stem. |
+| `flowerSize` | `fs` | float |  | Flower size, cm. |
+| `leaves` | `lv` | Any |  | Leaf pieces: meshes, groups, sets, library ids, tag:<word> or {piece, weight}. Laid out like a Foliage leaf card (along +Z from the stem end, face +Y) and fitted by their bounds. Default: library assets tagged weathering and the plant's leaf role (ivy-leaf, vine-leaf, moss-tuft). |
+| `flowers` | `fl` | Any |  | Flower pieces, as leaves; default the ivy-flower role. Used when flowerDensity is above 0. |
+| `stems` | `st` | Any |  | Stem segment pieces laid along the strands (along +Z) instead of a swept profile. |
+
+```python
+ivyPaint('Wall', points=[[0, 10, 50], [40, 120, 50], [90, 200, 50]])
+```
+
+```python
+ivyPaint('Wall', points=[[40, 120, 50]], erase=True, radius=30)
+```
+
+### ivySend
+
+Send an ivy to Unreal's open level as its own static mesh (stems, leaf and flower cards) with the foliage material: M_LilaIvy on MF_LilaFoliageWind, which sways leaves and hanging strands by the mesh's wind colours (R sway, G phase, B leaf). Drop MF_LilaFoliageWind into your own foliage materials' World Position Offset to use your own. Returns {mesh, contentPath, materials, warnings}.
+
+**Objects:** ivy node or its mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `contentPath` | `cp` | str |  | The static mesh asset, like /Game/Weathering/SM_WallIvy (default /Game/LilaLink/Ivy/SM_<mesh>). |
+| `nanite` | `na` | bool | `False` | Build Nanite data (Nanite foliage on UE 5.7+). |
+| `material` | `mt` | str | `'generate'` | generate (M_LilaIvy instances on every slot), none (keep the import's), or a parent material to instance. |
+| `windStrength` | `ws` | float | `1.0` | Wind sway on the generated instances, 0 for none. |
+
+Not undoable.
+
+```python
+ivySend('WallIvy', nanite=True)
+```
+
+```python
+ivySend('Wall_ivy', contentPath='/Game/Env/SM_WallIvy', material='/Game/Env/M_MyFoliage')
+```
+
+### roofing
+
+Cover roofs with sheets, planks or tiles: laid in rows from the eave up, each row overlapping the one below, ridge caps along ridges, then aged with missing pieces, lifted corners and a sagging middle.
+
+Covers the selected faces, or every face of the hosts within maxSlope of up (a Blockwork block's top, a house's roof). Pieces are yours (pieces=, caps=: meshes, groups, sets, library ids, tag:<word>, weighted), else the placeholders for kind; each is fitted by its bounds (Y out of the roof, its longer side down the slope), so a chunky toon tile lays the same way as a scanned one. neatness runs from a messy roof (0) to neat stylized rows (1, the toon default). Live: a mesh whose geometry-nodes group follows the hosts, so extending or carving a block re-lays it; realize=True makes scene objects. Returns group, mesh, modifier, gnGroup, count, pieces, caps, rows, regions, missing, lifted, used.
+
+**Objects:** roofs: meshes, Blockwork blocks or groups (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'sheets'` | Placeholder pieces when pieces= is not given: sheets (corrugated), planks or tiles. |
+| `pieces` | `pc` | Any |  | The cover pieces: meshes, groups, sets, library ids, tag:<word>, or {piece, weight}. |
+| `caps` | `cp` | Any |  | Ridge caps, same forms as pieces. |
+| `faces` | `f` | list |  | Face indices of the one host to cover (default the face selection, else every upward face). |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `neatness` | `nt` | float |  | 0 a messy roof, 1 neat regular rows (default 0.3, toon 1). |
+| `damage` | `dm` | float | `0.3` | 0 to 1: how many pieces are missing or lift, and how far. |
+| `missing` | `mi` | float |  | Share of pieces left out (default damage x 0.25). |
+| `lifted` | `li` | float |  | Share of pieces with a lifted corner (default damage x 0.35). |
+| `liftAngle` | `la` | float | `0.0` | How far corners lift, degrees; 0 takes it from damage. |
+| `sag` | `sg` | float | `0.0` | How far the middle of each roof face dips below its edges, cm. |
+| `overlap` | `ov` | float | `0.15` | Share of a piece's length the row above covers. |
+| `sideOverlap` | `so` | float | `0.08` | Share of a piece's width its neighbour covers. |
+| `overhang` | `oh` | float | `5.0` | How far the first row reaches past the eave, cm. |
+| `stagger` | `stg` | float |  | Neat rows: how far alternate rows shift, of a width (default 0.5 for tiles, else 0). |
+| `scale` | `sc` | float | `1.0` | Scale of every piece. |
+| `ridge` | `rg` | bool | `True` | Caps along ridges. |
+| `maxSlope` | `ms` | float | `75.0` | Faces picked automatically are at most this steep, degrees. |
+| `seed` | `s` | int | `1` | Another seed gives another result; the same seed always the same. |
+| `realize` | `rz` | bool | `False` | Scene objects instead of a live result (the instances turned into objects). |
+| `name` | `n` | str |  | Name of the group made (default <host>_Roofing). |
+
+```python
+roofing('Shed', kind='sheets', damage=0.5, sag=4)
+```
+
+```python
+roofing('House', pieces=['MyTile', {'piece': 'MyTileBroken', 'weight': 0.2}], neatness=0.8)
+```
+
+```python
+roofing('Hut', kind='planks', style='toon')
+```
+
+### rooftopClutter
+
+Dress flat roof tops: vents, AC units and pipes scattered (a Stagehand Scatter Props arrangement), railings along some roof edges and a lattice tower on some roofs.
+
+Only flat tops nothing stands over are used, kept clear of their edges and of towers. Pieces are yours (vents=, acUnits=, pipes=, railings=, towers=) else placeholders; railings are fitted along each edge, towers stand at a corner. Live: the arrangement follows the buildings. Returns group, mesh, modifier, gnGroup, count, tops, railings, towers.
+
+**Objects:** buildings: meshes, Blockwork blocks or groups (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `vents` | `ve` | Any |  | Vents. |
+| `acUnits` | `ac` | Any |  | AC units. |
+| `pipes` | `pi` | Any |  | Pipes lying on the roof. |
+| `railings` | `ra` | Any |  | Railing segments, along X. |
+| `towers` | `to` | Any |  | Towers (masts, water towers, antennas). |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `density` | `de` | float | `0.5` | Clutter per square metre. |
+| `spacing` | `spc` | float | `1.3` | Footprints kept clear, times each piece's own. |
+| `maxCount` | `mc` | int | `200` | At most this many scattered. |
+| `railingChance` | `rc` | float | `0.5` | Share of roof edges with a railing. |
+| `towerChance` | `tc` | float | `0.35` | Chance a roof gets a tower. |
+| `edgeMargin` | `em` | float | `50.0` | Kept clear inside each roof's edge, cm. |
+| `turn` | `tu` | float | `180.0` | Random turn of scattered pieces, degrees either way (toon: square to the roof). |
+| `slopeMax` | `sl` | float | `5.0` | Steepest face that counts as flat, degrees. |
+| `minArea` | `ma` | float | `2.0` | Smaller flat tops are left alone, square metres. |
+| `seed` | `s` | int | `1` | Another seed gives another result; the same seed always the same. |
+| `realize` | `rz` | bool | `False` | Scene objects instead of a live result (the instances turned into objects). |
+| `name` | `n` | str |  | Name of the group made (default <host>_Rooftop). |
+
+```python
+rooftopClutter('Block_12', density=0.8)
+```
+
+```python
+rooftopClutter(['Tower', 'Annex'], vents=['MyVent'], towerChance=1, style='toon')
+```
+
+### themedPile
+
+Heap a themed pile (rubble, planks, bricks or mixed) on a point or an area, through Stagehand's pileProps, so it settles with physics and Push, keep at rest and the Stagehand send work on it.
+
+items= takes your own pieces (weighted), else the placeholders for the theme in the style. Given an area mesh, the pile sits on its top and lands on it. Returns pileProps' result with group (the scene group), theme and used.
+
+**Objects:** area mesh the pile sits on (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `theme` | `th` | str | `'rubble'` | rubble, planks, bricks or mixed. |
+| `items` | `it` | Any |  | Your pieces: meshes, groups, sets, library ids, tag:<word>, or {piece, weight}. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `at` |  | list |  | Centre of the pile's footprint (default the area's top, else the origin). |
+| `radius` | `r` | float |  | Footprint radius, cm (default 60, or from the area). |
+| `count` | `c` | int |  | How many pieces (default from the radius). |
+| `settle` | `st` | bool | `True` | Let them come to rest with physics. |
+| `seed` | `s` | int | `1` | Another seed gives another result; the same seed always the same. |
+| `realize` | `rz` | bool | `False` | Scene objects instead of a live result (the instances turned into objects). |
+| `name` | `n` | str |  | Name of the group made (default Pile_<theme>). |
+
+```python
+themedPile(theme='bricks', at=[200, 0, 50], radius=80)
+```
+
+```python
+themedPile('Courtyard', theme='mixed', style='toon')
+```
+
+### weather
+
+Age things in one step with a weathering preset: dressing round their base, and whatever else the preset does, as one undo step gathered into one group. Objects may be meshes, groups (every mesh under them) or object sets such as Blockwork visgroups. Piece slots left out use the library's pieces for their role: your own assets tagged 'weathering' and the role win over the placeholders. Returns group, preset and each step's result.
+
+**Objects:** objects to age (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `preset` | `p` | str | `'Abandoned'` | Preset name (weatherPresets lists them). |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `slots` | `sl` | Any |  | Piece slots to fill yourself: {slot: [meshes, library ids or tag:a+b]}. |
+| `seed` | `s` | int | `1` | Another seed gives another result. |
+| `tile` | `ti` | float |  | Dress in tiles this wide (cm), so editing one block rebuilds only its tile; 0 for one piece. Default 1500 when there are more than 12 meshes, else 0. |
+| `visgroup` | `vg` | str | `'Weathering'` | Blockwork visgroup the result joins, so it hides in one click; empty for none. |
+| `name` | `n` | str |  | Name of the group made (default the preset's name). |
+
+```python
+weather('Shed', preset='Abandoned')
+```
+
+```python
+weather(['Tower', 'Wall'], preset='Overgrown', style='toon', seed=3)
+```
+
+```python
+weather('Visgroup_Ruins', preset='Demolished Building', slots={'rubble': ['MyRubble_grp']})
+```
+
+### weatheringAddPieces
+
+Make your own meshes the pieces for a role: each selected object goes into the library tagged 'weathering', the role and the style, so every preset that uses the role picks them instead of the placeholders. Roles in use: rubble, rock, brick, plank, beam, charred, plant, grass, moss, bush, pebble, litter, leaf, and the ones edge decals, ivy and the generators list. Returns the asset ids.
+
+**Objects:** objects (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `role` | `r` | str |  | The role: rubble, plank, plant, ... |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `collection` | `c` | str |  | Library collection (default Weathering/<role>). |
+| `tier` |  | str | `'user'` | user, workspace, or a library folder path. |
+| `thumbnail` |  | bool | `True` | Render each asset's thumbnail. |
+
+```python
+weatheringAddPieces(['Chunk1', 'Chunk2', 'Chunk3'], role='rubble')
+```
+
+```python
+weatheringAddPieces(role='ivy-leaf', style='toon')
+```
+
+### weatheringLive
+
+Pause or resume weathering while blocking out: live=False hides what weather made and turns off the grunge and edge chipping it put on its targets, so editing blocks costs nothing; live=True brings it all back, rebuilt for the blocks as they are now. Objects are the groups weather returned (default the selection). Returns groups and modifiers (how many were switched).
+
+**Objects:** weather groups (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `live` | `l` | bool | `True` | True resumes, False pauses. |
+
+```python
+weatheringLive('Abandoned', live=False)
+```
+
+```python
+weatheringLive('Abandoned')
+```
+
+### weatheringPlaceholders
+
+Write Weathering's placeholder pieces (rubble, planks, plants, leaves, roof sheets, tiles, frames, insulators, rooftop units, in realistic and toon versions) into the library's placeholder tier, where every preset finds them until you tag your own assets with the same roles. Built on first use; force=True rebuilds. Returns dir, built and assets (ids).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `force` | `f` | bool | `False` | Rebuild even when they are up to date. |
+
+Not undoable.
+
+```python
+weatheringPlaceholders()
+```
+
+```python
+[a['id'] for a in librarySearch(tags=['weathering', 'rubble'])]
+```
+
+### weatheringUnreal
+
+Build the weathering material functions in the linked Unreal project (MF_LilaGroundTint and the others weathering ships), each with a generated material built on it, so meshes sent with weathering colour sets shade the same there. Made when missing or older; regenerate=True rebuilds. Anything this LilaLink can't build is listed under skipped with the reason. Returns built and skipped.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `regenerate` | `rg` | bool | `False` | Rebuild them even when they are current. |
+
+Not undoable.
+
+```python
+weatheringUnreal()
+```
+
+```python
+weatheringUnreal(regenerate=True)
+```
+
+### weatherPresets
+
+The weathering presets Age offers: built in (Concrete Debris, Bricks and Rocks, Leaning Planks, Demolished Building, Burned Yard, Abandoned, Overgrown, Weathered Concrete, Rusted Metal, Industrial Grime, each with a Toon version) and any arrangement preset saved with category 'Weathering'. Each has name, description, style, slots and steps, as arrangementPresets gives them.
+
+Not undoable.
+
+```python
+[p['name'] for p in weatherPresets()]
+```
+
+### windowInteriorSend
+
+Send the interior cards of windows to Unreal: each card's room image goes to <folder>/Textures, MF_LilaInterior and the master M_LilaInterior on it are generated (or rebuilt with regenerateMaster), and each card material gets its instance MI_<image>Interior, matching the card's material slot so sent window meshes pick it up. dryRun=True returns the plan without connecting.
+
+**Objects:** window meshes made by fitWindows (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str | `'/Game/Lila/Interiors'` | Content folder for the textures and instances. |
+| `depth` | `d` | float | `0.5` | Room depth as a share of its width, for the parallax. |
+| `regenerateMaster` |  | bool | `False` | Rebuild M_LilaInterior's graph from this version of Lila. |
+| `dryRun` |  | bool | `False` | Return the plan without connecting to Unreal. |
+
+Not undoable.
+
+```python
+windowInteriorSend('Shop_Windows', dryRun=True)
+```
+
+### wires
+
+String wires between things: power and phone lines between poles, along building fronts on wall brackets, or along a street curve with poles placed under them. Each run is a cable (catenary by sag depth, bundles by count, draped over the buildings it would pass through) piped to a mesh, with insulators on pole tops and brackets at building corners.
+
+Objects are read by their bounds: tall thin ones are poles, small ones wall brackets, others buildings (wired at the two corners facing the run, standing off by the bracket's length). Curves get poles every spacing. points= strings given points in order. Anchors are chained along the run, spans no longer than maxSpan. Moving a cable's anchor curve or a building re-hangs it (cable's own live update). Returns group, cables, runs, spans, anchors, fittings, colliders.
+
+**Objects:** poles, buildings, brackets or curves (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `points` | `p` | list |  | [[x, y, z], ...]: anchors strung in order. |
+| `insulators` | `is` | Any |  | Insulators on pole tops. |
+| `brackets` | `bk` | Any |  | Wall brackets, arm along X out of the wall. |
+| `poles` | `po` | Any |  | Poles placed along curves. |
+| `style` | `sty` | str | `'realistic'` | realistic or toon: picks the matching placeholder pieces and the look of anything generated (noise, curves, edges). |
+| `sag` | `sg` | float | `40.0` | How far each span dips below its chord, cm. |
+| `count` | `c` | int | `1` | Wires per span (a bundle above 1). |
+| `spread` | `sd` | float | `4.0` | Bundle: how far wires stray at the anchors, cm. |
+| `sagVariation` | `sv` | float | `0.15` | Bundle: how much each wire's sag varies. |
+| `radius` | `r` | float |  | Wire radius, cm (default 0.8, toon 1.6). |
+| `drape` | `dr` | bool | `True` | Wires settle onto buildings they would pass through. |
+| `colliders` | `col` | list |  | Meshes wires stay out of (default the buildings given); four nearest per run. |
+| `maxSpan` | `mx` | float | `3000.0` | Longest span, cm; further anchors start a new run. |
+| `cornerHeight` | `ch` | float | `0.75` | Height of corner brackets, of the building's height. |
+| `standoff` | `st` | float |  | How far corner anchors stand off the wall, cm (default the bracket's length). |
+| `spacing` | `spc` | float | `2500.0` | Along curves: distance between poles, cm. |
+| `height` | `h` | float | `700.0` | Along curves: wire height above the curve, cm. |
+| `placePoles` | `pp` | bool | `True` | Along curves: place poles under the anchors. |
+| `seed` | `s` | int | `1` | Another seed gives another result; the same seed always the same. |
+| `name` | `n` | str |  | Name of the group made (default Wires). |
+
+```python
+wires(['Pole1', 'Pole2', 'Pole3'], sag=60)
+```
+
+```python
+wires('StreetEdge', spacing=2000, height=750, count=3)
+```
+
+```python
+wires(['ShopA', 'ShopB', 'ShopC'], cornerHeight=0.8, style='toon')
 ```

@@ -121,4 +121,5 @@
   - [Stagehand](stagehand.md)
   - [Tailor](tailor.md)
   - [Trim Sheets](trim-sheets.md)
+  - [Weathering](weathering.md)
   - [ZBrush](zbrush.md)

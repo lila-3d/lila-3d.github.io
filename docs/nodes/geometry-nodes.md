@@ -6937,6 +6937,33 @@ Available when the Stagehand extension is loaded.
 
 ### Stagehand
 
+#### Base Dressing
+
+Items in a band round where things meet the ground: rubble at a wall's foot, planks leaning on a shed, weeds round a rock. Densest and biggest at the wall; tall, thin items lean on it. Any outline works. Instances carry item (which one), pose (0 upright, 1 leaning, 2 lying) and random (0 to 1). Also wallDistance (cm from the footprint).
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `hosts` | geometry | input, multi |  | What the band runs round (world space): walls, buildings, rocks, Blockwork blocks. |
+| `ground` | geometry | input, multi |  | The ground (world space); none: a plane at the hosts' lowest point. |
+| `blockers` | geometry | input, multi |  | Neighbours (world space) nothing goes on, though no band grows round them. |
+| `items` | geometry | input, multi |  | The things to place: each geometry linked in is one item (Object Info of a library master, say). |
+| `weights` | string | input |  | How often each item is picked, in order, comma separated (missing ones are 1). |
+| `width` | float | input | `80` | How far out from the footprint the band reaches, cm. At least 1. |
+| `density` | float | input | `6` | Per square metre, at the wall. At least 0. |
+| `falloff` | float | input | `1.5` | 0 even across the band; higher keeps it close to the wall. Range 0 to 8. |
+| `contactHeight` | float | input | `40` | Geometry this close above the ground is the footprint, cm. At least 0. |
+| `spacing` | float | input | `0.9` | Footprints kept clear, as a multiple of each item's own. At least 0. |
+| `scaleNear` | float | input | `1.15` | Scale at the wall. At least 0. |
+| `scaleFar` | float | input | `0.6` | Scale at the band's outer edge. At least 0. |
+| `scaleJitter` | float | input | `0.2` | Random scale either way, 0 to 1. Range 0 to 0.95. |
+| `leanChance` | float | input | `0.6` | Chance a tall, thin item leans on the wall. Range 0 to 1. |
+| `leanMin` | float | input | `8` | Least lean, degrees. Range 0 to 80. |
+| `leanMax` | float | input | `24` | Most lean, degrees. Range 0 to 80. |
+| `turn` | float | input | `180` | Random turn about up for items that stand, degrees either way. Range 0 to 180. |
+| `maxCount` | int | input | `400` | At most this many. At least 0. |
+| `seed` | int | input | `1` | Another seed gives another band. |
+| `instances` | geometry | output |  | The band, as instances. |
+
 #### Contact Wear
 
 Writes a 0 to 1 point attribute where things touched the mesh: patches where they rested, scuffs where they slid, chips where they hit hard. Feed it to vertex colour or a material's wear mask.
@@ -7984,3 +8011,167 @@ The high and low poly a trim sheet bakes from: each trim's profile swept across 
 | `tile` | bool | input | `false` | Repeat tiling strips one sheet width to each side, as the bake does. |
 | `high` | geometry | output |  | Bevelled trims with corner colour per trim. |
 | `low` | geometry | output |  | The flat plane, uv0 over the sheet. |
+
+## Weathering extension
+
+Available when the Weathering extension is loaded.
+
+### Curve
+
+#### Curve to Truss
+
+Type `CurveToTruss`.
+
+A lattice truss along each curve (or loose edge): chords along it, rings at each level, bracing on every face, each member a square beam, united into one closed mesh. Masts, pylons, crane jibs, girders, stylized towers.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `curve` | geometry | input |  | Curves or loose edges. |
+| `chords` | int | input | `4` | Chords round the section. Range 3 to 12. |
+| `width` | float | input | `60` | Side of the section at the start, cm. At least 0.1. |
+| `endWidth` | float | input | `-1` | Side at the end, cm; negative keeps width. |
+| `member` | float | input | `4` | Side of each member, cm. At least 0.05. |
+| `segment` | float | input | `80` | Distance between levels, cm. At least 1. |
+| `rings` | bool | input | `true` | Members round every level, not only the ends. |
+| `unite` | bool | input | `true` | One closed mesh; off leaves overlapping beams (faster). |
+| `geometry` | geometry | output |  | The truss. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `bracing` | `x`, `zigzag`, `none` | `x` | Diagonals on each face: both, alternating or none. |
+
+### Procedural
+
+#### Ivy
+
+Type `IvyGrowth`.
+
+Grows ivy (or vines, roots, moss) over a surface from seed points or along curves: climbs, branches, hangs over ledges, and carries leaves and flowers. Without seeds it starts where the surface meets the ground. Built on Space Colonization.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `surface` | geometry | input |  | What it grows on (a mesh). |
+| `seeds` | geometry | input |  | Points it starts from. |
+| `strokes` | geometry | input |  | Curves it grows along. |
+| `leaves` | geometry | input |  | Leaf pieces: a mesh, or instances each of a piece. Built-in leaves when empty. |
+| `flowers` | geometry | input |  | Flower pieces, as leaves. |
+| `seed` | int | input | `1` | Random seed. |
+| `count` | int | input | `6` | Seeds from the ground contact when no seeds are given. Range 0 to 1000. |
+| `length` | float | input | `300` | Longest path from a seed, cm. At least 1. |
+| `branchiness` | float | input | `0.5` | Sparse (0) to dense (1). Range 0 to 1. |
+| `climb` | float | input | `0.7` | Every way (0) to straight up (1). Range 0 to 1. |
+| `gravity` | float | input | `0.3` | Hanging over ledges and overhangs. Range 0 to 1. |
+| `adhesion` | float | input | `2` | Farthest a clinging stem sits from the surface, cm. At least 0.01. |
+| `smoothness` | float | input | `0.15` | Natural wander (0) to smooth arcs (1). Range 0 to 1. |
+| `stemRadius` | float | input | `0.6` | cm. At least 0.01. |
+| `leafDensity` | float | input | `30` | Leaves per metre. At least 0. |
+| `leafSize` | float | input | `8` | cm. At least 0. |
+| `flowerDensity` | float | input | `0` | Flowers per metre. At least 0. |
+| `flowerSize` | float | input | `4` | cm. At least 0. |
+| `geometry` | geometry | output |  | Stems, leaves and flowers, a mesh. |
+| `stems` | geometry | output |  | The strands as curves with radius, growth (cm from the seed) and hang (1 hanging free). |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `style` | `realistic`, `toon` | `realistic` | The built-in leaf shape when no leaves are given. |
+| `profile` | `round`, `ribbon` | `round` | Stem cross-section. |
+| `leafOrient` | `surface`, `up`, `stem`, `random` | `surface` | Which way leaves point. |
+
+### Weathering
+
+#### Roofing
+
+Type `WeatheringRoofing`.
+
+Lays the linked pieces (sheets, planks, tiles) in overlapping rows over a host's roof faces, from the eave up, with ridge caps along ridges, then ages them: missing pieces, lifted corners, a sagging middle. Pieces are fitted by their bounds: Y out of the roof, the longer horizontal side down the slope. Instances carry slot (0 cover, 1 cap), row, lifted and random.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `host` | geometry | input, multi |  | The roof (world space): a building, a Blockwork block, a roof mesh. |
+| `pieces` | geometry | input, multi |  | The cover pieces laid in rows. |
+| `caps` | geometry | input, multi |  | Ridge caps; none links leaves ridges bare. |
+| `weights` | string | input |  | How often each of the pieces is picked, in link order, comma separated (missing ones are 1). |
+| `capWeights` | string | input |  | How often each of the caps is picked, in link order, comma separated (missing ones are 1). |
+| `faces` | string | input |  | Face indices of the host to cover, comma separated; empty covers every face within maxSlope of up. |
+| `overlap` | float | input | `0.15` | How much of a piece's length the next row covers. Range 0 to 0.9. |
+| `sideOverlap` | float | input | `0.08` | How much of a piece's width its neighbour covers. Range 0 to 0.9. |
+| `overhang` | float | input | `5` | How far the first row reaches past the eave, cm. At least 0. |
+| `scale` | float | input | `1` | Scale of every piece. At least 0.01. |
+| `damage` | float | input | `0.3` | 0 to 1: missing pieces, lifted corners and how far they lift. Range 0 to 1. |
+| `missing` | float | input | `-1` | Share of pieces left out; negative takes it from damage. |
+| `lifted` | float | input | `-1` | Share of pieces with a lifted corner; negative takes it from damage. |
+| `liftAngle` | float | input | `0` | How far corners lift, degrees; 0 takes it from damage. Range 0 to 90. |
+| `sag` | float | input | `0` | How far the middle of each face dips below its edges, cm. At least 0. |
+| `neatness` | float | input | `0.3` | 0 a messy roof, 1 neat regular rows. Range 0 to 1. |
+| `stagger` | float | input | `0.5` | Neat rows: how far alternate rows shift, of a piece's width. Range 0 to 1. |
+| `ridge` | bool | input | `true` | Caps along ridges. |
+| `maxSlope` | float | input | `75` | Faces picked when none are given: at most this steep, degrees. Range 0 to 90. |
+| `seed` | int | input | `1` | Another seed gives another roof. |
+| `geometry` | geometry | output |  | The roof pieces, as instances. |
+
+#### Rooftop
+
+Type `WeatheringRooftop`.
+
+The flat tops of the linked buildings (upward faces nothing stands over), with railings along some of their edges and a tower on some. tops is a gridded surface with the point float rooftopFree (0 near edges and towers), the mask Scatter Props takes to place vents, AC units and pipes on it.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `hosts` | geometry | input, multi |  | The buildings (world space). |
+| `railings` | geometry | input, multi |  | Railing segments along X. |
+| `towers` | geometry | input, multi |  | Towers, standing Y up. |
+| `railingWeights` | string | input |  | How often each of the railings is picked, in link order, comma separated (missing ones are 1). |
+| `towerWeights` | string | input |  | How often each of the towers is picked, in link order, comma separated (missing ones are 1). |
+| `slopeMax` | float | input | `5` | Steepest face that counts as flat, degrees. Range 0 to 89. |
+| `minArea` | float | input | `2` | Smaller flat tops are left alone, square metres. At least 0. |
+| `edgeMargin` | float | input | `50` | Kept clear inside each top's edge, cm. At least 0. |
+| `railingChance` | float | input | `0.5` | Share of edges that get a railing. Range 0 to 1. |
+| `towerChance` | float | input | `0.35` | Chance a top gets a tower. Range 0 to 1. |
+| `cell` | float | input | `40` | Grid of the tops surface, cm. At least 5. |
+| `seed` | int | input | `1` | Another seed picks other edges and corners. |
+| `tops` | geometry | output |  | The flat tops, gridded, with rooftopFree. |
+| `instances` | geometry | output |  | Railings and towers. |
+
+#### Windows
+
+Type `WeatheringWindows`.
+
+Finds the openings in the linked walls (Blockwork carves, Masonry openings, holes in any wall) and fits each with a frame along its sides, a sill, glass (intact, cracked, broken, boarded or mixed) and an interior behind it (a generated room, a card or a linked mesh). Pieces are fitted by their bounds. Instances carry slot (0 frame, 1 sill, 2 pane, 3 cracked, 4 broken, 5 board, 6 interior mesh, 7 room, 8 card), window and random.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `walls` | geometry | input, multi |  | The walls (world space). |
+| `frames` | geometry | input, multi |  | Frame members, along X. |
+| `sills` | geometry | input, multi |  | Sills, along X, out of the wall along Z. |
+| `panes` | geometry | input, multi |  | Intact panes, X across and Y up. |
+| `cracked` | geometry | input, multi |  | Cracked panes. |
+| `broken` | geometry | input, multi |  | Broken panes. |
+| `boards` | geometry | input, multi |  | Boards nailed across, along X. |
+| `interiors` | geometry | input, multi |  | Interior meshes, for interior mesh. |
+| `frameWeights` | string | input |  | How often each of the frames is picked, in link order, comma separated (missing ones are 1). |
+| `sillWeights` | string | input |  | How often each of the sills is picked, in link order, comma separated (missing ones are 1). |
+| `paneWeights` | string | input |  | How often each of the panes is picked, in link order, comma separated (missing ones are 1). |
+| `crackedWeights` | string | input |  | How often each of the cracked panes is picked, in link order, comma separated (missing ones are 1). |
+| `brokenWeights` | string | input |  | How often each of the broken panes is picked, in link order, comma separated (missing ones are 1). |
+| `boardWeights` | string | input |  | How often each of the boards is picked, in link order, comma separated (missing ones are 1). |
+| `interiorWeights` | string | input |  | How often each of the interiors is picked, in link order, comma separated (missing ones are 1). |
+| `glass` | string | input | `intact` | intact, cracked, broken, boarded, none or mixed. |
+| `interior` | string | input | `room` | room (generated), card, mesh or none. |
+| `roomMaterial` | string | input | `M_WeatheringInterior` | Material slot of the generated rooms. |
+| `cardMaterial` | string | input | `M_WeatheringInteriorCard` | Material slot of the interior cards. |
+| `frameInset` | float | input | `4` | How far in from the wall's outer face the frame sits, cm. At least 0. |
+| `frameScale` | float | input | `1` | Scale of the frame and sill sections. At least 0.01. |
+| `columns` | int | input | `1` | Panes across. Range 1 to 16. |
+| `rows` | int | input | `1` | Panes up. Range 1 to 16. |
+| `sill` | bool | input | `true` | A sill under windows. |
+| `sillProject` | float | input | `4` | How far the sill stands out of the wall, cm. |
+| `damage` | float | input | `0.3` | 0 to 1: mixed glass breaks more, boards go missing. Range 0 to 1. |
+| `neatness` | float | input | `0.3` | 1 lays boards straight and even. Range 0 to 1. |
+| `boardOverhang` | float | input | `8` | How far boards reach past the opening each side, cm. At least 0. |
+| `interiorDepth` | float | input | `300` | Depth of the room behind the wall, cm. At least 10. |
+| `doors` | bool | input | `false` | Fill openings that reach the bottom of the wall too. |
+| `flip` | bool | input | `false` | Outside is the other side of the walls. |
+| `minSize` | float | input | `15` | Smaller holes are not openings, cm. At least 1. |
+| `maxThickness` | float | input | `150` | Faces further apart than this are different walls, cm. At least 1. |
+| `seed` | int | input | `1` | Another seed picks other pieces and other breakage. |
+| `geometry` | geometry | output |  | The windows, as instances. |
