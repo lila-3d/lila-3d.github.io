@@ -50,7 +50,7 @@ ikLimit("calf_l", "calf_r", type="hinge", axis="y", min=-150, max=5)
 
 ## Rig math
 
-Every math function a rig needs, from Unreal's math library under Unreal's names, is a node: `mapRangeClamped`, `vlerp`, `quatToSwingTwist`, `evaluateCurveFloat` and the rest. Create them in the node editor or with `createNode`, and connect them like any node. `mathNodes(family="vector")` lists them.
+Every math function a rig needs, from Unreal's math library under Unreal's names, is a node: `mapRangeClamped`, `vlerp`, `quatToSwingTwist`, `evaluateCurveFloat` and the rest. Create them in the [node editor](node-editor.md) with its graph set to **Scene**, or with `createNode`, and wire them to joints, controls and constraints like any node. `mathNodes(family="vector")` lists them.
 
 ## Check it reaches Unreal
 

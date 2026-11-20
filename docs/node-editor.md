@@ -1,6 +1,6 @@
 # Node editor
 
-Keys and gestures for the node canvas, in geometry nodes and the texture graph. Every edit undoes, and the layout (reroutes, portals, frames, notes, ties, node titles, muting, collapsed nodes, saved views) saves with the scene. Most of these are also on the canvas right-click menu; rebind keys under **Node Editor** in the hotkey editor.
+Keys and gestures for the node canvas (**Windows > Editors > Node Editor**). The picker in its toolbar switches between three node graphs: **Scene** for rigs and the scene's own nodes, **Geometry Nodes**, and **Texture Graph** for materials and textures. Scene shows real nodes around the selection: Selection, History, Hierarchy, Upstream or Downstream. Every edit undoes, and the layout (reroutes, portals, frames, notes, ties, node titles, muting, collapsed nodes, saved views) saves with the scene. Most of these are also on the canvas right-click menu; rebind keys under **Node Editor** in the hotkey editor.
 
 <!-- TODO image: a tidy graph with a frame, a zip tie, a reroute and a portal pair (images/node-editor/overview.png) -->
 
