@@ -9,7 +9,7 @@ Copies that share their mesh, repeat a transform, or stay live as an array. All 
 | **Ctrl+D** | Duplicate. The adjust popup sets count, step move/rotate/scale, pivot and copy/instance/reference |
 | **Shift+D** | Duplicate with Transform: one more copy, stepped as far again as the last copy is from its source |
 | Hold **Y** + drag a gizmo handle | Clone while moving, rotating or scaling. Shift+D then carries on the same step. On faces and edges it extrudes them and drags the new ones |
-| **Shift** + drag on faces or edges | Extrude drag, the same as holding Y, once **Preferences > Manipulators > Shift-drag on faces and edges** is set to **Extrude**. Shift then no longer gives fine control there |
+| **Shift** + drag a gizmo handle | Clone or extrude drag, in place of Y, once **Preferences > Manipulators > Swap clone (Y) and fine control (Shift)** is on. Holding Y then gives fine control |
 
 Shift+D measures the step from where the last copy is, so move, rotate or scale it first. It works after you select other things, as long as that copy exists.
 
