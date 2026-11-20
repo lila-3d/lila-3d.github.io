@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18",
+  "updated": "2026-11-20",
   "sections": [
     {
       "id": "alpha",
@@ -365,6 +365,15 @@
           "docs": "stagehand",
           "body": [
             "Push, drop and settle props into place with physics, fill shelves and scatter debris, place assets from a prop library, and snap modular kit pieces together."
+          ]
+        },
+        {
+          "id": "weathering",
+          "title": "Weathering",
+          "status": "dev",
+          "docs": "weathering",
+          "body": [
+            "Age any level, toon or realistic: drag grunge, edge wear and chipping, edge decals, ivy, ground scatter and rubble at the base of walls onto meshes, and generate roofing, windows, wires and rooftop clutter. Everything stays live and sends to Unreal with material functions for your own materials."
           ]
         },
         {
