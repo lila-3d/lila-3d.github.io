@@ -63,6 +63,7 @@
   - [Baking](baking.md)
   - [Texture layers](texture-layers.md)
   - [Texture painting](texture-painting.md)
+  - [Animated textures](animated-textures.md)
   - [Displacement preview](displacement-preview.md)
   - [Path traced view](path-traced-view.md)
   - [Shading channels](shading-channels.md)

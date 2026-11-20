@@ -646,6 +646,30 @@ An image file sampled in uv, wrapping at the edges, repeated tiles times. Relati
 | `tiles` |  | `1` | Repeats across the texture. |
 | `colorSpace` | `linear`, `srgb` | `linear` | How the file's colour values are read. linear: as stored, for data maps (roughness, normal, height) and EXR. srgb: decoded from sRGB to linear, for colour maps saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
 
+### Image Sequence
+
+Type `imageSequence`.
+
+Numbered image files played over the timeline, for animated textures. Pick any one frame: the last run of digits in its name is the frame number (or write # for each digit, as in fire_####.png), and every file in its folder numbered the same way joins the sequence in order. Sequence frame 0 is the first file on disk. Exports and bakes take the scene's current frame.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `coord` | vector | input |  | Where to read the frames: the mesh's uvs unless linked (Projection, Mapping). |
+| `out` | color | output |  |  |
+| `alpha` | gray | output |  | The frame's alpha; 1 where the files have none. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `file` |  |  | Any frame of the sequence. |
+| `start` |  | `1` | The scene frame the sequence's first frame shows on. |
+| `offset` |  | `0` | Frames into the sequence at Start Frame. |
+| `frames` |  | `0` | How many frames play before looping or holding; 0 plays every file found. |
+| `speed` |  | `1` | Sequence frames per scene frame: 0.5 plays at half speed, negative plays backwards. Keyed, the speed accumulates over the frames from Start Frame, so a change of speed never jumps. |
+| `loop` | `loop`, `hold`, `pingPong` | `loop` | loop: starts over. hold: stays on the end frame (the first one before Start Frame). pingPong: plays back and forth. |
+| `interpolation` | `hold`, `blend` | `hold` | Between sequence frames, when Speed isn't a whole number. hold: shows the earlier frame. blend: crossfades into the next. |
+| `tiles` |  | `1` | Repeats across the texture. |
+| `colorSpace` | `linear`, `srgb` | `linear` | How the files' colour values are read. linear: as stored, for data maps and EXR. srgb: decoded from sRGB to linear, for colour frames saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
+
 ### Position
 
 Type `position`.
