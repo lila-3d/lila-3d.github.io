@@ -1,13 +1,13 @@
 {
-    "version":  "0.7.1",
-    "page":  "https://github.com/lila-3d/Lila/releases/tag/v0.7.1",
+    "version":  "0.8.0",
+    "page":  "https://github.com/lila-3d/Lila/releases/tag/v0.8.0",
     "platforms":  {
                       "windows":  {
                                       "label":  "Windows",
                                       "requires":  "Windows 10 or 11, 64-bit",
-                                      "installer":  "https://github.com/lila-3d/Lila/releases/download/v0.7.1/Lila-0.7.1-Setup.exe",
-                                      "size":  758813834,
-                                      "sha256":  "7545f738f71ff846afbbeba5b2175c4ac59033e0fc46bcf57de72f3869774861"
+                                      "installer":  "https://github.com/lila-3d/Lila/releases/download/v0.8.0/Lila-0.8.0-Setup.exe",
+                                      "size":  766920646,
+                                      "sha256":  "64b43e78efe0409c9206ac4e6f2b77b440c087398eb7f113156244aeeff47439"
                                   }
                   }
 }
