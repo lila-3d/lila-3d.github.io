@@ -150,7 +150,7 @@ White where the input is near a colour, fading to black by softness past the tol
 
 Type `colorize`.
 
-Maps a gray value through a gradient: Low reads the gradient's left end, High its right. Each bound takes a value or a link. The gradient's own setting picks linear, smooth or constant blending between stops.
+Maps a gray value through a gradient: Low reads the gradient's left end, High its right. Each bound takes a value or a link, in the input's own units: -11000 and 8848 colour a height map stored in metres. The gradient's own setting picks linear, smooth or constant blending between stops.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -632,7 +632,7 @@ Brighter where the surface turns away from the viewer, from the mesh's world nor
 
 Type `image`.
 
-An image file sampled in uv, wrapping at the edges, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
+An image file sampled in uv, wrapping at the edges, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. 8 and 16-bit files read as 0..1; signed, 32-bit and float files (EXR, float or int16 TIFF) read as stored, so a height map keeps its units: map it with Colorize's Low and High. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
