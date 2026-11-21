@@ -42,7 +42,7 @@ Keys and gestures for the node canvas (**Windows > Editors > Node Editor**). The
 | **Ctrl**+drag a linked input | Move its link to another input |
 | **Shift**+drag a linked input | Copy its link to another input |
 | **Alt**+click a socket | Disconnect it |
-| Drag a number on a node | Change it. **Shift** goes ten times faster, **Ctrl** ten times slower; double-click to type |
+| Drag a number on a node | Change it. **Shift** goes ten times faster, **Ctrl** ten times slower; click to type |
 | Click a check or colour swatch on a node | Toggle it / open the colour picker |
 | Right-click a node > **Hide Preview** | Hide that node's image preview. **Node Previews** in the same menu hides them all |
 | Drag a reroute's rim | Wire it to more inputs (its middle moves it) |

@@ -36,6 +36,12 @@ Fields that take a mesh, curve, joint or other object have a dropdown of the sce
 - Commands that take `preset=` from Python, like `quadRemesh`, accept a saved preset's name.
 - For a whole studio, see [Studio setup](studio-setup.md#studio-shelves).
 
+## Drag number fields
+
+Drag any number field left or right to change it (**Shift** ten times faster, **Ctrl** ten times slower), or click it to type. **Enter**, **Esc** or a click elsewhere ends typing. A middle click resets the field to its default.
+
+To change a value by an exact step, middle-drag up or down first: the Step Ladder picks a step from 100 to 0.0001, then dragging sideways changes the value by that step.
+
 ## Type math in number fields
 
 Every number field, Channel Box and Attribute Editor value takes arithmetic, applied on **Enter** or when you click away:
