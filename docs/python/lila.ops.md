@@ -12095,6 +12095,17 @@ Add a generator mask to a layer: edge wear, dirt, dust, cavity grime, AO darken,
 | `bindings` |  | Any |  | Generator inputs' sources: {input: mesh map role or 'anchor:<name>.<channel>'}. Unlisted inputs use the role of their own name. |
 | `index` |  | int |  | Position in the mask stack, 0 the bottom; the top when left out. |
 
+### texAddIdLayers
+
+Add a fill layer per entry of the set's baked ID map (its bake project's id map: per material, object or group), each masked by an ID Select set to that entry's colour and shaded in it as a placeholder. Bake the id map first. Returns {name: layer id}.
+
+**Objects:** set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `names` |  | list |  | Only these entries of the ID map. |
+| `folder` |  | str | `'IDs'` | Folder to put the layers in, made when missing; empty puts them at the root. |
+
 ### texAddLayer
 
 Add a layer to a texture set's stack (on top unless placed). Kinds: fill (material + mask), paint (placeholder material, paint buffers and a painted mask), procedural (a graph with outputs named after channels, optionally mask), folder, instance (another layer's values and mask), filter (a filter node applied to the composite below), decal (pictures per channel placed by projection), text (words drawn in the material's base colour, placed like a decal) and scatter (copies of a pattern over the uvs). A graph made by hand joins the stack as its bottom layer. Returns {id}.
@@ -14591,6 +14602,18 @@ Gradient fill: colorA at start to colorB at end (linear), or from start out to t
 | `colorB` |  | list | `[1.0, 1.0, 1.0, 1.0]` | Linear RGBA at the end. |
 | `channels` |  | str | `'rgba'` | Channels to change: some of r, g, b, a. |
 | `target` |  | str | `'auto'` | auto (the component selection, or everything without one), all, selection, or element (whole shells of the selection). |
+
+### vertexColorMasks
+
+Writes a 0/1 mask per object or per material into vertex color channels, packed into sets named prefix0, prefix1, ... Masks are numbered by name, alphabetically, so the bake's masks map packs the same names into the same channels. Every mesh gets every set, so one material can read them all. Works on the given meshes, else the selected ones, else every mesh. Returns {name: "set.channel"}.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `source` |  | str | `'object'` | What gets a mask: object or material. |
+| `channels` |  | int | `4` | Masks per set: 3 (RGB) or 4 (RGBA). |
+| `prefix` |  | str | `'mask'` | Set names: the prefix, then the set's number. |
 
 ### vertexColorSample
 
@@ -21226,7 +21249,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
