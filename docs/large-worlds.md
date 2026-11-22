@@ -89,6 +89,8 @@ The CadImport extension reads STEP, IGES and BREP through OpenCascade: **File > 
 
 **Geometry shakes or snaps far from the origin.** **Preferences > Viewport > Camera-relative beyond 1 km** is off; turn it back on.
 
+**One huge mesh jitters as the camera moves, and the Outliner warns about it.** Its points reach too far from its own origin for the viewport's precision, as with a mesh tens of kilometres across or a sphere scaled to planet size. Select it and choose **Mesh > Split into Tiles** (`tileMesh()`). Each tile gets its own origin; the tiles go in a new group with the mesh's transform baked in. A planet-sized mesh makes too many tiles: the sky atmosphere already draws the planet's ground.
+
 **"not a projected CRS".** A latitude/longitude CRS such as EPSG:4326 can't lay out a scene in centimetres. Use the UTM zone or national grid for the site.
 
 **A scan imports at the origin, not on the map.** No CRS was found: the log says "No CRS" or "not georeferenced". Put the tool's `.prj` beside the file and import again.

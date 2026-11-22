@@ -13178,6 +13178,17 @@ A texture set's variants: {active, variants {name: {layer id: override}}}. An ov
 
 Not undoable.
 
+### tileMesh
+
+Split meshes into a grid of tile objects, each with its origin at its centre, so none reaches far enough from its origin for the viewport's float precision to make it jitter. Faces crossing a tile edge are cut there. The tiles go in a new group at the top of the scene, with the mesh's transform baked in. Returns the tiles.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tileSize` | `ts` | float | `500000.0` | Tile edge, cm. |
+| `maxTiles` | `mt` | int | `4096` | Refuse a mesh that would make more tiles than this. |
+
 ### timeRange
 
 The time slider's selected range (Shift + drag on it), which edits across frames act on, such as Strings poses and Curve Overlay drags. Give start and end to select, clear to drop it, falloff for the frames edits ease out over either side (falloffBefore and falloffAfter for one side), falloffType for its shape, every to key every n frames. Returns {active, start, end, falloffBefore, falloffAfter, falloffType, every}, times in seconds.

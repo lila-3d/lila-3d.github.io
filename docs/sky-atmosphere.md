@@ -29,6 +29,8 @@ The sky's brightness follows the sun's **intensity**, so set exposure with the s
 
 **Lighting lags a moment behind the sun when you drag it.** The background follows at once; the sky's light on surfaces rebuilds once the sun stops.
 
+**A mesh scaled up to the planet's size flickers.** The viewport can't draw a mesh that big without jitter. The atmosphere draws the planet's ground itself; for land near the camera, model it at normal size or split it with **Mesh > Split into Tiles**.
+
 **Distant objects look washed out.** That's the haze. Lower **aerial perspective view distance scale** to push it further away, or raise **aerial perspective start depth** to clear the area round the camera.
 
 ## Unreal
