@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20",
+  "updated": "2026-11-22",
   "sections": [
     {
       "id": "alpha",
@@ -282,6 +282,24 @@
             "Audio in the time slider with waveforms and scrubbing, video on image planes and reference images, Import Footage for a reference video and its sound in one step, and a media lane to slide, trim and bind footage to takes."
           ],
           "docs": "sound-and-video"
+        },
+        {
+          "id": "sky-atmosphere",
+          "title": "Sky Atmosphere",
+          "status": "dev",
+          "docs": "sky-atmosphere",
+          "body": [
+            "A physical sky and the haze over distance, lit by the sun, from the ground up to orbit. It lights the scene in place of the HDRI, path traces, and sends to Unreal as a SkyAtmosphere with the same settings."
+          ]
+        },
+        {
+          "id": "volumes",
+          "title": "Volumes",
+          "status": "dev",
+          "docs": "volumes",
+          "body": [
+            "Fog, smoke and clouds filling a mesh, a geometry nodes grid or an OpenVDB file, in the viewport and the path tracer, sent to Unreal as Heterogeneous Volumes with a material function for your own materials."
+          ]
         }
       ]
     },
