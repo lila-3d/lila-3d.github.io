@@ -2477,7 +2477,7 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `ormMap` |  | str |  | Packed occlusion/roughness/metallic texture path. |
 | `packedLayout` |  | Any |  | orm or mro: the packed map's channel order. |
 | `emissiveMap` |  | str |  | Texture path. |
-| `shadingModel` |  | Any |  | Lighting model: defaultLit (Unreal's default lit), painterly (brush strokes and a colour palette), toon (stepped ramp with tinted light and shadow), foliage (soft gradient shading, lit through), unlit (the base colour as it is, plus emissive, with no lighting), skin (light scattering under the surface), cloth (velvet sheen), clearcoat (a glossy layer on top), hair (stretched strand highlights, for hair cards) or eye (an iris under a glossy cornea; UVs centred on the pupil). |
+| `shadingModel` |  | Any |  | Lighting model: defaultLit (Unreal's default lit), painterly (brush strokes and a colour palette), toon (stepped ramp with tinted light and shadow), foliage (soft gradient shading, lit through), unlit (the base colour as it is, plus emissive, with no lighting), skin (light scattering under the surface), cloth (velvet sheen), clearcoat (a glossy layer on top), hair (stretched strand highlights, for hair cards) or eye (an iris under a glossy cornea; UVs centred on the pupil) or volume (fog, smoke or cloud filling the mesh, or its geometry nodes' density grid, in place of a surface). |
 | `painterlyStrength` |  | float |  | Painterly: scales the whole effect; 0 shades exactly like defaultLit. |
 | `strokeNormal` |  | float |  | Painterly: how far the stroke sheet bends the shading normal; 0 is the plain surface. |
 | `strokeScale` |  | float |  | Painterly: size of one stroke sheet tile, cm (UV mode: tiles per UV unit is 100 / this). |
@@ -2558,6 +2558,13 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `baseColorMapOcioSpace` |  | str |  | With OCIO colour management on: the config colour space the map is in (Utility - sRGB - Texture, ACEScg); empty reads it by its ColorSpace. |
 | `emissiveMapOcioSpace` |  | str |  | With OCIO colour management on: the config colour space the map is in (Utility - sRGB - Texture, ACEScg); empty reads it by its ColorSpace. |
 | `textureSet` |  | str |  | Texture set whose maps draw this material, in place of the maps it has. Any number of materials can use one set; painting a mesh with this material paints the set. |
+| `volumeDensity` |  | float |  | Volume: how thick it is, per metre: 1 dims light to a third over a metre. Scales a density grid's values. |
+| `volumeScatterColor` |  | tuple[float, float, float] |  | Volume: the colour of light it scatters (its albedo); white is cloud, grey is smoke. |
+| `volumeAbsorptionColor` |  | tuple[float, float, float] |  | Volume: light it swallows by colour on top of what it scatters; dark smoke absorbs. |
+| `volumeAnisotropy` |  | float |  | Volume: 0 scatters evenly, toward 1 forward (glowing toward the light), toward -1 back. |
+| `volumeEmissionColor` |  | tuple[float, float, float] |  | Volume: colour of light it gives off, for fire and glowing gas. |
+| `volumeEmissionStrength` |  | float |  | Volume: brightness of its own light, scaled by density; 0 gives none. |
+| `volumeVoxelSize` |  | float |  | Volume: voxel size a mesh is filled at, cm; 0 picks one from its size. Density grids keep their own. |
 
 ### createMesh
 
@@ -4367,6 +4374,16 @@ Clear undo history. which='past' drops the steps undo would revert, so undo cann
 | `which` | `w` | str | `'past'` | past, future or all. |
 
 Not undoable.
+
+### fogVolume
+
+Create a box filled with fog: a cube with a new volume material. Returns the box.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'fogVolume'` | Name of the box; made unique. |
+| `size` | `sz` | float | `400.0` | Edge length, cm. |
+| `density` | `d` | float | `0.5` | The material's volumeDensity, per metre. |
 
 ### fontList
 
@@ -11307,6 +11324,18 @@ Add a skin slide deformer: the deformation below it slides along the rest surfac
 | `normalAmount` |  | float | `0.0` | 0 to 1: how much movement off the rest surface is kept. |
 | `name` |  | str |  | Name for the deformer. |
 
+### skyAtmosphere
+
+Create a sky atmosphere and, when the scene has no directional light, a sun to light it, and select the sky. Returns its name.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name; made unique. |
+| `existing` | `e` | bool | `False` | Return the active sky if there is one instead of creating another. |
+| `sun` | `s` | bool | `True` | Add a sun when the scene has no directional light. |
+| `sunElevation` | `se` | float | `35.0` | The new sun's height above the horizon, degrees. |
+| `sunAzimuth` | `sa` | float | `30.0` | The new sun's turn about the up axis, degrees. |
+
 ### slideMedia
 
 Move audio nodes and image planes along the timeline by a number of frames: an audio node's offset, an image plane's start frame. Trims stay with the sound.
@@ -13798,6 +13827,17 @@ Send a point cloud to Unreal's open level through its LiDAR Point Cloud plugin: 
 
 Not undoable.
 
+### unrealSendSky
+
+Send the scene's sky to Unreal's open level: the sky atmosphere as a SkyAtmosphere (Unreal's own model, settings unchanged), a SkyLight capturing it in real time, the sun as its atmosphere sun light, and the active post process's height fog as an ExponentialHeightFog with volumetric fog. Each is made when the level has none. Returns what was set.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sun` | `s` | bool | `True` | Place the sun light too, marked as the atmosphere's sun. |
+| `fog` | `f` | bool | `True` | Send the height fog too. |
+
+Not undoable.
+
 ### unrealSendTextures
 
 Send a bake project's last textures to Unreal, updating the texture assets in place (sRGB, compression, flip green and LOD group per map; UDIM sets as virtual textures). materialMode instance also creates or updates a material instance per material slot from materialParent and sets it on the slot of every mapped mesh (unrealMap). assign=True first wires the textures into the Lila materials (bakeAssign). Returns {queued} or, with wait=True, Unreal's {assets, warnings, errors}.
@@ -13835,6 +13875,18 @@ Send a texture set to Unreal: exports it through the Unreal preset (only tiles a
 | `remember` | `rm` | bool | `True` | Send this set on every save from now on. |
 | `save` | `sv` | bool |  | Save the packages in Unreal afterwards. |
 | `wait` | `w` | bool | `False` | Block until Unreal finishes and return its reply. |
+
+Not undoable.
+
+### unrealSendVolumes
+
+Send meshes with a volume material to Unreal's open level: each grid written as OpenVDB, imported as a Sparse Volume Texture and shown by a Heterogeneous Volume with a material instance of M_LilaVolume (built on MF_LilaVolume, which your own Volume materials can use). With no objects, the selected volumes, else every volume in the scene. Needs the NanoVDB extension. Returns one entry per volume.
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `fo` | str | `'/Game/Lila/Volumes'` | Content folder for the textures and material instances. |
 
 Not undoable.
 
@@ -16513,7 +16565,7 @@ Not undoable.
 
 ### exportVDB
 
-Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's) to an OpenVDB file: a sparse grid, a level set for signed distances, a fog volume for densities and a vec3 grid for vectors, for Unreal's sparse volume textures, Houdini or Blender. Returns the file written.
+Write the volume a mesh's geometry nodes make (or a geometry-nodes modifier's), or the fill of a mesh with a volume material, to an OpenVDB file: a sparse grid, a level set for signed distances, a fog volume for densities and a vec3 grid for vectors, for Unreal's sparse volume textures, Houdini or Blender. Returns the file written.
 
 **Objects:** target path
 
@@ -21163,7 +21215,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |

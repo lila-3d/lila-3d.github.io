@@ -96,6 +96,8 @@
   - [Destruction](destruction.md)
 - <span class="nav-label">Lighting and rendering</span>
   - [Lights](lights.md)
+  - [Sky Atmosphere](sky-atmosphere.md)
+  - [Volumes](volumes.md)
   - [Lighting Channels](lighting-channels.md)
   - [Rendering](rendering.md)
   - [Viewport renderers and Hydra](viewport-renderers.md)
