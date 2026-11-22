@@ -25,7 +25,7 @@ The sky's brightness follows the sun's **intensity**, so set exposure with the s
 
 **The sky doesn't show behind the scene.** Orthographic views show the plain backdrop. Use a perspective view, and check **Display > Environment Background** is on.
 
-**The scene still lights like the HDRI.** A sky atmosphere replaces the environment only while it is **enabled**. Only the first enabled sky atmosphere in the scene counts.
+**The scene still lights like the HDRI.** A sky atmosphere replaces the environment only while it is **enabled** and visible. Only the first such sky atmosphere in the scene counts.
 
 **Lighting lags a moment behind the sun when you drag it.** The background follows at once; the sky's light on surfaces rebuilds once the sun stops.
 
@@ -45,7 +45,7 @@ The attributes match Unreal's SkyAtmosphere one for one; tooltips in the Attribu
 
 | Attribute | What it does |
 | --- | --- |
-| `transformMode`, `position` | Where the planet sits. The default puts sea level at the world origin. Use `planetCenterAtComponentTransform` for an Earth-centred scene. |
+| `transformMode` | Where the planet sits. The default puts sea level at the world origin; the other two put sea level or the planet's centre at the sky's position, which you move like any object. Use `planetCenterAtComponentTransform` for an Earth-centred scene. |
 | `rayleighScattering`, `rayleighScatteringScale` | The sky's colour. Redder values give an alien sky. |
 | `mieScatteringScale`, `mieAnisotropy` | Haze, and how strongly it glows round the sun. |
 | `groundAlbedo` | The planet's colour, seen from high up and bounced into the air. |
