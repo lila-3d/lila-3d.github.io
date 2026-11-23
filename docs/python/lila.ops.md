@@ -4808,13 +4808,14 @@ Bring a library group (by name, workspace first, or a .json path) into the scene
 
 ### gnMoveInput
 
-Move an exposed input to a position in the interface order (0 is first), optionally into a panel.
+Move an exposed input (or, with output=True, a group output) to a position in the interface order (0 is first), optionally into a panel.
 
 **Objects:** group input index
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `panel` |  | str |  | Panel to put it in; empty for none. |
+| `output` |  | bool | `False` | Move a group output instead. |
 
 ### gnMoveNodes
 
@@ -12757,9 +12758,13 @@ Make materials from texture maps: each file's channel comes from its name (BaseC
 
 ### texMoveInput
 
-Move a node group's input to another place in its interface, 0 first.
+Move a node group's input (or, with output=True, its output) to another place in its interface, 0 first.
 
 **Objects:** group name index
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `output` |  | bool | `False` | Move a group output instead. |
 
 ### texMoveLayer
 
@@ -12990,9 +12995,13 @@ Rename a node group ("Set/Group") and point the Group nodes running it at the ne
 
 ### texRenameInput
 
-Rename a node group's input, keeping its links inside and on the Group nodes running the group.
+Rename a node group's input (or, with output=True, its output), keeping its links inside and on the Group nodes running the group.
 
 **Objects:** group name newName
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `output` |  | bool | `False` | Rename a group output instead. |
 
 ### texSampleChannels
 

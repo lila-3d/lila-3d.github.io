@@ -98,7 +98,7 @@ Blends the foreground over the background with a blend mode, through the mask an
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `mode` | `normal`, `add`, `subtract`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `difference`, `softLight` | `normal` |  |
+| `mode` | `normal`, `add`, `subtract`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `difference`, `softLight`, `addSigned`, `colorBurn`, `linearBurn`, `colorDodge`, `hardLight`, `vividLight`, `linearLight`, `pinLight`, `exclusion`, `divide`, `saturation`, `color`, `value` | `normal` |  |
 | `opacity` |  | `1` |  |
 
 ### Blur
@@ -115,6 +115,22 @@ Gaussian blur, its radius a fraction of the texture width. Runs as its own pass.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `radius` |  | `0.01` |  |
+
+### Brightness/Contrast
+
+Type `brightnessContrast`.
+
+Lifts or lowers the colour and spreads or squeezes it around the middle.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input |  |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `brightness` |  | `0` | Added to every channel. |
+| `contrast` |  | `0` | Above 0 spreads values from 0.5, below squeezes them. |
 
 ### Clamp
 
@@ -273,6 +289,43 @@ Shrinks bright areas: each texel takes the minimum within a square of the radius
 | --- | --- | --- | --- |
 | `radius` |  | `0.01` |  |
 
+### Grayscale
+
+Type `grayscale`.
+
+A colour to one value: luminance as the eye sees it, the channels' average, lightness (midway between the brightest and darkest channel) or the brightest channel.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input |  |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `luminance`, `average`, `lightness`, `maximum` | `luminance` | How the channels combine. |
+
+### Height Blend
+
+Type `heightBlend`.
+
+Lays one material's height over another's: the top shows where it stands higher, so sand fills the gaps between stones. Offset raises the top; Contrast sharpens the edge. Mask limits where the top can show.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightTop` | gray | input | `0.5` |  |
+| `heightBottom` | gray | input | `0.5` |  |
+| `colorTop` | color | input | `[1, 1, 1, 1]` |  |
+| `colorBottom` | color | input | `[0, 0, 0, 1]` |  |
+| `mask` | gray | input | `1` |  |
+| `height` | gray | output |  |  |
+| `color` | color | output |  |  |
+| `mask` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `offset` |  | `0` | Raises the top height before comparing. |
+| `contrast` |  | `0.9` | 1 is a hard edge, 0 a wide fade. |
+
 ### Histogram Range
 
 Type `histogramRange`.
@@ -381,11 +434,29 @@ Arithmetic on two values.
 | --- | --- | --- | --- | --- |
 | `a` | float | input | `0` |  |
 | `b` | float | input | `0` |  |
+| `c` | float | input | `0` | Third value: Multiply Add adds it, Wrap's maximum, Smooth Min and Max's distance, Compare's tolerance, Mix's factor. |
 | `out` | float | output |  |  |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `operation` | `add`, `subtract`, `multiply`, `divide`, `minimum`, `maximum`, `power`, `absolute`, `oneMinus`, `step`, `modulo`, `sine`, `cosine`, `floor`, `fraction`, `clamp` | `add` |  |
+| `operation` | `add`, `subtract`, `multiply`, `divide`, `minimum`, `maximum`, `power`, `absolute`, `oneMinus`, `step`, `modulo`, `sine`, `cosine`, `floor`, `fraction`, `clamp`, `multiplyAdd`, `squareRoot`, `inverseSquareRoot`, `logarithm`, `exponent`, `sign`, `round`, `ceiling`, `truncate`, `snap`, `wrap`, `pingPong`, `smoothMinimum`, `smoothMaximum`, `compare`, `lessThan`, `greaterThan`, `mix`, `tangent`, `arctan2`, `flooredModulo`, `toRadians`, `toDegrees` | `add` | a and b by default. Logarithm takes b as its base, Snap rounds a to a multiple of b, Wrap keeps a between b and c, Ping Pong bounces a between 0 and b, Compare is 1 where a and b differ by at most c, Mix blends a to b by c. |
+
+### Mix
+
+Type `mix`.
+
+Blends A to B by Factor, for values, colours or vectors: 0 gives A, 1 gives B.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` | color | input | `[0, 0, 0, 1]` |  |
+| `b` | color | input | `[1, 1, 1, 1]` |  |
+| `factor` | gray | input | `0.5` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `clampFactor` |  | `true` | Keeps Factor between 0 and 1. |
 
 ### Multi Color Mask
 
@@ -407,6 +478,21 @@ Color Mask for up to four colours at once: white wherever the input is near any 
 | `color4` |  | `[1, 1, 0, 1]` |  |
 | `tolerance` |  | `0.1` |  |
 | `softness` |  | `0.05` |  |
+
+### Posterize
+
+Type `posterize`.
+
+Cuts each channel to Steps flat levels.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input |  |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `steps` |  | `4` | Levels per channel. |
 
 ### Sharpen
 
@@ -632,7 +718,7 @@ Brighter where the surface turns away from the viewer, from the mesh's world nor
 
 Type `image`.
 
-An image file sampled in uv, wrapping at the edges, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. 8 and 16-bit files read as 0..1; signed, 32-bit and float files (EXR, float or int16 TIFF) read as stored, so a height map keeps its units: map it with Colorize's Low and High. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
+An image file sampled in uv, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. 8 and 16-bit files read as 0..1; signed, 32-bit and float files (EXR, float or int16 TIFF) read as stored, so a height map keeps its units: map it with Colorize's Low and High. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -644,6 +730,8 @@ An image file sampled in uv, wrapping at the edges, repeated tiles times. Relati
 | --- | --- | --- | --- |
 | `file` |  |  |  |
 | `tiles` |  | `1` | Repeats across the texture. |
+| `wrap` | `repeat`, `extend`, `mirror`, `clip` | `repeat` | Past the image's edge. repeat: tiles it. extend: stretches the edge pixels. mirror: tiles it flipped every other time. clip: transparent black. |
+| `filter` | `linear`, `closest`, `cubic` | `linear` | Between pixels. linear: blends the four nearest. closest: the nearest pixel, hard-edged, for pixel art and ID maps. cubic: smoother when the image is enlarged. |
 | `colorSpace` | `linear`, `srgb` | `linear` | How the file's colour values are read. linear: as stored, for data maps (roughness, normal, height) and EXR. srgb: decoded from sRGB to linear, for colour maps saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
 
 ### Image Sequence
@@ -668,6 +756,8 @@ Numbered image files played over the timeline, for animated textures. Pick any o
 | `loop` | `loop`, `hold`, `pingPong` | `loop` | loop: starts over. hold: stays on the end frame (the first one before Start Frame). pingPong: plays back and forth. |
 | `interpolation` | `hold`, `blend` | `hold` | Between sequence frames, when Speed isn't a whole number. hold: shows the earlier frame. blend: crossfades into the next. |
 | `tiles` |  | `1` | Repeats across the texture. |
+| `wrap` | `repeat`, `extend`, `mirror`, `clip` | `repeat` | Past the image's edge. repeat: tiles it. extend: stretches the edge pixels. mirror: tiles it flipped every other time. clip: transparent black. |
+| `filter` | `linear`, `closest`, `cubic` | `linear` | Between pixels. linear: blends the four nearest. closest: the nearest pixel, hard-edged, for pixel art and ID maps. cubic: smoother when the image is enlarged. |
 | `colorSpace` | `linear`, `srgb` | `linear` | How the files' colour values are read. linear: as stored, for data maps and EXR. srgb: decoded from sRGB to linear, for colour frames saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
 
 ### Position
@@ -1534,6 +1624,22 @@ Tileable cellular noise: distance to the nearest point (f1), the second nearest 
 | `jitter` |  | `1` | 0 is a regular grid. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
+### White Noise
+
+Type `whiteNoise`.
+
+A random value per cell, Scale cells across, tiling. Colour gives three independent values.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+| `color` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `scale` |  | `256` | Cells across the texture. |
+| `seed` |  | `0` |  |
+
 ### Worley Noise
 
 Type `worley`.
@@ -1675,6 +1781,33 @@ Flips a normal map's green (OpenGL and DirectX conventions) and optionally red c
 | `invertX` |  | `false` |  |
 | `invertY` |  | `true` |  |
 
+### Normal Normalize
+
+Type `normalNormalize`.
+
+Rescales a normal map's vectors to unit length, after blending or filtering has shortened them.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input |  |  |
+| `out` | color | output |  |  |
+
+### Normal Rotate
+
+Type `normalRotate`.
+
+Turns a normal map's slopes by an angle. After turning a normal map's pixels (Transform, Tiler), turn its slopes by the same angle so the lighting follows.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input |  |  |
+| `rotation` | gray | input | `0` | Added turn, in whole turns (1 is 360 degrees), for a per-pixel angle. |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `angle` |  | `0` | Degrees, counterclockwise. |
+
 ### Normal Strength
 
 Type `normalStrength`.
@@ -1748,6 +1881,24 @@ A running-bond brick pattern: a mask with bevelled edges, a random value per bri
 | `mortar` |  | `0.05` | Gap, in brick heights. |
 | `bevel` |  | `0.1` | Edge falloff, in brick heights. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
+
+### Checker
+
+Type `checker`.
+
+A checkerboard of Count X by Count Y squares, tiling. Out is 1 on the first colour's squares.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+| `color` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `countX` |  | `8` | Squares across. |
+| `countY` |  | `8` | Squares down. |
+| `colorA` |  | `[1, 1, 1, 1]` |  |
+| `colorB` |  | `[0, 0, 0, 1]` |  |
 
 ### Gradient
 
@@ -1904,6 +2055,27 @@ A grid of square tiles with gaps and bevelled edges, optionally varied in size a
 | `sizeRandom` |  | `0` |  |
 | `rotationRandom` |  | `0` | Up to 22.5 degrees either way. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
+
+### Wave
+
+Type `wave`.
+
+Bands or rings with a sine, saw or triangle profile, Count repeats across, wobbled by noise with Distortion. Bands tile.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `shape` | `bands`, `rings` | `bands` | Straight bands, or rings around the centre. |
+| `direction` | `x`, `y`, `diagonal` | `x` | Which way bands run across. |
+| `profile` | `sine`, `saw`, `triangle` | `sine` | The shape of one wave. |
+| `count` |  | `8` | Waves across. |
+| `phase` |  | `0` | Slides the waves along, in waves. |
+| `distortion` |  | `0` | Noise that bends the waves. |
+| `detail` |  | `3` | Octaves of the distortion noise. |
+| `seed` |  | `0` |  |
 
 ### Weave
 
@@ -2322,6 +2494,9 @@ Moves, rotates and scales the input around the texture's centre.
 | `scale` |  | `1` |  |
 | `scaleX` |  | `1` | Width, times Scale. |
 | `scaleY` |  | `1` | Height, times Scale. |
+| `pivotX` |  | `0` | Where rotation and scale turn around, from the centre. |
+| `pivotY` |  | `0` | Where rotation and scale turn around, from the centre. |
+| `edges` | `repeat`, `extend`, `clip` | `repeat` | Past the input's edge. repeat: tiles it. extend: stretches its edge. clip: transparent black. |
 
 ### Warp
 
@@ -2523,6 +2698,8 @@ Maps a value from one range to another: From Low to To Low, From High to To High
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `clamp` |  | `true` |  |
+| `interpolation` | `linear`, `stepped`, `smoothStep`, `smootherStep` | `linear` | How the value moves between the bounds. stepped: in Steps equal jumps. smoothStep and smootherStep: eased at both ends. |
+| `steps` |  | `4` | Jumps for stepped. |
 
 ### Select
 
