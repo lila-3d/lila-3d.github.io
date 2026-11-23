@@ -2,7 +2,7 @@
 
 Renders are the viewport's own picture, supersampled: post process, depth of field and motion blur included, with no grid, wires or selection.
 
-Lila has no offline path tracer: it renders with the real-time renderer you work in, in seconds.
+Renders come from the renderer you work in, in seconds, with no separate offline renderer to set up. For bounced light and reflections while you work, use the [path traced view](path-traced-view.md).
 
 > A [C++ extension](cpp-extensions.md) can add any renderer. For path tracing, a [viewport renderer](viewport-renderers.md) draws the view with a Hydra delegate such as Cycles or Arnold.
 
