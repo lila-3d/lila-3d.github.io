@@ -12157,6 +12157,27 @@ Put an anchor on a layer: a name for the composite right after it, which masks (
 
 **Objects:** set layer name
 
+### texAddChannel
+
+Add a named output to a texture set: a Material Output input of that name, evaluated and exported like the standard channels. One the export preset doesn't name (a packed ORM, a specular or subsurface map) is written as a file of its own, with suffix as its {map} token. Returns the set's channels.
+
+**Objects:** set name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | str | `'color'` | Port type: color, gray or vector. |
+| `bits` |  | int | `8` | 8, 16 or 32 bits per channel. |
+| `suffix` |  | str |  | File name token for {map}; the name when empty. |
+| `colorSpace` |  | str | `'linear'` | linear writes data, srgb encodes colour. |
+
+```python
+texAddChannel("RockTex", "orm", suffix="ORM")
+```
+
+```python
+texAddChannel("RockTex", "specular", type="gray")
+```
+
 ### texAddGenerator
 
 Add a generator mask to a layer: edge wear, dirt, dust, cavity grime, AO darken, position gradient, thickness, scratches, drips, rust spread, moss, wetness, paint chips, sun bleach, ID select, UV island random, polygon fill (genEdgeWear, genDirt, ...; texNodeTypes lists the Generator category). Its inputs bind to the set's mesh maps by name. Returns {id}.
@@ -12273,6 +12294,12 @@ Add a named variant to a texture set and switch to it: from then on layer and ma
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `copy` |  | str |  | A variant whose overrides it starts with. |
+
+### texApplyPreset
+
+Set the graph parameters (and a set's graph seed) to a preset's values. Parameters added since it was saved keep theirs. Returns the names set.
+
+**Objects:** graph name
 
 ### texApplySmartMaterial
 
@@ -12397,6 +12424,12 @@ Delete a node group ("Set/Group") and the Group nodes running it, with their lin
 Delete nodes from a texture set's graph, with their links.
 
 **Objects:** set nodes...
+
+### texDeletePreset
+
+Delete a graph preset. The parameters keep their values.
+
+**Objects:** graph name
 
 ### texDeleteSnapshot
 
@@ -12606,6 +12639,21 @@ Make a node's input inside a node group an input of the group, linked from Group
 
 **Objects:** group node.input
 
+### texExposeParam
+
+Make a node's parameter a parameter of its graph: of the texture set ("Set"), edited in the graph's Parameters panel and stored in its presets, or of a node group ("Set/Group"), set on each Group node running it. Returns the parameter's name, made unique.
+
+**Objects:** graph node.param
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` |  | str |  | Wanted name; the parameter's id when left out. |
+| `label` |  | str |  | Shown instead of the name; the node parameter's label when left out. |
+
+```python
+texExposeParam("RockTex", "Noise.scale", label="Grain")
+```
+
 ### texFaceGroup
 
 Save a named face set on a texture set for painting (the faces given, else those selected on the mesh), or remove it. Groups make selection masks (texSelectionMask group=), fill targets (fillBy group) and locks (the paint tool's Lock). Returns every group.
@@ -12661,6 +12709,14 @@ A texture set's graph (or, as "Set/Group", one of its node groups): definition, 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `source` |  | bool | `False` | Include each pass's Slang source. |
+
+Not undoable.
+
+### texGraphParams
+
+A graph's parameters and presets: {params: [{name, label, kind, type, value, targets, options, min, max, softMin, softMax, step, description}], presets: [names], active, seed}. active names the first preset whose values all match the parameters now; empty when none does. seed: a set's graph seed (texSetGraphSeed).
+
+**Objects:** graph
 
 Not undoable.
 
@@ -12929,6 +12985,18 @@ The topmost stroke of a paint layer with a dab over a surface point, as texStrok
 
 Not undoable.
 
+### texProfileGraph
+
+Time a texture set's passes on the CPU at a square size: {nodes: {node: ms}, passes: [{node, ms}], total, backend, size}. nodes sums the passes by the node of the graph given ("Set" or "Set/Group") they run through; a pass fusing several nodes counts toward the one whose output it computes. Compile time is left out.
+
+**Objects:** graph
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `size` |  | int | `256` | Width and height to evaluate at. |
+
+Not undoable.
+
 ### texProjectionView
 
 Save a projection view on a texture set by name (view=, a screen view as texPaintStroke takes it), remove it (remove=True), or recall it (neither): projecting from a saved view lands the same every time. texPaintStroke and texCaptureView take the name as view. Returns the view, or every saved view after a change.
@@ -13003,6 +13071,12 @@ Rename a node group's input (or, with output=True, its output), keeping its link
 | --- | --- | --- | --- | --- |
 | `output` |  | bool | `False` | Rename a group output instead. |
 
+### texRenamePreset
+
+Rename a graph preset. Returns the new name.
+
+**Objects:** graph name newName
+
 ### texSampleChannels
 
 Pick a texture set's channel values at a point: uv=[u, v], or mesh= and position=[x, y, z] in its object space. source=set reads every channel as the stack evaluates it; source=layer reads one paint layer's own paint (layer=, else the active one), leaving out channels it didn't paint there. Values are linear: [r, g, b] for colour and vector channels, a number for gray ones. Returns {uv, udim, source, channels}.
@@ -13043,6 +13117,16 @@ Save a node group ("Set/Group") to the user's texture node library as a graph no
 **Objects:** group
 
 Not undoable.
+
+### texSavePreset
+
+Store every graph parameter's current value (and a set's graph seed) under a preset name, replacing a preset of that name. Returns the name.
+
+**Objects:** graph name
+
+```python
+texSavePreset("RockTex", "Mossy")
+```
 
 ### texSaveSmartMaterial
 
@@ -13087,11 +13171,50 @@ Replace a set's whole graph (JSON as texGraphInfo returns under 'definition'). T
 
 **Objects:** set definition
 
+### texSetExpression
+
+Compute a node's number parameter (or unlinked number input) from an expression instead of its value: texSetExpression(set, 'Noise.scale', string='Tiles.count * 2'). Same syntax as plug expressions (the expression command): numbers, Node.param for another node's parameter or unlinked input in the same graph, input.name for an exposed input of the graph, time (seconds) and frame, + - * / % **, comparisons, and/or/not, `a if c else b` and the expression command's functions. An empty string or remove=True takes the expression away and keeps the value it computed. Returns the value it computes now.
+
+**Objects:** set node.param
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `string` | `s` | str |  | The expression; a leading = is optional. |
+| `remove` |  | bool | `False` | Take the expression away. |
+
 ### texSetFrames
 
 Replace a texture set's frames, shaped as gnSetFrames takes them (a frame with text is a note). Display only; names not in the graph are dropped. Returns how many frames there are.
 
 **Objects:** set frames
+
+### texSetGraphParam
+
+Set a graph parameter's value. On a texture set's graph it sets every node parameter it drives; on a node group it sets the default its Group nodes use.
+
+**Objects:** graph name value
+
+```python
+texSetGraphParam("RockTex", "scale", 12.0)
+```
+
+### texSetGraphSeed
+
+Set a texture set's graph seed: added to every seed parameter in the set, node groups included, so one number re-rolls the whole material. Presets store it. Returns the seed.
+
+**Objects:** set [seed]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `random` |  | bool | `False` | Pick a new seed at random instead. |
+
+```python
+texSetGraphSeed("RockTex", 42)
+```
+
+```python
+texSetGraphSeed("RockTex", random=True)
+```
 
 ### texSetInputInfo
 
@@ -13176,7 +13299,7 @@ Replace a texture set's zip ties, shaped as gnSetTies takes them. Display only; 
 
 ### texSetValue
 
-Set a parameter or an unlinked input: texSetValue(set, 'Noise.scale', 8), texSetValue(set, 'Blend.mode', 'multiply'). GroupInput.<input> sets an exposed input's default. Value edits never recompile the graph.
+Set a parameter or an unlinked input: texSetValue(set, 'Noise.scale', 8), texSetValue(set, 'Blend.mode', 'multiply'). GroupInput.<input> sets an exposed input's default. Value edits never recompile the graph. Every computing node also takes outputSize (eighth, quarter, half, set, double, quadruple: its resolution against the set's) and bitDepth (set, 8, 16, 32), which give it buffers of its own: texSetValue(set, 'Blur.outputSize', 'half').
 
 **Objects:** set node.id value
 
@@ -13354,6 +13477,12 @@ Which project images the material editor's texture lists show. Globs relative to
 | `exclude` | `e` | list |  | Exclude globs; [] clears them. |
 | `scene` | `s` | bool | `False` | Set the scene's override instead of the workspace's lists. |
 | `clear` | `c` | bool | `False` | Remove the lists at that level (with scene, the scene falls back to the workspace). |
+
+### texUnexposeParam
+
+Remove a graph parameter. The nodes it drove keep its current value, and presets forget it.
+
+**Objects:** graph name
 
 ### texUngroup
 

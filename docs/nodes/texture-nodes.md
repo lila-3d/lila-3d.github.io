@@ -6,6 +6,22 @@ Every texture graph node, by menu category.
 
 ## Fill
 
+### Fill to Bounding Box Size
+
+Type `fillToBoundingBoxSize`.
+
+Each Flood Fill region's bounding box width and height in uv, as separate values. Black outside the regions.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, -1, -1]` | A Flood Fill output. |
+| `width` | gray | output |  |  |
+| `height` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `scale` |  | `1` | Multiplies the size. |
+
 ### Fill to Gradient
 
 Type `fillToGradient`.
@@ -22,6 +38,28 @@ A linear ramp across each Flood Fill region, at an angle with an optional random
 | `angle` |  | `0` | Degrees. |
 | `angleRandom` |  | `0` |  |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
+
+### Fill to Index
+
+Type `fillToIndex`.
+
+Numbers the Flood Fill regions from the top row down and gives each its number over the region count, so the last region is white. Black outside the regions. Runs as its own pass.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, -1, -1]` | A Flood Fill output. |
+| `out` | gray | output |  |  |
+
+### Fill to Position
+
+Type `fillToPosition`.
+
+Each Flood Fill region's bounding box centre as a colour: u in red, v in green. Black outside the regions.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, -1, -1]` | A Flood Fill output. |
+| `out` | color | output |  |  |
 
 ### Fill to Random
 
@@ -81,7 +119,44 @@ Finds the separate white regions of a mask (joined across the texture's edges) a
 | --- | --- | --- | --- |
 | `passes` |  | `4` | GPU sweeps; more resolve winding regions. The CPU result is always exact. |
 
+### Flood Fill Mapper
+
+Type `floodFillMapper`.
+
+Stamps the pattern into every Flood Fill region, fitted to the region's bounding box, with an optional random turn, size and brightness per region.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0, 0, -1, -1]` | A Flood Fill output. |
+| `pattern` | gray | input | `1` | Its 0 to 1 square is fitted to each region. |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `fit` | `stretch`, `keepProportions` | `stretch` | Stretch fills the box; keep proportions fits the pattern's square to the box's shorter side. |
+| `rotation` |  | `0` | Degrees. |
+| `rotationRandom` |  | `0` |  |
+| `size` |  | `1` |  |
+| `sizeRandom` |  | `0` | Shrinks each region's pattern by up to this share. |
+| `valueRandom` |  | `0` | Darkens each region's pattern by up to this share. |
+| `seed` |  | `0` | Changes the pattern without changing its look. |
+
 ## Filter
+
+### Auto Levels
+
+Type `autoLevels`.
+
+Stretches the input so its darkest value becomes 0 and its brightest 1. Runs as its own pass.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `perChannel`, `luminance` | `perChannel` | Per channel stretches red, green and blue separately; luminance stretches all three by the brightness range, keeping the hues. Alpha is untouched. |
 
 ### Bevel
 
@@ -308,6 +383,21 @@ Lights a height from an angle: 0.5 is flat, brighter on slopes facing the light.
 | `angle` |  | `135` | Light direction, degrees. |
 | `intensity` |  | `1` |  |
 
+### Equalize
+
+Type `equalize`.
+
+Spreads the values evenly from 0 to 1 (histogram equalisation): crowded ranges are pulled apart, sparse ones squeezed. Runs as its own pass.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `luminance`, `perChannel` | `luminance` | Luminance evens out the brightness and keeps the hues; per channel evens out red, green and blue separately. Alpha is untouched. |
+
 ### Erode
 
 Type `erode`.
@@ -438,6 +528,38 @@ Slides a threshold through the values: position 0 is all black, 1 all white; con
 | `position` |  | `0.5` |  |
 | `contrast` |  | `0.5` |  |
 
+### Histogram Select
+
+Type `histogramSelect`.
+
+White where the input is within a band of values around a position, black elsewhere. Contrast 0 fades out from the band's centre; 1 cuts it hard.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | gray | input | `0.5` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `position` |  | `0.5` | The band's centre. |
+| `range` |  | `0.25` | The band's width. |
+| `contrast` |  | `0.5` |  |
+
+### Histogram Shift
+
+Type `histogramShift`.
+
+Adds an amount to every value and wraps what passes 1 back round from 0, so the values cycle while their spread stays the same.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | gray | input | `0.5` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `position` |  | `0.5` | How far to shift: 0 leaves the input, 1 wraps all the way round. |
+
 ### HSV
 
 Type `hsv`.
@@ -447,6 +569,9 @@ Shifts hue and scales saturation and value.
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `hueMap` | gray | input | `0` | Added to Hue per pixel, in turns. |
+| `saturationMap` | gray | input | `1` | Multiplies Saturation per pixel. |
+| `valueMap` | gray | input | `1` | Multiplies Value per pixel. |
 | `out` | color | output |  |  |
 
 | Property | Options | Default | Description |
@@ -840,11 +965,12 @@ An image file sampled in uv, repeated tiles times. An SVG is drawn at the set's 
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `file` |  |  |  |
-| `tiles` |  | `1` | Repeats across the texture. |
+| `file` |  |  | The image. A <UDIM> or <UVTILE> token in the name (rock_<UDIM>.png) reads each UDIM tile's own file in that tile. |
+| `tiles` |  | `1` | Repeats across the texture. Repeated or read through a scaled UV, the image is read from prefiltered smaller copies, so detail finer than a texel averages instead of aliasing. |
 | `wrap` | `repeat`, `extend`, `mirror`, `clip` | `repeat` | Past the image's edge. repeat: tiles it. extend: stretches the edge pixels. mirror: tiles it flipped every other time. clip: transparent black. |
 | `filter` | `linear`, `closest`, `cubic` | `linear` | Between pixels. linear: blends the four nearest. closest: the nearest pixel, hard-edged, for pixel art and ID maps. cubic: smoother when the image is enlarged. |
 | `colorSpace` | `linear`, `srgb` | `linear` | How the file's colour values are read. linear: as stored, for data maps (roughness, normal, height) and EXR. srgb: decoded from sRGB to linear, for colour maps saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
+| `alphaMode` | `straight`, `premultiplied` | `straight` | How the file stores colour against alpha. straight: colour as is (PNG, TGA, most paint exports). premultiplied: colour already multiplied by alpha (EXR renders), divided back out on read so the output is straight. |
 
 ### Image Sequence
 
@@ -867,10 +993,25 @@ Numbered image files played over the timeline, for animated textures. Pick any o
 | `speed` |  | `1` | Sequence frames per scene frame: 0.5 plays at half speed, negative plays backwards. Keyed, the speed accumulates over the frames from Start Frame, so a change of speed never jumps. |
 | `loop` | `loop`, `hold`, `pingPong` | `loop` | loop: starts over. hold: stays on the end frame (the first one before Start Frame). pingPong: plays back and forth. |
 | `interpolation` | `hold`, `blend` | `hold` | Between sequence frames, when Speed isn't a whole number. hold: shows the earlier frame. blend: crossfades into the next. |
-| `tiles` |  | `1` | Repeats across the texture. |
+| `tiles` |  | `1` | Repeats across the texture. Repeated or read through a scaled UV, the image is read from prefiltered smaller copies, so detail finer than a texel averages instead of aliasing. |
 | `wrap` | `repeat`, `extend`, `mirror`, `clip` | `repeat` | Past the image's edge. repeat: tiles it. extend: stretches the edge pixels. mirror: tiles it flipped every other time. clip: transparent black. |
 | `filter` | `linear`, `closest`, `cubic` | `linear` | Between pixels. linear: blends the four nearest. closest: the nearest pixel, hard-edged, for pixel art and ID maps. cubic: smoother when the image is enlarged. |
 | `colorSpace` | `linear`, `srgb` | `linear` | How the files' colour values are read. linear: as stored, for data maps and EXR. srgb: decoded from sRGB to linear, for colour frames saved as 8 or 16-bit PNG, JPEG, TGA or TIFF. Alpha is never decoded. |
+| `alphaMode` | `straight`, `premultiplied` | `straight` | How the file stores colour against alpha. straight: colour as is (PNG, TGA, most paint exports). premultiplied: colour already multiplied by alpha (EXR renders), divided back out on read so the output is straight. |
+
+### Integer
+
+Type `integer`.
+
+A whole number, for counts and seeds.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | float | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `value` |  | `0` | The number. |
 
 ### Position
 
@@ -916,6 +1057,21 @@ A random value (and colour) per uv island, from the set's island map: each plank
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `seed` |  | `0` |  |
+
+### Time
+
+Type `time`.
+
+The scene's time while it plays, for animated textures: seconds and frames.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seconds` | float | output |  |  |
+| `frame` | float | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `fps` |  | `30` | Frames per second, for Frame. |
 
 ### Tri-Planar Tiled
 
@@ -1585,7 +1741,8 @@ Voronoi variants: flat random cells, crackle (thin lines along cell edges), F2 -
 | `scale` |  | `6` | Cells across the texture. |
 | `jitter` |  | `1` | 0 is a regular grid. |
 | `mode` | `cells`, `crackle`, `f2MinusF1`, `f1`, `f2` | `cells` |  |
-| `metric` | `euclidean`, `manhattan`, `chebyshev` | `euclidean` |  |
+| `metric` | `euclidean`, `manhattan`, `chebyshev`, `minkowski` | `euclidean` |  |
+| `exponent` |  | `2` | Minkowski's exponent: 1 is manhattan, 2 euclidean, higher squarer. |
 | `width` |  | `0.08` | Crackle line width, in cells. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
@@ -1681,6 +1838,26 @@ Grime: blotches, spots and fine grain combined, thresholded to a coverage amount
 | `grain` |  | `0.5` | Fine speckle. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
+### Fractal Sum
+
+Type `fractalSum`.
+
+Layers of one base noise, each finer and fainter: perlin, value, simplex or cells. Roughness keeps more of the fine layers; Lacunarity spaces them.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `base` | `perlin`, `value`, `simplex`, `cells` | `perlin` | The noise each layer is made of. |
+| `scale` |  | `4` | The first layer's cells across. |
+| `octaves` |  | `6` | Layers. |
+| `roughness` |  | `0.5` | Each layer's strength over the last. |
+| `lacunarity` |  | `2` | Each octave's frequency over the last: whole numbers keep it tiling. |
+| `distortion` |  | `0` | Bends the noise with a second noise, in cells. |
+| `seed` |  | `0` |  |
+
 ### Gabor Noise
 
 Type `gabor`.
@@ -1715,6 +1892,8 @@ Tileable gradient noise, summed over octaves (FBM). 0 to 1.
 | `scale` |  | `4` | Cells across the texture at the first octave. |
 | `octaves` |  | `5` |  |
 | `persistence` |  | `0.5` | Amplitude of each octave relative to the one before. |
+| `lacunarity` |  | `2` | Each octave's frequency over the last: whole numbers keep it tiling. |
+| `distortion` |  | `0` | Bends the noise with a second noise, in cells. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
 ### Simplex Noise
@@ -1734,6 +1913,26 @@ Tileable simplex-style gradient noise on a triangular lattice, summed over octav
 | `persistence` |  | `0.5` | Amplitude of each octave relative to the one before. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
+### Streaks
+
+Type `streaks`.
+
+Thin runs along one direction, broken into lengths: rain streaks, brushed metal, wood grain, grime running down a wall. Leaks fades each run from its start, like stains dripping from an edge.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `mode` | `streaks`, `leaks` | `streaks` | streaks: even runs. leaks: each fades out from where it starts. |
+| `angle` |  | `-90` | Which way runs go, degrees from the right, anticlockwise. |
+| `density` |  | `64` | Runs across. |
+| `length` |  | `4` | Breaks along each run: higher is shorter runs. |
+| `amount` |  | `0.5` | How many runs show. |
+| `contrast` |  | `4` | Sharpens runs against the background. |
+| `seed` |  | `0` |  |
+
 ### Value Noise
 
 Type `valueNoise`.
@@ -1749,6 +1948,8 @@ Tileable value noise, summed over octaves (FBM). 0 to 1.
 | `scale` |  | `4` | Cells across the texture at the first octave. |
 | `octaves` |  | `5` |  |
 | `persistence` |  | `0.5` | Amplitude of each octave relative to the one before. |
+| `lacunarity` |  | `2` | Each octave's frequency over the last: whole numbers keep it tiling. |
+| `distortion` |  | `0` | Bends the noise with a second noise, in cells. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
 ### Voronoi
@@ -1763,11 +1964,13 @@ Tileable cellular noise: distance to the nearest point (f1), the second nearest 
 | `f2` | gray | output |  |  |
 | `edge` | gray | output |  |  |
 | `random` | gray | output |  |  |
+| `smoothF1` | gray | output |  | F1 with its creases rounded by Smoothness: soft blobs instead of cones. |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `scale` |  | `6` |  |
 | `jitter` |  | `1` | 0 is a regular grid. |
+| `smoothness` |  | `0.5` | How round Smooth F1 is. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
 ### White Noise
@@ -2080,6 +2283,49 @@ A checkerboard of Count X by Count Y squares, tiling. Out is 1 on the first colo
 | `colorA` |  | `[1, 1, 1, 1]` |  |
 | `colorB` |  | `[0, 0, 0, 1]` |  |
 
+### Cobblestones
+
+Type `cobblestones`.
+
+Rounded stones packed in irregular cells with gaps between: cobbles, flagstones, pebble paving. Height is each stone's rounded top; Mask fills the stones.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `height` | gray | output |  |  |
+| `mask` | gray | output |  |  |
+| `random` | gray | output |  |  |
+| `color` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `scale` |  | `6` | Stones across. |
+| `jitter` |  | `1` | How irregular the stones are. |
+| `gap` |  | `0.06` | Space between stones, in cells. |
+| `roundness` |  | `0.3` | How far in from the edge the top rounds off, in cells. |
+| `heightRandom` |  | `0.3` | Lowers stones by up to this much at random. |
+| `seed` |  | `0` |  |
+
+### Fibers
+
+Type `fibers`.
+
+Many thin strands at random places, mostly along one direction with some spread: fabric fibres, hair, scratches, straw.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `count` |  | `16` | Cells across; each holds Per Cell strands. |
+| `perCell` |  | `4` | Strands per cell. |
+| `length` |  | `1.5` | Strand length, in cells. |
+| `width` |  | `0.02` | Strand width, in cells. |
+| `angle` |  | `0` | Main direction, degrees. |
+| `spread` |  | `0.2` | Random turn from the main direction, 1 is any direction. |
+| `valueRandom` |  | `0.5` | Darkens strands by up to this much at random. |
+| `seed` |  | `0` |  |
+
 ### Gradient
 
 Type `gradient`.
@@ -2264,6 +2510,33 @@ Rays out from the centre, Count of them, sharpened by Sharpness: sun rays, light
 | `sharpness` |  | `4` | Higher makes thinner rays. |
 | `falloff` |  | `0` | Fades rays out toward the edge. |
 | `rotation` |  | `0` | Degrees. |
+
+### Text
+
+Type `text`.
+
+Words drawn in a font: a mask that is 1 on the letters and 0 around them, and the letters in a colour over a background. Size is the letter height as a fraction of the texture's height, so the letters keep their shape on a non-square texture. Position is where the alignment point sits, in uv; the block of lines is centred on it vertically. With Tile, letters crossing an edge come back in at the opposite one, so the texture still tiles.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `coord` | vector | input |  | Where to read the letters: the mesh's uvs unless linked (a warp, Mapping). |
+| `mask` | gray | output |  |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `text` |  | `Lila` | The words; a new line starts a new line of text. |
+| `font` |  | `Inter` | A family and style (Inter SemiBold), bundled or installed, or a font file. |
+| `size` |  | `0.2` | Letter height (one em) as a fraction of the texture's height. |
+| `positionX` |  | `0.5` |  |
+| `positionY` |  | `0.5` |  |
+| `rotation` |  | `0` | Degrees, counterclockwise about the position. |
+| `alignment` | `left`, `center`, `right` | `center` | Which part of each line sits on the position. left: the line's start. center: its middle. right: its end. |
+| `lineSpacing` |  | `1` | Baseline to baseline, in the font's line heights. |
+| `tracking` |  | `0` | Extra space after each letter, in ems. |
+| `tile` |  | `true` | Letters crossing an edge come back in at the opposite one. |
+| `color` |  | `[1, 1, 1, 1]` |  |
+| `background` |  | `[0, 0, 0, 1]` |  |
 
 ### Tiles
 
@@ -2731,6 +3004,22 @@ Warps the input in several small steps along the slope of the warp input, follow
 | `iterations` |  | `4` |  |
 | `intensity` |  | `1` |  |
 
+### Panner
+
+Type `panner`.
+
+Slides the input over time, Speed in textures per second, tiling: flowing water, scrolling lava, conveyor belts.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `speedX` |  | `0.1` | Across, textures per second. |
+| `speedY` |  | `0` | Down, textures per second. |
+
 ### Polar
 
 Type `polar`.
@@ -2745,6 +3034,23 @@ Wraps the input around the centre (to polar: its u becomes the angle and its v t
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `mode` | `toPolar`, `toCartesian` | `toPolar` |  |
+
+### Rotator
+
+Type `rotator`.
+
+Turns the input around its centre over time, Speed in turns per second: fans, vortices, spinning signs.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `speed` |  | `0.25` | Turns per second, anticlockwise. |
+| `centerX` |  | `0.5` | The point it turns around. |
+| `centerY` |  | `0.5` | The point it turns around. |
 
 ### Safe Transform
 
@@ -2800,6 +3106,28 @@ Repeats the input a whole number of times across the texture.
 | --- | --- | --- | --- |
 | `countX` |  | `2` |  |
 | `countY` |  | `2` |  |
+
+### Tile Random
+
+Type `tileRandom`.
+
+Repeats the input in a grid with every copy turned, flipped or slid at random, so a repeat doesn't read as one: break up tiles, planks and panels.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+| `random` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `countX` |  | `2` | Copies across. |
+| `countY` |  | `2` | Copies down. |
+| `turn` |  | `true` | Turns each copy by a random quarter turn. |
+| `flip` |  | `false` | Mirrors copies at random. |
+| `offset` |  | `0` | Slides each copy's content by up to this much at random. |
+| `valueRandom` |  | `0` | Darkens copies by up to this much at random. |
+| `seed` |  | `0` |  |
 
 ### Transform
 
@@ -3044,6 +3372,33 @@ Maps a value from one range to another: From Low to To Low, From High to To High
 | `clamp` |  | `true` |  |
 | `interpolation` | `linear`, `stepped`, `smoothStep`, `smootherStep` | `linear` | How the value moves between the bounds. stepped: in Steps equal jumps. smoothStep and smootherStep: eased at both ends. |
 | `steps` |  | `4` | Jumps for stepped. |
+
+### Repeat Input
+
+Start of a repeat zone: the nodes between it and Repeat Output run Iterations times, each pass reading what the last one gave Repeat Output (the first reads this node's inputs). For iterative warps, smoothing and recursive patterns.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `color` | color | input | `[0, 0, 0, 1]` | Carried from pass to pass. |
+| `gray` | gray | input | `0` | Carried from pass to pass. |
+| `color` | color | output |  | Carried from pass to pass. |
+| `gray` | gray | output |  | Carried from pass to pass. |
+| `iteration` | float | output |  | The pass number, from 0. |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `iterations` |  | `4` | Passes, up to 64; 0 passes the inputs through. |
+
+### Repeat Output
+
+End of a repeat zone: what reaches it feeds the next pass, and after the last pass comes out here. An unlinked input carries its value through unchanged.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `color` | color | input | `[0, 0, 0, 1]` | Carried from pass to pass. |
+| `gray` | gray | input | `0` | Carried from pass to pass. |
+| `color` | color | output |  | Carried from pass to pass. |
+| `gray` | gray | output |  | Carried from pass to pass. |
 
 ### Select
 
