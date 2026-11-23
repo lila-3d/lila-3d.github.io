@@ -83,6 +83,22 @@ Finds the separate white regions of a mask (joined across the texture's edges) a
 
 ## Filter
 
+### Bevel
+
+Type `bevel`.
+
+A height that rises from a mask's edges to full inside over Width, for chamfered panels, rounded tiles and raised lettering. Feed it a shape's mask; link the result into Height to Normal for its normals.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | gray | input | `0` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `width` |  | `0.02` | How far in from the edge the bevel reaches, as a fraction of the texture width. |
+| `profile` | `linear`, `round`, `smooth` | `linear` | The bevel's cross-section: a straight slope, a quarter circle, or eased at both ends. |
+
 ### Blend
 
 Type `blend`.
@@ -242,6 +258,24 @@ Distance from the white parts of a mask, wrapping: a falloff from 1 at the shape
 | `maxDistance` |  | `0.1` | Falloff length, uv. |
 | `mode` | `falloff`, `distance`, `signed` | `falloff` |  |
 
+### Drop Shadow
+
+Type `dropShadow`.
+
+A soft shadow a mask casts: the mask moved by Distance toward Angle and softened, without the mask itself. Blend it under the shape for raised decals and lettering.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | gray | input | `0` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `angle` |  | `-45` | Where the shadow falls, in degrees from the right, anticlockwise. |
+| `distance` |  | `0.02` | How far the shadow falls, uv. |
+| `softness` |  | `0.01` | Edge blur, uv. |
+| `opacity` |  | `0.8` | Darkness of the shadow. |
+
 ### Edge Detect
 
 Type `edgeDetect`.
@@ -289,6 +323,37 @@ Shrinks bright areas: each texel takes the minimum within a square of the radius
 | --- | --- | --- | --- |
 | `radius` |  | `0.01` |  |
 
+### Gamma
+
+Type `gamma`.
+
+Bends the midtones: above 1 brightens them, below darkens, black and white stay.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `gamma` |  | `1` | 1 changes nothing. |
+
+### Glow
+
+Type `glow`.
+
+A soft halo spreading Radius out from a mask's shapes, the shapes themselves included.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | gray | input | `0` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `radius` |  | `0.03` | How far the halo reaches, uv. |
+| `strength` |  | `1` | Brightness of the halo. |
+
 ### Grayscale
 
 Type `grayscale`.
@@ -325,6 +390,21 @@ Lays one material's height over another's: the top shows where it stands higher,
 | --- | --- | --- | --- |
 | `offset` |  | `0` | Raises the top height before comparing. |
 | `contrast` |  | `0.9` | 1 is a hard edge, 0 a wide fade. |
+
+### High Pass
+
+Type `highPass`.
+
+Keeps the fine detail and drops the broad shading: the input minus a blur of Radius, around 0.5. Lays well over a base with Overlay.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `radius` |  | `0.02` | Detail larger than this, as a fraction of the texture width, goes. |
 
 ### Histogram Range
 
@@ -478,6 +558,38 @@ Color Mask for up to four colours at once: white wherever the input is near any 
 | `color4` |  | `[1, 1, 0, 1]` |  |
 | `tolerance` |  | `0.1` |  |
 | `softness` |  | `0.05` |  |
+
+### Non-Uniform Blur
+
+Type `nonUniformBlur`.
+
+A blur whose radius follows a map: Radius where the map is white, none where it is black, so one area softens and the rest stays sharp.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `map` | gray | input | `1` | How much of Radius each pixel gets. |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `radius` |  | `0.02` | The widest blur, as a fraction of the texture width. |
+
+### Pixelate
+
+Type `pixelate`.
+
+Flat squares, Cells across, each the colour at its centre.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `cellsX` |  | `32` | Squares across. |
+| `cellsY` |  | `32` | Squares down. |
 
 ### Posterize
 
@@ -718,7 +830,7 @@ Brighter where the surface turns away from the viewer, from the mesh's world nor
 
 Type `image`.
 
-An image file sampled in uv, repeated tiles times. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. 8 and 16-bit files read as 0..1; signed, 32-bit and float files (EXR, float or int16 TIFF) read as stored, so a height map keeps its units: map it with Colorize's Low and High. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
+An image file sampled in uv, repeated tiles times. An SVG is drawn at the set's resolution, transparent outside its shapes. Relative paths resolve against the workspace, the scene's folder, then Lila's resources (strokes/strokes_soft.png names a shipped stroke sheet). The set samples the image at the set's resolution: when the image is larger, Match Set on the node raises the set to fit. 8 and 16-bit files read as 0..1; signed, 32-bit and float files (EXR, float or int16 TIFF) read as stored, so a height map keeps its units: map it with Colorize's Low and High. To show an image on an object without authoring maps, set it as a material's map in the Material Editor instead.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -852,6 +964,22 @@ The texture coordinate: u, v and 0. Feed it through math or transforms for custo
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `uv` | vector | output |  |  |
+
+### Vector
+
+Type `vector`.
+
+A constant vector, for Vector Math, Mapping and coordinates.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `x` |  | `0` | X. |
+| `y` |  | `0` | Y. |
+| `z` |  | `0` | Z. |
 
 ## Layer
 
@@ -1498,6 +1626,24 @@ Faceted cells: each cell is a randomly tilted plane, like cut crystal or shatter
 | `jitter` |  | `1` |  |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
+### Curl Noise
+
+Type `curlNoise`.
+
+A swirling flow field without sources or sinks, as a vector (x and y around 0): link it into Warp or Directional Warp for smoke, marble and brushed swirls.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | vector | output |  |  |
+| `color` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `scale` |  | `4` | Swirls across. |
+| `octaves` |  | `3` | Detail levels. |
+| `persistence` |  | `0.5` | How much each finer level adds. |
+| `seed` |  | `0` |  |
+
 ### Directional Noise
 
 Type `directional`.
@@ -1694,6 +1840,7 @@ Convexity from a normal map: above 0.5 on ridges, below in creases.
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `intensity` |  | `1` |  |
+| `radius` |  | `1` | How many texels apart it compares normals: larger shows broader curvature and less fine noise. |
 
 ### Height Normal Rebuild
 
@@ -1731,6 +1878,24 @@ A tangent-space normal (OpenGL, green up) from the slope of a height. depth is t
 | `depth` |  | `5` |  |
 | `sizeU` |  | `100` |  |
 | `sizeV` |  | `100` |  |
+
+### Height to Shadow
+
+Type `heightToShadow`.
+
+Where a height map shades itself under a low light from Angle: 1 lit, 0 in shadow. For baked-looking shading on stylised maps and for masking crevices away from a light.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `height` | gray | input | `0` |  |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `angle` |  | `45` | Where the light comes from, in degrees from the right, anticlockwise. |
+| `elevation` |  | `20` | The light's height above the surface, degrees: lower casts longer shadows. |
+| `depth` |  | `0.1` | How tall white is, as a fraction of the texture width. |
+| `softness` |  | `0.5` | Fades shadows in over this much of their length. |
 
 ### Normal Blend
 
@@ -1791,6 +1956,21 @@ Rescales a normal map's vectors to unit length, after blending or filtering has 
 | --- | --- | --- | --- | --- |
 | `input` | color | input |  |  |
 | `out` | color | output |  |  |
+
+### Normal Reconstruct
+
+Type `normalReconstruct`.
+
+Rebuilds a normal map's blue channel from red and green, for two-channel normal maps (BC5) and maps whose blue was used for something else. Flip Green converts between OpenGL and DirectX.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `flipGreen` |  | `false` | Inverts green, between OpenGL and DirectX. |
 
 ### Normal Rotate
 
@@ -1916,6 +2096,23 @@ A ramp from 0 to 1: linear (along angle), radial, angular or diamond around the 
 | `angle` |  | `0` | Degrees; linear only. |
 | `repeat` |  | `1` |  |
 
+### Grid
+
+Type `grid`.
+
+Lines Count X by Count Y across, Thickness wide, tiling: panel lines, tile grout, graph paper.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `countX` |  | `8` | Lines across. |
+| `countY` |  | `8` | Lines down. |
+| `thickness` |  | `0.05` | Line width, as a fraction of a cell. |
+| `softness` |  | `0` | Fades the lines' edges, as a fraction of a cell. |
+
 ### Hexagons
 
 Type `hex`.
@@ -2033,6 +2230,41 @@ A circle, square, polygon, star or ring, repeated on a grid: an antialiased mask
 | `rotation` |  | `0` | Degrees, anticlockwise. |
 | `softness` |  | `1` | Edge blur, in texels. |
 
+### Sphere Mask
+
+Type `sphereMask`.
+
+1 inside a circle around Center, fading to 0 at Radius: Hardness keeps more of it solid.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `coord` | vector | input |  | Where to measure from: the uvs unless linked. |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `centerX` |  | `0.5` | The circle's centre. |
+| `centerY` |  | `0.5` | The circle's centre. |
+| `radius` |  | `0.3` | Where it reaches 0. |
+| `hardness` |  | `0.5` | 0 fades from the centre, 1 is a hard edge. |
+
+### Starburst
+
+Type `starburst`.
+
+Rays out from the centre, Count of them, sharpened by Sharpness: sun rays, light leaks, radial streaks.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `out` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `count` |  | `12` | Rays. |
+| `sharpness` |  | `4` | Higher makes thinner rays. |
+| `falloff` |  | `0` | Fades rays out toward the edge. |
+| `rotation` |  | `0` | Degrees. |
+
 ### Tiles
 
 Type `tiles`.
@@ -2096,6 +2328,36 @@ Plain over-under weave of rounded threads: a height, a thread mask and which thr
 
 ## Scatter
 
+### Radial Splatter
+
+Type `radialSplatter`.
+
+Copies of the pattern spaced around a circle, in one or more rings toward the centre: bolt circles, flower petals, clock marks, vents. Follow Angle turns each copy to face out from the centre.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `pattern` | gray | input | `1` |  |
+| `out` | gray | output |  |  |
+| `random` | gray | output |  |  |
+| `instanceUv` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `count` |  | `8` | Copies around each ring. |
+| `rings` |  | `1` | Rings, from the outer one toward the centre. |
+| `radius` |  | `0.35` | The outer ring's radius, in uv. |
+| `size` |  | `0.12` | Each copy's size, in uv. |
+| `sizeRandom` |  | `0` | Shrinks copies by up to this much at random. |
+| `ringShrink` |  | `0` | Each inner ring's copies are this much smaller. |
+| `ringTwist` |  | `0` | Turns each inner ring by this fraction of the gap between copies. |
+| `followAngle` |  | `true` | Turns each copy to face out from the centre. |
+| `rotation` |  | `0` | Added turn, in degrees. |
+| `rotationRandom` |  | `0` | Random turn, up to a full one at 1. |
+| `valueRandom` |  | `0` | Darkens copies by up to this much at random. |
+| `centerX` |  | `0` | Moves the centre, from the middle. |
+| `centerY` |  | `0` | Moves the centre, from the middle. |
+| `seed` |  | `0` |  |
+
 ### Splatter
 
 Type `splatter`.
@@ -2105,13 +2367,20 @@ Scatters several copies of the pattern per cell at random positions, sizes and r
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `pattern` | gray | input | `1` | Sampled in each instance's own 0 to 1 uv. |
+| `pattern2` | gray | input | `0` | Another pattern instances pick at random when Patterns is 2 or more. |
+| `pattern3` | gray | input | `0` | Another pattern instances pick at random when Patterns is 3 or more. |
+| `pattern4` | gray | input | `0` | Another pattern instances pick at random when Patterns is 4 or more. |
 | `mask` | gray | input | `1` | Instance density, read at each instance's centre. |
+| `sizeMap` | gray | input | `1` | Scales each instance, read at its centre. |
+| `rotationMap` | gray | input | `0` | Turns each instance, in whole turns, read at its centre. |
+| `colorMap` | color | input | `[1, 1, 1, 1]` | Each instance's colour, read at its centre, when Colour From is map. |
 | `out` | gray | output |  |  |
 | `color` | color | output |  |  |
 | `instanceUv` | vector | output |  |  |
 | `random` | gray | output |  |  |
 | `rotation` | gray | output |  |  |
 | `size` | gray | output |  |  |
+| `pattern` | gray | output |  | Which pattern input the instance drew: 0 for the first, 1/3 for the second, and so on. |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
@@ -2126,6 +2395,9 @@ Scatters several copies of the pattern per cell at random positions, sizes and r
 | `valueRandom` |  | `0.3` | Random darkening per instance. |
 | `maskSize` |  | `0` | How much the mask shrinks instances, as well as thinning them. |
 | `blend` | `max`, `add`, `top` | `top` | Where instances overlap: the brightest, their sum, or the topmost. |
+| `patterns` |  | `1` | How many pattern inputs instances pick from at random. |
+| `rowOffset` |  | `0` | Slides every other row along, in cells: 0.5 lays instances like bricks. |
+| `colorFrom` | `random`, `map` | `random` | Where the Colour output's per-instance colour comes from. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
 ### Tiler
@@ -2137,13 +2409,20 @@ Places one copy of the pattern in every cell of a grid, each with its own random
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
 | `pattern` | gray | input | `1` | Sampled in each instance's own 0 to 1 uv. |
+| `pattern2` | gray | input | `0` | Another pattern instances pick at random when Patterns is 2 or more. |
+| `pattern3` | gray | input | `0` | Another pattern instances pick at random when Patterns is 3 or more. |
+| `pattern4` | gray | input | `0` | Another pattern instances pick at random when Patterns is 4 or more. |
 | `mask` | gray | input | `1` | Instance density, read at each instance's centre. |
+| `sizeMap` | gray | input | `1` | Scales each instance, read at its centre. |
+| `rotationMap` | gray | input | `0` | Turns each instance, in whole turns, read at its centre. |
+| `colorMap` | color | input | `[1, 1, 1, 1]` | Each instance's colour, read at its centre, when Colour From is map. |
 | `out` | gray | output |  |  |
 | `color` | color | output |  |  |
 | `instanceUv` | vector | output |  |  |
 | `random` | gray | output |  |  |
 | `rotation` | gray | output |  |  |
 | `size` | gray | output |  |  |
+| `pattern` | gray | output |  | Which pattern input the instance drew: 0 for the first, 1/3 for the second, and so on. |
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
@@ -2157,6 +2436,9 @@ Places one copy of the pattern in every cell of a grid, each with its own random
 | `valueRandom` |  | `0` | Random darkening per instance. |
 | `maskSize` |  | `0` | How much the mask shrinks instances, as well as thinning them. |
 | `blend` | `max`, `add`, `top` | `max` | Where instances overlap: the brightest, their sum, or the topmost. |
+| `patterns` |  | `1` | How many pattern inputs instances pick from at random. |
+| `rowOffset` |  | `0` | Slides every other row along, in cells: 0.5 lays instances like bricks. |
+| `colorFrom` | `random`, `map` | `random` | Where the Colour output's per-instance colour comes from. |
 | `seed` |  | `0` | Changes the pattern without changing its look. |
 
 ## SDF
@@ -2317,6 +2599,29 @@ A gray mask from a signed distance: the filled shape, its outline, or a glow fad
 
 ## Transform
 
+### Corner Pin
+
+Type `cornerPin`.
+
+Stretches the input so its corners land on four points: perspective-like skews, fitting a decal into a panel. Clip leaves outside transparent.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `bottomLeftX` |  | `0` | Where the bottom left corner lands. |
+| `bottomLeftY` |  | `0` | Where the bottom left corner lands. |
+| `bottomRightX` |  | `1` | Where the bottom right corner lands. |
+| `bottomRightY` |  | `0` | Where the bottom right corner lands. |
+| `topLeftX` |  | `0` | Where the top left corner lands. |
+| `topLeftY` |  | `1` | Where the top left corner lands. |
+| `topRightX` |  | `1` | Where the top right corner lands. |
+| `topRightY` |  | `1` | Where the top right corner lands. |
+| `clip` |  | `true` | Transparent outside the four corners. |
+
 ### Directional Warp
 
 Type `directionalWarp`.
@@ -2441,6 +2746,27 @@ Wraps the input around the centre (to polar: its u becomes the angle and its v t
 | --- | --- | --- | --- |
 | `mode` | `toPolar`, `toCartesian` | `toPolar` |  |
 
+### Safe Transform
+
+Type `safeTransform`.
+
+Moves, turns by quarter turns and mirrors a tiling texture so it stays tiling: random per seed, for breaking up a repeated material without seams.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `out` | color | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `tiles` |  | `1` | Repeats across. |
+| `offsetX` |  | `0` | Slides across, in whole textures. |
+| `offsetY` |  | `0` | Slides down, in whole textures. |
+| `turn` | `none`, `quarter`, `half`, `threeQuarter`, `random` | `none` | Turns by quarter turns; random picks one from the seed. |
+| `mirror` | `none`, `horizontal`, `vertical`, `both` | `none` | Flips the texture. |
+| `randomOffset` |  | `false` | Adds a random slide from the seed. |
+| `seed` |  | `0` |  |
+
 ### Swirl
 
 Type `swirl`.
@@ -2508,6 +2834,7 @@ Displaces the input: along the slope of the warp input's brightness (gradient), 
 | --- | --- | --- | --- | --- |
 | `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
 | `warp` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `amount` | gray | input | `1` | Scales the intensity per pixel, so a mask confines the warp. |
 | `out` | color | output |  |  |
 
 | Property | Options | Default | Description |
@@ -2516,6 +2843,23 @@ Displaces the input: along the slope of the warp input's brightness (gradient), 
 | `intensity` |  | `1` |  |
 
 ## Utility
+
+### Alpha
+
+Type `alphaTools`.
+
+Edits a colour's alpha: multiply colour by it (premultiply) or divide it back out, take it from a mask, or show it as gray.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `input` | color | input | `[0.5, 0.5, 0.5, 1]` |  |
+| `alpha` | gray | input | `1` | The new alpha, for Set. |
+| `out` | color | output |  |  |
+| `value` | gray | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `operation` | `set`, `premultiply`, `unpremultiply` | `set` | set: alpha from the Alpha input. premultiply: colour times alpha. unpremultiply: colour divided by alpha. |
 
 ### Buffer
 
@@ -2823,7 +3167,26 @@ Arithmetic on vectors per component, such as UV, Mapping or Projection coordinat
 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
-| `operation` | `add`, `subtract`, `multiply`, `divide`, `scale`, `minimum`, `maximum`, `absolute`, `floor`, `fraction`, `modulo`, `sine`, `cosine`, `normalize`, `cross`, `dot`, `length`, `distance` | `add` |  |
+| `operation` | `add`, `subtract`, `multiply`, `divide`, `scale`, `minimum`, `maximum`, `absolute`, `floor`, `fraction`, `modulo`, `sine`, `cosine`, `normalize`, `cross`, `dot`, `length`, `distance`, `reflect`, `project`, `snap`, `mix`, `wrap`, `faceForward`, `refract`, `ceiling`, `round`, `power` | `add` | a and b by default. Reflect mirrors a off the plane b faces, Project gives a's part along b, Snap rounds a to multiples of b, Mix blends a to b by Scale, Wrap keeps a between 0 and b, Face Forward flips a to face away from b, Refract bends a through the surface b with Scale as the index ratio, Power raises a to b. |
+
+### Vector Rotate
+
+Type `vectorRotate`.
+
+Turns a vector around an axis through Center by Angle: UV and Projection coordinates, or directions.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `coord` | vector | input |  | The mesh's uvs unless linked. |
+| `angle` | float | input | `0` | Degrees, anticlockwise looking down the axis. |
+| `out` | vector | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `axis` | `z`, `x`, `y` | `z` | The axis it turns around: z turns UV coordinates in their plane. |
+| `centerX` |  | `0.5` | The point it turns around. |
+| `centerY` |  | `0.5` | The point it turns around. |
+| `centerZ` |  | `0` | The point it turns around. |
 
 ## TrimSheets extension
 
