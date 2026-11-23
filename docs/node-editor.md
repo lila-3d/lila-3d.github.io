@@ -15,6 +15,8 @@ Keys and gestures for the node canvas (**Windows > Editors > Node Editor**). The
 | **L** (hold) / **Shift+L** | Light up everything upstream and downstream of the selection |
 | **M** | Mute the selection |
 | **H** / **Ctrl+H** | Collapse nodes / hide their unlinked sockets |
+| **Ctrl+G** / **Ctrl+Alt+G** | Group the selection into a node group / ungroup the selected Group nodes. Every graph groups: Geometry Nodes, Texture Graph and Scene. A Scene group only gathers nodes in the editor; the scene's nodes stay as they are |
+| **I** / **U** | Open the selected Group node's group / go back out |
 | **Ctrl+J** | Frame the selection |
 | **F2** | Rename the selected node; **Enter** keeps, **Esc** cancels. Geometry and texture nodes keep their name for links and scripts, and an empty title shows the type's again. Scene nodes are renamed |
 | **Q** | Straighten the wires into the selection |
@@ -33,8 +35,9 @@ Keys and gestures for the node canvas (**Windows > Editors > Node Editor**). The
 
 | Gesture | Does |
 | --- | --- |
+| **Shift**+click a node / **Shift**+drag on empty canvas | Add to the selection, or take a selected node out of it |
 | Double-click a wire | Add a reroute there |
-| **Shift**+drag across wires | Add a reroute on each |
+| **Shift**+right-drag across wires | Add a reroute on each |
 | Double-click near a wire's end | Jump to the node at its other end |
 | Drag an unlinked node onto a wire | Wire it in; what is downstream slides aside |
 | Let a wire go on empty canvas | Pick a node that fits; it comes wired |
@@ -44,6 +47,7 @@ Keys and gestures for the node canvas (**Windows > Editors > Node Editor**). The
 | **Alt**+click a socket | Disconnect it |
 | Drag a number on a node | Change it. **Shift** goes ten times faster, **Ctrl** ten times slower; click to type |
 | Click a check or colour swatch on a node | Toggle it / open the colour picker |
+| Click a dropdown on a node | Pick another choice, such as a Math node's operation. A collapsed node shows its operation in its header |
 | Right-click a node > **Hide Preview** | Hide that node's image preview. **Node Previews** in the same menu hides them all |
 | Drag a reroute's rim | Wire it to more inputs (its middle moves it) |
 | Drag a frame's title / corner | Move it with its nodes / resize it |
