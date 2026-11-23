@@ -4696,6 +4696,12 @@ Delete a Bake node's saved files and go back to evaluating the nodes before it.
 
 **Objects:** group node
 
+### gnDeleteGroup
+
+Delete a group nothing uses. Fails naming the modifiers and groups still running it.
+
+**Objects:** group
+
 ### gnDeleteNode
 
 Delete nodes from a group, with their links. A zone's input and output go together.
@@ -4854,6 +4860,12 @@ Remove an exposed group parameter and its links.
 Remove a group output and its links.
 
 **Objects:** group name
+
+### gnRenameGroup
+
+Rename a group, its modifiers' type (they keep their values) and the Group nodes running it. Returns the new name.
+
+**Objects:** group newName
 
 ### gnRenameInput
 
@@ -9973,7 +9985,7 @@ Store, query or remove a JSON value saved in the scene file, for tools and scrip
 
 ### sceneGraphAddNode
 
-Create a scene node from the node editor and add it to the selection, so the view shows it. Returns its path. A modifier added with a mesh (or one of its modifiers) selected goes on top of that mesh's stack, as addModifier puts it, and is laid out in the stack's columns rather than at position.
+Create a scene node from the node editor and add it to the selection, so the view shows it (in a node group, to the group). Returns its path. A modifier added with a mesh (or one of its modifiers) selected goes on top of that mesh's stack, as addModifier puts it, and is laid out in the stack's columns rather than at position.
 
 **Objects:** view type
 
@@ -9985,13 +9997,26 @@ Create a scene node from the node editor and add it to the selection, so the vie
 
 ### sceneGraphConnect
 
-Connect plugs from the node editor: sceneGraphConnect(view, 'Ctrl.translateX', 'Box.rotateY') replaces the input's connection. In the Hierarchy view, 'A.@children' to 'B.@parent' parents B under A.
+Connect plugs from the node editor: sceneGraphConnect(view, 'Ctrl.translateX', 'Box.rotateY') replaces the input's connection. In the Hierarchy view, 'A.@children' to 'B.@parent' parents B under A. A node group's socket '@Arm.L_hand.rotateX' is its member's plug.
 
 **Objects:** view from to
 
+### sceneGraphCopyNodes
+
+Shown nodes as shareable text (JSON with a format header): their types, values, parents, the connections among them and the node groups they stand for. Paste it with sceneGraphPasteNodes, here or in another scene.
+
+**Objects:** view nodes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `depth` |  | int | `2` | As sceneGraphInfo takes it, for where the nodes show. |
+| `all` |  | bool | `False` | As sceneGraphInfo takes it. |
+
+Not undoable.
+
 ### sceneGraphDeleteNode
 
-Delete scene nodes from the node editor, with their connections (and, for objects, their children).
+Delete scene nodes from the node editor, with their connections (and, for objects, their children); a node group's node deletes the group with every node in it.
 
 **Objects:** view nodes...
 
@@ -10005,11 +10030,35 @@ Break the connection into an input from the node editor; on an array input, ever
 | --- | --- | --- | --- | --- |
 | `source` |  | str |  | node.socket of the one link to remove. |
 
+### sceneGraphDuplicateNodes
+
+Copy shown nodes in place with the connections among them; copies join their originals' frames. Returns the new nodes as the view shows them.
+
+**Objects:** view nodes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `offset` |  | list | `[40, 40]` | [x, y] shift for the copies. |
+| `depth` |  | int | `2` | As sceneGraphInfo takes it, for where the nodes show. |
+| `all` |  | bool | `False` | As sceneGraphInfo takes it. |
+
+### sceneGraphGroupNodes
+
+Gather shown nodes into a node group, drawn as one node in their place: sceneGraphGroupNodes(view, 'L_arm', 'L_hand', name='Arm'). Scene nodes are untouched; links crossing the group become its node's sockets. Returns {group, node}.
+
+**Objects:** view nodes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` |  | str | `'NodeGroup'` | Name for the new group; made unique. |
+| `depth` |  | int | `2` | As sceneGraphInfo takes it, for where the nodes show. |
+| `all` |  | bool | `False` | As sceneGraphInfo takes it. |
+
 ### sceneGraphInfo
 
 A view of the scene's nodes for the node editor: the nodes with their plugs as sockets and values, the connections between them as links, and each node's canvas position.
 
-Views: Selection (the selection and what is wired straight into and out of it), History (each selected mesh's whole modifier stack and its source), Hierarchy (the selection's parents and children), Upstream and Downstream (depth steps from the selection). Views look through anim curves and unit conversions unless all is on.
+Views: Selection (the selection and what is wired straight into and out of it), History (each selected mesh's whole modifier stack and its source), Hierarchy (the selection's parents and children), Upstream and Downstream (depth steps from the selection). Views look through anim curves and unit conversions unless all is on. A node group shows as one node wherever its members show; given a group's name instead of a view, the group's members with the nodes wired to them.
 
 **Objects:** view
 
@@ -10051,11 +10100,27 @@ Node types the node editor's Scene backend adds: the rig math nodes first, then 
 
 Not undoable.
 
+### sceneGraphPasteNodes
+
+Create scene nodes from text made by sceneGraphCopyNodes, centred at position, with their connections and node groups; names are made unique. Returns the new nodes as the view shows them. Bad text fails with every problem listed and changes nothing.
+
+**Objects:** view text
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `position` |  | list | `[0, 0]` | [x, y] canvas centre for the pasted nodes. |
+
 ### sceneGraphRenameNode
 
-Rename a scene node from the node editor, as rename does, keeping its place, flags and frames in every view: sceneGraphRenameNode(view, 'pCube1', 'Crate'). Returns its new path.
+Rename a scene node from the node editor, as rename does, keeping its place, flags, frames, ties and node groups in every view: sceneGraphRenameNode(view, 'pCube1', 'Crate'). Returns its new path.
 
 **Objects:** view node name
+
+### sceneGraphSetBookmarks
+
+Replace a view's saved canvas views: sceneGraphSetBookmarks(view, {'1': [x, y, zoom]}), centre and zoom by slot. Kept with the scene.
+
+**Objects:** view bookmarks
 
 ### sceneGraphSetFrames
 
@@ -10075,11 +10140,23 @@ Show nodes collapsed, or with every plug (hideUnused=False) rather than only the
 | `hideUnused` |  | bool |  | Only the connected plugs and meshes; on for every node but modifiers until turned off. |
 | `muted` |  | bool |  | Accepted for the editor's mute key; scene nodes don't mute. |
 
+### sceneGraphSetTies
+
+Replace a view's zip ties, shaped as gnSetTies takes them: sceneGraphSetTies(view, [{links: [[fromNode, fromSocket, toNode, toSocket], ...], position: [x, y], angle: 0, color: ''}]). Links naming no node are dropped, and so is a tie left with fewer than two. Kept with the scene.
+
+**Objects:** view ties
+
 ### sceneGraphSetValue
 
 Set an unconnected plug from the node editor: sceneGraphSetValue(view, 'Box.translateX', 2).
 
 **Objects:** view node.attr value
+
+### sceneGraphUngroup
+
+Remove the node group a group node stands for, showing its nodes in its place; the scene nodes are untouched. Returns them as the view shows them.
+
+**Objects:** view node
 
 ### sceneInfo
 
@@ -12106,6 +12183,12 @@ Add a fill layer per entry of the set's baked ID map (its bake project's id map:
 | `names` |  | list |  | Only these entries of the ID map. |
 | `folder` |  | str | `'IDs'` | Folder to put the layers in, made when missing; empty puts them at the root. |
 
+### texAddInput
+
+Add an input to a node group ("Set/Group"): an output of its Group Input and a socket on the Group nodes running it. Returns its name, made unique.
+
+**Objects:** group name [type]
+
 ### texAddLayer
 
 Add a layer to a texture set's stack (on top unless placed). Kinds: fill (material + mask), paint (placeholder material, paint buffers and a painted mask), procedural (a graph with outputs named after channels, optionally mask), folder, instance (another layer's values and mask), filter (a filter node applied to the composite below), decal (pictures per channel placed by projection), text (words drawn in the material's base colour, placed like a decal) and scatter (copies of a pattern over the uvs). A graph made by hand joins the stack as its bottom layer. Returns {id}.
@@ -12302,6 +12385,12 @@ Create a texture set: a texture graph with a Material Output, and the channels, 
 | `resolution` |  | int |  | Width and height of every tile. |
 | `materials` |  | list |  | Materials that use the set (their Texture Set), created when missing. |
 
+### texDeleteGroup
+
+Delete a node group ("Set/Group") and the Group nodes running it, with their links.
+
+**Objects:** group
+
 ### texDeleteNode
 
 Delete nodes from a texture set's graph, with their links.
@@ -12458,7 +12547,7 @@ Not undoable.
 
 ### texExportGraph
 
-Write a texture set to a file: .lilamat holds its graph and settings (import it to make the set again); .lilatexnodes holds its node groups as graph nodes for the node library. Returns the path.
+Write a texture set to a file: .lilamat holds its graph and settings (import it to make the set again); .lilatexnodes holds its node groups as graph nodes for the node library, or only the one named as "Set/Group". Returns the path.
 
 **Objects:** set path
 
@@ -12510,6 +12599,12 @@ Write one channel of a texture set to a Ptex file (.ptx): every face of the mesh
 
 Not undoable.
 
+### texExposeInput
+
+Make a node's input inside a node group an input of the group, linked from Group Input with the input's value as its default. Returns the new input's name.
+
+**Objects:** group node.input
+
 ### texFaceGroup
 
 Save a named face set on a texture set for painting (the faces given, else those selected on the mesh), or remove it. Groups make selection masks (texSelectionMask group=), fill targets (fillBy group) and locks (the paint tool's Lock). Returns every group.
@@ -12558,7 +12653,7 @@ Not undoable.
 
 ### texGraphInfo
 
-A texture set's graph definition, settings, nodes with resolved ports, parameters and values, and its evaluation plan (passes, buffers, structure hash) or compile error.
+A texture set's graph (or, as "Set/Group", one of its node groups): definition, settings, nodes with resolved ports, parameters and values, and the set graph's evaluation plan (passes, buffers, structure hash) or compile error.
 
 **Objects:** set
 
@@ -12567,6 +12662,20 @@ A texture set's graph definition, settings, nodes with resolved ports, parameter
 | `source` |  | bool | `False` | Include each pass's Slang source. |
 
 Not undoable.
+
+### texGroupNodes
+
+Collapse nodes into a new node group of the set and put a Group node running it in their place. Links crossing the boundary become the group's inputs and outputs. Open it as "Set/Group". Returns {group, node}.
+
+**Objects:** set nodes...
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` |  | str | `'NodeGroup'` | Name for the new group; made unique. |
+
+```python
+texGroupNodes("RockTex", "Noise", "Levels", name="Grit")
+```
 
 ### texImportGraph
 
@@ -12645,6 +12754,12 @@ Make materials from texture maps: each file's channel comes from its name (BaseC
 | `category` |  | str | `'Imported'` | Library category. |
 | `path` |  | str |  | Write the .lilamat files to this folder instead. |
 | `set` |  | str |  | Add them to this texture set as layers instead. |
+
+### texMoveInput
+
+Move a node group's input to another place in its interface, 0 first.
+
+**Objects:** group name index
 
 ### texMoveLayer
 
@@ -12837,6 +12952,12 @@ Rebuild a texture set's graph from its layer stack, dropping node edits the stac
 
 **Objects:** set
 
+### texRemoveInput
+
+Remove a node group's input, its links inside, and the links into it on the Group nodes running the group.
+
+**Objects:** group name
+
 ### texRemoveLayer
 
 Remove layers (folders with their contents) from a texture set's stack.
@@ -12849,11 +12970,29 @@ Remove masks from a layer.
 
 **Objects:** set layer mask...
 
+### texRemoveOutput
+
+Remove a node group's output, its link inside, and the links out of it on the Group nodes running the group.
+
+**Objects:** group name
+
 ### texRemoveVariant
 
 Remove a texture set's variant; the set goes back to the base when it was active.
 
 **Objects:** set name
+
+### texRenameGroup
+
+Rename a node group ("Set/Group") and point the Group nodes running it at the new name. Returns the name, made unique.
+
+**Objects:** group newName
+
+### texRenameInput
+
+Rename a node group's input, keeping its links inside and on the Group nodes running the group.
+
+**Objects:** group name newName
 
 ### texSampleChannels
 
@@ -12885,6 +13024,14 @@ Save a texture brush preset to the user's (or the workspace's) brushes folder: b
 | `category` |  | str |  | Where it lists. |
 | `doc` |  | str |  | What it is for. |
 | `tier` |  | str |  | user or workspace. |
+
+Not undoable.
+
+### texSaveGroup
+
+Save a node group ("Set/Group") to the user's texture node library as a graph node, so Add Node offers it in every scene; a set name saves the set to the material library instead. Returns the file path.
+
+**Objects:** group
 
 Not undoable.
 
@@ -12936,6 +13083,24 @@ Replace a set's whole graph (JSON as texGraphInfo returns under 'definition'). T
 Replace a texture set's frames, shaped as gnSetFrames takes them (a frame with text is a note). Display only; names not in the graph are dropped. Returns how many frames there are.
 
 **Objects:** set frames
+
+### texSetInputInfo
+
+Set how a node group's input presents: label, description, panel and number limits. An empty string clears one.
+
+**Objects:** group name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` |  | str |  | Shown instead of the name. |
+| `description` |  | str |  | Tooltip. |
+| `subtype` |  | str |  | Accepted for other node editors' inputs; texture inputs ignore it. |
+| `panel` |  | str |  | Panel it is listed under. |
+| `min` |  | Any |  | Hard minimum, or empty. |
+| `max` |  | Any |  | Hard maximum, or empty. |
+| `softMin` |  | Any |  | Slider minimum, or empty. |
+| `softMax` |  | Any |  | Slider maximum, or empty. |
+| `step` |  | Any |  | Drag step, or empty. |
 
 ### texSetLayer
 
@@ -13180,6 +13345,12 @@ Which project images the material editor's texture lists show. Globs relative to
 | `exclude` | `e` | list |  | Exclude globs; [] clears them. |
 | `scene` | `s` | bool | `False` | Set the scene's override instead of the workspace's lists. |
 | `clear` | `c` | bool | `False` | Remove the lists at that level (with scene, the scene falls back to the workspace). |
+
+### texUngroup
+
+Replace a Group node with the nodes of the group it runs, rewired in place. The group goes when nothing else runs it. Returns the added node names.
+
+**Objects:** set node
 
 ### texVariants
 
