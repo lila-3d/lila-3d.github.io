@@ -31,6 +31,8 @@ The sky's brightness follows the sun's **intensity**, so set exposure with the s
 
 **A mesh scaled up to the planet's size flickers.** The viewport can't draw a mesh that big without jitter. The atmosphere draws the planet's ground itself; for land near the camera, model it at normal size or split it with **Mesh > Split into Tiles**.
 
+**The atmosphere is far bigger than your globe.** Scale the sky node instead of the globe: its scale sizes the planet and the air together, so a uniform scale of 0.001 makes a 6.36 km planet with Earth's look. Set `transformMode` to `planetCenterAtComponentTransform`, put the sky at the globe's centre, and scale it until `bottomRadius` times the scale matches the globe's radius in km.
+
 **Distant objects look washed out.** That's the haze. Lower **aerial perspective view distance scale** to push it further away, or raise **aerial perspective start depth** to clear the area round the camera.
 
 ## Unreal
@@ -51,4 +53,4 @@ The attributes match Unreal's SkyAtmosphere one for one; tooltips in the Attribu
 | `rayleighScattering`, `rayleighScatteringScale` | The sky's colour. Redder values give an alien sky. |
 | `mieScatteringScale`, `mieAnisotropy` | Haze, and how strongly it glows round the sun. |
 | `groundAlbedo` | The planet's colour, seen from high up and bounced into the air. |
-| `bottomRadius`, `atmosphereHeight` | The planet's size and how deep its air is, in km. |
+| `bottomRadius`, `atmosphereHeight` | The planet's size and how deep its air is, in km, both times the sky node's scale. Unreal gets the scaled values. |
