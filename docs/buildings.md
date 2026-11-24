@@ -17,7 +17,7 @@ buildingEdit('building:1a2b', floors=4, toggles={'t0/f0/l1/b1': {'balcony': True
 buildingCheck()['ok']
 ```
 
-Edits, slot overrides and pins are kept by building id, so running **Create Buildings** or the settlement's buildings route again keeps them. Changing the settlement doesn't rebuild the buildings by itself: run the route again.
+Edits, slot overrides and pins are kept by building id, so running **Create Buildings** or the settlement's buildings route again keeps them. Changing the settlement doesn't rebuild the buildings by itself: **Level > Buildings > Refresh Buildings** rebuilds the ones whose settlement changed.
 
 ## Troubleshooting
 
@@ -46,6 +46,62 @@ Shop signs carry fictional business names; a sign or building name that matches 
 
 ### Unreal
 
-`buildingSend()` sends the shells as Nanite meshes inside Settlement's World Partition cells, the modules as slots (your slot's Unreal class or mesh, else the placeholder), the HLOD and far proxies, and `MF_LilaBuildingVariation` with a generated `M_LilaBuilding` and an `MI_Bld_<style>` per style. Each building's colour and dirt travel in vertex colour: put `MF_LilaBuildingVariation` between your base colour and the material output to use them in your own material.
+Open a World Partition level with LilaLink built into the project, then `buildingSend()`. Shells go as Nanite meshes inside Settlement's World Partition cells, modules as slots (your slot's Unreal class or mesh, else the placeholder), and the HLOD and far proxies as World Partition Custom HLOD actors in `/Game/Lila/HLOD/HL_LilaBuildings` and `HL_LilaBuildingsFar`, made when missing. **Save All** in Unreal afterwards: a send imports assets without saving them.
 
-<!-- W4 enterable buildings: interiors (buildingMakeEnterable), entry door slot, room presets, interior checks. Write from X:\Lila-wt\ow-log\W4.md when it lands. -->
+Materials: `MF_LilaBuildingVariation` with a generated `M_LilaBuilding` and an `MI_Bld_<style>` per style. Each building's colour and dirt travel in vertex colour: put `MF_LilaBuildingVariation` between your base colour and the material output to use them in your own material.
+
+Sending again skips whatever the level already holds unchanged.
+
+**"the LilaLink plugin predates Custom HLOD actors".** Rebuild LilaLink from Lila's `ue/LilaLink`.
+
+**"custom HLOD actors need a World Partition level".** Open a World Partition level, or `buildingSend(proxies=False)`.
+
+**Far proxies never show.** The level has no default HLOD layer: set one in World Settings under World Partition.
+
+| Option | What it does |
+| --- | --- |
+| `hlodLayer` | Puts shells and modules in this HLOD layer instead of letting Lila's proxies stand in for them. |
+| `hlodProxyLayer` | The proxies' Custom HLOD Actor layer; far proxies go in the same path plus `Far`. |
+| `folder` | Content folder for shells and modules. |
+| `MF_LilaBuildingVariation` | **PaletteStrength**, **DirtAmount**, **DirtScale**, **DirtColor**. |
+
+## Enterable buildings
+
+Give chosen buildings real interiors: rooms split by the building's use, a stair core, interior doors, clear glass, ceiling lamps and furnishing, all checked against your game's character.
+
+![A shop's ground floor with the shell cut away: rooms, partitions, the stair core and furnishing placeholders](images/buildings/rooms.png)
+
+1. Select a building mesh and tick **Enterable** in the Attribute Editor's **Buildings** section, or **Level > Buildings > Make Enterable**.
+2. **Edit Rooms** (in the same section, or **Level > Buildings > Edit Rooms**) shows the plan floor by floor with the shell cut away. **Page Up** and **Page Down** change floor.
+3. In the palette: **Kind** (pick a kind, click a room), **Split** (click where to cut), **Merge** and **Wall** (drag from a room into its neighbour), **Door** (drag between rooms to add one, click beside a door to remove it).
+
+```python
+buildingMakeEnterable('building:1a2b', program='bar')
+buildingRoom('building:1a2b', room='l0/backroom', kind='kitchen')
+buildingDoor('building:1a2b', add=['l0/sales', 'l0/toilet'])
+buildingCheck()['ok']
+```
+
+**Program** in the Attribute Editor re-plans the whole interior. Each room is a mesh of its own under `Interior_<id>`: model it freely, and it stays as you left it when the building changes. **Make Enterable** with **Reset Hand Edits** regenerates it. **Make Exterior** takes the interior away again.
+
+### Troubleshooting
+
+**Check Buildings lists interior issues.** Rooms the entry can't reach, doors your modelling closed, stairs too steep or low and doors too narrow or low for the character. **Character Profile** sets the character; it is Unreal's default character until you change it.
+
+**The result warns about generic rooms.** The building's use has no interior program. Pick one in **Program**.
+
+**A door appeared on the street.** No exterior door opened into a room, so one was added (`entryAdded` in the result). Turn **Add Entry** off to skip it.
+
+**A room edit stopped applying.** Its room is gone after a layout change. `buildingInterior('building:1a2b')['orphanEdits']` lists it.
+
+**Interiors show in the Unreal editor but not in game.** They stream on their own runtime data layer, `DL_Interior_<id>`. Activate it from game code near the entry door: the door's slot data carries `interior=building:<id>`.
+
+### Tune it
+
+| Option | What it does |
+| --- | --- |
+| Entry doors | Exterior doors into rooms carry the tag `entry`. `slotRule('add', type='door', tag=['entry'], unrealClass='/Game/BP/BP_Door.BP_Door_C')` gives them your door Blueprint. Enterable buildings are pinned against regeneration, but rules and overrides still swap their slots. |
+| Interior slots | `door.interior`, `door.interior.double`, `lamp.ceiling`, `lift` and `furnishing.*` swap like any [slot](slots.md). |
+| `buildingRoomPresets(save=...)` | The furnishing each room kind gets. The presets are also Set Dressing arrangements named **Room: <Kind>**, for any floor. |
+| `buildingSend(interiors=...)` | `levelInstance` (default): a Level Instance per interior on its own runtime data layer. `dataLayer`: the room actors themselves on the layer. `none`: interiors stay in Lila. Interior meshes collide as modelled. |
+| `MF_LilaBuildingGlass` | **GlassTint**, **GlassOpacity**, **GlassRoughness** for the clear glass of enterable buildings, or edit `MI_Bld_GlassClear`. Other buildings' windows show fake interiors. |
