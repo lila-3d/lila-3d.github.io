@@ -39,6 +39,7 @@
 - <span class="nav-label">Basics</span>
   - [Essentials](essentials.md)
   - [Duplicate and instance](duplicate.md)
+  - [Slots](slots.md)
   - [Scene origin](scene-origin.md)
   - [Large worlds](large-worlds.md)
   - [Point clouds](point-clouds.md)
@@ -117,10 +118,13 @@
 
 - <span class="nav-label">Extensions</span>
   - [Masonry](masonry.md)
+  - [Open World](open-world.md)
   - [Terrain](terrain.md)
   - [Cliffs](terrain-cliffs.md)
+  - [Coast and water](terrain-coast.md)
   - [Seamwork](seamwork.md)
   - [Settlement](settlement.md)
+  - [Buildings](buildings.md)
   - [Stagehand](stagehand.md)
   - [Tailor](tailor.md)
   - [Trim Sheets](trim-sheets.md)
