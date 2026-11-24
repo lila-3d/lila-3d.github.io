@@ -23,7 +23,7 @@ Every step is undoable and returns stats you can read: grades, lake levels, laye
 
 - **A real place:** **Level > Terrain > Real Place**, or `terrainImportDem(place='Matterhorn', size=[1200000, 1200000])`. Elevation comes from Copernicus GLO-30; the attribution lands in the workspace's `terrain/ATTRIBUTION.txt`, and it ships with your game.
 - **A painting:** **Level > Terrain > Import Terrain** takes a PNG, PSD, TIFF or EXR. The default reading keeps the painting's big shapes and erodes the detail in. For a colour sketch, paint red ridges, green valleys, blue rivers and yellow flat ground over grey, and import with `mode='sketch'`. **Live Link Terrain** re-runs it each time you save the painting.
-- **Roads, rivers and coastline from OpenStreetMap:** **Level > Terrain > OSM Features** drapes them as curves and writes land cover masks.
+- **Roads, rivers, coastline, buildings and places from OpenStreetMap:** **Level > Terrain > OSM Features** drapes them as curves and writes land cover masks. Buildings come in as closed footprints with their heights and roofs, places (shops, schools, cemeteries, ports, beaches) as areas and points. Every name is replaced with a fictional one, stable by OSM id; no setting keeps real names. To lay out a whole town from the same file, use [Town from OSM](settlement.md#real-towns-from-openstreetmap).
 - **Land cover from satellite:** `terrainImportLandCover(terrain='Terrain')` fetches ESA WorldCover (10 m) into the same land cover masks, plus a `worldcover` mask that `terrainBiomes(landcover={'mask': 'worldcover'})` follows. Its credit goes into `terrain/ATTRIBUTION.txt`.
 - **A preset:** `terrainSpec(preset='alpineValley')` builds a whole terrain, water, roads and layers included. The presets are alpineValley, mesaDesert, coastalCliffs, rollingFarmland and volcanicIsland; `overrides={'seed': 3}` changes any part. `terrainSpec('Terrain')` reads a terrain back as a spec that rebuilds it.
 - **Variants side by side:** `terrainWedge(preset='alpineValley', vary={'seed': [1, 2, 3, 4]})` builds each variant and writes a labelled contact sheet.
@@ -48,6 +48,10 @@ Caves, tunnels, overhangs and arches become mesh pieces over holes in the terrai
 ### Cliffs
 
 Steep slopes become layered rock cliff meshes with **Level > Cliffs**, and paint layers stop stretching on them. See [Cliffs](terrain-cliffs.md); for rubble and blends where walls meet the ground, see [Seamwork](seamwork.md).
+
+### Coast and water
+
+Real seabed depths, beaches, reefs, mangroves, boat channels, reservoirs and boat and air routes: see [Coast and water](terrain-coast.md).
 
 ### Other engines and files
 
