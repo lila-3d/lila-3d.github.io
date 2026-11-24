@@ -2,7 +2,7 @@
 
 Build a whole game map from real places: compose several real coasts, cities and valleys onto one map, bring in their terrain, streets and buildings under fictional names, add ports, airstrips and compounds, then paint gameplay zones and send it all to Unreal.
 
-<!-- capture: remix terrain with the moved city, overlay on, buildings and a port in the foreground -->
+![A remixed coast: a port and a town from OpenStreetMap in front, the capital cut from another place and moved in beside the hills](images/open-world/remix.png)
 
 ## Get it working
 
@@ -19,6 +19,9 @@ settlementFromOsm(r['files']['osm'], ground='World', origin=r['origin'], buildin
 5. **Swap the placeholders.** Every door, sign, lamp, crop row and container is a [slot](slots.md): one rule swaps all of a type for your assets or Blueprints.
 6. **Gameplay zones.** Districts, police, territory, spawns and traffic from **Level > Open World > Zones**. See [Zones](#zones).
 7. **Send to Unreal.** `terrainSendToUnreal`, `settlementSendToUnreal`, `buildingSend` and `zoneSendToUnreal`.
+8. **Check the whole map.** **Level > Open World > Check World**. See [World spec](#world-spec).
+
+Once the map works, **Save World Spec** writes it all to one file that **Build World** rebuilds in one go.
 
 ### Every name is fictional
 
@@ -30,7 +33,72 @@ The naming culture follows where the data lies (Mexican Spanish in Mexico) or th
 realNameCheck(report=True)['ok']      # False lists every output text matching a real name, in the Validation panel
 ```
 
-<!-- W8 world spec: one JSON for the whole map (worldSpec), worldCheck, overview map export (PNG + JSON). Write from X:\Lila-wt\ow-log\W8.md when it lands; it belongs here as step 0/8 and a "Check the whole map" section. -->
+## World spec
+
+One JSON file describes the whole map: slot rules, the remix, the terrain and coast, settlements, their buildings, site kits, zones, pins, the check and the export. **Build World** builds it in that order, so you can change any part and rebuild the map.
+
+1. **Level > Open World > Save World Spec** writes what the scene holds now, hand edits included. Or start from a spec of your own; the MCP resource `lila://schema/world-spec` holds the schema.
+2. **Level > Open World > Build World** and pick the file. It replaces an earlier build of the same world.
+3. **Check World** lists everything wrong in the [Validation](validation.md) panel, with a fix where there is one.
+4. **World Map** writes the overview map: a PNG plus JSON with the bounds, districts, zones, settlements, sites, points of interest, roads and water in world cm, so your game draws its own labels.
+
+```python
+r = worldBuild(file='worlds/coast.json', replace=True)
+[(s['step'], s['ok'], s['seconds']) for s in r['steps']]
+worldCheck(report=True)['counts']
+worldMap(resolution=4096)['image']
+worldSpec(file='worlds/now.json')
+```
+
+A small spec. Only `name` and `terrain` are required; a settlement comes from OpenStreetMap (`"osm": "remix"` takes the remix's output, clipped to its `area` in world cm `[x0, z0, x1, z1]`) or from Settlement's own layout (`create`):
+
+```json
+{
+  "name": "Coast",
+  "culture": "mexican",
+  "terrain": {"size": [260000, 260000], "resolution": 129, "source": {"type": "noise", "amplitude": 1500}},
+  "settlements": [{"name": "Pueblo", "create": {"profile": "usTown", "outline": [[-36000, -36000], [36000, -36000], [36000, 36000], [-36000, 36000]]},
+                   "buildings": {"style": "colonialCentro"}}],
+  "sites": [{"kind": "village", "id": "v1", "at": [80000, 80000]}],
+  "slots": {"rules": [{"type": "sign.storefront", "payload": {"poolTag": "fictional_signs"}}]},
+  "zones": {"fromDistricts": true},
+  "export": {"target": "files", "map": {"resolution": 2048}}
+}
+```
+
+**Real places.** Give each remix source a `bbox` and download its data first with `remixSource('World', id='coast', bbox=[west, south, east, north], fetch=True)`, which reports the sizes. For sea floor data, `terrainBathymetry(fetch=True, estimate=True)` gives the size; a download over 25 MB needs `consent=True`. Point the spec's `dem`, `osm`, `landcover` and `bathymetry` paths at the downloaded files, then **Build World**. Run **World Map** first to check that settlement areas and site positions land where you want them.
+
+### Troubleshooting
+
+**A step failed.** The build stops there, and the log and the result's `steps` name the step and its error. `stopOnError=False` carries on past it.
+
+**"a world named ... exists".** A world of that name was built before. **Build World** always replaces it; from Python pass `replace=True`.
+
+**Check World issues:**
+
+| Issue | Fix |
+| --- | --- |
+| `realName` | A name matches a real one. Rename it. |
+| `buildingOverWater` | The settlement's `area` reaches into the sea. Settlement keeps its own lots off water, but imported buildings stay where they are. |
+| `buildingOverRoad` | A building stands on a terrain road. Move one of them. |
+| `unreachableWater` | An island or inlet has no lane. Link it with [Water Routes](terrain-coast.md). |
+| `buildingsStale` | The settlement changed after its buildings were made. **Level > Buildings > Refresh Buildings**. |
+| `zone.gap` | A must-cover layer leaves ground uncovered. `fillGaps` (on by default) fills it with an outlying zone. |
+| `propFloating`, `propBuried` | A ground prop stands off the terrain, often after the ground was regraded. Regenerate the part that placed it. |
+| `interiorNoEntry` | An [enterable building](buildings.md#enterable-buildings) has no door into its rooms. **Make Enterable** with **Add Entry** on. |
+| `placeholders` | Not a fault: how many slots of each type still show placeholders. |
+
+### Tune it
+
+| Key | What it does |
+| --- | --- |
+| `skip=` | Leaves sections out while you iterate: `slots`, `terrain`, `settlements`, `buildings`, `sites`, `zones`. |
+| `check=False` | Skips **Check World** at the end. |
+| `buildings.lod` | Level of detail new building cells start at: `near` or `hlod` (much less memory in a big world). |
+| `export.target` | `files` writes terrain, zones and the map; `unreal` also sends buildings and zones. |
+| `export.map.resolution` | Width of the map image, in pixels. |
+
+Each section takes its own part's spec: `lila://schema/remix-spec`, `lila://schema/terrain-spec` (coast under `terrain.coast`), a site's `siteInfo()['spec']`, `lila://schema/zones`.
 
 ## World Remix
 
@@ -100,12 +168,7 @@ siteEdit('port1', tiers=6, fill=0.9)
 siteCheck()['ok']
 ```
 
-Buildings in a site draw as grey massing. To build them with [Buildings](buildings.md), turn the site's massing off and build its envelopes:
-
-```python
-setAttr('CargoPort_SiteModifier.massing', False)
-buildingCreate(envelopes=siteEnvelopes(sites=['port1'])['envelopes'])
-```
+Buildings in a site draw as grey massing. **Level > Open World > Site Buildings** builds the selected sites' buildings (or every site's) with [Buildings](buildings.md) in the kit's style; they follow when the site's layout changes. `siteBuildings('port1', remove=True)` goes back to massing.
 
 ### Troubleshooting
 
