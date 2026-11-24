@@ -1096,6 +1096,20 @@ Turn the objects onto their pivots' axes, counter-rotating their points, so the 
 
 **Objects:** objects
 
+### bakeRandomColors
+
+Keeps the Random Colors display colours: a material per mesh with its colour, assigned to it, or a vertex color set filled with it. Works on the given meshes, else the selected ones, else every mesh. Returns the materials or color sets.
+
+**Objects:** meshes
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `to` |  | str | `'materials'` | materials or vertexColors. |
+| `palette` |  | str | `'viewport'` | viewport (the display's palette and seed), contrast or pastel. |
+| `seed` |  | int | `0` | Colour seed for the contrast and pastel palettes. |
+| `materialPrefix` |  | str | `'M_Random'` | Material names: the prefix, then the mesh name. A material of that name is reused. |
+| `colorSet` |  | str | `'randomColor'` | Vertex color set to fill, made when missing. |
+
 ### bakeSkinWeights
 
 Fit linear skin weights (SSDR, Dem Bones) to everything the mesh's stack does: centres of rotation and direct delta mush skinning, delta mush, wrap and other deformers after the skin. The skin goes linear and the deformers it replaces are turned off, so the viewport shows what Unreal will get; keep=true stores the weights for export instead. Returns {rmse, maxError, linearRmse, frames, helpers, disabled}.
@@ -1784,6 +1798,31 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 | `coordinates` |  | str |  | meanValue (default) \| green \| somigliana \| harmonic |
 | `name` |  | str |  | Name for the deformer. |
 
+### cameraBookmark
+
+Jump the active view to a camera bookmark, or set, clear or list them.
+
+Each camera has its own slots 1 to 9: every camera node, and each built-in view (persp, top, front ...). Bookmarks act on the camera the active view shows. Jumping is a camera undo step, not a scene one. Setting and clearing are scene undo steps. Returns whether it jumped, the slot set, or with query the slots in use.
+
+**Objects:** slot
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `s` | bool |  | Save the view's camera in the slot instead of jumping to it. |
+| `clear` | `c` | bool |  | Remove the slot's bookmark; with no slot, every one on the camera. |
+| `query` | `q` | bool |  | Return the slots holding a bookmark. |
+
+Not undoable.
+
+```python
+cameraBookmark(1, set=True)
+cameraBookmark(1)
+```
+
+```python
+cameraBookmark(query=True)
+```
+
 ### cameraSettings
 
 Query or set a camera's gate display, film fit and near clip. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
@@ -2069,6 +2108,12 @@ Not undoable.
 Throw away simulation caches, so the next simulate starts from the start frame.
 
 **Objects:** simulation nodes (default all)
+
+Not undoable.
+
+### clearSnapSurface
+
+Clear the snap surface, so surface snapping hits every visible mesh again and moves stop conforming.
 
 Not undoable.
 
@@ -3064,6 +3109,14 @@ Delete display layers; their objects stay, in no layer.
 
 **Objects:** layers
 
+### deleteKeymap
+
+Delete a keymap. Deleting the current one switches to Default.
+
+**Objects:** name
+
+Not undoable.
+
 ### deleteLayout
 
 Delete a saved layout (the workspace copy first, when both exist). Built-ins can't be deleted; deleting a saved layout that shadows one brings the built-in back.
@@ -3124,6 +3177,20 @@ Delete a saved theme. Built-ins can't be deleted; deleting the current theme swi
 
 Not undoable.
 
+### deleteUserMenu
+
+Removes the user menu with this title. Returns whether there was one.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `title` | `t` | str |  | The menu's title. |
+
+Not undoable.
+
+```python
+deleteUserMenu(title="Kit")
+```
+
 ### deltaMush
 
 Add a delta mush to the meshes: smooths out deformation artefacts (from skinning or other deformers) while keeping the rest shape's detail. Above a skinCluster the rest shape is the bind shape. Returns the deformers.
@@ -3157,6 +3224,35 @@ disconnectAttr('dst.attr'), or (src, dst). A whole array input loses every eleme
 Stop deformers reading their field.
 
 **Objects:** deformers
+
+### displacementHeatmap
+
+Show how far deformation moves each point as a grayscale overlay (white the most moved point) on the selected meshes, or on every deformed mesh when none is selected. A display setting, so not undoable.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `on` |  | bool |  | Default: toggle. |
+
+Not undoable.
+
+### displacementPreview
+
+Turn displacement preview on or off for meshes: in the viewport they subdivide and move by their texture sets' height channel (Height Depth from each set's settings), updating live as height is painted. With no flags, reports each mesh's state. Returns [{object, enabled, detail, status}].
+
+**Objects:** objects
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | On or off. |
+| `detail` | `d` | float |  | Target edge length in screen pixels: smaller subdivides more. |
+
+```python
+displacementPreview("rock", enable=True)
+```
+
+```python
+displacementPreview("rock", detail=3)
+```
 
 ### displayLayer
 
@@ -3194,6 +3290,18 @@ Live distance between two points. Each point is an object name or [x, y, z] (a l
 | `attach` | `at` | bool | `True` | From selected vertices: parent the locators to their meshes. |
 | `name` | `n` | str |  | Name for the measure node. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new node. |
+
+### docsInfo
+
+Where the docs are read from: {root, source (override | cache | bundled), ref, sha, refs, cacheRoot, autoUpdate}. root is null when there are none yet.
+
+Not undoable.
+
+### docsUpdate
+
+Download the latest docs for this version in the background; the result shows in the status line.
+
+Not undoable.
 
 ### dominantInfluence
 
@@ -3392,6 +3500,14 @@ Change a driven channel: replace its keys, infinity, interpolation of every key,
 | `postInfinity` |  | str |  | After the last key. One of `constant`, `linear`, `cycle`, `cycleRelative`, `oscillate`. |
 | `curveName` |  | str |  | Unreal curve to bake into; empty for none. |
 | `driver` | `d` | str |  | A new driving plug; empty disconnects it. |
+
+### editMaterial
+
+Show a material in the Material Editor, without assigning it.
+
+**Objects:** material
+
+Not undoable.
 
 ### editMorphTarget
 
@@ -3766,6 +3882,19 @@ draco=True compresses every primitive with KHR_draco_mesh_compression (then requ
 
 Not undoable.
 
+### exportGradeLut
+
+Bake the active post process's grade into a LUT file for Resolve, Nuke or Unreal. .cube (Resolve, Nuke): display code values in and out, for after the view; with includeView, scene-linear light in through a log2 shaper, the tonemapper or OCIO view and the grade out. .png: a 256 by 16 strip in Unreal's colour grading LUT layout (display in and out). Lens effects, bloom, grain and vignette are not in a LUT. Returns the path.
+
+**Objects:** path: where to write, .cube or .png
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `size` | `sz` | int | `33` | Points per axis of a .cube (17 to 129). |
+| `includeView` | `iv` | bool | `False` | Also bake exposure and the tonemapper or OCIO view (.cube only). |
+
+Not undoable.
+
 ### exportGroom
 
 Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* attributes, its primary guides to simulate) or Unity, .usd/.usda/.usdc curves, or .groom (GroomLab's file: guides, graph, parts, flow, maps and the scalp). Frames start to end (scene frames; the current one by default). Returns {file, frames, strands}.
@@ -3781,6 +3910,18 @@ Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* at
 | `step` |  | float | `1.0` | Frames between written frames. |
 | `guides` |  | bool | `True` | Unreal: write the primary guides it simulates. |
 | `groups` |  | bool | `False` | One groom group per groupId (the Attribute node's groups). |
+
+### exportKeymap
+
+Write a keymap to a .lilakeys file to share. Returns the file.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | The keymap; the current one when not given. |
+
+Not undoable.
 
 ### exportMeshSequence
 
@@ -4160,6 +4301,28 @@ Fair curves: even out their curvature (a smoother comb) without moving any part 
 | `keepTangents` | `kt` | bool | `True` | Keep the end tangents' directions. |
 | `keepCorners` | `kc` | bool | `True` | Leave corners sharp and in place. |
 | `iterations` | `it` | int | `200` | Most smoothing passes. |
+
+### fictionalName
+
+A fictional name from a naming culture, the same every time for the same culture, kind, program and key. Never one that matches the brand blocklist or a real name an import in the scene replaced. Returns the name and the key used.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `culture` | `cu` | str | `'mexican'` | Naming culture (namingCultures). |
+| `kind` | `k` | str | `'business'` | What is named: street, district, town, river, lake, reservoir, dam, island, beach, port, airport, cemetery, school, hospital, government, business, ... |
+| `program` | `pg` | str |  | For businesses and buildings: what they are (pharmacy, taqueria, carParts, ...). |
+| `key` | `ky` | str | `'1'` | Stable key: a number or any text (an id). |
+| `streetClass` | `sc` | int | `2` | Streets: 0 arterial, 1 collector, 2 local, 3 alley, 4 path. |
+
+Not undoable.
+
+```python
+fictionalName(culture='mexican', kind='business', program='taqueria', key='node/123')['name']
+```
+
+```python
+fictionalName(kind='river', key=42)
+```
 
 ### field
 
@@ -5053,6 +5216,17 @@ Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
 
+### gradePreset
+
+Put a look on a post process (the active one by default): its grade attrs (white balance, contrast, saturation, wheels, tonal balance, curves) take the look's values, the rest of the grade goes back to neutral. With save, store the post process's grade as a look under that name instead. With no name, list the looks. Returns the look names.
+
+**Objects:** look: the look's name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `node` | `n` | str |  | The post process; the active one (created if needed) when left out. |
+| `save` | `s` | bool | `False` | Store the post process's grade as this look, in the user's looks. |
+
 ### grappleAim
 
 Aim what a joint holds at a target: the axis (a muzzle, a blade's tip; its +X) is turned onto the target about the pivot, moving the joint and, through the grapple's solve, the arms and body with it. style places the pivot first: shoulder on the anchor (rifles, launchers), extend out toward the target (pistols), guard below that line (blades). Key weight to blend it. Returns the aim.
@@ -5870,6 +6044,32 @@ IfcMapConversion places it: it sets the scene's georeference or moves the model 
 importIfc("D:/bim/school.ifc")
 ```
 
+### importKeymap
+
+Add the keymap in a .lilakeys file (or a hotkeys.json). Returns its name.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | Name it this rather than the name in the file. |
+| `use` |  | bool | `False` | Switch to it. |
+
+Not undoable.
+
+### importMayaHotkeys
+
+Imports a Maya hotkey set (.mhk) or userHotkeys.mel into a new keymap on Lila's defaults and switches to it. Returns {keymap, imported, skipped: [{key, command, reason}]}.
+
+**Objects:** file
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | Maya hotkey file |
+| `keymap` | `k` | str | `'Maya'` | Name for the new keymap; a number is added when it's taken. |
+
+Not undoable.
+
 ### importObj
 
 Import an OBJ file; one mesh per object. Returns the new mesh names.
@@ -6143,6 +6343,12 @@ Query or edit keys. query=True returns key times (valueChange=True: values; keyC
 | `valueChange` | `vc` | Any |  | Value to set (or offset), or True with query. |
 | `timeChange` | `tc` | Any |  | Time to set (or offset), or True with query. |
 | `relative` | `r` | bool | `False` | Offset instead of set. |
+
+### keymaps
+
+The hotkey keymaps: {active, keymaps: [{name, studio}]}.
+
+Not undoable.
 
 ### keyTangent
 
@@ -6519,6 +6725,14 @@ Make a looker: the joint aims at it (aimAxis at the looker, upAxis toward upVect
 | `weight` | `w` | float | `1.0` | Blend of the aim over the joint's own rotation. |
 | `name` | `n` | str |  | Name; default <joint>_looker. |
 | `parent` | `p` | str |  | Node to put the element under, such as a character. |
+
+### lookThru
+
+Make the active view look through a camera node, or switch it to a view (persp, top, front, side, ...). Returns the name of what the active view looks through; with no argument it only returns it.
+
+**Objects:** camera
+
+Not undoable.
 
 ### ls
 
@@ -7282,6 +7496,28 @@ Naming rules for this workspace (.lila/naming.json). Query with no flags; check 
 | `check` | `c` | bool | `False` | Return [[node, expectedName], ...] for names that break the rules. |
 | `fix` | `f` | bool | `False` | Rename every node that breaks the rules. |
 
+### namingCultures
+
+The naming cultures imports and settlements name things in, each with the vocabulary its businesses and places are named from, the kinds of named things, and the business programs with patterns of their own.
+
+Not undoable.
+
+```python
+namingCultures()['cultures']
+```
+
+### newKeymap
+
+Make a keymap, a copy of the current one, and switch to it.
+
+**Objects:** name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `empty` |  | bool | `False` | Start from Lila's defaults instead of a copy. |
+
+Not undoable.
+
 ### newScene
 
 Clear the scene. Not undoable.
@@ -7394,6 +7630,19 @@ Open closed curves at parameter (span units, default their start), keeping the s
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `parameter` | `p` | float | `0.0` | Where to open, in spans from the start. |
+
+### openDocs
+
+Show the Docs panel at a page: "essentials", "curves?id=pipe", "python/". Empty for the docs home. UI only.
+
+**Objects:** page
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `page` | `p` | str |  | Page id as in the docs site's URL after #/, optionally with ?id=<heading> |
+| `api` | `a` | str |  | A Python symbol (lila.ops.polyCube) whose API page to open instead |
+
+Not undoable.
 
 ### openExample
 
@@ -7735,6 +7984,53 @@ Fill four boundary curves (in any order and direction, end to end) with a Coons 
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
+### pathTracedView
+
+Show every viewport path traced: light bounces through the scene (environment, lights, materials and texture sets) and the image refines while nothing changes, starting over on any camera, scene or paint change. Needs a GPU with ray tracing; without one the views stay shaded and say so. With no flags, reports the settings. Returns {enabled, bounces, samples, denoise, supported}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | On or off. |
+| `bounces` | `b` | int |  | Most surfaces a path bounces off. |
+| `samples` | `s` | int |  | Samples per pixel the image refines to, then stops. |
+| `denoise` | `d` | bool |  | Smooth the noise of the first samples, guided by the surfaces' colours, normals and depth. |
+
+Not undoable.
+
+```python
+pathTracedView(enable=True)
+```
+
+```python
+pathTracedView(bounces=8, samples=4096)
+```
+
+### perfTraceDialog
+
+Open Help > Record Performance Trace.
+
+Not undoable.
+
+### perfTraceRecord
+
+Start recording a performance trace (Help > Record Performance Trace) for `seconds` once the recorder connects. Returns the zip it will write; perfTraceStatus says when it is done.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seconds` | `s` | int | `10` | How long to record. |
+
+Not undoable.
+
+```python
+lila.ops.perfTraceRecord(seconds=10)
+```
+
+### perfTraceStatus
+
+The performance trace recording: state (idle, connecting, recording, saving, done, failed), secondsLeft, path (the zip), error, elevated and systemTracing (call-stack sampling and context switches, only when running as administrator).
+
+Not undoable.
+
 ### pickerRun
 
 Run a picker item's action on its targets resolved in a namespace: select them, toggle an attr (every target follows the first), apply a pose to their character, or run a command (args default to the targets). Returns what the action returned.
@@ -7804,6 +8100,10 @@ pin("Button", "Jacket", source="face", index=12)
 ```python
 pin("Bead", "Wire", curveMode="fraction", along=0.25)
 ```
+
+### pinComponentPivot
+
+Pin the component manipulator where it is and how it is turned, so it stays through selection and component mode changes until resetComponentPivot. It follows the selection's centre unless moved with Edit Pivot.
 
 ### pipe
 
@@ -8859,6 +9159,27 @@ Make a range-of-motion take: one pose per frame turning the skin's joints (or th
 | `seed` |  | int | `1` | Seed of the random poses. |
 | `name` | `n` | str |  | Name of the take; <root>_ROM by default. |
 
+### realNameCheck
+
+Finds output text that matches a real name: names written by imports and generators (osmFeatures, osmBuildings, osmPlaces, sign text, labels), node names, and any texts given, compared with the real names imports replaced (kept in hidden sourceNames attributes) and the brand blocklist (OpenStreetMap name-suggestion-index). Node names are compared with imported names only. report=True lists each leak in the Validation panel on its node. Returns ok, the leaks (where, text, the real name, where that came from) and how many real names were compared.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `texts` | `tx` | list |  | Extra texts to check: strings, or {where, text}. |
+| `scene` | `sn` | bool | `True` | Check the scene's names and name attributes too. |
+| `report` | `rp` | bool | `False` | Also list leaks in the Validation panel (replacing this check's earlier ones). |
+
+Not undoable.
+
+```python
+c = realNameCheck()
+c['ok'], c['leaks']
+```
+
+```python
+realNameCheck(texts=['Farmacias Similares'], scene=False)
+```
+
 ### rebindDeformer
 
 Re-capture a deformer's bind-time state from the scene as it is now: the mesh's placement, the delta mush rest shape, wrap and cage bindings, the softMod handle's rest, or the lattice's rest box.
@@ -8913,11 +9234,120 @@ Redo the last undone command.
 
 Not undoable.
 
+### referenceImage
+
+Add, replace, edit, remove or list reference images.
+
+Reference images show as tabs in the Reference windows and as overlays in the viewports (referenceOverlay). Files given are added as tabs of a window (the first one unless window is set) and their ids returned. With edit, the flags change one image; replace swaps its file and keeps every other setting.
+
+**Objects:** files
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `edit` | `e` | str |  | Id of the image the flags change. |
+| `replace` | `rp` | str |  | Id of an image whose file becomes the one given. |
+| `remove` | `rm` | list |  | Ids of images to remove, with their overlays. |
+| `query` | `q` | bool |  | Return the images (or the one named by edit) as dicts. |
+| `name` | `n` | str |  | Tab label. |
+| `window` | `w` | str |  | Reference window id the images are tabs of ("main" is the first); empty takes them out of every window. |
+| `index` | `i` | int |  | Tab position for added images; default the end. |
+| `current` | `c` | bool |  | Make the (first) image its window's shown tab. |
+| `flipH` | `fh` | bool |  | Mirror left to right. |
+| `flipV` | `fv` | bool |  | Mirror top to bottom. |
+| `grayscale` | `g` | bool |  | Show without color, to judge values. |
+| `quarterTurns` | `qt` | int |  | Clockwise quarter turns, 0 to 3. |
+| `brightness` | `b` | float |  | Added in display space, -1 to 1. |
+| `contrast` | `ct` | float |  | Around mid gray, 0 to 4. |
+| `embed` | `em` | bool |  | Keep the file's bytes in the set, so it travels without the file; False links to the file again. Videos always stay linked. |
+| `videoOffset` | `vo` | int |  | Video: frames added to the frame shown. |
+| `videoFps` | `vf` | float |  | Video: playback rate; 0 for the file's own. |
+| `paused` | `pa` | bool |  | Video: hold the frame showing now instead of following the time. |
+| `pausedFrame` | `pf` | int |  | Video: the frame a paused video holds. |
+
+```python
+referenceImage("refs/front.jpg", "refs/side.jpg")
+```
+
+```python
+referenceImage("refs/front_v2.jpg", replace="ref1")
+```
+
+```python
+referenceImage(edit="ref2", flipH=True, grayscale=True)
+```
+
+### referenceOverlay
+
+Show a reference image glued to a view's screen, or edit, remove or list overlays.
+
+The positional argument is a reference image id or an image file (added to the set without a tab). The overlay draws in front of the model at low opacity by default; depth behind puts it under the model. Placement is in view heights from the anchor, so a parked overlay stays parked when the view resizes. bind remembers the view's camera: goTo returns to it, and the overlay fades as the view turns away.
+
+**Objects:** image
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` | `v` | str |  | View name the overlay shows in; default the active view. |
+| `edit` | `e` | str |  | Id of the overlay the flags change. |
+| `remove` | `rm` | list |  | Ids of overlays to remove. |
+| `query` | `q` | bool |  | Return the overlays (of view, when given) as dicts. |
+| `opacity` | `o` | float |  | 0 to 1. |
+| `depth` | `d` | str |  | Over the model or under it. One of `front`, `behind`. |
+| `mode` | `m` | str |  | outline draws only the image's edges, leaving the model visible. One of `normal`, `grayscale`, `outline`. |
+| `anchor` | `an` | str |  | The view point offset is measured from. One of `center`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`. |
+| `offset` | `of` | list |  | [x, y] from the anchor to the image centre, in view heights, y down. |
+| `scale` | `s` | float |  | Shown height in view heights. |
+| `rotation` | `r` | float |  | Degrees clockwise. |
+| `crop` | `cr` | list |  | [u0, v0, u1, v1]: the part of the image shown, 0 to 1 from its top left. The image stays where it is on screen. |
+| `visible` | `vis` | bool |  | Shown or hidden. |
+| `ghost` | `gh` | bool |  | Draw the meshes see-through while the overlay shows. |
+| `outlineColor` | `oc` | tuple[float, float, float] |  | Line color of outline mode, display RGB 0 to 1. |
+| `fadeAngle` | `fa` | float |  | Degrees from the bound view at which it has faded out. |
+| `focalLength` | `fl` | float |  | The lens the photo was taken with, in mm. |
+| `bind` | `b` | bool |  | Remember the view's camera now; False forgets it. |
+| `matchLens` | `ml` | bool |  | With bind, set the view's lens to focalLength first. |
+| `goTo` | `g` | bool |  | Move the view back to the bound camera. |
+| `park` | `p` | bool |  | Lay the view's overlays out opaque down its right edge. |
+| `active` | `a` | bool |  | Make it the overlay the O keys and handles act on. |
+
+```python
+referenceOverlay("refs/front.jpg", view="persp", opacity=0.25)
+```
+
+```python
+referenceOverlay(edit="overlay1", mode="outline", bind=True, matchLens=True)
+```
+
+```python
+referenceOverlay(edit="overlay2", goTo=True)
+```
+
 ### references
 
 Every reference: namespace, path, loaded, and its local edits.
 
 Not undoable.
+
+### referenceSet
+
+Save, load, clear the reference image set, or say where it is kept.
+
+Storage scene keeps the set in the scene file; project in references.lilaref in the project folder; user in Lila's config folder, shared by every scene. Changing storage carries the current set over.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `save` | `s` | str |  | Write the set to a .lilaref file. |
+| `load` | `l` | str |  | Replace the set with a .lilaref file's. |
+| `clear` | `c` | bool |  | Remove every image and overlay. |
+| `storage` | `st` | str |  | Where the set is kept. One of `scene`, `project`, `user`. |
+| `query` | `q` | bool |  | Return the storage and the whole set. |
+
+```python
+referenceSet(save="refs/hero.lilaref")
+```
+
+```python
+referenceSet(storage="project")
+```
 
 ### refreshClay
 
@@ -9169,6 +9599,14 @@ Rename an added attribute. Connections, keys and drivers stay on it. Returns the
 
 **Objects:** plug newName
 
+### renameKeymap
+
+Rename a keymap.
+
+**Objects:** name, new name
+
+Not undoable.
+
 ### renameLayout
 
 Rename a saved layout, keeping where it is saved.
@@ -9394,6 +9832,10 @@ Make a joint the root of its skeleton by reversing the parent chain above it. Jo
 
 **Objects:** joint
 
+### resetComponentPivot
+
+Put the component manipulator back on the selection's centre and the tool's own axes, ending a pinned pivot.
+
 ### resetCorrection
 
 Clear a correction's offsets: all of them, or just points=.
@@ -9403,6 +9845,14 @@ Clear a correction's offsets: all of them, or just points=.
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `points` |  | list |  | Point ids to clear. |
+
+### resetKeymap
+
+Drop every change a keymap makes, back to Lila's default hotkeys.
+
+**Objects:** name (the current keymap when not given)
+
+Not undoable.
 
 ### resetPivot
 
@@ -10293,6 +10743,17 @@ Not undoable.
 
 Subdivide the sculpt once more and sculpt the new level (from a lower level, the finest is subdivided). Returns {level, levels, points, faces}.
 
+### sculptBrush
+
+Pick the sculpt tool's brush: a built-in or registered brush by name, or a brush preset by id (see brushPresets). Returns {brush, preset}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `brush` |  | str |  | A brush name: draw, clayStrips, damStandard, ... or a registered brush's. |
+| `preset` |  | str |  | A brush preset id, such as user/Skin Pores. |
+
+Not undoable.
+
 ### sculptCancel
 
 Leave sculpt mode without changing the mesh or its stored levels, discarding this session's sculpting.
@@ -11041,6 +11502,14 @@ Set where a weight layer shows: values per point (0 hides it, 1 shows it), or on
 | `value` | `val` | float | `1.0` | The value set on the vertices, without values. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
+### setSnapSurface
+
+Make meshes the snap surface for this session: surface snapping hits only them, and the move tool keeps moved objects and components on them. Returns the snap surface.
+
+**Objects:** meshes (default: the selection)
+
+Not undoable.
+
 ### setSymmetry
 
 Object-space symmetry for component edits on meshes: 'off', a mirror plane 'x', 'y' or 'z', or 'radial': count wedges repeated round radialAxis (with mirror=True also mirrored within each wedge), every edit applied to all of them.
@@ -11114,6 +11583,20 @@ target=pose aims each vertex at a delta mush of the posed mesh (smoothed, with t
 | `contact` | `ct` | bool | `True` | simulate: keep folds from passing through themselves. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
+### setUserMenu
+
+Adds a user menu, or replaces the one with the same title. parent empty puts it on the menu bar; a menu path such as "Mesh" puts it in that menu, as a submenu or, with as="section", as a titled section. Items take an action id, {"python": code} or {"command": name, "args": {}} as their action, or separator, section or submenu. Returns the stored menu.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `menu` | `m` | Any |  | The menu: {title, parent, as, before, after, sets, items}. |
+
+Not undoable.
+
+```python
+setUserMenu(menu={"title": "Kit", "parent": "Mesh", "items": [{"action": "mesh.bevel"}]})
+```
+
 ### setVertexColorData
 
 Set a color set from a flat [r, g, b, a, ...] list per face-vertex, in getVertexColorData's order. Creates the set when missing. One undo step.
@@ -11157,6 +11640,18 @@ Show meshes as they export: every modifier's viewport state takes its export sta
 ### showLastHidden
 
 Show the objects the last hide (or hiding toggle) hid. Returns them.
+
+### showPanel
+
+Show a panel by its id, or hide it with hide. With no id, returns every panel id.
+
+**Objects:** panel
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `hide` | `h` | bool |  | Hide the panel instead. |
+
+Not undoable.
 
 ### shrinkSelection
 
@@ -11435,6 +11930,192 @@ Move audio nodes and image planes along the timeline by a number of frames: an a
 slideMedia('shot010', 'shot010Ref', frames=-6)
 ```
 
+### slotFind
+
+Find slots by type, region, tag, owner, rule or distance, with each one's resolved payload and what decided it (default, rule:<id>, override, pin). select=True selects the nodes publishing them.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `type` | `t` | str |  | Type pattern: "door" covers every door, "door.*" only the subtypes, a comma list any. |
+| `region` | `r` | str |  | A region the slot lies in ("settlement:Town", "district:" for any district). |
+| `tag` | `tg` | Any |  | Tags the slot must all carry (one or a list). |
+| `owner` | `o` | str |  | Owner id or a prefix of it ("lot/1a2b"). |
+| `id` |  | Any |  | Exact slot ids (one or a list). |
+| `rule` | `ru` | str |  | Only slots this rule applies to. |
+| `near` | `n` | list |  | [x, y, z]: nearest first (with radius, only within it). |
+| `radius` | `rad` | float | `0.0` | With near: furthest distance, cm; 0 for any. |
+| `limit` | `l` | int | `500` | Most slots listed, 0 for all; count is always the full number. |
+| `full` | `f` | bool | `False` | Add regions, tags, default payload and matrix. |
+| `select` | `sl` | bool | `False` | Select the nodes publishing them. |
+
+```python
+slotFind(type='sign.storefront', region='district:', limit=10)
+```
+
+```python
+slotFind(near=[0, 0, 0], radius=5000, select=True)
+```
+
+### slotLoadItems
+
+Load the Set Dressing library items the scene's slots name (rules, overrides, pins, pools, pool tags and the slots' own payloads) so they draw as themselves rather than placeholders. Runs by itself when a scene opens with named items not loaded yet. Returns {loaded: [item ids], missing: [{item, why}]} (missing: no such library item, or its model brought in nothing).
+
+```python
+slotLoadItems()
+```
+
+### slotPin
+
+Pin slots, or every slot of an owner (a building, block or arrangement), as they are now: regenerating leaves them where they are with what they show, and differences are reported as conflicts. With no key, lists the pins.
+
+**Objects:** slot id, or owner:<owner id>
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `owner` | `o` | str |  | Pin every slot of this owner (same as owner:<id>). |
+| `remove` | `rm` | bool | `False` | Unpin. |
+
+```python
+slotPin('owner:settlement:Town/lot/1a2b')
+```
+
+```python
+slotPin('b/12/f0/door0', remove=True)
+```
+
+```python
+slotPin()
+```
+
+### slotPublish
+
+Write slots into a slotSet node (made under parent when missing), for scripts and generators without nodes of their own. Each slot: {id | owner + path, type, matrix (16, column-major) | position [x, y, z] + rotateY degrees, regions, tags, payload}. Pinned slots keep their pinned frame.
+
+**Objects:** slotSet name
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `slots` | `s` | list |  | The slots, world space. |
+| `parent` | `p` | str |  | Node to put a new slotSet under. |
+| `source` | `src` | str |  | What wrote them (shown on the node). |
+
+```python
+slotPublish('shopSlots', slots=[{'owner': 'lot/7', 'path': 'f0/door', 'type': 'door.shop', 'position': [0, 0, 500]}])
+```
+
+### slotReport
+
+Counts of slots per type, rule and owner, the rules with how many slots each covers, orphaned overrides (with the nearest slot of their type to reassign to), pin conflicts, duplicate ids, unregistered types and payloads that fell back to placeholders. validate=True also lists them in the Validation panel.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `validate` | `v` | bool | `True` | Report problems to the Validation panel too. |
+
+Not undoable.
+
+```python
+r = slotReport()
+r['byType'], r['orphans']
+```
+
+### slotRule
+
+Add, edit, remove, move or list swap rules. A rule gives every slot it covers its payload (an item, a variant pool, a mesh, an Unreal class, data); rules apply global, then region, then owner, each in list order, then per-slot overrides. Rules are saved in the scene; every change undoes.
+
+**Objects:** action: add | edit | remove | move | list
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` |  | str |  | The rule (edit, remove, move); add takes it as the new rule's id. |
+| `name` | `nm` | str |  | A label for the rule. |
+| `level` | `lv` | str |  | global, region or owner: rules apply in that order, then overrides. |
+| `type` | `t` | str |  | Type pattern the rule covers ("sign.storefront", "door", "*"). |
+| `region` | `r` | str |  | Region rule: a region slots list ("district:3", "settlement:Town"). |
+| `owner` | `o` | str |  | Owner rule: an owner id or its prefix (a building, lot, street). |
+| `tag` | `tg` | list |  | Slots must carry every tag. |
+| `enabled` | `en` | bool |  | Switch the rule on or off. |
+| `index` | `ix` | int | `-1` | Position in the list (add, move); -1 for the end. |
+| `rule` | `rl` | Any |  | The whole rule as JSON ({level, type, region, owner, tags, payload, enabled}). |
+| `replacePayload` | `rp` | bool | `False` | edit: start the payload over instead of overlaying the given fields. |
+| `item` | `it` | str |  | Library item id (Set Dressing library, "Collection/Asset"). |
+| `pool` | `pl` | list |  | Variant pool: item ids, one picked per slot by its id. |
+| `poolTag` | `pt` | str |  | Variant pool from library tags ("fictional_signs", "a+b" for both). |
+| `mesh` | `ms` | str |  | A scene mesh (or group of meshes) drawn and exported in place of the slot. |
+| `placeholder` | `ph` | str |  | A shipped stand-in shape sized to the type's footprint. One of `box`, `panel`, `door`, `window`, `sign`, `awning`, `pole`, `lamp`, `tree`, `palm`, `bush`, `plant`, `cylinder`, `cone`, `row`. |
+| `unrealMesh` | `um` | str |  | Unreal static mesh path for instanced placement ("/Game/Props/SM_Door"). |
+| `unrealClass` | `uc` | str |  | Unreal actor class spawned per slot ("/Game/BP/BP_Door.BP_Door_C"); "-" clears it. |
+| `hidden` | `hd` | bool |  | Remove the part (true) or bring it back (false). |
+| `data` | `dt` | Any |  | Gameplay key/values merged into the slot's data ({"locked": true}); a null value removes a key. |
+
+```python
+slotRule('add', type='sign.storefront', poolTag='fictional_signs', name='Fictional signs')
+```
+
+```python
+slotRule('add', level='region', region='district:3', type='door.shop', unrealClass='/Game/BP/BP_ShopDoor.BP_ShopDoor_C')
+```
+
+```python
+slotRule('edit', id='r1', enabled=False)
+```
+
+```python
+slotRule('remove', id='r1')
+```
+
+### slotSet
+
+Override slots by id: the payload fields given replace what rules gave (item, pool, mesh, Unreal class), data merges key by key. Overrides are keyed by the stable slot id, so they survive regenerating the generator; one whose slot disappears is reported as an orphan (Validation panel) and can be reassigned.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` |  | Any |  | Slot ids (one or a list). |
+| `clear` | `cl` | bool | `False` | Start the override over before applying the given fields. |
+| `remove` | `rm` | bool | `False` | Drop the override: the slot goes back to its rules. |
+| `reassign` | `ra` | str |  | Move an orphaned override from id to this slot id. |
+| `item` | `it` | str |  | Library item id (Set Dressing library, "Collection/Asset"). |
+| `pool` | `pl` | list |  | Variant pool: item ids, one picked per slot by its id. |
+| `poolTag` | `pt` | str |  | Variant pool from library tags ("fictional_signs", "a+b" for both). |
+| `mesh` | `ms` | str |  | A scene mesh (or group of meshes) drawn and exported in place of the slot. |
+| `placeholder` | `ph` | str |  | A shipped stand-in shape sized to the type's footprint. One of `box`, `panel`, `door`, `window`, `sign`, `awning`, `pole`, `lamp`, `tree`, `palm`, `bush`, `plant`, `cylinder`, `cone`, `row`. |
+| `unrealMesh` | `um` | str |  | Unreal static mesh path for instanced placement ("/Game/Props/SM_Door"). |
+| `unrealClass` | `uc` | str |  | Unreal actor class spawned per slot ("/Game/BP/BP_Door.BP_Door_C"); "-" clears it. |
+| `hidden` | `hd` | bool |  | Remove the part (true) or bring it back (false). |
+| `data` | `dt` | Any |  | Gameplay key/values merged into the slot's data ({"locked": true}); a null value removes a key. |
+
+```python
+slotSet(id='settlement:Town/st1a2b/lamp-3c', item='Street/LampOld')
+```
+
+```python
+slotSet(id=['b/12/f0/door0'], unrealClass='/Game/BP/BP_Door.BP_Door_C', data={'locked': True, 'missionId': 'm04'})
+```
+
+```python
+slotSet(id='old/id', reassign='new/id')
+```
+
+### slotTypes
+
+The slot types: id, label, tags, footprint (cm, width/height/depth), attach frame and placeholder shape. Types are dotted, most general first (door.shop is a door); rules naming door cover every door type.
+
+**Objects:** type pattern
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tag` | `tg` | str |  | Only types carrying this tag. |
+| `add` | `a` | Any |  | Register a type for this session: {id, label, tags, footprint [w, h, d], attach, placeholder, doc}. Extensions register theirs in code so they come back on load. |
+
+Not undoable.
+
+```python
+slotTypes('door')
+```
+
+```python
+slotTypes(add={'id': 'sign.neon', 'footprint': [200, 60, 10], 'attach': 'wall', 'placeholder': 'sign'})
+```
+
 ### smartJoin
 
 Join a limb mesh to a body mesh with a quad bridge, changing only a local region of each. The smaller mesh is the limb unless flip=True. Returns {name, confidence (0-100), summary, reasons, counts...}.
@@ -11517,6 +12198,12 @@ Put reverse foot controls on the sole of the current pose with roll, twist and b
 | --- | --- | --- | --- | --- |
 | `align` | `al` | bool | `False` | Level the control instead. |
 | `key` | `k` | bool | `True` | Key the control's channels at the current time. |
+
+### snapSurface
+
+The meshes set as the snap surface; empty when none is set.
+
+Not undoable.
 
 ### snapToComponentCenter
 
@@ -12372,6 +13059,26 @@ Clear a paint layer: drop its strokes and pixels.
 | --- | --- | --- | --- | --- |
 | `layer` |  | str |  | The paint layer. |
 
+### texCompare
+
+Wipe-compare a texture set snapshot (texSnapshot) against the live set or another snapshot, in the 3D viewports and the 2D View: the snapshot shows left of the wipe line, drag the line to move it. With no flags, reports the state. Returns {enabled, set, snapshot, against, wipe}.
+
+**Objects:** texture set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `enable` | `e` | bool |  | On or off. |
+| `snapshot` | `s` | str |  | The snapshot on the left; the newest when left out. |
+| `against` | `a` | str |  | live, or another snapshot's name, on the right. |
+| `wipe` | `w` | float |  | Where the line sits across the view, 0 (all live) to 1 (all snapshot). |
+
+Not undoable.
+
+```python
+texSnapshot("RockTex", name="before")
+texCompare("RockTex", enable=True, snapshot="before", wipe=0.5)
+```
+
 ### texCompileStats
 
 CPU kernel cache counters: compiles, cache hits and failures since start (or the last clear).
@@ -12419,6 +13126,14 @@ Create a texture set: a texture graph with a Material Output, and the channels, 
 | `settings` |  | Any |  | Settings dict: channels [{name, type, bits}], width, height, tiles [udim or {udim, width, height}], normalConvention (opengl/directx), bakeProject, exportPreset. |
 | `resolution` |  | int |  | Width and height of every tile. |
 | `materials` |  | list |  | Materials that use the set (their Texture Set), created when missing. |
+
+### texCreateSetForSelection
+
+Make a texture set with a paint layer and pick it in the materials of the selected meshes (and the meshes under selected groups) that use no set yet. Meshes only on Default first share a new material. Returns the set.
+
+### texCreateSetPerMaterial
+
+Make a texture set, with a paint layer, for each material of the selected meshes (every mesh when nothing is selected) that uses no set yet, and pick it in that material. Meshes only on Default first share a new material. Returns the sets made.
 
 ### texDeleteGroup
 
@@ -12804,6 +13519,12 @@ A texture set's layer stack as JSON: layers bottom first (with each channel's re
 
 Not undoable.
 
+### texLiveStatus
+
+The viewport's live texture sets: per set its material, warm-ups compiled ahead, tiles and evaluation levels (size, idle, plans, passes, compiles, GPU milliseconds) and the last error; idle is whether every set has finished its latest edit.
+
+Not undoable.
+
 ### texMaterialFromMaps
 
 Make materials from texture maps: each file's channel comes from its name (BaseColor, albedo, diff, rough, gloss, metal, nrm or normal with dx or gl, height or disp, ao, emissive, opacity, and packed ORM, ARM, RMA, MRA), files differing only by that token make one material, and a size in the name (200cm, 2m) sets its scale. Packed maps are split, DirectX normals flipped, gloss inverted. Writes a .lilamat per material to the library (tier, category, or path), or with set= adds each as a material layer. Returns one entry per material with its maps and warnings.
@@ -12906,6 +13627,23 @@ Paint a stroke along a path on the surface: points [[x, y, z], ...] or [{positio
 | `stencil` |  | Any |  | A stencil, as texPaintStroke takes it (needs view). |
 | `particles` |  | Any |  | Particle brush. |
 | `view` |  | Any |  | The stroke view record {objectToClip, eye, direction, width, height}. |
+
+### texPaintStencil
+
+The texture paint tool's stencil: a picture pinned to the screen that strokes and the projection buffer paint through. A file sets it (an empty one clears it); the flags change it. mode mask scales each stroke by the picture's brightness, color paints its colours into Base Color. Returns {file, mode, invert, tile, offset, scale, rotation}.
+
+**Objects:** [file]
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `mode` |  | str |  | mask or color. |
+| `invert` |  | bool |  | Paint where the picture is dark. |
+| `tile` |  | bool |  | Repeat the picture past its edges. |
+| `offset` |  | list |  | [x, y] screen pixels from the view's centre. |
+| `scale` |  | float |  | 1 spans the view's height. |
+| `rotation` |  | float |  | Degrees. |
+
+Not undoable.
 
 ### texPaintStroke
 
@@ -13014,6 +13752,16 @@ Save a projection view on a texture set by name (view=, a screen view as texPain
 | --- | --- | --- | --- | --- |
 | `view` |  | Any |  | The view to save. |
 | `remove` |  | bool | `False` | Remove it. |
+
+### texQuickMaskOverlay
+
+Show or hide the Quick Mask overlay, the tint over what the quick mask leaves out (show=), and report it: {shown, set (the set the quick mask limits, empty when it holds nothing), tint {width, height, version, tinted (the share of its texels tinted)} or None, draws (tinted mesh draws in the last viewport frame)}. Colour and opacity are the general prefs /texture/quickMaskColor and /texture/quickMaskOpacity.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `show` | `s` | bool |  | Show the overlay, or hide it. |
+
+Not undoable.
 
 ### texRasterize
 
@@ -14062,7 +14810,7 @@ Not undoable.
 
 ### unrealPlaceInstances
 
-Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Lights among them go as light actors (point, spot, directional, rect; discs as square rect lights, domes skipped). Lighting channels map onto Unreal's three: default is channel 0, the next two channels the sent nodes use (in scene order) 1 and 2; any more are dropped, with a warning naming them, and what is left in none goes on 0. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Validators run first: a blocking issue stops the send, others come back in issues. Returns the plan, with each group's import and placement results when wait=True.
+Send meshes to Unreal as one static mesh asset per instance source, placed in the open level: an actor per member referencing that asset, or one instanced static mesh component (ISM or HISM) for a large group. Lights among them go as light actors (point, spot, directional, rect; discs as square rect lights, domes skipped). Lighting channels map onto Unreal's three: default is channel 0, the next two channels the sent nodes use (in scene order) 1 and 2; any more are dropped, with a warning naming them, and what is left in none goes on 0. Placements are keyed by each node's linkId, given on the first send and saved with the scene, so sending a group again moves, adds and removes its actors to match, also after a rename or reopening the scene. Validators run first: a blocking issue stops the send, others come back in issues. Slots (slotSet nodes, Slots geometry nodes) go keyed by slot id: as actors of their payload's Unreal class, instances of its Unreal mesh, or their Lila visual; actors carry the tags LilaSlot:<id>, LilaSlotType:<type> and LilaSlotData:<key>=<value>, and every slot is listed in the slotTable data asset. A slot rule or override change sends the last slot roots again while auto-sync is on. Returns the plan, with each group's import and placement results when wait=True.
 
 **Objects:** objects
 
@@ -14076,6 +14824,7 @@ Send meshes to Unreal as one static mesh asset per instance source, placed in th
 | `nanite` | `na` | bool | `False` | Build Nanite data for the assets. |
 | `hlodLayer` | `hl` | str |  | HLOD layer asset path for the placed actors. |
 | `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealPlaceInstances, "unreal" or "*" on what is sent stops the send; other issues come back in the result's issues. |
+| `slotTable` | `stb` | str | `'/Game/Lila/Slots/DA_LilaSlotTable'` | Data asset the sent slots are listed in (id, type, owner, class, mesh, data, transform), for game code to look slots up by id. |
 | `dryRun` |  | bool | `False` | Return the plan without exporting or contacting Unreal. |
 | `wait` | `w` | bool | `False` | Block until Unreal has imported and placed everything. |
 
@@ -14287,6 +15036,24 @@ Remove the Unreal mapping of the given nodes (or the selection). Returns how man
 Stop Explorer opening any file type with Lila, for the current user, restoring the previous handlers. Saved in the prefs, so later starts don't register them again.
 
 Not undoable.
+
+### useKeymap
+
+Switch to a keymap. The current one keeps the edits made to it.
+
+**Objects:** name
+
+Not undoable.
+
+### userMenus
+
+The user menus, as stored: a list of {title, parent, as, before, after, sets, items}.
+
+Not undoable.
+
+```python
+userMenus()
+```
 
 ### uvAlignToEdge
 
@@ -14967,6 +15734,17 @@ One vertex paint stroke: dabs is a list of {center, radius, opacity, view, eye} 
 | `dabs` |  | list |  | The stamps, in order. |
 | `live` |  | int | `0` | Internal: adopts the stroke the viewport tool already applied. |
 
+### viewCamera
+
+The active view's camera: with eye and lookAt, put its perspective camera there (scenes save it, so a scene opens on that view). Returns the view's state {view, persp: {target, distance, yaw, pitch, orthoWidth, focalLength}}.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `eye` |  | tuple[float, float, float] |  | Where the camera stands, cm. |
+| `lookAt` | `la` | tuple[float, float, float] |  | The point it looks at, cm. |
+
+Not undoable.
+
 ### viewPlace
 
 Place a camera node: eye is its world position, lookAt the point it aims at, up the world direction its top leans to. Flags left out keep the camera's current value; with eye alone it moves without turning. Fails on a locked camera.
@@ -14990,6 +15768,46 @@ What the active viewport draws and counts now: {hud: {scene, objects, components
 | `path` | `p` | str |  | Also render the view's live frame (tools and their drawing included) offscreen to this PNG. |
 
 Not undoable.
+
+### viewportRenderer
+
+Pick the renderer a viewport draws with: "lila" for Lila's own, or one an extension registered (viewportRenderers lists them). Lila still draws selection, gizmos and the HUD over another renderer's image. With no renderer, only returns the viewport's current one.
+
+**Objects:** renderer id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | int |  | The viewport, numbered in the order they were made; default the active one. Example: `viewportRenderer("lila", panel=1)` |
+
+Not undoable.
+
+```python
+viewportRenderer("cpuShaded")  # the active view draws with the example renderer
+viewportRenderer("lila")
+```
+
+### viewportRenderers
+
+The renderers a viewport can draw with, Lila's own first: [{id, name, doc}].
+
+Not undoable.
+
+### viewportRendererSetting
+
+Read or change a setting of the renderer a viewport draws with (a Hydra delegate's render settings). With no key, returns them all as [{key, name, value}]; with a key, its value; with a key and a value, sets it. A set value is saved and given to every viewport using that renderer, now and whenever it starts.
+
+**Objects:** key, value
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `panel` | `p` | int |  | The viewport; default the active one. |
+
+Not undoable.
+
+```python
+viewportRendererSetting()  # [{key, name, value}, ...]
+viewportRendererSetting("myEngine:metersPerUnit", 0.01)
+```
 
 ### viewportStats
 
@@ -15633,6 +16451,308 @@ Turn blocks into volume entities of a class (a trigger, a blocking volume), keep
 ```python
 blockworkVolume('block3', class='Trigger')
 ```
+
+## Buildings extension
+
+Available when the Buildings extension is loaded.
+
+### buildingAge
+
+Age buildings with a Weathering preset (weatherPresets lists them: grunge, worn edges, ivy, debris...): per building (each made standalone first, so the dressing follows only it) or per district (meshes= of whole cells, or polygon=). dirt= sets the palette's dirt too (pristine resort 0, run-down centro 0.7). Needs the Weathering extension for the preset; dirt alone works without it.
+
+**Objects:** building ids (default the selection's buildings)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | Any |  | Building id(s). |
+| `polygon` | `pg` | list |  | District [[x, z], ...]. |
+| `meshes` | `ms` | list |  | Whole building meshes (cells) to age as they are. |
+| `preset` | `p` | str |  | Weathering preset name. |
+| `dirt` | `dt` | float |  | Palette dirt, 0 to 1. |
+| `seed` | `s` | int | `1` | Weathering seed. |
+
+```python
+buildingAge(polygon=[[0, 0], [8000, 0], [8000, 8000], [0, 8000]], dirt=0.7)
+```
+
+```python
+buildingAge('building:1a2b', preset='Grunge')
+```
+
+### buildingCheck
+
+Check buildings: modules intersecting (instanced parts meeting where they shouldn't), doors not reaching the ground (sill above it without steps, or buried), buildings overlapping their neighbours (party walls only touch), slots floating off their building, and real names on signs or buildings (against imported real names and the brand blocklist). Returns ok, counts by kind and issues (kind, building, what, at, slot).
+
+**Objects:** building meshes (default every one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tolerance` | `tl` | float | `1.0` | cm of slack on every test. |
+
+Not undoable.
+
+```python
+buildingCheck()
+```
+
+```python
+buildingCheck('Town_Buildings_0_0')['counts']
+```
+
+### buildingCreate
+
+Make live procedural buildings: from a settlement's envelopes (settlement=, lots= to pick some), envelopes given as JSON (envelopes=), closed footprint curves (curve=, one building per closed spline; OSM building curves carry heights and roofs) or a mesh's footprint (mesh=). Buildings go into one live mesh per Settlement cell (cell=, cm; 0 for one mesh) under a group, or one mesh each with standalone=True. Every module is a slot with a stable id (building:<lot>/t<tier>/f<facade>/l<floor>/b<bay>/<kind>); edits and slot overrides are kept by id, so running this again regenerates without losing them, and pinned buildings stay as they were. Styles come from the Settlement style guess and program unless style= is given. Returns group, meshes, buildings, cells, styles, slots, timings.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `settlement` | `st` | str |  | Settlement mesh or its modifier: build its envelopes. |
+| `lots` | `lt` | list |  | Only these lots (lot ids as Settlement's lotId). |
+| `envelopes` | `ev` | list |  | Envelopes in Settlement's published schema (settlementEnvelopes). |
+| `curve` | `cv` | str |  | Closed footprint curve(s). |
+| `mesh` | `ms` | str |  | A mesh whose footprint becomes a building. |
+| `style` | `sy` | str |  | One style for every building (buildingStyles lists them). |
+| `floors` | `fl` | int |  | Curve and mesh buildings: floors. |
+| `height` | `h` | float |  | Mesh buildings: height, cm. |
+| `roof` | `rf` | str |  | Curve and mesh buildings: flat, hip, gable, dome. One of `flat`, `hip`, `gable`, `dome`, `sheet`. |
+| `ground` | `gr` | Any |  | Ground mesh sampled under each corner (default the settlement's), or a height for curves. |
+| `cell` | `ce` | float | `6400.0` | Cell size, cm: a live mesh per cell (6400 puts four in each of Settlement's World Partition cells); 0 for one mesh. |
+| `standalone` | `sa` | bool | `False` | One mesh per building. |
+| `name` | `n` | str |  | Group name (default <settlement>_Buildings, else Buildings). |
+| `culture` | `cu` | str |  | Naming culture for shops nobody named (default the settlement's, else mexican). |
+
+```python
+buildingCreate(settlement='Town')
+```
+
+```python
+buildingCreate(settlement='Town', style='colonialCentro', cell=6400)
+```
+
+```python
+buildingCreate(curve='Footprints', floors=3, style='residential')
+```
+
+```python
+buildingCreate(mesh='Block_3', style='warehouse')
+```
+
+### buildingEdit
+
+Edit buildings: floors, bay width, floor height, roof, seed, palette, enterable, bays painted (bays={'t0/f2/l0/b3': 'door'}: window, door, shopfront, shopdoor, wall, arcade, garage), toggles per bay (toggles={'t0/f2/l1/b3': {'balcony': True}}: balcony, awning, ac, grille, shutter) and bay counts per facade (facadeBays={'t0/f2': 5}). Edits are kept by building id and survive regeneration; clear=True drops them. Returns the buildings edited and the evaluation time.
+
+**Objects:** building ids or building meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | Any |  | Building id(s). |
+| `style` | `sy` | str |  | Style id. |
+| `floors` | `fl` | int |  | Floors. |
+| `bayWidth` | `bw` | float |  | Target bay width, cm. |
+| `floorHeight` | `fh` | float |  | Upper floor height, cm. |
+| `roof` | `rf` | str |  | flat, hip, gable, dome, sheet, mansard. |
+| `seed` | `s` | int |  | Another seed gives other palette and module choices. |
+| `enterable` | `en` | bool |  | Mark for interiors (W4). |
+| `palette` | `pl` | Any |  | {'render': '#e4572e', 'trim': '#f4f1de', 'roof': '#8b3a2b', 'dirt': 0.3}. |
+| `bays` | `by` | Any |  | {bay path: kind}. |
+| `toggles` | `tg` | Any |  | {bay path: {balcony\|awning\|ac\|grille\|shutter: bool}}. |
+| `facadeBays` | `fb` | Any |  | {facade path: bay count}. |
+| `clearBays` | `cb` | list |  | Bay paths whose paint and toggles go. |
+| `clear` | `cl` | bool | `False` | Drop every edit of these buildings first. |
+
+```python
+buildingEdit('building:1a2b', floors=3)
+```
+
+```python
+buildingEdit('building:1a2b', bays={'t0/f0/l0/b2': 'door'})
+```
+
+```python
+buildingEdit('building:1a2b', toggles={'t0/f0/l1/b1': {'balcony': True}})
+```
+
+### buildingInfo
+
+A building as the generator made it: style and where it came from, floors, palette, edits, facades (street, party, open, courtyard), module counts by slot type, floor plates, stair core and openings per facade (what interiors build on), enterable, pinned. bays=True lists every bay with its corners (what bay paint takes); modules=True every module with its slot id. Given a building mesh, lists its buildings.
+
+**Objects:** building id or building mesh (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bays` | `by` | bool | `False` | List bays. |
+| `modules` | `md` | bool | `False` | List modules. |
+| `limit` | `l` | int | `200` | Mesh listing: at most this many. |
+
+Not undoable.
+
+```python
+buildingInfo('building:1a2b', bays=True)
+```
+
+```python
+buildingInfo('Town_Buildings_0_0')
+```
+
+### buildingLod
+
+What building meshes show: near (shell and modules), hlod (a simplified proxy: tiers and roofs, no openings) or far (flat-roof massing). Per mesh, so per cell. Slots stay published whatever is shown.
+
+**Objects:** building meshes (default every one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `lod` | `l` | str | `'near'` | near, hlod or far. |
+
+### buildingMaterials
+
+Make the Lila materials building meshes use: one per palette colour of each style used (Bld_<style>_render<k>, _trim<k>, _roof<k>, _base) and the module ones (bld_glass, bld_frame, ...). buildingCreate does this itself. Returns how many were made.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `styles` | `sy` | list |  | Style ids (default every style in the library). |
+
+### buildingPick
+
+The building and bay a ray hits (origin=, direction=) or nearest a point (point=, cast straight down from above): building id, bay path, facade path, bay kind, mesh and the hit point. Empty when nothing is hit.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `origin` | `o` | tuple[float, float, float] |  | Ray origin. |
+| `direction` | `d` | tuple[float, float, float] |  | Ray direction. |
+| `point` | `p` | tuple[float, float, float] |  | A point near a facade. |
+
+Not undoable.
+
+### buildingProxies
+
+Make the HLOD and far proxies of building meshes as meshes of their own (<mesh>_HLOD, <mesh>_Far, hidden), for export: Unreal gets them as each cell's HLOD and far levels. Made again on each call.
+
+**Objects:** building meshes (default every one)
+
+### buildingSend
+
+Send building meshes to Unreal: shells as Nanite static meshes placed where they stand (one per cell mesh, inside Settlement's World Partition cells), modules as slots keyed by slot id (actors of a slot's Unreal class, instances of its Unreal mesh, or its placeholder), the HLOD and far proxies (proxies=True), and MF_LilaBuildingVariation with M_LilaBuilding and MI_Bld_<style> per style, assigned to the shells' building slots. Per-building colour and dirt travel in vertex colour. dryRun returns what would be sent. Returns the placement plan and the materials.
+
+**Objects:** building meshes (default every one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str | `'/Game/Lila/Buildings'` | Content folder for the shells and module meshes. |
+| `proxies` | `px` | bool | `True` | Make and send the HLOD and far proxies too. |
+| `hlodLayer` | `hl` | str |  | HLOD layer asset for the shells. |
+| `dryRun` | `dr` | bool | `False` | Only return what would be sent. |
+
+Not undoable.
+
+```python
+buildingSend()
+```
+
+```python
+buildingSend('Town_Buildings_0_0', dryRun=True)
+```
+
+### buildingStandalone
+
+Move buildings out of their cell mesh into a mesh each (kept standalone when buildingCreate runs again), to weather, export or hand-edit one on its own. Returns the meshes.
+
+**Objects:** building ids (default the selection's buildings)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | Any |  | Building id(s). |
+
+### buildingStyle
+
+Give buildings a style: by id, building mesh, district polygon (polygon=, buildings whose footprint centre is inside) or all=True. clear=True goes back to the style mapped from Settlement's guess. Kept as an edit by building id. Returns the count.
+
+**Objects:** building ids or building meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` | `sy` | str |  | Style id (buildingStyles lists them). |
+| `building` | `b` | Any |  | Building id(s). |
+| `polygon` | `pg` | list |  | District [[x, z], ...]. |
+| `all` | `a` | bool | `False` | Every building. |
+| `clear` | `cl` | bool | `False` | Drop the style edit. |
+
+```python
+buildingStyle('Town_Buildings_0_0', style='malecon')
+```
+
+```python
+buildingStyle(polygon=[[0, 0], [8000, 0], [8000, 8000], [0, 8000]], style='colonialCentro')
+```
+
+### buildingStyleExport
+
+Write a style's JSON to a file to share it.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` | `sy` | str |  | Style id. |
+| `file` | `f` | str |  | Where to write (.json). |
+
+Not undoable.
+
+### buildingStyleImport
+
+Add a shared style file to your styles (scope='user') or the workspace's. Returns its id.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | A style .json. |
+| `scope` | `sc` | str | `'user'` | user or workspace. |
+
+Not undoable.
+
+### buildingStyles
+
+The building styles: shipped (colonial centro, malecón, resort tower, modern commercial, residential, narco mansion, civic, police station, church, mausoleum, warehouse, packing plant, port shed, hangar, village adobe, rural shack), the user's and the workspace's. style= gives one style's full JSON (the format to copy for your own); reload=True reads the folders again.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `style` | `sy` | str |  | One style's full JSON. |
+| `reload` | `rl` | bool | `False` | Read the style folders again. |
+
+Not undoable.
+
+```python
+[s['id'] for s in buildingStyles()['styles']]
+```
+
+```python
+buildingStyles(style='colonialCentro')
+```
+
+### buildingStyleSave
+
+Save a style for everyone in this workspace (scope='workspace') or for you (scope='user'): a copy of base= with spec= merged over it (any part of the style JSON). Buildings using it regenerate. Returns the file.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` | `i` | str |  | Style id. |
+| `base` | `bs` | str | `'residential'` | Style to start from. |
+| `spec` | `sp` | Any |  | Style JSON to merge over the base. |
+| `label` | `lb` | str |  | Menu label. |
+| `description` | `ds` | str |  | One line. |
+| `scope` | `sc` | str | `'user'` | user or workspace. |
+
+Not undoable.
+
+```python
+buildingStyleSave(id='pinkCentro', base='colonialCentro', spec={'palette': {'render': ['#e8a0b4', '#f2c6d3']}})
+```
+
+### buildingTrimSheet
+
+The LilaBuilding trim sheet shells are laid on: copied into the workspace's TrimSheets folder and baked with Trim Sheets (needs that extension), then building meshes point at the copy. The strips: Render, Plinth, Cornice, Band, Coping, Pilaster, RoofTile, Sheet. Returns the file and the bake result.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bake` | `b` | bool | `True` | Bake the sheet's maps. |
+
+Not undoable.
 
 ## CadImport extension
 
@@ -17242,6 +18362,859 @@ Not undoable.
 usdStageWriteShot("C:/shots/sh010_lila.usda", "kitchen")
 ```
 
+## OpenWorld extension
+
+Available when the OpenWorld extension is loaded.
+
+### remixAddRegion
+
+Add or change a remix region (the same id replaces): a polygon on the base map and what happens to it. op cut lifts it out and places it translated and turned (the hole is filled as land, both edges become seams); move carries it rigidly while the land around stretches and compresses; keep holds it rigid while pins warp the land around; duplicate copies it; delete removes it. The polygon comes from polygon=, a closed curve, or latLon= in a source's own latitude and longitude. remove= drops a region. Returns the region, where it ends up and the remix's stats.
+
+**Objects:** remix mesh or modifier (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `op` |  | str | `'cut'` | What happens to it. One of `move`, `keep`, `cut`, `duplicate`, `delete`. |
+| `polygon` | `p` | list |  | [[x, z], ...] on the base map, cm. |
+| `curve` | `cv` | str |  | A closed curve outlining it. |
+| `latLon` | `ll` | list |  | [[latitude, longitude], ...] in a source. |
+| `source` | `src` | str |  | The source latLon is in; default the first. |
+| `translate` | `t` | list |  | [x, z] move, cm. |
+| `angle` | `a` | float |  | Turn, degrees counter-clockwise seen from above. |
+| `pivot` | `pv` | list |  | [x, z] turn centre; default the polygon's centroid. |
+| `seam` | `sm` | float |  | Seam band width, cm; default the remix's. |
+| `id` |  | str |  | Region id; the same id replaces; empty makes one. |
+| `remove` | `rm` | str |  | Remove the region with this id instead. |
+
+```python
+remixAddRegion('World', id='capital', op='cut', curve='CapitalOutline', translate=[-150000, 80000], angle=15)
+```
+
+```python
+remixAddRegion('World', id='port', op='keep', polygon=[[0, 0], [20000, 0], [20000, 15000], [0, 15000]])
+```
+
+```python
+remixAddRegion('World', id='slum', op='delete', latLon=[[24.80, -107.40], [24.80, -107.38], [24.78, -107.38]], source='capital')
+```
+
+### remixApply
+
+Write the remix out and put its features on the terrain: the remixed OSM (every node, way and relation moved, cut and repaired, Overpass JSON that Terrain, Settlement and Buildings read), the heights as a GeoTIFF and a .lilahf with land cover masks, and the spec, under the workspace's openworld/remix/<name>. features=True imports the OSM onto the remix terrain with terrainImportOsm (replacing the last import). Returns the files, the remix's stats, the import's counts and remixCheck's summary.
+
+**Objects:** remix mesh or modifier (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `features` | `f` | bool | `True` | Import the remixed OSM onto the terrain as curves. |
+| `folder` | `fo` | str |  | Where the files go; default the workspace's openworld/remix/<name>. |
+| `perFeature` | `pf` | bool | `False` | One curve per feature instead of one per kind. |
+
+```python
+r = remixApply('World')
+r['files']['osm'], r['check']
+```
+
+```python
+remixApply('World', features=False, folder='exports/remix')
+```
+
+### remixCheck
+
+What a remix broke: rivers that no longer drain (that did in the sources), road and coastline ends a cut left unjoined, regions that end up overlapping, folds in the warp and sources that could not be read. Each issue has a kind, an id (way, node or regions), where it is on the map and what is wrong. Returns ok, counts by kind and issues.
+
+**Objects:** remix mesh or modifier (optional)
+
+Not undoable.
+
+```python
+c = remixCheck('World')
+c['ok'], c['counts'], [i['kind'] for i in c['issues']]
+```
+
+### remixCreate
+
+Make a World Remix: real places composed onto one map before they become terrain and settlements. The result is a terrain (a mesh whose World Remix node makes the heightfield), so every Terrain command and node works on it, and it stays live: remixSource, remixAddRegion and remixPin edit its spec and the terrain follows.
+
+Give sources (each {id, dem, osm, landcover, bbox, at, angle}) or a whole spec (lila://schema/remix-spec). Scales are factors or "1:N": horizontal 1:3 and vertical 1:1.5 by default, so distances shrink more than heights. Returns the mesh, modifier, spec and the remix's stats (grid, warp, seams, features).
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str | `'World'` | Name of the mesh. |
+| `sources` | `src` | list |  | Sources: [{id, dem, osm, landcover, bbox, at: [x, z], angle}]. |
+| `spec` | `sp` | Any |  | A whole remix spec; sources and scales given too override it. |
+| `horizontal` | `h` | Any |  | Distance scale: 0.333 or "1:3". |
+| `vertical` | `v` | Any |  | Height scale: 0.667 or "1:1.5". |
+| `origin` | `o` | list |  | [latitude, longitude] of the map's centre in the remixed OSM. |
+| `cell` | `c` | float |  | Grid spacing, cm; default the finest source's cell times the scale. |
+
+```python
+r = remixCreate(name='Sinaloa', sources=[{'id': 'coast', 'dem': 'dem/mazatlan.tif', 'osm': 'osm/mazatlan.osm.pbf'},
+    {'id': 'capital', 'dem': 'dem/culiacan.tif', 'osm': 'osm/culiacan.json', 'at': [400000, -300000]}])
+r['stats']['grid']
+```
+
+```python
+remixCreate(spec={'scale': {'horizontal': '1:4', 'vertical': '1:2'}, 'sources': [{'id': 'a', 'dem': 'a.tif'}]})
+```
+
+### remixPin
+
+Pin a point of the base map: to= moves it (the land around follows smoothly, compressing empty land between regions), no to holds it still. The warp never folds: it is integrated in small checked steps, and remixCheck reports any fold left when pins ask for the impossible. The same id replaces; remove= drops one and clear=True drops all. Returns the pin and the remix's stats.
+
+**Objects:** remix mesh or modifier (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `at` |  | list |  | [x, z] on the base map, cm. |
+| `to` |  | list |  | [x, z] where it goes; default at (an anchor). |
+| `id` |  | str |  | Pin id; the same id replaces; empty makes one. |
+| `remove` | `rm` | str |  | Remove the pin with this id instead. |
+| `clear` | `cl` | bool | `False` | Remove every pin. |
+
+```python
+remixPin('World', id='coastHold', at=[-200000, 0])
+```
+
+```python
+remixPin('World', at=[50000, 20000], to=[30000, 20000])
+```
+
+### remixSource
+
+Add or change a remix source (the same id replaces): a real place's elevation, OSM data and WorldCover land cover, placed on the base map at at (cm, its centre) and turned by angle. fetch=True downloads what the source lacks for its bbox through Terrain's own fetch (Copernicus elevation, Overpass OSM, WorldCover), cached under the workspace's terrain folder; the downloads and their sizes are reported. remove= drops one. Returns the source and the remix's stats.
+
+**Objects:** remix mesh or modifier (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `id` |  | str |  | Source id; the same id replaces; empty makes one. |
+| `dem` | `d` | str |  | Elevation file. |
+| `osm` | `os` | str |  | OSM file (.osm, Overpass .json, .osm.pbf). |
+| `landcover` | `lc` | str |  | WorldCover GeoTIFF. |
+| `bbox` | `bb` | list |  | [west, south, east, north] degrees. |
+| `at` |  | list |  | [x, z]: where its centre lands on the base map, cm. |
+| `angle` | `a` | float |  | Turn, degrees counter-clockwise seen from above. |
+| `scale` | `s` | float |  | Its own distance factor; 0 takes the remix's. |
+| `fetch` | `f` | bool | `False` | Download missing elevation, OSM and land cover for bbox. |
+| `offline` | `off` | bool | `False` | With fetch: cached data only. |
+| `remove` | `rm` | str |  | Remove the source with this id instead. |
+
+```python
+remixSource('World', id='capital', dem='dem/culiacan.tif', osm='osm/culiacan.json', at=[350000, -200000])
+```
+
+```python
+remixSource('World', id='coast', bbox=[-106.47, 23.17, -106.36, 23.27], fetch=True)
+```
+
+```python
+remixSource('World', remove='capital')
+```
+
+### remixSpec
+
+Read a remix's spec, or replace it with spec= (lila://schema/remix-spec). Returns the spec.
+
+**Objects:** remix mesh or modifier (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `sp` | Any |  | The new spec. |
+
+```python
+s = remixSpec('World')
+s['seams']['width'] = 2500
+remixSpec('World', spec=s)
+```
+
+### remixView
+
+The remix's viewport view: overlay (regions, pins, seams, cut road ends and rivers over the terrain) and before (the terrain shows the base map, sources placed and nothing moved, for comparing). Returns both.
+
+**Objects:** remix mesh or modifier (optional)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `overlay` | `ov` | bool |  | Show the overlay. |
+| `before` | `b` | bool |  | Show the base map instead of the remix. |
+
+```python
+remixView('World', before=True)
+```
+
+```python
+remixView('World', overlay=False)
+```
+
+### siteCheck
+
+Check sites (one, or every site): names that match a real name (imports in the scene or the brand blocklist), buildings overlapping each other, bulky parts inside buildings, sites overlapping sites, land parts and buildings standing in water, berths, piers and docks without the water depth they need, ground too steep for unpaved fields and plots, pads cutting too far into a slope, airstrip corridors without clearance, grading older than the site, and parts that did not fit. Returns ok, issues ({kind, site, part, what, at}), counts by kind and notes.
+
+**Objects:** site mesh, modifier or id (default every site)
+
+Not undoable.
+
+```python
+c = siteCheck()
+c['ok'], c['counts']
+```
+
+```python
+siteCheck('port1')['issues']
+```
+
+### siteCreate
+
+Make a site kit: a cargo port, cruise terminal, mausoleum cemetery, hidden airstrip, industrial farm, mountain village, walled compound, private island or lighthouse, laid out on the terrain and graded into it.
+
+The site is a mesh whose Site Kit node lays it out live from its spec: buildings as Settlement-style envelopes with a style tag (greybox massing until a building generator builds them; siteEnvelopes lists them), every other part (containers, cranes, crop rows, graves, walls, docks, markings) a typed slot with a stable id under site:<id>, so slot rules and overrides swap them. Every name (the site, shipping lines, mausoleum families, businesses, streets) is fictional. The terrain is graded with Terrain stamps, roads, canals and the coast airstrip, kept by id so siteEdit and siteGround replace them. Each kind takes its own settings (siteKinds lists them). Returns the mesh, modifier, id, names, slot counts by type, envelope count, styles and what the grading sent.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'port'` | What to build: port, cruise, lighthouse, cemetery, airstrip, farm, village, compound, island. |
+| `name` | `n` | str |  | The site's fictional name; left out, one is generated (never a real name). |
+| `id` |  | str |  | Stable id: slot ids and terrain ids start with site:<id>. Default <kind><n>. |
+| `culture` | `cu` | str | `'mexican'` | Naming culture for every name in the site. One of `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`. |
+| `seed` | `sd` | int | `0` | Variation seed. |
+| `terrain` | `tr` | str |  | Terrain it stands on and grades; default the selected or only terrain, '' for none. |
+| `at` |  | list |  | Where its origin stands, [x, z] cm; default the selected object's position, else the origin. |
+| `heading` | `hd` | float | `0.0` | Turn about up, degrees: its x axis (quay, runway, farm road) turned this far from world x. |
+| `ground` | `gr` | bool | `True` | Grade the terrain: pads, quays, roads, canals, the airstrip. |
+| `waterLevel` | `wl` | float |  | Water level its quays, docks and ships sit at, cm; default the terrain's sea level, else 0. |
+| `params` | `pm` | Any |  | Kit settings as one object, as the flags below take them. |
+| `quayLength` |  | float |  | Length of the quay and the yard behind it, cm. (port) |
+| `yardDepth` |  | float |  | Depth of the yard inland from the quay, cm. (port) |
+| `berths` |  | int |  | Berths along the quay. (port) |
+| `stsCranes` |  | int |  | Ship-to-shore cranes per berth. (port) |
+| `blockRows` |  | int |  | Container rows per yard block (across the block). (port) |
+| `tiers` |  | int |  | Highest container stack. (port) |
+| `fill` |  | float |  | How full the yard is, 0 to 1: stacks are left out from the top down. (port) |
+| `liveries` |  | int |  | Container liveries: fictional shipping lines. (port) |
+| `rtgCranes` |  | int |  | Rubber-tyred gantry cranes per yard block. (port) |
+| `reeferRacks` |  | int |  | Reefer racks (refrigerated container rows with power gantries). (port) |
+| `warehouses` |  | int |  | Warehouses at the back of the yard. (port) |
+| `customsGate` |  | bool |  | Customs gate with booths and barrier lanes on the access road. (port) |
+| `railSpur` |  | bool |  | Rail spur into the yard. (port) |
+| `dredgeDepth` |  | float |  | Water depth kept along the berths, cm. (port) |
+| `ships` |  | int |  | Moored container ships (placeholders). (port) |
+| `pierLength` |  | float |  | Pier length out from the shore, cm. (cruise) |
+| `pierWidth` |  | float |  | Pier deck width, cm. (cruise) |
+| `shoreLength` |  | float |  | Quay along the shore either side of the pier, cm. (cruise) |
+| `terminalFloors` |  | int |  | Terminal building floors. (cruise) |
+| `cruiseShips` |  | int |  | Ships moored along the pier (placeholders), one a side. (cruise) |
+| `towerHeight` |  | float |  | Tower height to the lantern gallery, cm. (lighthouse) |
+| `keeperHouse` |  | bool |  | Keeper's house beside the tower. (lighthouse) |
+| `cemeteryWidth` |  | float |  | Width along the front wall, cm. (cemetery) |
+| `cemeteryDepth` |  | float |  | Depth from the front wall, cm. (cemetery) |
+| `mausoleums` |  | float |  | Share of plots holding a family mausoleum instead of a grave, 0 to 1. (cemetery) |
+| `plotWidth` |  | float |  | Plot width, cm (mausoleums take one to two plots). (cemetery) |
+| `chapel` |  | bool |  | Chapel at the end of the main path. (cemetery) |
+| `runwayLength` |  | float |  | Runway length, cm. (airstrip) |
+| `runwayWidth` |  | float |  | Runway width, cm. (airstrip) |
+| `aircraft` |  | str |  | Aircraft class the corridors are cut for: light or twin. (airstrip) |
+| `hangars` |  | int |  | Hangars on the apron. (airstrip) |
+| `fuelDrums` |  | int |  | Fuel drums by the hangar. (airstrip) |
+| `windsock` |  | bool |  | Windsock beside the runway. (airstrip) |
+| `accessTrack` |  | bool |  | Dirt track from the apron off the site. (airstrip) |
+| `farmWidth` |  | float |  | Farm length along its road, cm. (farm) |
+| `farmDepth` |  | float |  | Farm depth across the road (fields both sides), cm. (farm) |
+| `fieldWidth` |  | float |  | Field strip width along the road, cm. (farm) |
+| `rowSpacing` |  | float |  | Crop row spacing, cm. (farm) |
+| `greenhouses` |  | float |  | Share of fields under greenhouses, 0 to 1. (farm) |
+| `shadeHouses` |  | float |  | Share of fields under shade houses, 0 to 1. (farm) |
+| `crops` |  | str |  | Crops the open fields cycle through (comma list). (farm) |
+| `packingPlant` |  | bool |  | Packing plant in the farmstead. (farm) |
+| `coldStorage` |  | bool |  | Cold storage beside the packing plant. (farm) |
+| `truckYard` |  | bool |  | Trucking yard with parked trailers. (farm) |
+| `trailers` |  | int |  | Trailers parked in the trucking yard. (farm) |
+| `canal` |  | bool |  | Irrigation canal along the back of the fields, a sluice gate per field. (farm) |
+| `houses` |  | int |  | Adobe houses along the dirt streets. (village) |
+| `villageRadius` |  | float |  | How far the streets run out from the plaza, cm. (village) |
+| `streets` |  | int |  | Dirt streets out from the plaza. (village) |
+| `church` |  | bool |  | Church on the plaza. (village) |
+| `plaza` |  | bool |  | Plaza with a well, benches and trees. (village) |
+| `compoundWidth` |  | float |  | Walled area along the front, cm. (compound, island) |
+| `compoundDepth` |  | float |  | Walled area depth, cm. (compound, island) |
+| `wallHeight` |  | float |  | Perimeter wall height, cm. (compound, island) |
+| `mansionFloors` |  | int |  | Mansion floors. (compound, island) |
+| `pool` |  | bool |  | Swimming pool. (compound, island) |
+| `helipad` |  | bool |  | Helipad. (compound, island) |
+| `guardHouse` |  | bool |  | Guard house at the gate. (compound) |
+| `islandRadius` |  | float |  | Distance from the compound's centre to the shore on the dock side, cm. (island) |
+| `raiseIsland` |  | bool |  | Raise the ground inside the island radius above the water (an island where there was sea). (island) |
+| `dockLength` |  | float |  | Dock length out from the shore, cm. (island) |
+| `boats` |  | int |  | Boats moored at the dock. (island) |
+
+```python
+p = siteCreate(kind='port', terrain='Terrain', at=[0, -20000], quayLength=80000, tiers=5)
+p['names']['site'], p['slotTypes']
+```
+
+```python
+siteCreate(kind='airstrip', at=[150000, 90000], heading=30, runwayLength=110000, aircraft='twin')
+```
+
+```python
+siteCreate(kind='farm', params={'farmWidth': 90000, 'greenhouses': 0.4, 'crops': 'tomato, chile'})
+```
+
+### siteEdit
+
+Change a site: its kit settings (the same flags as siteCreate, only its kind's), name, seed, placement, water level or terrain. The layout follows live; with ground=True (default) the terrain is graded again and the parts the site no longer has are taken off it. Slot ids of parts that stay where they were stay the same. Returns the site as siteInfo does with what the grading sent.
+
+**Objects:** site mesh, modifier or id (default the selected or only site)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `n` | str |  | A new fictional name. |
+| `culture` | `cu` | str |  | Naming culture. One of `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`. |
+| `seed` | `sd` | int |  | Variation seed. |
+| `terrain` | `tr` | str |  | Move it onto another terrain ('' for none); its grading moves with it. |
+| `at` |  | list |  | New origin [x, z], cm. |
+| `heading` | `hd` | float |  | New turn, degrees. |
+| `waterLevel` | `wl` | float |  | Water level, cm. |
+| `ground` | `gr` | bool | `True` | Re-grade the terrain after the edit. |
+| `params` | `pm` | Any |  | Kit settings as one object. |
+| `quayLength` |  | float |  | Length of the quay and the yard behind it, cm. (port) |
+| `yardDepth` |  | float |  | Depth of the yard inland from the quay, cm. (port) |
+| `berths` |  | int |  | Berths along the quay. (port) |
+| `stsCranes` |  | int |  | Ship-to-shore cranes per berth. (port) |
+| `blockRows` |  | int |  | Container rows per yard block (across the block). (port) |
+| `tiers` |  | int |  | Highest container stack. (port) |
+| `fill` |  | float |  | How full the yard is, 0 to 1: stacks are left out from the top down. (port) |
+| `liveries` |  | int |  | Container liveries: fictional shipping lines. (port) |
+| `rtgCranes` |  | int |  | Rubber-tyred gantry cranes per yard block. (port) |
+| `reeferRacks` |  | int |  | Reefer racks (refrigerated container rows with power gantries). (port) |
+| `warehouses` |  | int |  | Warehouses at the back of the yard. (port) |
+| `customsGate` |  | bool |  | Customs gate with booths and barrier lanes on the access road. (port) |
+| `railSpur` |  | bool |  | Rail spur into the yard. (port) |
+| `dredgeDepth` |  | float |  | Water depth kept along the berths, cm. (port) |
+| `ships` |  | int |  | Moored container ships (placeholders). (port) |
+| `pierLength` |  | float |  | Pier length out from the shore, cm. (cruise) |
+| `pierWidth` |  | float |  | Pier deck width, cm. (cruise) |
+| `shoreLength` |  | float |  | Quay along the shore either side of the pier, cm. (cruise) |
+| `terminalFloors` |  | int |  | Terminal building floors. (cruise) |
+| `cruiseShips` |  | int |  | Ships moored along the pier (placeholders), one a side. (cruise) |
+| `towerHeight` |  | float |  | Tower height to the lantern gallery, cm. (lighthouse) |
+| `keeperHouse` |  | bool |  | Keeper's house beside the tower. (lighthouse) |
+| `cemeteryWidth` |  | float |  | Width along the front wall, cm. (cemetery) |
+| `cemeteryDepth` |  | float |  | Depth from the front wall, cm. (cemetery) |
+| `mausoleums` |  | float |  | Share of plots holding a family mausoleum instead of a grave, 0 to 1. (cemetery) |
+| `plotWidth` |  | float |  | Plot width, cm (mausoleums take one to two plots). (cemetery) |
+| `chapel` |  | bool |  | Chapel at the end of the main path. (cemetery) |
+| `runwayLength` |  | float |  | Runway length, cm. (airstrip) |
+| `runwayWidth` |  | float |  | Runway width, cm. (airstrip) |
+| `aircraft` |  | str |  | Aircraft class the corridors are cut for: light or twin. (airstrip) |
+| `hangars` |  | int |  | Hangars on the apron. (airstrip) |
+| `fuelDrums` |  | int |  | Fuel drums by the hangar. (airstrip) |
+| `windsock` |  | bool |  | Windsock beside the runway. (airstrip) |
+| `accessTrack` |  | bool |  | Dirt track from the apron off the site. (airstrip) |
+| `farmWidth` |  | float |  | Farm length along its road, cm. (farm) |
+| `farmDepth` |  | float |  | Farm depth across the road (fields both sides), cm. (farm) |
+| `fieldWidth` |  | float |  | Field strip width along the road, cm. (farm) |
+| `rowSpacing` |  | float |  | Crop row spacing, cm. (farm) |
+| `greenhouses` |  | float |  | Share of fields under greenhouses, 0 to 1. (farm) |
+| `shadeHouses` |  | float |  | Share of fields under shade houses, 0 to 1. (farm) |
+| `crops` |  | str |  | Crops the open fields cycle through (comma list). (farm) |
+| `packingPlant` |  | bool |  | Packing plant in the farmstead. (farm) |
+| `coldStorage` |  | bool |  | Cold storage beside the packing plant. (farm) |
+| `truckYard` |  | bool |  | Trucking yard with parked trailers. (farm) |
+| `trailers` |  | int |  | Trailers parked in the trucking yard. (farm) |
+| `canal` |  | bool |  | Irrigation canal along the back of the fields, a sluice gate per field. (farm) |
+| `houses` |  | int |  | Adobe houses along the dirt streets. (village) |
+| `villageRadius` |  | float |  | How far the streets run out from the plaza, cm. (village) |
+| `streets` |  | int |  | Dirt streets out from the plaza. (village) |
+| `church` |  | bool |  | Church on the plaza. (village) |
+| `plaza` |  | bool |  | Plaza with a well, benches and trees. (village) |
+| `compoundWidth` |  | float |  | Walled area along the front, cm. (compound, island) |
+| `compoundDepth` |  | float |  | Walled area depth, cm. (compound, island) |
+| `wallHeight` |  | float |  | Perimeter wall height, cm. (compound, island) |
+| `mansionFloors` |  | int |  | Mansion floors. (compound, island) |
+| `pool` |  | bool |  | Swimming pool. (compound, island) |
+| `helipad` |  | bool |  | Helipad. (compound, island) |
+| `guardHouse` |  | bool |  | Guard house at the gate. (compound) |
+| `islandRadius` |  | float |  | Distance from the compound's centre to the shore on the dock side, cm. (island) |
+| `raiseIsland` |  | bool |  | Raise the ground inside the island radius above the water (an island where there was sea). (island) |
+| `dockLength` |  | float |  | Dock length out from the shore, cm. (island) |
+| `boats` |  | int |  | Boats moored at the dock. (island) |
+
+```python
+siteEdit('port1', tiers=6, fill=0.9)
+```
+
+```python
+siteEdit('CargoPort', at=[5000, -21000], heading=12)
+```
+
+### siteEnvelopes
+
+Every building the site kits want, as Settlement-style envelopes in world space (footprint, base, top, height, floors, use, roof, roofHeight, front, entrances, program, name) with a style tag (colonial, malecon, resortTower, modernCommercial, narcoMansion, civic, warehouse, packingPlant, portShed, villageAdobe, ruralShack, church, mausoleum, hangar, lighthouse, terminal) and a stable id under site:<id>. This is what a building generator builds from; until one does they draw as greybox massing. sites= limits it to some sites.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `sites` | `s` | list |  | Site ids or meshes; default every site. |
+
+Not undoable.
+
+```python
+e = siteEnvelopes()
+[x['style'] for x in e['envelopes']][:5]
+```
+
+### siteGround
+
+Grade the terrain under a site again from its spec (after editing the terrain, or with ground=False edits), or take everything the site put on the terrain off it with remove=True. Returns what was sent and removed.
+
+**Objects:** site mesh, modifier or id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `remove` | `rm` | bool | `False` | Take the site's stamps, roads, canals and airstrip off the terrain. |
+
+```python
+siteGround('airstrip1')
+```
+
+```python
+siteGround('port1', remove=True)
+```
+
+### siteInfo
+
+A site as laid out: kind, spec, every fictional name, container liveries, slot counts by type (slots=True lists every slot id, type and position), its envelopes in world space with style tags, stats, notes and whether the terrain grading is stale.
+
+**Objects:** site mesh, modifier or id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `slots` | `sl` | bool | `False` | List every slot. |
+
+Not undoable.
+
+```python
+i = siteInfo('port1')
+i['liveries'], len(i['envelopes'])
+```
+
+### siteKinds
+
+The site kits: id, label, what each builds, and its settings with type, default, range and doc; plus the slot types the kits publish and the envelope style tags.
+
+Not undoable.
+
+```python
+[k['id'] for k in siteKinds()['kinds']]
+```
+
+### siteList
+
+The sites in the scene: id, kind, name, mesh, terrain, slot and envelope counts.
+
+Not undoable.
+
+```python
+[s['id'] for s in siteList()]
+```
+
+### siteRemove
+
+Delete a site: its mesh and everything it put on the terrain. Returns what was removed.
+
+**Objects:** site mesh, modifier or id
+
+```python
+siteRemove('cemetery1')
+```
+
+### zoneCheck
+
+Check the zones: gaps where a must-cover layer (districts, police by default) leaves the play area uncovered, overlaps where an exclusive layer's zones share ground, zones with no region, zones with no name. Sampled on a grid of cell cm (default about 512 across); regions smaller than minCells samples are ignored. report=True lists the issues in the Validation panel on the zone set. Returns ok, the issues (kind, layer, zones, where, area) and counts.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `cell` | `c` | float | `0.0` | Sample spacing, cm; 0 picks one. |
+| `minCells` | `mn` | int | `2` | Smallest gap or overlap reported, in samples. |
+| `report` | `rp` | bool | `False` | Also list the issues in the Validation panel. |
+
+Not undoable.
+
+```python
+c = zoneCheck()
+c['ok'], c['counts']
+```
+
+### zoneCreate
+
+Add a zone, or update one by id: its region from polygon=, polygons= (with holes=), closed curves, or a circle, its name (generated from the set's naming culture when not given), priority within the layer and typed attributes (checked against the layer's defaults; null removes one). The layer is made from type= when missing, the zone set when there is none. Returns the zone.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `layer` | `l` | str |  | Layer id; made from type= when missing. |
+| `type` | `t` | str |  | Layer type when the layer is new (zoneTypes). One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `id` | `i` | str |  | Zone id; the same id updates the zone. Default <layer>_<n>. |
+| `name` | `n` | str |  | Zone name; default a fictional one from the naming culture. |
+| `polygon` | `pg` | list |  | Outline [[x, z], ...] or [[x, y, z], ...], cm, world space. |
+| `polygons` | `pgs` | list |  | Several outlines. |
+| `holes` | `hl` | list |  | Holes cut from the outlines. |
+| `curve` | `cv` | Any |  | Closed curve(s) to outline it: a name or a list. |
+| `circle` | `ci` | list |  | A circle [x, z, radius] (mission markers, small spawns). |
+| `priority` | `p` | int |  | Priority within the layer; higher wins. |
+| `attrs` | `at` | Any |  | Attributes, merged; null removes one. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over (default the only terrain). |
+
+```python
+zoneCreate(type='district', polygon=[[0, 0], [50000, 0], [50000, 50000], [0, 50000]])
+```
+
+```python
+zoneCreate(layer='missions', type='missions', circle=[12000, -4000, 1500], attrs={'mission': 'm01_intro'})
+```
+
+```python
+zoneCreate(layer='police', id='police_1', attrs={'agency': 'state', 'responseTime': 45})
+```
+
+### zoneDelete
+
+Delete a zone (layer= and zone=), or a whole layer with its zones (layer= alone). Returns what went.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `layer` | `l` | str |  | Layer id. |
+| `zone` | `z` | str |  | Zone id; omit to delete the layer. |
+
+```python
+zoneDelete(layer='missions', zone='missions_2')
+```
+
+```python
+zoneDelete(layer='traffic')
+```
+
+### zoneEdit
+
+Change a zone: name, priority, attributes (merged, null removes; replaceAttrs=True starts from none), or move it to another layer with layerTo=. Returns the zone.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `layer` | `l` | str |  | The zone's layer. |
+| `zone` | `z` | str |  | The zone's id. |
+| `name` | `n` | str |  | New name; empty generates one. |
+| `priority` | `p` | int |  | Priority within the layer. |
+| `attrs` | `at` | Any |  | Attributes to merge; null removes one. |
+| `replaceAttrs` | `ra` | bool | `False` | Replace the attributes instead of merging. |
+| `layerTo` | `lt` | str |  | Move the zone to this layer. |
+
+```python
+zoneEdit(layer='district', zone='district_1', name='Colonia Vista', attrs={'era': 'colonial'})
+```
+
+### zoneExport
+
+Write the zones for any engine: <name>_zones.json (format lila.zones: layers, zones with polygons, holes, attributes with defaults filled in, mask outlines and mask image references) and one 8-bit PNG per painted zone (<name>_<layer>_<zone>.png, row 0 at the lowest Z, value 255 full). zoneImport reads it back. Default folder: the workspace's openworld/zones/<name>. Returns the files.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `folder` | `f` | str |  | Output folder. |
+| `name` | `n` | str |  | File name stem; default the set's name. |
+
+Not undoable.
+
+```python
+zoneExport(folder='C:/game/data/zones')['json']
+```
+
+### zoneFromDistricts
+
+Zones from a Settlement's districts (the quarters between main roads, with their culture names): one zone per district, id d<district id>, named as the settlement names it, into layer= (default districts, type district). Zones from an earlier run of the same settlement are replaced; others stay. Returns the zones.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `settlement` | `st` | str |  | The settlement mesh (default the selected one). |
+| `layer` | `l` | str | `'districts'` | Layer id. |
+| `type` | `t` | str | `'district'` | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `attrs` | `at` | Any |  | Attributes every new zone gets. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+zoneFromDistricts(settlement='Mazatlan')
+```
+
+```python
+zoneFromDistricts(layer='police', type='police', attrs={'agency': 'municipal'})
+```
+
+### zoneFromTerrain
+
+Zones from a terrain's masks: one painted zone per mask (biomes=True takes every biome_<name> mask), id the mask's name, copied onto the zone grid. Region layers keep cells at or over threshold; density layers keep the mask's values as weights. Zones from an earlier run on the same masks are replaced. Returns the zones.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `terrain` | `tr` | str |  | The terrain (default the set's ground). |
+| `masks` | `m` | list |  | Mask names (terrainInfo lists them). |
+| `biomes` | `b` | bool | `False` | Every biome_ mask (terrainBiomes makes them). |
+| `layer` | `l` | str |  | Layer id; made from type= when missing. |
+| `type` | `t` | str |  | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `threshold` | `th` | float | `0.5` | Region layers: mask value from which a cell is in. |
+| `attrs` | `at` | Any |  | Attributes every new zone gets. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+zoneFromTerrain(biomes=True, layer='pedSpawn', type='pedSpawn')
+```
+
+```python
+zoneFromTerrain(masks=['mangrove'], layer='boatSpawn', type='boatSpawn')
+```
+
+### zoneFromWater
+
+Zones along a terrain's water routes (terrainWaterRoutes): one painted zone per lane, as wide as the lane's clear water (or the craft's lane profile) times widthScale, with the lane's craft and kind as attributes. Boat lanes go into a boatSpawn layer, air lanes (air=True) into aircraftSpawn. kinds= and crafts= filter. Zones from an earlier run on the same terrain are replaced. Returns the zones.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `terrain` | `tr` | str |  | The terrain (default the set's ground). |
+| `air` | `ai` | bool | `False` | Air lanes instead of boat lanes. |
+| `kinds` | `k` | list |  | Only these lane kinds (coast, channel, river, harbour, link, approach, departure). |
+| `crafts` | `cr` | list |  | Only these craft classes. |
+| `widthScale` | `ws` | float | `1.0` | Zone width as a multiple of the lane's width. |
+| `airWidth` | `aw` | float | `30000.0` | Air lanes: corridor width, cm. |
+| `layer` | `l` | str |  | Layer id (default boatSpawn or aircraftSpawn). |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+zoneFromWater(terrain='Coast', crafts=['skiff', 'goFast'])
+```
+
+```python
+zoneFromWater(terrain='Coast', air=True)
+```
+
+### zoneImport
+
+Read zones from a lila.zones JSON (zoneExport) and its PNG masks into a zone set, replacing its spec (merge=True adds the file's layers, replacing layers of the same id). Makes the set when there is none. Returns the layers.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `path` | `p` | str |  | The _zones.json file. |
+| `merge` | `mg` | bool | `False` | Add to the set's layers instead of replacing them. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+zoneImport(path='C:/game/data/zones/Zones_zones.json')
+```
+
+### zoneLayer
+
+Add or edit a zone layer: id, type, label, priority (higher draws on top and wins Unreal volume priority), exclusive (zones may not overlap), mustCover (zones must cover the play area), visible, density, color, defaults (attributes every zone starts with) and the Unreal data layer. Makes the zone set when there is none. remove=True deletes the layer and its zones. Returns the layer.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `layer` | `l` | str |  | Layer id; default the type's id. |
+| `type` | `t` | str |  | Layer type for a new layer (zoneTypes). One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `label` | `lb` | str |  | Display label. |
+| `priority` | `p` | int |  | Layer priority. |
+| `exclusive` | `ex` | bool |  | Zones may not overlap. |
+| `mustCover` | `mc` | bool |  | Zones must cover the play area. |
+| `visible` | `v` | bool |  | Draw the layer in the viewport. |
+| `density` | `dn` | bool |  | Painted weight scales the values instead of counting from half up. |
+| `color` | `c` | list |  | Layer colour [r, g, b] 0 to 1 (density layers draw in it). |
+| `defaults` | `df` | Any |  | Attributes every zone of the layer starts with (replaces the layer's). |
+| `dataLayer` | `dl` | str |  | Unreal data layer name; empty for the label. |
+| `remove` | `rm` | bool | `False` | Delete the layer and its zones. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over (default the only terrain). |
+
+```python
+zoneLayer(type='police', mustCover=True)
+```
+
+```python
+zoneLayer(layer='cartels', type='territory', label='Cartels', priority=5)
+```
+
+### zoneList
+
+The zone set: its ground, play area, naming culture, mask cell, and every layer with its counts, area and (unless zones=False) its zones. Changes nothing.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `layer` | `l` | str |  | Only this layer. |
+| `zones` | `zn` | bool | `True` | List each layer's zones. |
+
+Not undoable.
+
+```python
+[(l['id'], l['count']) for l in zoneList()['layers']]
+```
+
+### zonePaint
+
+Paint a zone's mask along points: dabs of radius cm a quarter radius apart, each moving the mask toward value by strength, softened toward the edge. erase=True lowers it to nothing. Region layers count a cell from half up; density layers scale the zone's density by the painted value. The zone (and layer, and set) is made when missing. One call is one undo step. Returns the zone and how many cells changed.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `layer` | `l` | str |  | Layer id; made from type= when missing. |
+| `type` | `t` | str |  | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `zone` | `z` | str |  | Zone id; made when missing (default <layer>_<n>). |
+| `name` | `n` | str |  | Name of a new zone; default a fictional one. |
+| `points` | `pt` | list |  | Stroke points [[x, z], ...] or [[x, y, z], ...], world cm. |
+| `radius` | `r` | float | `2000.0` | Brush radius, cm. |
+| `value` | `v` | float | `1.0` | Value painted toward, 0 to 1 (density layers: the weight). |
+| `strength` | `s` | float | `1.0` | How far each dab goes toward the value. |
+| `softness` | `sf` | float | `0.3` | 0 a hard edge, 1 fading from the centre. |
+| `erase` | `e` | bool | `False` | Lower the mask instead. |
+| `attrs` | `at` | Any |  | Attributes of a new zone. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+zonePaint(layer='traffic', type='traffic', zone='downtown', points=[[0, 0], [20000, 5000]], radius=4000, value=0.8)
+```
+
+```python
+zonePaint(layer='territory', zone='territory_1', points=[[1000, 0]], radius=3000, erase=True)
+```
+
+### zonePlayArea
+
+Set the play area that must-cover layers are checked against: polygon=, closed curve(s), or clear=True for the ground's extent (else the zones' bounds). Returns the play area.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `polygon` | `pg` | list |  | Outline [[x, z], ...]. |
+| `curve` | `cv` | Any |  | Closed curve(s). |
+| `clear` | `cl` | bool | `False` | Back to the ground's extent. |
+
+```python
+zonePlayArea(curve='IslandOutline')
+```
+
+### zoneQuery
+
+Every layer's value at a point: the winning zone (highest priority, then the later one), its name, attributes with the layer's defaults filled in, its painted weight, the density for density layers, and every zone holding the point. Changes nothing.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `point` | `pt` | list |  | World point [x, z] or [x, y, z], cm. |
+| `layer` | `l` | str |  | Only this layer. |
+
+Not undoable.
+
+```python
+zoneQuery(point=[12000, 0, -3500])['layers']['police']['attrs']['agency']
+```
+
+### zoneSendToUnreal
+
+Send the zones to Unreal through LilaLink: a ALilaZoneVolume per zone (brush from the zone's outline, extruded from below the ground to height above it, with its layer, name, priority and attributes), one ULilaZoneData asset with every layer, zone and painted mask for point queries at runtime, and a World Partition data layer per layer (dataLayer name). Zones of an earlier send that are gone are removed. Returns what Unreal made.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `height` | `h` | float | `50000.0` | Volume top above the highest ground under the zone, cm. |
+| `depth` | `d` | float | `5000.0` | Volume bottom below the lowest ground under the zone, cm. |
+| `dataLayers` | `dl` | bool | `True` | Put each layer's volumes in a World Partition data layer. |
+| `asset` | `as` | str | `'/Game/Lila/Zones'` | Content folder for the zone data asset and data layer assets. |
+| `timeout` | `to` | float | `120.0` | Seconds to wait for Unreal. |
+
+Not undoable.
+
+```python
+zoneSendToUnreal(height=80000)
+```
+
+### zoneSpec
+
+Read a zone set's spec (the world spec's zones section, lila://schema/zones), or replace it with spec=. culture= and maskCell= change those alone. Returns the spec.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `spec` | `sp` | Any |  | A whole spec to replace the set's (a dict or JSON text). |
+| `culture` | `cu` | str |  | Naming culture of generated names. |
+| `maskCell` | `mc` | float |  | Mask cell size, cm; only while nothing is painted. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+spec = zoneSpec()
+spec['layers'][0]['priority'] = 3
+zoneSpec(spec=spec)
+```
+
+### zoneTypes
+
+The zone layer types: built in (district, police, military, territory, pedSpawn, vehicleSpawn, boatSpawn, aircraftSpawn, traffic, pedestrians, wanted, interiors, missions) and the set's own. define= adds or replaces a type of the set ({id, label, density, exclusive, mustCover, defaults, nameKind, color, doc}); remove= drops one no layer uses. Returns every type with its defaults.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `define` | `df` | Any |  | A type to add to the set: {id, label, density, exclusive, mustCover, defaults, nameKind, color, doc}. |
+| `remove` | `rm` | str |  | Id of a set type to remove. |
+
+```python
+[t['id'] for t in zoneTypes()['types']]
+```
+
+```python
+zoneTypes(define={'id': 'gangTurf', 'label': 'Gang Turf', 'defaults': {'gang': '', 'respect': 0}})
+```
+
 ## Plating extension
 
 Available when the Plating extension is loaded.
@@ -17992,13 +19965,16 @@ settlementBlocks('Settlement', type='courtyard')['blocks'][0]['blockId']
 
 ### settlementBuildings
 
-Choose how buildings are made, for the whole settlement or (polygon=) a district, kept in the edits, and build them. outline: footprint curves and envelope volumes only. massing: greybox blocks with tiers and roofs in the settlement's buildings output. library: Stagehand library assets fitted to each lot by footprint, era and use tags, turned to face the street (lots nothing fits are listed). masonry: Masonry stone buildings, landmark lots only unless landmarksOnly=False. unreal: envelopes go as PCG data with settlementSendToUnreal (send=True sends now). contacts=True adds Seamwork contact skirts, strips or scatter where placed buildings meet the ground. Placed objects are grouped under <settlement>_<route> and replaced when the route is built again.
+Choose how buildings are made, for the whole settlement or (polygon=) a district, kept in the edits, and build them. outline: footprint curves and envelope volumes only. massing: greybox blocks with tiers and roofs in the settlement's buildings output. library: Stagehand library assets fitted to each lot by footprint, era and use tags, turned to face the street (lots nothing fits are listed). masonry: Masonry stone buildings, landmark lots only unless landmarksOnly=False. unreal: envelopes go as PCG data with settlementSendToUnreal (send=True sends now). buildings: procedural buildings through the Buildings extension (style= forces one style, else each envelope's style guess and program pick it), live meshes per World Partition cell with every window, door and sign a slot. via= is another name for route=. contacts=True adds Seamwork contact skirts, strips or scatter where placed buildings meet the ground. Placed objects are grouped under <settlement>_<route> and replaced when the route is built again.
 
 **Objects:** settlement mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `route` | `r` | str | `'outline'` | How buildings are made. One of `outline`, `massing`, `library`, `masonry`, `unreal`. |
+| `route` | `r` | str | `'outline'` | How buildings are made. One of `outline`, `massing`, `library`, `masonry`, `unreal`, `buildings`. |
+| `via` | `v` | str |  | Same as route. One of `outline`, `massing`, `library`, `masonry`, `unreal`, `buildings`. |
+| `style` | `sy` | str |  | buildings: one Buildings style for every building (buildingStyles lists them). |
+| `cell` | `ce` | float | `6400.0` | buildings: cell size, cm (one live mesh per cell, four per World Partition cell). |
 | `polygon` | `pg` | list |  | A district, [[x, z], ...]: the route applies to lots whose centre is inside. |
 | `name` | `n` | str |  | The district's name; the same name replaces its route. |
 | `build` | `bd` | bool | `True` | Place the library or Masonry buildings now. |
@@ -18017,6 +19993,10 @@ settlementBuildings('Settlement', route='massing')
 ```
 
 ```python
+settlementBuildings('Settlement', via='buildings', style='colonialCentro')
+```
+
+```python
 settlementBuildings('Settlement', route='library', tags=['medieval', 'house'], contacts=True)
 ```
 
@@ -18026,7 +20006,7 @@ settlementBuildings('Settlement', route='masonry', polygon=[[-5000, -5000], [500
 
 ### settlementCheck
 
-Runs the settlement's verification checks and lists what fails, each with its check, severity, id (lot:<id>, street:<id>, junction:<n>, mode:<vehicles|people>) and where: frontage (a built lot with no street), overlap (lots sharing ground), grade (a street steeper than its class allows, bridges excepted), water (a street through water without a bridge), envelope (outside its lot's setbacks), foundation (a building's base above the ground under it), lanes (a mode's lane graph not strongly connected), phases (signal phases letting crossing approaches go together). report=True also lists them in the Validation panel on the settlement's mesh. Returns ok, counts per check, the issues, warnings (checks that could not run) and the plan state.
+Runs the settlement's verification checks and lists what fails, each with its check, severity, id (lot:<id>, street:<id>, junction:<n>, mode:<vehicles|people>) and where: frontage (a built lot with no street), overlap (lots sharing ground), grade (a street steeper than its class allows, bridges excepted), water (a street through water without a bridge), envelope (outside its lot's setbacks), foundation (a building's base above the ground under it), lanes (a mode's lane graph not strongly connected), phases (signal phases letting crossing approaches go together), realName (a street, district, building, business or place name that matches a real name an import replaced, or for businesses a real brand). report=True also lists them in the Validation panel on the settlement's mesh. Returns ok, counts per check, the issues, warnings (checks that could not run) and the plan state.
 
 **Objects:** settlement mesh or its modifier
 
@@ -18068,6 +20048,8 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `exclusionMargin` | `xm` | float | `0.0` | Clearance around exclusions, cm. |
 | `name` | `n` | str | `'Settlement'` | Name of the mesh made to hold the site. |
 | `terrainWater` | `tw` | bool | `True` | On a Terrain ground with no water of its own: the terrain's rivers crossing the outline become the settlement's water. |
+| `buildingRoute` | `br` | str | `'outline'` | How buildings are made once laid out (settlementBuildings route=); buildings makes procedural ones. One of `outline`, `massing`, `library`, `masonry`, `unreal`, `buildings`. |
+| `buildingStyle` | `bs` | str |  | buildings route: one Buildings style for every building; empty picks per envelope. |
 | `profile` | `pf` | str | `'medievalTown'` | Style. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
 | `pattern` | `pt` | str |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid, none, tensor, contour, osm, example. |
 | `overrides` | `ov` | str |  | JSON object of profile fields to change. |
@@ -18093,6 +20075,10 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `osm` | `os` | list |  | Imported streets: curves made by terrainImportOsm (by name), or {points, class} with an OSM highway value or a street class. |
 | `osmFile` | `of` | str |  | OSM file (.osm, .json, .osm.pbf) read through terrainImportOsm onto the ground. |
 | `osmOrigin` | `oo` | list |  | [latitude, longitude] of the ground's centre, for osmFile on a terrain not from real data. |
+| `osmBuildings` | `obl` | bool | `True` | With osmFile: buildings and places come in too, as lots, envelopes, businesses and landmarks. |
+| `osmFill` | `ofl` | str | `'sparse'` | Lots Settlement cuts beside imported buildings: sparse (in blocks they cover less than osmCoverage of), all, or none. |
+| `osmCoverage` | `ocv` | float | `0.25` | Share of a block imported buildings must cover for it to count as dense (no lots of Settlement's own). |
+| `osmCulture` | `ocu` | str |  | Naming culture for every imported name (namingCultures); empty chooses one from where the data lies. |
 | `example` | `eg` | Any |  | Grow like another street network: a settlement by name, or {orientation, degree, blockAreaMedianM2, meanSegment} (settlementGenerators statistics), or {streets}. |
 | `contourStreets` | `cst` | bool | `False` | Streets along the ground's contours from terrainContourStreets (the ground must be a Terrain). |
 | `contourSpacing` | `csp` | float | `3000.0` | Between contour streets across the slope, cm. |
@@ -18260,6 +20246,35 @@ Measure each envelope's foundation on a Terrain with terrainRegionStats (the low
 settlementFoundations('Settlement', terrain='Terrain')
 ```
 
+### settlementFromOsm
+
+A settlement from an OpenStreetMap file on a terrain: terrainImportOsm brings its streets, buildings and places onto the ground with fictional names, the settlement's outline is fitted round them, and settlementCreate lays it out with pattern osm: the streets as they are, every building a lot and envelope (heights, levels, parts, courtyards, roof shape, colours), shops and offices businesses on the building they stand in, areas (cemeteries, schools, ports, farmland) the use and landmark of the lots inside, and Settlement's own lots in blocks the data leaves sparse. Returns what settlementCreate returns, with the import's counts, culture and curves.
+
+**Objects:** OSM file (.osm, Overpass .json, .osm.pbf)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ground` | `gd` | str |  | The terrain the data lies on. |
+| `file` | `fi` | str |  | The OSM file, when not given as the first argument. |
+| `origin` | `or` | list |  | [latitude, longitude] of the terrain's centre, for terrains not from real data. |
+| `profile` | `pr` | str | `'usTown'` | Style for heights, roofs and the lots Settlement cuts itself. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `culture` | `cu` | str |  | Naming culture for every name (namingCultures); empty chooses one from where the data lies. One of ``, `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`. |
+| `fill` | `fl` | str | `'sparse'` | Settlement's own lots beside the imported buildings: sparse (in blocks they cover less than coverage of), all, or none. |
+| `coverage` | `cv` | float | `0.25` | Share of a block the imported buildings must cover for it to count as dense. |
+| `margin` | `mg` | float | `2000.0` | Room left round the imported streets and buildings, cm. |
+| `name` | `n` | str | `'Town'` | Name of the settlement's mesh. |
+| `buildingRoute` | `br` | str | `'outline'` | How buildings are made once laid out; buildings makes procedural ones. One of `outline`, `massing`, `library`, `masonry`, `unreal`, `buildings`. |
+| `buildingStyle` | `bs` | str |  | buildings route: one Buildings style for every building; empty picks per envelope. |
+
+```python
+settlementFromOsm('osm/town.osm', ground='Terrain')
+```
+
+```python
+s = settlementFromOsm('city.osm.pbf', ground='Coast', origin=[23.2, -106.42], fill='none')
+s['import']['culture']
+```
+
 ### settlementFurniture
 
 Places street furniture: along every road from its road profile's set (lamps, street trees, benches, bins, hydrants; lanterns in medieval styles), signals on each approach of signalised junctions, stop and yield signs by junction control, a street-name sign at each junction, and squares furnished (medieval: a well, market stalls and carts; modern: benches, trees, and bollards along the main streets). Every placement has a stable id that survives unrelated edits.
@@ -18277,6 +20292,7 @@ Sets are data: sets= replaces a profile's rules, {profile: [{kind, spacing, wher
 | `limit` | `lm` | int | `2000` | Most placements returned in the list (counts cover all). |
 | `store` | `sr` | bool | `False` | Keep sets= with the settlement, so its placements (exports, Send to Unreal) use them. |
 | `engineAssets` | `ea` | Any |  | {kind: engine asset path} the settlement's placements use, kept with it. |
+| `slots` | `sl` | bool | `True` | Write the placements as slots (<mesh>_FurnitureSlots; not with kinds=), drawn in the viewport and swapped by slot rules (lamp.street, tree.street, sign.street, sign.traffic, furniture.*). |
 
 ```python
 f = settlementFurniture('Settlement')
@@ -18306,6 +20322,10 @@ Reads or changes a settlement's generator settings: tensor fields, eras, distric
 | `osm` | `os` | list |  | Imported streets: curves made by terrainImportOsm (by name), or {points, class} with an OSM highway value or a street class. |
 | `osmFile` | `of` | str |  | OSM file (.osm, .json, .osm.pbf) read through terrainImportOsm onto the ground. |
 | `osmOrigin` | `oo` | list |  | [latitude, longitude] of the ground's centre, for osmFile on a terrain not from real data. |
+| `osmBuildings` | `obl` | bool | `True` | With osmFile: buildings and places come in too, as lots, envelopes, businesses and landmarks. |
+| `osmFill` | `ofl` | str | `'sparse'` | Lots Settlement cuts beside imported buildings: sparse (in blocks they cover less than osmCoverage of), all, or none. |
+| `osmCoverage` | `ocv` | float | `0.25` | Share of a block imported buildings must cover for it to count as dense (no lots of Settlement's own). |
+| `osmCulture` | `ocu` | str |  | Naming culture for every imported name (namingCultures); empty chooses one from where the data lies. |
 | `example` | `eg` | Any |  | Grow like another street network: a settlement by name, or {orientation, degree, blockAreaMedianM2, meanSegment} (settlementGenerators statistics), or {streets}. |
 | `contourStreets` | `cst` | bool | `False` | Streets along the ground's contours from terrainContourStreets (the ground must be a Terrain). |
 | `contourSpacing` | `csp` | float | `3000.0` | Between contour streets across the slope, cm. |
@@ -18461,13 +20481,13 @@ settlementMetrics('Settlement')['deadEndRatio']
 
 ### settlementNames
 
-Street and district names. Every street through its junctions has one name from the naming culture (oldEnglish, latin, french, spanish, usGrid with numbered streets and avenues, sector codes), stable by the ids of the streets in it; districts are the quarters between arterials. culture= sets the settlement's culture (default from its style); district= with name= renames a district. Street names change with settlementEditStreet(name=). Names save with the scene and go out in settlementExport. Returns the culture, every street's name by stable id and the districts.
+Street and district names. Every street through its junctions has one name from the naming culture (oldEnglish, latin, french, spanish, usGrid with numbered streets and avenues, sector codes), stable by the ids of the streets in it; districts are the quarters between arterials. culture= sets the settlement's culture (default from its style); district= with name= renames a district. Street names change with settlementEditStreet(name=). Names save with the scene and go out in settlementExport. Returns the culture, every street's name by stable id and the districts (id, name, area, center, outline in cm).
 
 **Objects:** settlement mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `culture` | `cu` | str |  | Naming culture; empty for the style's. One of `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, ``. |
+| `culture` | `cu` | str |  | Naming culture; empty for the style's. One of `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`, ``. |
 | `district` | `d` | int |  | A district's id, with name=. |
 | `name` | `n` | str |  | The district's new name; empty gives it back to the culture. |
 
@@ -19000,6 +21020,7 @@ Live by default; realize=True places scene instances for the Push tool and hand 
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `items` | `it` | list |  | What to place: library asset ids and/or scene meshes (default the starter library's stone chunks). |
 | `weights` | `wt` | list |  | How often each item is picked, in the order of items (missing ones are 1). |
 | `ground` | `gr` | list |  | Ground meshes; default the meshes the objects stand on, or a plane at their lowest point. |
@@ -19040,6 +21061,7 @@ Strew debris around broken things: chips sized from each piece of a fracture, ru
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `items` | `it` | list |  | Chips: library asset ids and/or scene meshes (default the starter library's stone chunks). |
 | `amount` | `a` | float | `6.0` | Chips per piece of median size, on average; bigger pieces shed more. |
 | `size` | `sz` | float | `0.12` | Chip size as a fraction of the piece it comes off. |
@@ -19168,6 +21190,7 @@ Each positional is a board (a mesh): the row runs along its longer horizontal si
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `gap` | `gp` | float | `0.3` | Space between items, cm. |
 | `leanChance` | `lc` | float | `0.08` | 0 to 1: chance an item leans on its neighbour. |
 | `lyingChance` | `yc` | float | `0.04` | 0 to 1: chance a small stack lies flat. |
@@ -19397,6 +21420,7 @@ Place items along curves: litter along a kerb, cones down a road, posts along a 
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `spacing` | `sp` | float | `100.0` | Distance between items along the curve, cm. |
 | `spacingJitter` | `sj` | float | `0.3` | 0 to 1: how much each gap varies. |
 | `offset` | `of` | float | `0.0` | Distance to the curve's right, cm (negative: its left). |
@@ -19460,6 +21484,7 @@ Heap items up: dropped tumbling into a footprint (a crate of junk, a rubble heap
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `at` |  | list | `[0.0, 0.0, 0.0]` | Centre of the pile's footprint, at its floor. |
 | `count` | `c` | int | `30` | How many. |
 | `radius` | `r` | float | `40.0` | Footprint radius, cm. |
@@ -19594,6 +21619,7 @@ Live by default (a geometry-nodes arrangement on a new mesh); realize=True place
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `density` | `dn` | float | `4.0` | Items per square metre. |
 | `maxCount` | `mc` | int | `200` | At most this many. |
 | `spacing` | `spc` | float | `1.0` | Footprints kept clear, times each item's own. |
@@ -19713,6 +21739,7 @@ Stack items one on another (plates, crates, books lying flat), each turned and n
 | `friction` |  | float | `0.6` | Friction of the items, for the settle. |
 | `seed` | `s` | int | `1` | Another seed gives another arrangement. |
 | `name` | `n` | str |  | Name of the mesh (live) or group (realize) made. |
+| `slotType` | `sty` | str | `'prop'` | Live only: the slot type the placed items get, so slot rules can swap them (slotTypes lists them). |
 | `at` |  | list | `[0.0, 0.0, 0.0]` | Where the stack stands. |
 | `count` | `c` | int | `6` | How many. |
 | `offset` | `of` | float | `1.0` | Sideways wander per level, cm. |
@@ -20676,6 +22703,54 @@ tailorUnsew('Garment', seam=[3])
 
 Available when the Terrain extension is loaded.
 
+### terrainAddAirstrip
+
+Add an airstrip from a= to b= for an aircraft class (light, twin): the runway graded flat (pad=True, a terrainStampPad), and air lanes for the approach and departure corridors off its ends (both ends unless bothEnds=False) climbing at the aircraft's angles, with the clearance over the ground along each. waterCheck flags corridors lower than the aircraft's clearance and runways shorter than it needs.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` |  | list |  | Runway end [x, z] or [x, y, z]. |
+| `b` |  | list |  | The other end. |
+| `id` |  | str |  | Stable id. |
+| `aircraft` | `ac` | str | `'light'` | Aircraft class. One of `light`, `twin`. |
+| `elevation` | `el` | float |  | Runway height along the up axis, cm; default the graded pad's. |
+| `width` | `w` | float | `2500.0` | Runway width graded, cm. |
+| `pad` | `pd` | bool | `True` | Grade the runway flat. |
+| `bothEnds` | `be` | bool | `True` | Corridors off both ends. |
+
+```python
+terrainAddAirstrip('Terrain', id='rancho', a=[30000, 20000], b=[30000, 70000], aircraft='light')
+```
+
+### terrainAddChannel
+
+Carve a navigable channel through a lagoon, estuary or mangrove along path= or curve=, sized for a craft class (skiff, airboat, goFast, semiSubmersible, cutter): width and depth are the craft's minimum times margin unless given, braids adds strands that split off and rejoin, the banks rise at bankAngle and settle (reErode). The water is at sea level unless waterLevel is given. Returns each strand's measured narrowest clear width and shallowest depth and whether they meet the craft (meetsCraft), and everything the coast holds.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `path` | `pa` | list |  | The channel's line [[x, z], ...] in world space. |
+| `curve` | `cv` | str |  | A curve the channel follows (read once). |
+| `id` |  | str |  | Stable id; the same id again replaces it. |
+| `craft` | `cr` | str | `'skiff'` | Craft class it is cut for. One of `skiff`, `airboat`, `goFast`, `semiSubmersible`, `cutter`. |
+| `braids` | `br` | int | `1` | Strands; 1 is one channel. |
+| `braidSpread` | `bsp` | float | `0.0` | How far braids wander, cm; 0 is three widths. |
+| `width` | `w` | float | `0.0` | Width, cm; 0 is the craft's minimum times margin. |
+| `depth` | `dp` | float | `0.0` | Depth, cm; 0 is the craft's minimum times margin. |
+| `margin` | `mg` | float | `1.3` | Over the craft's minimums. |
+| `waterLevel` | `wl` | float |  | Water level along the up axis, cm; default sea level. |
+| `bankAngle` | `ba` | float | `25.0` | Bank slope, degrees. |
+| `reErode` | `re` | int | `4` | Bank settling passes. |
+| `meander` | `me` | float | `0.6` | Bends, in widths. |
+| `seed` | `sd` | int | `0` | Braid and bend seed. |
+
+```python
+terrainAddChannel('Terrain', id='estuary', path=[[-30000, 5000], [0, 0], [20000, 6000]], craft='goFast', braids=3)
+```
+
 ### terrainAddFeature
 
 Add a line feature to a terrain. street: graded along its length to maxGrade, levelled across width with a skirt; where it would sit far above the ground it becomes a bridge span and far below a tunnel span, left ungraded, and small streams it crosses are returned as culverts. canal and moat: carved depth below their water level (height=, else the lowest ground along them), added to terrainWaterInfo. bridge: a deck from end to end (or at height=), the ground cut to clearance below it. culvert and tunnel: registered (masks culvert, tunnel) for the water graph and exporters. Returns the centreline, maxGrade, spans, culverts, cut and fill, and the revision.
@@ -20738,6 +22813,52 @@ terrainAddLake('Terrain', id='millPond', polygon=[[0, 0], [3000, 0], [3000, 2000
 
 ```python
 terrainAddLake('Terrain', id='lakes', auto=True, minDepth=100)
+```
+
+### terrainAddLane
+
+Add a boat lane: a harbour approach from a berth (at=) routed over water deep and wide enough for the craft out to the nearest boat lane, or a drawn lane along path= or curve= (kind harbour, coast, channel or river). The same id again replaces it. waterCheck says when a lane runs over land, too shallow or too narrow, or joins nothing.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `at` |  | list |  | The berth [x, z] or [x, y, z]. |
+| `path` | `pa` | list |  | A drawn lane [[x, z], ...]. |
+| `curve` | `cv` | str |  | A curve the lane follows (read once). |
+| `id` |  | str |  | Stable id. |
+| `kind` | `k` | str | `'harbour'` | Lane kind. One of `harbour`, `coast`, `channel`, `river`. |
+| `craft` | `cr` | str | `'goFast'` | Craft class. One of `skiff`, `airboat`, `goFast`, `semiSubmersible`, `cutter`. |
+
+```python
+terrainAddLane('Terrain', id='marina', at=[4200, -1800], craft='cutter')
+```
+
+### terrainAddReservoir
+
+Dam a valley into a reservoir: a dam from a= to b= (on the valley sides) at crest height (default the lower end's ground) with faces at faceSlope and a spillway notch spillwayWidth wide, freeboard below the crest; the lake behind it fills to the spillway sill (terrainAddLake, id <id>_reservoir) and a river runs from the spillway down the valley (terrainAddRiver, id <id>_river). Fords and bridges below come from the river and road tools. Returns the dam, the reservoir, the river and everything the coast holds.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `a` |  | list |  | One end of the dam [x, z] or [x, y, z]. |
+| `b` |  | list |  | The other end. |
+| `id` |  | str |  | Stable id; the same id again replaces it. |
+| `crest` | `cs` | float |  | Crest height along the up axis, cm; default the lower end's ground. |
+| `thickness` | `tk` | float | `800.0` | Crest thickness, cm. |
+| `faceSlope` | `fs` | float | `1.5` | Faces: horizontal per vertical. |
+| `spillwayWidth` | `sw` | float | `2000.0` | Spillway width, cm. |
+| `freeboard` | `fb` | float | `300.0` | Spillway sill below the crest, cm. |
+| `spillwayAt` | `sa` | float | `0.85` | Where along the dam the spillway is, 0 at a, 1 at b. |
+| `lake` | `lk` | bool | `True` | Fill the reservoir behind it. |
+| `river` | `rv` | bool | `True` | Run a river from the spillway down the valley. |
+| `riverLength` | `rl` | float | `300000.0` | Longest river below, cm. |
+| `riverWidth` | `rw` | float |  | Fixed river width, cm; default from drainage. |
+| `preview` | `pv` | bool | `True` | Rebuild the flat water preview mesh <terrain>_water. |
+
+```python
+terrainAddReservoir('Terrain', id='presa', a=[-8000, 12000], b=[6000, 15000], crest=4200)
 ```
 
 ### terrainAddRiver
@@ -20926,6 +23047,50 @@ Run many stamp and road edits as one: calls is a list of {command, flags} for te
 terrainBatch(calls=[{'command': 'terrainStampPad', 'flags': {'args': ['Terrain'], 'id': 'a', 'footprint': [[0, 0], [1000, 0], [1000, 1000], [0, 1000]]}}])['errors']
 ```
 
+### terrainBathymetry
+
+Lay a seabed under a terrain's sea: from a GEBCO grid (file=, a GeoTIFF tile from gebco.net or any elevation file readDem reads) placed by the terrain's georeference, or fetched for the terrain's area (fetch=True: GEBCO through OpenTopography with your API key; estimate=True says the size first, and a download over 25 MB needs consent=True). The DEM's flat sea (ground at or below sea level plus landTolerance, joined to the edge or deep grid water) takes the grid's depths blended in from a shoreline profile over blendWidth cm, so the shore is continuous and the shelf smooth; with no grid the profile alone (shoreSlope off the beach, shelfDepth at shelfWidth, dropDepth beyond). Writes the GEBCO credit into the terrain data's ATTRIBUTION.txt. off=True removes it. Returns the seabed source (grid, profile or grid+profile), samples, depths and notes.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `file` | `f` | str |  | A GEBCO GeoTIFF (or any elevation file); empty for the profile alone. |
+| `fetch` | `fe` | bool | `False` | Download GEBCO for the terrain's area (or bbox) through OpenTopography. |
+| `estimate` | `es` | bool | `False` | Only say how big the download would be. |
+| `consent` | `cn` | bool | `False` | Allow a download over 25 MB. |
+| `bbox` | `bb` | list |  | [west, south, east, north] in degrees; default the terrain's area. |
+| `dataset` | `ds` | str | `'GEBCOIceTopo'` | OpenTopography dataset. One of `GEBCOIceTopo`, `GEBCOSubIceTopo`, `SRTM15Plus`. |
+| `apiKey` | `ak` | str |  | OpenTopography API key; default the saved one. |
+| `saveKey` | `sk` | bool | `False` | Save apiKey for later fetches. |
+| `offline` | `off` | bool | `False` | Use an area fetched before only. |
+| `profileOnly` | `po` | bool | `False` | Drop the grid and use the profile alone. |
+| `credit` | `cr` | bool | `True` | Write the GEBCO credit to ATTRIBUTION.txt. |
+| `seaLevel` | `sl` | float |  | Sea level along the up axis, cm; default the water's, else 0. |
+| `landTolerance` | `lt` | float | `50.0` | Ground this far above sea level still counts as the DEM's sea, cm. |
+| `shoreSlope` | `ss` | float | `1.5` | Seabed slope off the shore, degrees. |
+| `blendWidth` | `bw` | float | `30000.0` | Distance from the shore over which the grid takes over, cm. |
+| `smoothing` | `sm` | float | `0.0` | Blur of the grid into a shelf, cm; 0 is one grid cell. |
+| `depthScale` | `dsc` | float | `1.0` | Multiplies the grid's depths. |
+| `shelfDepth` | `sd` | float | `3000.0` | Profile: depth of the shelf, cm. |
+| `shelfWidth` | `sw` | float | `200000.0` | Profile: how far out the shelf runs, cm. |
+| `dropDepth` | `dd` | float | `20000.0` | Profile: depth past the shelf, cm. |
+| `slopeWidth` | `slw` | float | `300000.0` | Profile: width of the drop off the shelf, cm. |
+| `minDepth` | `mnd` | float | `30.0` | Shallowest sea off the shore, cm. |
+| `off` | `of` | bool | `False` | Remove the bathymetry. |
+
+```python
+terrainBathymetry('Terrain', file='gebco/gebco_2024_n30_w120.tif')
+```
+
+```python
+terrainBathymetry('Terrain', fetch=True, estimate=True)['estimate']['megabytes']
+```
+
+```python
+terrainBathymetry('Terrain', shelfDepth=2500, shelfWidth=150000)
+```
+
 ### terrainBiomes
 
 Work out climate and biomes over a terrain: temperature (colder with height at lapseRate per 100 m, warmer on slopes facing the sun), moisture (rain, less in the lee of ranges along the wind, more on windward slopes and where water gathers), and a weight mask biome_<name> per biome, summing to 1 everywhere. Biomes fit by ranges over temperature (C), moisture, height, slope or any mask, follow a painted mask (paint=), or an imported landcover mask (ESA WorldCover classes by default). Layer rules and ground cover read the biomes by name.
@@ -21013,7 +23178,7 @@ terrainCave('Terrain', curve='CaveLine', radius=250, noise=0.4, seed=3)
 
 ### terrainCheck
 
-What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water, volume splits whose seams crack (seamTolerance cm), whose holes no mesh fills, or with places no mesh covers, roads (terrainAddRoad) steeper or more banked than their design or over water with no bridge or culvert, rivers rising downstream, lakes below their rim with no outlet or above it with no dam, cliff pieces floating above the ground (floatingCliff), cracks where a cliff meets the terrain (cliffCrack) and cliff tiles over triangleBudget in a World Partition cell (tileOverBudget). Returns ok and the issues, each with its type, what it is about, where and a message.
+What is wrong with a terrain and what sits on it: pads moving more than cutFillLimit m3, streets steeper than maxGrade, pads, regions and buildings in flood (risk over floodTolerance) with no levee, embankment or seawall near, buildings over water, buildings floating (the ground under their footprint lower than their base by more than floatTolerance cm anywhere), stamps and streets across a river with no bridge or culvert, and canals that reach no water, volume splits whose seams crack (seamTolerance cm), whose holes no mesh fills, or with places no mesh covers, roads (terrainAddRoad) steeper or more banked than their design or over water with no bridge or culvert, rivers rising downstream, lakes below their rim with no outlet or above it with no dam, cliff pieces floating above the ground (floatingCliff), cracks where a cliff meets the terrain (cliffCrack) and cliff tiles over triangleBudget in a World Partition cell (tileOverBudget), and waterCheck's channel, lane and air corridor issues. Returns ok and the issues, each with its type, what it is about, where and a message.
 
 **Objects:** terrain mesh or its modifier
 
@@ -21216,6 +23381,82 @@ Scatter on a terrain's cliff meshes by tiers, each tier on its own grid with a s
 terrainCliffScatter('Terrain', items={'boulder': 'SM_Boulder', 'rock': 'SM_Rock', 'debris': 'SM_Pebble'})
 ```
 
+### terrainCoast
+
+A terrain's coast as authored and as made: settings, channels, reservoirs, lanes, airstrips, the bathymetry, mask areas, the mangrove source, stash-spot counts and the route graph's size, with warnings and notes.
+
+**Objects:** terrain mesh or its modifier
+
+Not undoable.
+
+```python
+terrainCoast('Terrain')['channels']
+```
+
+### terrainCoastMasks
+
+Coast masks on a terrain from the shore of its sea: beach (shore no steeper than beachSlope, up to beachHeight above the water and beachBelow under it), surf (depth under surfDepth within surfWidth of a beach), shallows (under shallowDepth) and reef (patches covering reefCover of the band reefMinDepth to reefMaxDepth deep and reefMinDistance to reefMaxDistance out). Lives in the terrain's Terrain Coast node. Returns the areas and everything the coast holds.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `seaLevel` | `sl` | float |  | Sea level along the up axis, cm; default the water's. |
+| `beachSlope` | `bs` | float | `10.0` | Steepest beach, degrees. |
+| `beachHeight` | `bh` | float | `300.0` | Highest beach above the water, cm. |
+| `beachBelow` | `bb` | float | `150.0` | How deep the beach runs under the water, cm. |
+| `surfDepth` | `sd` | float | `250.0` | Deepest surf, cm. |
+| `surfWidth` | `sw` | float | `4000.0` | Surf zone width from the shore, cm. |
+| `shallowDepth` | `shd` | float | `600.0` | Deepest shallows, cm. |
+| `reefMinDepth` | `rmd` | float | `100.0` | Shallowest reef, cm. |
+| `reefMaxDepth` | `rxd` | float | `1500.0` | Deepest reef, cm. |
+| `reefMinDistance` | `rmi` | float | `2000.0` | Nearest reef to the shore, cm. |
+| `reefMaxDistance` | `rxi` | float | `60000.0` | Farthest reef from the shore, cm. |
+| `reefCover` | `rc` | float | `0.35` | Share of the reef band that is reef. |
+| `reefScale` | `rs` | float | `6000.0` | Size of reef patches, cm. |
+| `seed` | `sd2` | int | `0` | Reef pattern seed. |
+| `off` | `of` | bool | `False` | No coast masks. |
+
+```python
+terrainCoastMasks('Terrain', reefCover=0.5)['masks']
+```
+
+### terrainCoastOverlay
+
+Draw a terrain's coast over the viewport: lanes coloured by craft class (lanes), depth contours every depthStep cm (depth), stash spots (stash), all of them, or off. Stays until changed.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `show` | `sh` | str | `'all'` | What to draw. One of `all`, `lanes`, `depth`, `stash`, `off`. |
+| `depthStep` | `ds` | float | `500.0` | Depth contour spacing, cm. |
+
+Not undoable.
+
+```python
+terrainCoastOverlay('Terrain', show='lanes')
+```
+
+```python
+terrainCoastOverlay(show='off')
+```
+
+### terrainCoastRemove
+
+Remove channels, lanes, airstrips and reservoirs (with their lake and river) by id, or all=True.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ids` |  | list |  | Ids to remove. |
+| `all` | `al` | bool | `False` | Remove them all. |
+
+```python
+terrainCoastRemove('Terrain', ids=['estuary'])
+```
+
 ### terrainConstrain
 
 Draw a constraint erosion keeps: a ridge raised by height and held, a valley lowered and held, a cliff stepping height down from the left to the right side of the curve, a river height deep whose bed only falls along the curve (draw it downstream), or flat ground inside a closed curve. width is the full width across, cm. Follows a curve live or a path; the same id replaces. Added to a Terrain Constraints node before Erode Terrain. Returns terrainInfo's stats, the constraint list and the share of the terrain each kind covers.
@@ -21298,6 +23539,16 @@ Not undoable.
 
 ```python
 terrainCostField('Terrain', weights={'slope': 2, 'water': 50, 'cityFootprint': 5}, resolution=64)['grid']
+```
+
+### terrainCraftClasses
+
+The craft classes routes and channels are sized for: boats (draft, minDepth, minWidth, beam, speed) and aircraft (approach and climb angles, clearance, corridor size, shortest runway). Lengths cm, speeds m/s.
+
+Not undoable.
+
+```python
+[c['name'] for c in terrainCraftClasses()]
 ```
 
 ### terrainCreate
@@ -21419,6 +23670,23 @@ s = terrainExport('Terrain', target='unreal')
 s['resolution'], s['scale'], s['files']['height']
 ```
 
+### terrainExportRoutes
+
+Write a terrain's coast to <name>_coast.json (channels as water splines with width, depth and waterLevel; stash spots, dams and spillways as locators; format lila.terrainWater) and its routes to <name>_routes.json (format lila.waterRoutes, with the ZoneGraph-style block). terrainExport writes them too.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `folder` | `f` | str |  | Output folder; defaults to the bake folder's export/. |
+| `name` | `n` | str |  | File name stem; defaults to the terrain's name. |
+
+Not undoable.
+
+```python
+terrainExportRoutes('Terrain', folder='export')
+```
+
 ### terrainExportWater
 
 Write a terrain's water to <name>_water.json: splines with per point width, depth, bedHeight, waterLevel, flowSpeed, discharge and flowDirection, and locators for lake and sea levels, springs and waterfall tops and bottoms, in world space, cm. Any water system can be driven from it. terrainExport writes it too.
@@ -21485,7 +23753,7 @@ items= maps each item name to a mesh; an item no mesh stands for gets a hidden p
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `rules` | `r` | Any |  | The rules (or preset names: scree, ledgePlants, hangingRoots); 'default' (the default) for rocks, trees, debris and grass. |
+| `rules` | `r` | Any |  | The rules (or preset names: scree, ledgePlants, hangingRoots); 'default' (the default) for rocks, trees, debris and grass. A rule's slot field names the slot type its pieces get ("tree.palm"); without one it is plant.<rule name>. |
 | `items` | `it` | Any |  | {item name: mesh} for the rules' items. |
 | `seed` | `sd` | int | `1` | Another seed gives another scatter. |
 | `density` | `d` | float | `1.0` | Multiplies every rule's density. |
@@ -21565,7 +23833,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
@@ -21613,9 +23881,9 @@ terrainImportLandCover('ESA_WorldCover_10m_2021_v200_N45E006_Map.tif', terrain='
 
 ### terrainImportOsm
 
-Put OpenStreetMap data on a terrain: roads, paths, rivers, streams, lakes and coastline become curves draped on the ground (one curve per kind under a group, or one per feature with perFeature=True), each with attributes terrainFeature and osmFeatures (OSM id, name, class and width in cm per spline); land cover becomes masks landcover_<class> through an OSM Land Cover node in the terrain's group. Reads .osm XML, Overpass .json and .osm.pbf, or fetch=True asks the Overpass API for the terrain's area. Writes the ODbL attribution to the workspace's terrain/ATTRIBUTION.txt.
+Put OpenStreetMap data on a terrain: roads, paths, rivers, streams, lakes, coastline, piers, breakwaters, quays and dams become curves draped on the ground (one curve per kind under a group, or one per feature with perFeature=True), each with attributes terrainFeature and osmFeatures (OSM id, name, class and width in cm per spline). Buildings and building parts become closed footprints (holes as inner rings) on a building curve whose osmFeatures carry what each is (program), heights, levels, roof shape, colours and material; places (shops, offices, schools, cemeteries, ports, farmland, towns, beaches, islands) become a place curve of their areas, with point places in its osmPlaces. Every name is fictional, from the naming culture (default from where the data lies), stable by OSM id or by real name; real names are kept only in a hidden sourceNames attribute for realNameCheck. Land cover becomes masks landcover_<class> through an OSM Land Cover node in the terrain's group. Reads .osm XML, Overpass .json and .osm.pbf, or fetch=True asks the Overpass API for the terrain's area. Writes the ODbL attribution to the workspace's terrain/ATTRIBUTION.txt.
 
-The terrain must come from real elevation (terrainImportDem, or terrainImport of a DEM file), or give origin= [latitude, longitude] of its centre. Returns feature counts and lengths (cm) by kind, curves made, land cover fractions and how many features lay outside.
+The terrain must come from real elevation (terrainImportDem, or terrainImport of a DEM file), or give origin= [latitude, longitude] of its centre. Returns feature counts and lengths (cm) by kind, curves made, land cover fractions, how many features lay outside, the culture names came from and how many things were named.
 
 **Objects:** OSM file (.osm, .json, .osm.pbf)
 
@@ -21624,7 +23892,8 @@ The terrain must come from real elevation (terrainImportDem, or terrainImport of
 | `terrain` | `t` | str |  | The terrain. |
 | `origin` | `o` | list |  | [latitude, longitude] of the terrain's centre, for terrains not from real data. |
 | `fetch` | `f` | bool | `False` | Download the terrain's area from the Overpass API. |
-| `kinds` | `k` | list |  | Feature kinds to bring in (road, path, river, stream, lake, coastline); default all. |
+| `kinds` | `k` | list |  | Feature kinds to bring in (road, path, river, stream, lake, coastline, pier, breakwater, quay, dam, building, place); default all. |
+| `culture` | `cu` | str |  | Naming culture for the fictional names (namingCultures); empty chooses one from where the data lies. One of ``, `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`. |
 | `curves` | `cv` | bool | `True` | Make curves for the features. |
 | `perFeature` | `pf` | bool | `False` | One curve per feature instead of one per kind. |
 | `landcover` | `lc` | bool | `True` | Land cover into masks. |
@@ -21710,6 +23979,30 @@ terrainLiveLink('Terrain')
 
 ```python
 terrainLiveLink('Terrain', on=False)
+```
+
+### terrainMangroves
+
+Mangroves on a terrain: where the land cover has the mangrove class (ESA WorldCover 95, from terrainImportLandCover), or with none, its wetland inside the tidal band, or with neither the tidal band (tidalLow to tidalHigh cm about sea level, no steeper than maxSlope) where it is sheltered (lagoons and estuaries, not open beach). Says which it used (mangroveSource). Writes masks tidal and mangrove, and adds a mangrove biome painted by them to the terrain's biomes (biome=True) for ground cover to plant. off=True clears them.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `tidalLow` | `tl` | float | `-80.0` | Bottom of the tidal band, cm from sea level. |
+| `tidalHigh` | `th` | float | `150.0` | Top of the tidal band, cm from sea level. |
+| `maxSlope` | `ms` | float | `6.0` | Steepest ground, degrees. |
+| `landcover` | `lc` | str | `'landcover'` | The land cover mask (WorldCover codes / 255). |
+| `code` | `cd` | int | `95` | Land cover code that is mangrove. |
+| `fromWetland` | `fw` | bool | `True` | With no mangrove class, take wetland in the tidal band. |
+| `fromBand` | `fb` | bool | `True` | With neither, take the sheltered tidal band. |
+| `shelterRadius` | `sr` | float | `20000.0` | How far round to look for open water, cm. |
+| `shelterMax` | `sx` | float | `0.45` | Most open water around a sheltered spot, as a share. |
+| `biome` | `bi` | bool | `True` | Add a mangrove biome to the terrain's biomes. |
+| `off` | `of` | bool | `False` | No mangroves. |
+
+```python
+terrainMangroves('Terrain')['mangroveSource']
 ```
 
 ### terrainMap
@@ -22028,6 +24321,38 @@ r = terrainRoute('Terrain', start=[-40000, 0], end=[40000, 5000], maxGrade=8, we
 r['length'], r['maxGrade']
 ```
 
+### terrainRouteCurves
+
+The route graph as curves in the scene, one poly curve per lane under <terrain>_routes (replacing the old ones), each with laneId, laneKind, craft and laneSource attributes and the craft's minDepth and minWidth (boats) or clearance (aircraft), for engines and tools that read splines.
+
+**Objects:** terrain mesh or its modifier
+
+```python
+terrainRouteCurves('Terrain')['curves']
+```
+
+### terrainRoutes
+
+Route graph settings: coast lanes along the coastDepth contour for coastCraft (pieces shorter than minLaneLength are left out), river reaches some boat can run, channel strands, lane ends within snap joined into nodes, and boat lanes ending in open water linked over water to the nearest lane within linkReach. Returns lane counts by kind and everything the coast holds; terrainWaterRoutes reads the graph.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `coastLanes` | `cl` | bool | `True` | Lanes along the shore. |
+| `coastDepth` | `cd` | float | `800.0` | Depth the coast lanes follow, cm. |
+| `coastCraft` | `cc` | str | `'goFast'` | Craft class of the coast lanes. One of `skiff`, `airboat`, `goFast`, `semiSubmersible`, `cutter`. |
+| `minLaneLength` | `ml` | float | `20000.0` | Shortest coast lane, cm. |
+| `riverLanes` | `rl` | bool | `True` | River reaches as lanes. |
+| `channelLanes` | `chl` | bool | `True` | Channel strands as lanes. |
+| `snap` | `sn` | float | `3000.0` | Lane ends closer than this join, cm. |
+| `linkReach` | `lr` | float | `300000.0` | Farthest over-water link from a loose lane end, cm. |
+| `spacing` | `sp` | float | `2000.0` | Lane point spacing, cm. |
+
+```python
+terrainRoutes('Terrain', coastDepth=1000, coastCraft='cutter')['lanes']
+```
+
 ### terrainSample
 
 Heights under points, or a profile along a path.
@@ -22237,6 +24562,22 @@ Not undoable.
 
 ```python
 terrainSendRoadsToUnreal('Terrain', segmentMesh='/Game/Roads/SM_RoadSegment', paintLayer='Road')
+```
+
+### terrainSendRoutesToUnreal
+
+Send a terrain's coast to the connected Unreal editor: channels, stash spots, dams and spillways as water spline and locator actors (as terrainSendWaterToUnreal sends rivers), and the route graph as spline actors with lane data (craft, kind, width, depth or clearance, links) under a LilaWaterRoutes folder. Keyed by the terrain's linkId, so sending again updates in place. terrainSendToUnreal sends them too.
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `timeout` | `to` | float | `120.0` | Seconds to wait for Unreal. |
+
+Not undoable.
+
+```python
+terrainSendRoutesToUnreal('Terrain')
 ```
 
 ### terrainSendToUnreal
@@ -22535,6 +24876,27 @@ Not undoable.
 terrainStamps('Terrain')['layers']['City']
 ```
 
+### terrainStashSpots
+
+Stash-spot candidates along a terrain's channels: dead ends away from open sea, overhung banks (ground bankHeight cm above the water within bankReach of the edge) and spots under mangrove canopy, at least spacing cm apart, best first, at most maxCount. locators=True makes them locators under <terrain>_stash with stashKind, channel and score attributes (replacing the old ones).
+
+**Objects:** terrain mesh or its modifier
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `bankHeight` | `bh` | float | `250.0` | Overhang: bank height above the water, cm. |
+| `bankReach` | `br` | float | `600.0` | Overhang and canopy: how far from the edge to look, cm. |
+| `canopy` | `ca` | float | `0.5` | Canopy: mangrove density. |
+| `spacing` | `sp` | float | `8000.0` | Fewest cm between two. |
+| `maxCount` | `mc` | int | `64` | Most candidates. |
+| `off` | `of` | bool | `False` | No stash spots. |
+| `locators` | `lo` | bool | `True` | Make locators in the scene. |
+
+```python
+s = terrainStashSpots('Terrain')
+[(p['id'], p['kind']) for p in s['spots']]
+```
+
 ### terrainStroke
 
 A brush stroke on a terrain: terrainSculpt with the brush named by brush= (raise, lower, smooth, flatten, noise, ramp, terrace, stamp, erode, uplift, relax, mask). Every flag is terrainSculpt's; the Sculpt Terrain tool records its strokes this way, so a stroke replays exactly from its call. Returns terrainSculpt's result.
@@ -22765,6 +25127,19 @@ Remove rivers and lakes from a terrain by id, or all=True to drop its water node
 terrainWaterRemove('Terrain', ids=['mill'])
 ```
 
+### terrainWaterRoutes
+
+A terrain's boat and air route graph in world space (format lila.waterRoutes): nodes, lanes (kind coast, channel, river, harbour, link, approach or departure; craft class; points with clear width and depth, or clearance), runways, the craft classes, and a ZoneGraph-style block (lane profiles per craft, shapes with links).
+
+**Objects:** terrain mesh or its modifier
+
+Not undoable.
+
+```python
+r = terrainWaterRoutes('Terrain')
+[(l['id'], l['craft']) for l in r['lanes']]
+```
+
 ### terrainWedge
 
 Try variants of a terrain spec side by side: each variant is the spec with the vary settings changed, built in its own lilabatch process (several at once, headless), mapped from above (terrainMap) and laid out in a labelled contact sheet PNG. vary is {key: [values]} with dotted keys for nested settings ('erosion.age', 'erosion.preset', 'source.ridged'); each variant takes the next value of every key (count variants), or grid=True builds every combination. Without vary, count seeds from the spec's.
@@ -22798,6 +25173,19 @@ w['sheet'], [v['stats']['heightRange'] for v in w['variants']]
 
 ```python
 terrainWedge(spec=s, vary={'erosion.age': [0.2, 0.5, 0.8], 'erosion.preset': ['natural', 'alpine']}, grid=True)
+```
+
+### waterCheck
+
+What is wrong with a terrain's channels and routes: channelShallow and channelNarrow (a strand under its craft's minimum depth or width), laneShallow and laneNarrow, laneOverLand (points on dry ground), laneDisconnected (a boat lane not joined to the main network), harbourUnreachable, airClearance (a corridor lower over the ground than its aircraft needs) and shortRunway. Returns ok and the issues, each with type, about, position and message. terrainCheck includes them.
+
+**Objects:** terrain mesh or its modifier
+
+Not undoable.
+
+```python
+c = waterCheck('Terrain')
+c['ok'], [i['type'] for i in c['issues']]
 ```
 
 ## TrimSheets extension

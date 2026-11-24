@@ -3405,6 +3405,21 @@ Sets instances' translation, rotation and scale. Rotation and scale change only 
 | --- | --- | --- | --- |
 | `mode` | `components`, `matrix` | `components` | components: separate translation, rotation and scale; matrix: one transform matrix. |
 
+### Slots
+
+Makes instances typed slots with stable ids (owner plus a path from int attributes, or the index), so slot rules and overrides swap what each one shows. Writes the int attribute slotIndex. Type takes a comma list picked per instance by Type Attribute.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `instances` | geometry | input |  |  |
+| `type` | string | input | `prop` | Slot type, or a comma list indexed by Type Attribute. |
+| `owner` | string | input |  | The owner's stable id; slot ids start with it. |
+| `typeAttribute` | string | input |  | Int attribute picking each instance's entry in Type. |
+| `pathAttributes` | string | input |  | Int attributes (comma list) making each slot's path; empty uses the index. |
+| `regions` | string | input |  | Regions the slots lie in (comma list), for region rules. |
+| `tags` | string | input |  | Tags every slot carries (comma list). |
+| `instances` | geometry | output |  |  |
+
 ### Split to Instances
 
 Type `SplitToInstances`.
@@ -6542,6 +6557,25 @@ End of a simulation zone: the state at the current frame, cached frame by frame.
 | `geometry` | geometry | input |  |  |
 | `geometry` | geometry | output |  |  |
 
+## Buildings extension
+
+Available when the Buildings extension is loaded.
+
+### Buildings
+
+#### Buildings
+
+Procedural buildings from specs (Settlement envelopes, footprints): a merged shell and every module (windows, doors, shopfronts, signs, balconies, tanks...) as an instance, each published as a slot with a stable id. Edits are kept by building id. lod near draws shell and modules, hlod a simplified proxy, far flat-roof massing.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | string | input | `[]` | Buildings as a JSON list (buildingCreate writes it). |
+| `edits` | string | input | `{}` | Edits by building id (buildingEdit writes them). |
+| `lod` | string | input | `near` | near, hlod or far. |
+| `cell` | string | input |  | The cell these buildings are in (x_z), or a building id when standalone. |
+| `modules` | bool | input | `true` | Draw the modules (near only). |
+| `geometry` | geometry | output |  | Shell mesh and module instances. |
+
 ## Destruction extension
 
 Available when the Destruction extension is loaded.
@@ -6816,6 +6850,35 @@ A float or vector grid from an OpenVDB file (.vdb, from Houdini, Blender or Embe
 | `path` | string | input |  | The .vdb file; relative paths are against the scene. |
 | `grid` | string | input |  | Grid name, such as density; empty reads the first float grid, else the first vector grid. |
 | `volume` | geometry | output |  |  |
+
+## OpenWorld extension
+
+Available when the OpenWorld extension is loaded.
+
+### Open World
+
+#### Site Kit
+
+A site kit laid out on the ground: a cargo port, cruise terminal, cemetery, airstrip, farm, village, compound, private island or lighthouse from its spec (siteCreate writes it). Buildings come out as greybox massing of their envelopes (siteEnvelopes lists them for a building generator); every other part is an instance published as a typed slot with a stable id under the site's owner id, so slot rules and overrides swap them. Ground is the terrain the parts stand on.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | string | input | `{}` | The site spec, JSON. |
+| `ground` | geometry | input |  | The terrain, world space; none stands the site at height 0. |
+| `massing` | bool | input | `true` | Draw the buildings' envelopes as greybox massing. |
+| `geometry` | geometry | output |  |  |
+
+### Terrain
+
+#### World Remix
+
+Real places composed onto one map: each source's elevation, OSM data and land cover scaled and placed, regions cut, moved, duplicated and deleted, pins warping the land between, seams blended and eroded, roads reconnected, rivers re-solved and coastline re-merged. The spec is the remix's JSON (lila://schema/remix-spec); before shows the base map with no regions or pins. Outputs the heightfield with land cover masks and remixSeam, remixHole.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | string | input | `{}` | The remix spec, JSON. |
+| `before` | bool | input | `false` | Show the base map: sources placed, nothing moved. |
+| `heightfield` | geometry | output |  |  |
 
 ## Seamwork extension
 
@@ -7675,6 +7738,19 @@ Steps the ground into flat treads and risers every step cm.
 | `strength` | float | input | `1` | 0 to 1. Range 0 to 1. |
 | `heightfield` | geometry | output |  |  |
 
+#### Terrain Bathymetry
+
+A seabed under the flat sea a land DEM leaves: a GEBCO grid (GeoTIFF or any elevation file) placed by the terrain's georeference and blended in from a shoreline profile, so the shore stays continuous and the shelf smooth; without a grid, the profile alone (shelf, then the drop to deep water). Writes mask seabed. terrainBathymetry sets it; it goes right after the source.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `settings` |  | `{}` | The bathymetry settings, a JSON object (see terrainBathymetry). |
+
 #### Terrain Biomes
 
 Climate and biomes over the heightfield. Writes temperature (0 to 1 over -30 to 40 C: colder with height, warmer on slopes facing the sun), moisture (rain, less in the lee of ranges, more on windward slopes and where water gathers) and biome_<name> per biome, the biome weights summing to 1 everywhere. Biomes fit by temperature (C), moisture, height and slope, or follow a painted mask or an imported landcover mask. terrainBiomes writes the spec.
@@ -7745,6 +7821,22 @@ The ground under cliff meshes: a proud cliff sets the ground back under its mesh
 | `cliffs` |  | `[]` | Cliffs, JSON: [{name, kind, mesh, mode, rings, depth, recess, blend, margin, talusWidth}] in the heightfield's own space. |
 | `walls` |  | `[]` | Walls, JSON: [{name, object (an Object Info node), height, plateau, cut, falloff, flip, stamp}]. |
 
+#### Terrain Coast
+
+The coast after the water: navigable channels carved for a craft class (braided, banks settled), beach, surf, shallows and reef masks, mangroves in the tidal band, stash-spot candidates, and the boat and air route graph (coast lanes on a depth contour, channels, river reaches, harbour approaches, airstrip corridors). Writes masks beach, surf, shallows, reef, tidal, mangrove and channel. Put it after Terrain Water Features.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `settings` |  | `{}` | Sea level, masks, mangroves, stash and route settings, a JSON object. |
+| `channels` |  | `[]` | Channels, a JSON list (see terrainAddChannel). |
+| `lanes` |  | `[]` | Drawn lanes and harbour approaches, a JSON list (see terrainAddLane). |
+| `airstrips` |  | `[]` | Airstrips, a JSON list (see terrainAddAirstrip). |
+
 #### Terrain Constraints
 
 Drawn ridges, valleys, cliffs, rivers and flat ground shape the heightfield and are held while Erode Terrain runs, so erosion carves around them instead of through them. Each follows a path or a curve through an Object Info node in this group (moving the curve moves it). Rivers are drawn downstream: their bed only falls along the curve. terrainConstrain writes the list; put this before Erode Terrain.
@@ -7757,6 +7849,19 @@ Drawn ridges, valleys, cliffs, rivers and flat ground shape the heightfield and 
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `constraints` |  | `[]` | The constraints, a JSON list in the heightfield's own space (see terrainConstrain). |
+
+#### Terrain Dams
+
+Dams across valleys: a wall at crest height with sloped faces and a spillway notch at its sill, before the water so the reservoir fills behind it. Writes mask dam. terrainAddReservoir adds them with their lake and the river below.
+
+| Socket | Type | Kind | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heightfield` | geometry | input |  |  |
+| `heightfield` | geometry | output |  |  |
+
+| Property | Options | Default | Description |
+| --- | --- | --- | --- |
+| `dams` |  | `[]` | The dams, a JSON list in the heightfield's own space (see terrainAddReservoir). |
 
 #### Terrain Field
 
@@ -7777,7 +7882,7 @@ Writes an analysis field into a mask of the heightfield: slope, aspect, curvatur
 
 #### Terrain Ground Cover
 
-Scatters items over a terrain by rules: each rule's items go where its ranges, biomes and layers fit, as densely as it asks, kept clear of each other by their footprints (the item's size across, or the rule's footprint). The terrain comes from the Object Info node named in terrain, each item from the Object Info node Item_<name>. Outputs instances with rule, item, fit and random attributes, ready for Settle Instances and for unrealPlaceInstances (HISM). terrainGroundCover builds the group.
+Scatters items over a terrain by rules: each rule's items go where its ranges, biomes and layers fit, as densely as it asks, kept clear of each other by their footprints (the item's size across, or the rule's footprint). The terrain comes from the Object Info node named in terrain, each item from the Object Info node Item_<name>. Outputs instances with rule, item, fit, random, cellX and cellZ attributes, ready for Settle Instances and for unrealPlaceInstances (HISM). terrainGroundCover builds the group.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
