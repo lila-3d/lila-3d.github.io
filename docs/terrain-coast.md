@@ -2,7 +2,7 @@
 
 Give a terrain a real seabed, beaches, reefs and mangroves, carve boat channels through lagoons, dam a valley into a reservoir, and get boat and air routes that engines can drive traffic on.
 
-<!-- capture: coast overlay on a real coast: lanes coloured by craft, depth contours, a braided channel through a mangrove lagoon -->
+![Coast Overlay: boat lanes, depth contours off the shore and a braided channel cut inland](images/terrain-coast/overlay.png)
 
 ## Get it working
 
