@@ -18,7 +18,7 @@ settlementFromOsm(r['files']['osm'], ground='World', origin=r['origin'], buildin
 4. **Sites.** Ports, cemeteries, airstrips, farms, villages and compounds from **Level > Open World > Site Kit**. See [Site kits](#site-kits).
 5. **Swap the placeholders.** Every door, sign, lamp, crop row and container is a [slot](slots.md): one rule swaps all of a type for your assets or Blueprints.
 6. **Gameplay zones.** Districts, police, territory, spawns and traffic from **Level > Open World > Zones**. See [Zones](#zones).
-7. **Send to Unreal.** `terrainSendToUnreal`, `settlementSendToUnreal`, `buildingSend` and `zoneSendToUnreal`.
+7. **Send to Unreal.** `terrainSendToUnreal`, `settlementSendToUnreal`, `buildingSend` and `zoneSendToUnreal`, or the whole map from the [world spec](#send-to-unreal).
 8. **Check the whole map.** **Level > Open World > Check World**. See [World spec](#world-spec).
 
 Once the map works, **Save World Spec** writes it all to one file that **Build World** rebuilds in one go.
@@ -66,6 +66,8 @@ A small spec. Only `name` and `terrain` are required; a settlement comes from Op
 }
 ```
 
+A built world's terrain gets default material layers fitted to the finished ground, and its sea a water material. `terrain.materials` in the spec sets your own layers.
+
 **Real places.** Give each remix source a `bbox` and download its data first with `remixSource('World', id='coast', bbox=[west, south, east, north], fetch=True)`, which reports the sizes. For sea floor data, `terrainBathymetry(fetch=True, estimate=True)` gives the size; a download over 25 MB needs `consent=True`. Point the spec's `dem`, `osm`, `landcover` and `bathymetry` paths at the downloaded files, then **Build World**. Run **World Map** first to check that settlement areas and site positions land where you want them.
 
 ### Troubleshooting
@@ -95,10 +97,38 @@ A small spec. Only `name` and `terrain` are required; a settlement comes from Op
 | `skip=` | Leaves sections out while you iterate: `slots`, `terrain`, `settlements`, `buildings`, `sites`, `zones`. |
 | `check=False` | Skips **Check World** at the end. |
 | `buildings.lod` | Level of detail new building cells start at: `near` or `hlod` (much less memory in a big world). |
-| `export.target` | `files` writes terrain, zones and the map; `unreal` also sends buildings and zones. |
+| `buildings.enterable` | Buildings made [enterable](buildings.md#enterable-buildings) once everything is built. One pick or a list: `{"programs": ["police", "bar"], "landmarks": true, "limit": 6}`; `styles` and `ids` pick too, `program` and `furnish` set what they get. |
+| `export.target` | `files` writes terrain, zones and the map; `unreal` also sends the whole world to the open Unreal level. |
 | `export.map.resolution` | Width of the map image, in pixels. |
 
 Each section takes its own part's spec: `lila://schema/remix-spec`, `lila://schema/terrain-spec` (coast under `terrain.coast`), a site's `siteInfo()['spec']`, `lila://schema/zones`.
+
+### Send to Unreal
+
+1. Open a World Partition level in Unreal with LilaLink in the project, and run `unrealConnect()`.
+2. Set `"export": {"target": "unreal"}` in the spec and **Build World**.
+
+The landscape with its layers and water, the settlements, buildings with their HLOD proxies and interiors, site kits and zones all go. Each `export.unreal.*` step in the result says what it sent, what the level already held unchanged and what it skipped.
+
+Building again sends only what changed. Whatever the spec no longer makes leaves the level: placement groups, interiors with their level files and data layers, whole settlements and zone sets. A send into another level of the same project reuses the assets already imported (`reused` in the step results).
+
+**`proxiesSkipped`.** The level isn't World Partition, so the HLOD proxies weren't sent.
+
+**Furniture placements skipped for missing meshes.** The project lacks the settlement's furniture meshes. Add them, or [name your own](settlement.md#troubleshooting).
+
+**The landscape renders as a grid.** Its material failed to compile with an older LilaLink. Rebuild LilaLink from Lila's `ue/LilaLink`.
+
+**`levelsKept`, or "another level holds zone volumes".** Another level of the project still uses that interior or zone data, so it stays. Remove it from that level too.
+
+**A settlement taken out of the spec is still in the level.** Lila's record of what it sent there was cleared. `settlementRemoveFromUnreal(key='Puerto')` removes it by its name; `zoneRemoveFromUnreal(id=..., label=...)` removes a zone set by the id and label its send returned.
+
+| `export.unreal` key | What it does |
+| --- | --- |
+| `folder` | Content folder root, default `/Game/Lila`. The cleanup deletes only meshes under it. |
+| `interiors` | `levelInstance`, `dataLayer` or `none`, as `buildingSend(interiors=)`. |
+| `roads`, `roadMesh`, `pcgGraph` | As `settlementSendToUnreal`: roads as `landscape`, `splines`, `meshes` or `none`. |
+| `landscapeMaterial` | Your own landscape material instead of the generated one. |
+| `hlodLayer`, `hlodProxyLayer` | As `buildingSend`. |
 
 ## World Remix
 
@@ -133,7 +163,9 @@ Pins move a point of the map (or hold it with no **To**) and the land around fol
 | `fold` | Pins ask for the impossible. Move pins or regions apart, or raise `warp.maxSteps`. |
 | `source` | A source file couldn't be read. The map builds without it. |
 
-**A steep wall where a region was pasted.** The heights on either side of the seam differ a lot. Widen the seam: the region's **Seam**, or `seams.width` in the spec.
+**A pasted region sits higher or lower than its source.** A `cut` or `duplicate` region is raised or lowered to the land around it, so its seam falls no steeper than `seams.maxSlope`. Set `"matchHeight": false` on the region to keep its own heights.
+
+**A steep edge remains round a pasted region.** The seam is capped at a quarter of the region's size. `stats.regionLevels` in the **Apply Remix** result gives each region's `stepLeft`. Move the region to ground nearer its height.
 
 **The sea floor is flat or a plain shelf.** No source has a bathymetry grid. Give the source a `bathymetry` GEBCO GeoTIFF; with none, the remix lays a shelf profile and its notes say so.
 
@@ -147,6 +179,7 @@ Edit the spec with `remixSpec('World')` and `remixSpec('World', spec=...)`; the 
 | --- | --- | --- |
 | `scale.horizontal`, `scale.vertical` | `1:3`, `1:1.5` | Distances shrink more than heights, so mountains stay mountains. |
 | `seams.width`, `seams.erosion`, `seams.detail` | | Seam band width, and the erosion and detail that blend it. |
+| `seams.maxSlope` | `0.08` | Steepest grade a pasted region's seam may fall after levelling; its seam widens to keep to it. |
 | `warp.falloff` | | How far a pin or moved region pulls the land around it. |
 | `map.size`, `map.cell`, `map.seaDepth`, `map.maxResolution` | fit to the sources | Output map extent and grid. |
 | `bathymetry` | on | Shelf profile under the sea where no grid covers (`shoreSlope`, `shelfDepth`, `blendWidth`); `enabled: false` gives a flat floor at `map.seaDepth`. |
@@ -161,6 +194,7 @@ Lay out a whole cargo port, cruise terminal, lighthouse, cemetery, hidden airstr
 2. Select a locator where the site goes (nothing puts it at the origin), then click a kind. It stands on the selected terrain, else the only one.
 3. Shift+click a kind, or click its row's corner, for that kind's settings first.
 4. Select the site: the Attribute Editor's **Site** section changes its settings, and the layout and grading follow.
+5. Move or turn the site with the transform gizmo. On release it lands and the ground is graded again; one undo takes back both.
 
 ```python
 siteCreate(kind='port', terrain='Terrain', at=[0, -20000], quayLength=80000, tiers=5)
@@ -176,7 +210,7 @@ Buildings in a site draw as grey massing. **Level > Open World > Site Buildings*
 
 **The site stands at height 0.** No terrain was found. Select one, or `siteCreate(..., terrain='Terrain')`.
 
-**The site moved but samples the ground where it was.** Moving the site mesh with the gizmo doesn't move its layout. Change **At** and **Heading** in the Attribute Editor, or `siteEdit('port1', at=[x, z], heading=12)`.
+**A tilt or scale on a site is undone.** A site keeps only its position and its turn about the up axis; the rest is dropped with a warning.
 
 **`airClearance` on an airstrip.** Hills are too close under an approach corridor. Turn the strip (**Heading**) or move it.
 
@@ -212,6 +246,8 @@ New zones get fictional names in the set's naming culture.
 **Erase does nothing.** Erase works on the zone picked in the palette's **Target**. Pick one first.
 
 **"is a number, not text".** An attribute keeps the type of the layer's default. Type a value of that kind, or change the layer's defaults.
+
+**Zones stay in Unreal after the set is deleted.** **Remove Zones from Unreal** (Zones panel menu) before deleting the set. For a set already gone, `zoneRemoveFromUnreal(id=..., label=...)` with the id and label its send returned.
 
 **Unreal says the plugin predates zones.** Rebuild LilaLink from Lila's `ue/LilaLink`. Data layers are skipped in levels without World Partition.
 
