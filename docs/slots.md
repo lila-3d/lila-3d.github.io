@@ -33,7 +33,23 @@ Overrides are kept by slot id and win over every rule. `slotSet(id=..., remove=T
 
 Pin a building, block or site with `slotPin('owner:building:1a2b')` (or **Level > Slots > Pin Slots** on selected slot sets), and regenerating leaves it exactly as it is. `slotPin('owner:building:1a2b', swappable=True)` holds off regeneration only, so rules and overrides still swap its slots; [enterable buildings](buildings.md#enterable-buildings) are pinned this way.
 
+## Colours
+
+Give parts their own colour without a material each: container liveries, building palettes, team colours. Port containers and building modules come coloured.
+
+```python
+slotRule('add', type='container.40ft.*', data={'color': '#c0392b'})
+```
+
+`color` in a slot's data is `"#rrggbb"`, or `[r, g, b, a]` in linear colour with `a` as how much shows. In geometry nodes, **Store Named Attribute** with **Domain** Instance, **Data Type** Color and the name `color` colours instances. The viewport, the path-traced view and Unreal show it.
+
+In Unreal, meshes sent with no Lila material get `M_LilaInstanceColor`. In your own material, put `MF_LilaInstanceColor` between your base colour and the output.
+
 ## Troubleshooting
+
+**A part keeps its own colour.** Its material has **Instance Color** off in the Material Editor, the viewport shows **Grey Base Color**, or a rule swapped its mesh without giving a colour.
+
+**"this LilaLink has no instanceColor".** Colours went to Unreal without the material. Rebuild LilaLink from Lila's `ue/LilaLink`.
 
 **The panel's banner counts orphaned overrides.** An override's slot no longer exists, because the generator stopped making that part. **Check** lists each in the [Validation](validation.md) panel with the nearest slot of its type; reassign it there, or `slotSet(id='old/id', reassign='new/id')`.
 
@@ -53,6 +69,7 @@ Pin a building, block or site with `slotPin('owner:building:1a2b')` (or **Level 
 | **Tags** | The rule covers only slots with every tag (`crop:tomato`, `groundcover`). |
 | **Pool tag** | One library item per slot, picked from the items carrying the tag by the slot's id, so the pick is stable. `"a+b"` needs both tags. |
 | `slotTypes(add=...)` | Registers your own type (footprint, attach, placeholder) for this session. |
+| Colour | Replaces an untextured base colour and multiplies into a base colour map. **Instance Color** in the Material Editor turns it off per material. `MF_LilaInstanceColor`: **InstanceColorMultiply** (0 replaces, 1 multiplies) and **InstanceColorStrength**. |
 | `slotReport()` | Counts per type, rule and owner, plus every problem above. |
 
 In Unreal, each slot keeps its id in the actor tags (`LilaSlot:<id>`) or the instance data, and the slot table data asset (`/Game/Lila/Slots/DA_LilaSlotTable`) finds any slot by id, type or owner. Changing a rule while connected re-sends the slots.
