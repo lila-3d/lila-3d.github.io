@@ -6574,6 +6574,7 @@ Procedural buildings from specs (Settlement envelopes, footprints): a merged she
 | `lod` | string | input | `near` | near, hlod or far. |
 | `cell` | string | input |  | The cell these buildings are in (x_z), or a building id when standalone. |
 | `modules` | bool | input | `true` | Draw the modules (near only). |
+| `realize` | bool | input | `false` | Flatten the modules into the cell mesh, for exporters that take one flat mesh. Off, the mesh holds the shell and the modules stay instances: drawn instanced and sent to Unreal as instances, at a fraction of the memory. |
 | `geometry` | geometry | output |  | Shell mesh and module instances. |
 
 ## Destruction extension
