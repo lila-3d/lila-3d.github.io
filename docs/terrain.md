@@ -89,6 +89,8 @@ Real seabed depths, beaches, reefs, mangroves, boat channels, reservoirs and boa
 
 **A pad is lumpy or missing.** The terrain's cells are bigger than the footprint's detail. Raise the terrain's `resolution`, or give the pad a wider `falloff`.
 
+**`terrainCheck` reports `blocksFlow` on a pad.** The pad stands in a stream. The issue's `crossing` is the stream's way across it: lay a culvert along it with `terrainAddFeature('Terrain', kind='culvert', path=crossing)`. Site kits lay their own.
+
 **Stamps vanished after a bake.** **Bake Terrain** collapses everything into the file, stamps included. Stamp after baking.
 
 **GPU erosion is unavailable.** `device='gpu'` needs Lila's renderer, so it fails in batch runs. `auto` falls back to the CPU and logs it.
@@ -109,7 +111,7 @@ Real seabed depths, beaches, reefs, mangroves, boat channels, reservoirs and boa
 | `terrainGroundCover(items=)` | placeholders | Maps rock, tree, grass and debris to your meshes. `sendToUnreal=True` places them as instanced meshes. |
 | `terrainSendToUnreal(rvt=)` | `False` | Adds a runtime virtual texture so meshes blend into the ground. |
 | `terrainSendToUnreal(material=)` | generated | Your own landscape material. Build it from `MF_LilaTerrainLayer`, one call per layer. |
-| `terrainStampPad(mode=)` | `flatten` | Building pads: `carve`, `raise`, `terraced`, `plinth`, `stilts`. Pads follow a mesh or closed curve live with `object=`. |
+| `terrainStampPad(mode=)` | `flatten` | Building pads: `carve`, `raise`, `terraced`, `plinth`, `stilts`. Pads follow a mesh or closed curve live with `object=`. `skirtGrade=8` widens the skirt (up to four times) so it falls no steeper than 8%. |
 | `terrainImportDem(source=)` | `copernicus` | `terrarium` (AWS Terrain Tiles) or `opentopography` with your own `apiKey=`. |
 
 **Display > Terrain** shows mask overlays, contour lines and flow arrows on terrains. Terrains draw from their heights by default; turn off **Display > Terrain > Heightfield Draw** to draw them as meshes, which keeps the heightfield draw on only while an overlay is on.
