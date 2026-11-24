@@ -41,6 +41,18 @@ settlementRegion(ground="Terrain", cities=1, towns=3, villages=8, kind="market")
 
 **Level > Settlement > Settle Region** does this over the selected ground, else whatever is under the origin. `settlementRegion` puts cities on the best sites, towns between them and villages filling in, routes roads between neighbours, then lays out each place with its main roads continuing the regional ones. **kind** (`town`, `market`, `port`, `mining`, `fort`, `farming`, `mill`) weights what makes a good site: flat ground, water out of its flood, trade routes, defence, resources, climate. `rules=` sets the weights yourself. On a Terrain the terrain's fords, confluences, harbours and buildable land feed the scores. The roads and rivers land on a `Region` mesh; each place gets its own settlement mesh.
 
+### Real towns from OpenStreetMap
+
+Select a terrain imported from real elevation and pick **Level > Settlement > Town from OSM**, then an `.osm`, Overpass `.json` or `.osm.pbf` file. The streets come in as they are, every building as a lot and envelope with its height, levels, parts, courtyards, roof shape and colours, shops and offices as businesses in the buildings they stand in, and areas (cemeteries, schools, ports, farmland) as the use and landmark of the lots inside. Settlement fills blocks the data leaves sparse with lots of its own.
+
+```python
+settlementFromOsm('osm/town.osm', ground='Terrain', buildingRoute='buildings')
+```
+
+Every name is replaced with a fictional one: streets, districts, towns, businesses, brands, chains, landmarks, rivers and the rest. No setting keeps real names. **Names** picks the naming culture; **From Location** (the default) chooses it from where the data lies. `realNameCheck()` confirms no real name reached the scene.
+
+On a terrain that isn't from real elevation (a [World Remix](open-world.md#world-remix) or a sculpted one), fill in **Origin Lat, Lon**: the latitude and longitude of the terrain's centre.
+
 ### Lots, uses and landmarks
 
 Blocks get a type (perimeter, courtyard, row, open, superblock, park, plaza, market, churchyard, field) and lots a use (residential in three wealth tiers, commercial, market, civic, religious, industrial, port, farm, park, cemetery) from the style, street access, water, slope and wind. The market square, church, town hall and a castle on high ground are placed as landmarks.
@@ -63,6 +75,7 @@ Changes are kept by stable id, undo and save with the scene.
 - `library`: Stagehand library assets fitted to each lot by footprint, era and use tags, facing the street.
 - `masonry`: stone landmark buildings with Masonry.
 - `unreal`: envelopes go as PCG data for Unreal to build (`send=True` sends now).
+- `buildings`: procedural buildings with facades, shopfronts, signs and roofs, every part a swappable slot. See [Buildings](buildings.md).
 
 `contacts=True` adds Seamwork contact skirts, strips or scatter where placed buildings meet the ground. On a Terrain, `settlementFoundations(mesh)` measures each foundation from the terrain.
 
@@ -197,6 +210,12 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 
 **`settlementRoadProfileFromUnreal` lists `unknown` slots.** Their names don't say lane, median, parking, sidewalk or verge; they were counted as verge. Rename the slots, or edit the profile under `roadProfiles` in the **edits** input.
 
+**Town from OSM says there are no roads or paths on the ground.** The data doesn't overlap the terrain. Check **Origin Lat, Lon**, or import the terrain for the same place with **Real Place**.
+
+**Buildings are missing at the town's edge.** A footprint crossing the terrain's edge is left out whole. `settlementGenerators(mesh)['osm']['outside']` counts them.
+
+**`settlementCheck` reports `realName`.** A real name reached the output, usually a district you named yourself. Rename it.
+
 **Slow on a big ground mesh.** The ground is sampled once per evaluation at about 2 m (2.5 m on a 10 km terrain). Use a lower-resolution copy of the ground while laying out.
 
 ## Tune it
@@ -208,6 +227,7 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 | walkSlope, walkStep | Steepest walkable face (degrees) and the height a walk may step between separate pieces of the walkable mesh (cm). |
 | overrides | JSON object of profile fields, such as `{"maxFloors": 6, "gridAngle": 30, "blockType": "courtyard", "lotMethod": "burgage", "windAngle": 90}`. `settlementProfiles()` lists every field of every profile. |
 | heightScale, widthScale, lotScale | Multiply floors, street widths and lot sizes. |
+| osmFill, osmCoverage | Town from OSM: Settlement's own lots in blocks the imported buildings cover less than `osmCoverage` of (`sparse`, default 0.25), in every block (`all`) or none. The profile sets heights and roofs of buildings the data leaves untagged. |
 | showStreets, showLots, showBuildings | What the modifier shows. All three stay available on the node's own outputs. |
 
 The **levels** output holds the levels above the ground as curves with `class`, `layer` and `kind` (0 deck street, 1 elevated road, 2 ramp, 3 skybridge, 4 air lane, 5 deck outline).
