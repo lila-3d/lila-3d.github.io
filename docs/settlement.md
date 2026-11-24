@@ -157,6 +157,7 @@ settlementSendToUnreal(mesh, roads="landscape", pcg=True, zoneGraph=True, massin
 - **pcg** writes a PCG data asset per cell under **folder**, with an actor that runs `pcgGraph` on it, the asset bound to the graph's `SettlementData` parameter. `makeGraph=True` makes `pcgGraph` when the project has none: an empty graph with that parameter, ready for your nodes. A cell that is gone takes its data asset with it. Read it with **Load PCG Data Asset**: pins Lots, Envelopes (footprint polygons with `MaxHeight`, `Floors`, `Use`, `Roof`, `Style`, `Seed` on the data), EnvelopePoints (a point per building), Roads, Intersections (`control`: signal, stop or yield; phases) and ParkingSpots (along roads whose profile has parking, such as `parkedStreet`).
 - **levels** above the ground (decks, elevated roads, ramps, skybridges) go as one spline actor, and as ZoneGraph shapes tagged `Level` with the rest of the lanes.
 - **zoneGraph** adds lane profiles named `Lila_<profile>` and tags (Vehicle, Pedestrian, Access, Parking, Intersection, Crossing, TrafficLight, StopSign) to the project's ZoneGraph settings, then a spline zone shape per road and crosswalk and a polygon per junction, and rebuilds the ZoneGraph for Mass traffic and crowds. So traffic never gets stuck, a two-way dead end gets a turning loop, roads of different profiles meeting end to end get a polygon between them, junctions a few metres apart become one polygon, and the lanes of roads a car could drive into but never back out of are Access lanes Mass traffic stays off (the send warns how many).
+- `settlementRemoveFromUnreal(mesh)` takes everything a settlement sent out of the level: placements, cells and their meshes, splines, PCG data, lanes and traffic data. `key='Puerto'` (the settlement mesh's name) removes one already deleted in Lila.
 
 #### Mass traffic
 
@@ -207,6 +208,8 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 **`settlementSendToUnreal` warns about Access lanes.** Those roads are one-way into a dead end, or one-way carrying on from a two-way road, so Mass traffic stays off them. Make them two-way or join their far end to the network, then send again.
 
 **`settlementSendToUnreal` asks for the LilaLinkSettlement plugin.** Copy `ue/LilaLinkSettlement` next to LilaLink in the project's Plugins folder and enable it.
+
+**The project's `Config/DefaultPlugins.ini` changed.** A **zoneGraph** send writes its lane profiles and tags there. The file as it was before each change is in the project's `Saved/LilaLink/ConfigBackups` folder.
 
 **`settlementRoadProfileFromUnreal` lists `unknown` slots.** Their names don't say lane, median, parking, sidewalk or verge; they were counted as verge. Rename the slots, or edit the profile under `roadProfiles` in the **edits** input.
 
