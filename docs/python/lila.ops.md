@@ -11973,6 +11973,7 @@ Pin slots, or every slot of an owner (a building, block or arrangement), as they
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `owner` | `o` | str |  | Pin every slot of this owner (same as owner:<id>). |
+| `swappable` | `sw` | bool | `False` | Hold off regeneration only: rules and overrides still swap what the slots show. |
 | `remove` | `rm` | bool | `False` | Unpin. |
 
 ```python
@@ -14817,12 +14818,14 @@ Send meshes to Unreal as one static mesh asset per instance source, placed in th
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `folder` | `f` | str | `'/Game/Lila/Instances'` | Content folder the assets go in; each is SM_<source name>, with part of the source's link id appended when another mesh in the scene has the same name. The name is saved on the source, so it never changes. |
-| `mode` | `m` | str | `'auto'` | How members are placed: actors, ism, hism, or auto (actors up to threshold members, then hism). |
+| `mode` | `m` | str | `'auto'` | How members are placed: actors, ism, hism, auto (actors up to threshold members, then hism), or customHlod (World Partition Custom HLOD actors in hlodLayer, shown while their cell is unloaded: HLOD proxies). |
 | `threshold` | `t` | int |  | auto switches to hism above this many members (default the unreal pref /instanceThreshold, 50). |
 | `lightingChannels` | `lc` | bool | `True` | Set the actors' and lights' Lighting Channels from Lila's channels. The plan's lightingChannels lists the channels, lights and objects, the Unreal slot of each channel and any dropped. |
 | `collision` | `col` | str | `'auto'` | Collision the assets get: auto (ucx for a source with UCX_ children or a Stagehand body's hulls, else complexAsSimple), none (the placed actors and instances don't collide either), box, convex (Unreal's auto convex decomposition), complexAsSimple (the render mesh) or ucx (the hulls only; a source's UCX_ child meshes go with it, and its other children into the asset too). |
 | `nanite` | `na` | bool | `False` | Build Nanite data for the assets. |
-| `hlodLayer` | `hl` | str |  | HLOD layer asset path for the placed actors. |
+| `hlodLayer` | `hl` | str |  | HLOD layer asset path for the placed actors, or none to leave them out of HLOD generation; with mode=customHlod the Custom HLOD Actor layer, made when missing (default /Game/Lila/HLOD/HL_LilaCustom). |
+| `linkedHlodLayer` | `lhl` | str |  | mode=customHlod: the HLOD layer whose unloading shows these, or default for the level's default HLOD layer (far proxies). |
+| `resend` | `rs` | bool | `False` | Send every group, also the ones the level already holds unchanged. |
 | `validate` | `va` | bool | `True` | Run the validators first: an issue blocking unrealPlaceInstances, "unreal" or "*" on what is sent stops the send; other issues come back in the result's issues. |
 | `slotTable` | `stb` | str | `'/Game/Lila/Slots/DA_LilaSlotTable'` | Data asset the sent slots are listed in (id, type, owner, class, mesh, data, transform), for game code to look slots up by id. |
 | `dryRun` |  | bool | `False` | Return the plan without exporting or contacting Unreal. |
@@ -16479,15 +16482,39 @@ buildingAge(polygon=[[0, 0], [8000, 0], [8000, 8000], [0, 8000]], dirt=0.7)
 buildingAge('building:1a2b', preset='Grunge')
 ```
 
+### buildingCharacterProfile
+
+The character interiors are checked against (saved with the scene): capsule height and radius, the highest step it walks up and the steepest slope, Unreal's default character unless set. Stairs are built to it (risers no higher than 18 cm or the step, slopes no steeper), doors are at least its width plus clearance. Interiors regenerate when it changes. Returns the profile.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `height` | `h` | float |  | Capsule height, cm. |
+| `radius` | `r` | float |  | Capsule radius, cm. |
+| `maxStep` | `ms` | float |  | Highest step, cm. |
+| `maxSlope` | `sl` | float |  | Steepest walkable slope, degrees. |
+| `reset` | `rs` | bool | `False` | Back to Unreal's default character. |
+
+```python
+buildingCharacterProfile()
+```
+
+```python
+buildingCharacterProfile(height=190, radius=40, maxStep=30)
+```
+
 ### buildingCheck
 
-Check buildings: modules intersecting (instanced parts meeting where they shouldn't), doors not reaching the ground (sill above it without steps, or buried), buildings overlapping their neighbours (party walls only touch), slots floating off their building, and real names on signs or buildings (against imported real names and the brand blocklist). Returns ok, counts by kind and issues (kind, building, what, at, slot).
+Check buildings: modules intersecting (instanced parts meeting where they shouldn't), doors not reaching the ground (sill above it without steps, or buried), buildings overlapping their neighbours (party walls only touch), slots floating off their building, real names on signs or buildings (against imported real names and the brand blocklist), and for enterable buildings: rooms the entry can't reach, doors whose wall the room meshes close, stairs steeper or lower than the character profile, doors narrower or lower than the character, no exterior door into a room, and enterable buildings with no interior. height=, radius=, maxStep=, maxSlope= override the scene's profile (buildingCharacterProfile) for this check. Returns ok, counts by kind and issues (kind, building, what, at, slot).
 
 **Objects:** building meshes (default every one)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `tolerance` | `tl` | float | `1.0` | cm of slack on every test. |
+| `height` | `h` | float |  | Character height, cm. |
+| `radius` | `r` | float |  | Character radius, cm. |
+| `maxStep` | `ms` | float |  | Highest step the character walks up, cm. |
+| `maxSlope` | `sl` | float |  | Steepest slope it walks, degrees. |
 
 Not undoable.
 
@@ -16534,6 +16561,28 @@ buildingCreate(curve='Footprints', floors=3, style='residential')
 
 ```python
 buildingCreate(mesh='Block_3', style='warehouse')
+```
+
+### buildingDoor
+
+Add or remove interior doors, kept by id with the building's edits: add=[room, room] puts a door in the wall the two rooms share (at= a point to put it nearest, width= cm), remove= takes a door away by id (buildingInterior lists them; a room left without a way in shows in buildingCheck). Cores are named core0@l2 (core 0 on floor 2). Returns the doors.
+
+**Objects:** building id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | str |  | Building id. |
+| `add` | `ad` | list |  | The two rooms the door joins. |
+| `at` |  | tuple[float, float, float] |  | A point the door goes nearest. |
+| `width` | `w` | float |  | Door width, cm. |
+| `remove` | `rm` | str |  | Door id to take away. |
+
+```python
+buildingDoor('building:1a2b', add=['l0/sales', 'l0/toilet'])
+```
+
+```python
+buildingDoor('building:1a2b', remove='l0/door/backroom+sales')
 ```
 
 ### buildingEdit
@@ -16593,6 +16642,28 @@ buildingInfo('building:1a2b', bays=True)
 buildingInfo('Town_Buildings_0_0')
 ```
 
+### buildingInterior
+
+A building's interior: program and where it came from, rooms (id, kind, floor, area m2, reachable, entry, label point, doors), doors (id, the two rooms, width, height, where), stairs (risers, riser, going, slope, width, headroom), entries (the exterior doors into rooms), slot counts by type, room meshes and whether each is hand-edited, warnings, notes and layout edits that no longer find their room. check=True adds buildingCheck's interior issues. programs=True lists the programs, room kinds and room presets instead.
+
+**Objects:** building id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | str |  | Building id. |
+| `check` | `ck` | bool | `False` | Add the interior's issues. |
+| `programs` | `pg` | bool | `False` | List programs, room kinds and room presets. |
+
+Not undoable.
+
+```python
+buildingInterior('building:1a2b')['rooms']
+```
+
+```python
+buildingInterior(programs=True)['roomKinds']
+```
+
 ### buildingLod
 
 What building meshes show: near (shell and modules), hlod (a simplified proxy: tiers and roofs, no openings) or far (flat-roof massing). Per mesh, so per cell. Slots stay published whatever is shown.
@@ -16602,6 +16673,53 @@ What building meshes show: near (shell and modules), hlod (a simplified proxy: t
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `lod` | `l` | str | `'near'` | near, hlod or far. |
+
+### buildingMakeEnterable
+
+Give buildings real interiors from their own grammar: floor plates, a stair core (with a lift on taller buildings), rooms split by program (shop, house, apartment, office, hotel, warehouse, police, mansion, bar, garage, church; generic rooms when the program is none of them, and the result says so), partitions with door slots, the facade's windows and doors cut through the rooms' walls, floors, ceilings, skirting, ceiling lamp slots and furnishing slots from the room presets. Each room is a mesh of its own under Interior_<id> (model it freely; hand-edited rooms are kept when the interior regenerates), the slots go in Interior_<id>_Slots. The exterior doors that open into rooms are tagged 'entry' (a slot rule on that tag gives them your door Blueprint). The building is pinned against regeneration; rules and overrides still swap its slots. When no door opens into a room, entry=True paints one on the street. Returns per building: rooms, doors, stairs, slots, entries.
+
+**Objects:** building ids or building meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | Any |  | Building id(s). |
+| `program` | `pr` | str |  | Interior program instead of the one from the building's use. One of `shop`, `house`, `apartment`, `office`, `hotel`, `warehouse`, `police`, `mansion`, `bar`, `garage`, `church`, `generic`. |
+| `furnish` | `fu` | bool | `True` | Furnishing slots from the room presets. |
+| `pin` | `pn` | bool | `True` | Pin the building so regeneration leaves it as it is. |
+| `entry` | `en` | bool | `True` | Paint a door on the street when none opens into a room. |
+| `reset` | `rs` | bool | `False` | Regenerate hand-edited room meshes too. |
+
+```python
+buildingMakeEnterable('building:1a2b')
+```
+
+```python
+buildingMakeEnterable('building:1a2b', program='bar')
+```
+
+```python
+buildingMakeEnterable(['building:1a2b', 'building:3c4d'], furnish=False)
+```
+
+### buildingMakeExterior
+
+Take buildings' interiors away again: their groups (room meshes, hand edits included, and slots) are deleted, the building is unpinned and its windows go back to fake interiors. The room layout edits stay with the building for the next buildingMakeEnterable unless clear=True. Undo brings everything back.
+
+**Objects:** building ids or building meshes (default the selection)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | Any |  | Building id(s). |
+| `clear` | `cl` | bool | `False` | Drop the room layout edits too. |
+| `unpin` | `up` | bool | `True` | Unpin the building. |
+
+```python
+buildingMakeExterior('building:1a2b')
+```
+
+```python
+buildingMakeExterior('building:1a2b', clear=True)
+```
 
 ### buildingMaterials
 
@@ -16629,9 +16747,93 @@ Make the HLOD and far proxies of building meshes as meshes of their own (<mesh>_
 
 **Objects:** building meshes (default every one)
 
+### buildingRefresh
+
+Build again the buildings of settlements that changed since their buildings were made (streets, lots, profile, districts): each group built from a settlement remembers the settlement's envelopes and the call that made it, and is rebuilt the same way. Edits (bays, floors, styles), slot overrides and pins carry over by building id, as with buildingCreate. all=True rebuilds every one; dryRun=True only lists the stale groups. Returns refreshed and stale groups with their settlements, and each rebuild's counts.
+
+**Objects:** settlements or building groups (default every one)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `all` | `a` | bool | `False` | Rebuild every group, changed or not. |
+| `dryRun` | `dr` | bool | `False` | List the stale groups without rebuilding. |
+
+```python
+buildingRefresh()
+```
+
+```python
+buildingRefresh(dryRun=True)['stale']
+```
+
+```python
+buildingRefresh('Town', all=True)
+```
+
+### buildingRoom
+
+Edit a building's room layout, kept by room id and replayed on every regeneration: kind= gives a room another kind (its furnishing follows); split= cuts it in two (auto across its longer side, or u, v along the building's axes) at= of the way, the new room <room>-split taking newKind=; merge= takes another room into it (the wall between goes); grow= with by= moves the wall it shares with that room by cm (negative shrinks it); swap= trades kinds with another room; program= changes the whole interior's program; reset=True drops the room's edits (or every layout edit without room=). Doors are re-solved after a split, merge or move. Returns the rooms of the interior.
+
+**Objects:** building id
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `building` | `b` | str |  | Building id. |
+| `room` | `rm` | str |  | Room id (buildingInterior lists them, e.g. l0/sales). |
+| `kind` | `k` | str |  | New kind. One of `living`, `kitchen`, `dining`, `bedroom`, `bathroom`, `toilet`, `hall`, `corridor`, `lobby`, `sales`, `backroom`, `storage`, `office`, `meeting`, `openfloor`, `workshop`, `bar`, `nave`, `sacristy`, `cell`, `interview`, `armory`, `briefing`, `locker`, `study`, `salon`, `utility`, `room`. |
+| `split` | `sp` | str |  | Split along: auto, u or v. |
+| `at` |  | float | `0.5` | Where the split falls, 0 to 1. |
+| `newKind` | `nk` | str |  | Kind of the split-off room. One of `living`, `kitchen`, `dining`, `bedroom`, `bathroom`, `toilet`, `hall`, `corridor`, `lobby`, `sales`, `backroom`, `storage`, `office`, `meeting`, `openfloor`, `workshop`, `bar`, `nave`, `sacristy`, `cell`, `interview`, `armory`, `briefing`, `locker`, `study`, `salon`, `utility`, `room`. |
+| `merge` | `mg` | str |  | Room id taken into this one. |
+| `grow` | `gw` | str |  | Neighbour room the shared wall moves into. |
+| `by` |  | float | `60.0` | cm the wall moves (grow=). |
+| `swap` | `sw` | str |  | Room id to trade kinds with. |
+| `program` | `pr` | str |  | Interior program. One of `shop`, `house`, `apartment`, `office`, `hotel`, `warehouse`, `police`, `mansion`, `bar`, `garage`, `church`, `generic`. |
+| `reset` | `rs` | bool | `False` | Drop the room's layout edits, or every one without room=. |
+
+```python
+buildingRoom('building:1a2b', room='l0/backroom', kind='kitchen')
+```
+
+```python
+buildingRoom('building:1a2b', room='l0/sales', split='auto', newKind='office')
+```
+
+```python
+buildingRoom('building:1a2b', room='l0/sales', grow='l0/backroom', by=80)
+```
+
+```python
+buildingRoom('building:1a2b', room='l1/bedroom', merge='l1/bedroom2')
+```
+
+### buildingRoomPick
+
+The room whose floor a ray meets first (origin=, direction=), on floor= only when given: building, room id, kind, floor and the point. Empty when it meets none.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `origin` | `o` | tuple[float, float, float] |  | Ray origin. |
+| `direction` | `d` | tuple[float, float, float] |  | Ray direction. |
+| `floor` | `fl` | int | `-1` | Only this floor. |
+| `building` | `b` | str |  | Only this building. |
+
+Not undoable.
+
+### buildingRoomPresets
+
+Room presets: what furnishing each room kind gets (pieces of furnishing.* types placed against a wall, in a corner, in the middle, in rows or a grid, a minimum room area each, the ceiling lamp and a Set Dressing arrangement for clutter). save= merges your presets by kind into your user file and regenerates interiors; reload=True reads it again. Returns the presets in use.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `save` | `sv` | Any |  | {kind: {pieces: [{type, place, minArea}], light, arrangement}}. |
+| `reload` | `rl` | bool | `False` | Read the user file again. |
+
+Not undoable.
+
 ### buildingSend
 
-Send building meshes to Unreal: shells as Nanite static meshes placed where they stand (one per cell mesh, inside Settlement's World Partition cells), modules as slots keyed by slot id (actors of a slot's Unreal class, instances of its Unreal mesh, or its placeholder), the HLOD and far proxies (proxies=True), and MF_LilaBuildingVariation with M_LilaBuilding and MI_Bld_<style> per style, assigned to the shells' building slots. Per-building colour and dirt travel in vertex colour. dryRun returns what would be sent. Returns the placement plan and the materials.
+Send building meshes to Unreal: shells as Nanite static meshes placed where they stand (one per cell mesh, inside Settlement's World Partition cells), modules as slots keyed by slot id (actors of a slot's Unreal class, instances of its Unreal mesh, or its placeholder), the HLOD and far proxies as World Partition Custom HLOD actors (proxies=True), and MF_LilaBuildingVariation with M_LilaBuilding and MI_Bld_<style> per style, assigned to the shells' building slots. Per-building colour and dirt travel in vertex colour. dryRun returns what would be sent. Returns the placement plan and the materials.
 
 **Objects:** building meshes (default every one)
 
@@ -16639,7 +16841,9 @@ Send building meshes to Unreal: shells as Nanite static meshes placed where they
 | --- | --- | --- | --- | --- |
 | `folder` | `f` | str | `'/Game/Lila/Buildings'` | Content folder for the shells and module meshes. |
 | `proxies` | `px` | bool | `True` | Make and send the HLOD and far proxies too. |
-| `hlodLayer` | `hl` | str |  | HLOD layer asset for the shells. |
+| `hlodLayer` | `hl` | str |  | HLOD layer asset for the shells and modules. Unset, they are left out of HLOD generation when the proxies go as Custom HLOD actors (which stand in for them), else they keep the level's default. |
+| `interiors` | `in` | str | `'levelInstance'` | How interiors of enterable buildings stream apart from their shells: a Level Instance each (on a runtime data layer of its own in World Partition levels), their actors on a runtime data layer, or not sent. One of `levelInstance`, `dataLayer`, `none`. |
+| `hlodProxyLayer` | `hpl` | str | `'/Game/Lila/HLOD/HL_LilaBuildings'` | Custom HLOD Actor layer for the proxies (made when missing); the far proxies go in the same path + Far, linked to the level's default HLOD layer so they show once its HLODs unload. |
 | `dryRun` | `dr` | bool | `False` | Only return what would be sent. |
 
 Not undoable.
@@ -16753,6 +16957,21 @@ The LilaBuilding trim sheet shells are laid on: copied into the workspace's Trim
 | `bake` | `b` | bool | `True` | Bake the sheet's maps. |
 
 Not undoable.
+
+### roomFurnish
+
+Furnish a floor as a room kind from the room presets (the pieces Buildings puts in its rooms: beds, counters, shelves, pews...): slots on the floor's upward faces, in <floor>_Furnishing, each a furnishing.* slot a rule or the library swaps for a real piece. The Set Dressing presets 'Room: <Kind>' run this. Returns the slot set.
+
+**Objects:** floor mesh
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `kind` | `k` | str | `'living'` | Room kind. One of `living`, `kitchen`, `dining`, `bedroom`, `bathroom`, `toilet`, `hall`, `corridor`, `lobby`, `sales`, `backroom`, `storage`, `office`, `meeting`, `openfloor`, `workshop`, `bar`, `nave`, `sacristy`, `cell`, `interview`, `armory`, `briefing`, `locker`, `study`, `salon`, `utility`, `room`. |
+| `seed` | `s` | int | `1` | Another seed, another layout. |
+
+```python
+roomFurnish('Floor', kind='bedroom')
+```
 
 ## CadImport extension
 
@@ -18547,6 +18766,28 @@ remixView('World', before=True)
 remixView('World', overlay=False)
 ```
 
+### siteBuildings
+
+Build site kits' buildings with the Buildings generator: each envelope (siteEnvelopes) becomes a procedural building in its kit's style (portShed, warehouse, packingPlant, mausoleum, hangar, narcoMansion, church, civic, colonialCentro, villageAdobe, ruralShack, terminal, lighthouse), under the group SiteBuildings, and the site's greybox massing turns off. Building ids are stable per envelope, so edits, slot overrides and pins carry over; siteEdit rebuilds them when the layout changes. remove=True turns massing back on and drops those buildings. Returns the group, building count, styles and slots.
+
+**Objects:** sites (ids or meshes; default every site)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `remove` | `rm` | bool | `False` | Back to greybox massing. |
+
+```python
+siteBuildings()
+```
+
+```python
+siteBuildings('port1')['styles']
+```
+
+```python
+siteBuildings('cemetery1', remove=True)
+```
+
 ### siteCheck
 
 Check sites (one, or every site): names that match a real name (imports in the scene or the brand blocklist), buildings overlapping each other, bulky parts inside buildings, sites overlapping sites, land parts and buildings standing in water, berths, piers and docks without the water depth they need, ground too steep for unpaved fields and plots, pads cutting too far into a slope, airstrip corridors without clearance, grading older than the site, and parts that did not fit. Returns ok, issues ({kind, site, part, what, at}), counts by kind and notes.
@@ -18583,6 +18824,7 @@ The site is a mesh whose Site Kit node lays it out live from its spec: buildings
 | `ground` | `gr` | bool | `True` | Grade the terrain: pads, quays, roads, canals, the airstrip. |
 | `waterLevel` | `wl` | float |  | Water level its quays, docks and ships sit at, cm; default the terrain's sea level, else 0. |
 | `params` | `pm` | Any |  | Kit settings as one object, as the flags below take them. |
+| `buildings` | `bl` | bool | `False` | Build its buildings with the Buildings generator (styles, slots, edits) instead of greybox massing. |
 | `quayLength` |  | float |  | Length of the quay and the yard behind it, cm. (port) |
 | `yardDepth` |  | float |  | Depth of the yard inland from the quay, cm. (port) |
 | `berths` |  | int |  | Berths along the quay. (port) |
@@ -18771,6 +19013,8 @@ Grade the terrain under a site again from its spec (after editing the terrain, o
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `remove` | `rm` | bool | `False` | Take the site's stamps, roads, canals and airstrip off the terrain. |
+| `sites` | `s` | list |  | Several sites graded in one terrain change (ids or meshes); every site with all=True. |
+| `all` | `a` | bool | `False` | Every site in the scene, in one terrain change. |
 
 ```python
 siteGround('airstrip1')
@@ -18825,6 +19069,95 @@ Delete a site: its mesh and everything it put on the terrain. Returns what was r
 
 ```python
 siteRemove('cemetery1')
+```
+
+### worldBuild
+
+Build a whole open-world map from one world spec (lila://schema/world-spec): slot rules and overrides, the World Remix and its remixed OSM, the terrain spec's steps (water, coast, biomes, ground cover), settlements from the remix's OSM clipped to each one's area (or laid out by Settlement), their procedural buildings with style assignments and edits, site kits with their buildings, zones (spec, districts, water), pins, worldCheck and the export. Each step is timed and measured (seconds, memoryMB) in a Tracy zone. The world node keeps the spec and what was made, so worldSpec reads it back and replace=True rebuilds it. Returns ok, every step's result or error, the check, the exports, total time and memory.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `s` | Any |  | The world spec, a dict. |
+| `file` | `f` | str |  | A world spec JSON file; relative paths in it are from its folder. |
+| `replace` | `r` | bool | `False` | Delete an earlier build of this world first. |
+| `stopOnError` | `soe` | bool | `True` | Stop at the first failed step. |
+| `folder` | `fo` | str |  | Where files go; default the workspace's openworld/world/<name>. |
+| `skip` | `sk` | list |  | Sections to leave out: slots, terrain, settlements, buildings, sites, zones. |
+| `check` | `ch` | bool |  | Run worldCheck at the end (default the spec's check, else true). |
+
+```python
+r = worldBuild(file='worlds/sinaloa.json')
+r['ok'], [(s['step'], s['seconds'], s['memoryMB']) for s in r['steps']]
+```
+
+```python
+worldBuild(spec={'name': 'Tiny', 'terrain': {'size': [400000, 400000], 'resolution': 257, 'source': {'type': 'noise'}},
+    'sites': [{'kind': 'village', 'id': 'v1', 'at': [0, 0]}]}, replace=True)
+```
+
+### worldCheck
+
+Check a whole world at once: every part's own check (terrainCheck with waterCheck, remixCheck, settlementCheck per settlement, buildingCheck, siteCheck, zoneCheck per zone set, the slot report's orphans and duplicates) plus what only the whole world shows: real brand or place names in any output text (names, signs, zones, sites), buildings over water or a road surface, ground props floating above or buried under the terrain, buildings made before their settlement last changed (buildingRefresh), interiors without an entry, unreachable boat channels and lanes, zone gaps and numbered zone names. placeholders is swap progress: slots still on placeholders by type. report=True lists the issues in the Validation panel with select and fix scripts where there is one. Returns ok (no warnings or errors), counts by kind, issues, each child's summary and the placeholders.
+
+**Objects:** world node or name (default the only world, else the scene)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `report` | `rp` | bool | `False` | Also list the issues in the Validation panel. |
+| `propTolerance` | `pt` | float | `60.0` | Gap or depth at which a ground prop counts as floating or buried, cm. |
+| `limit` | `lm` | int | `500` | Most issues listed in the Validation panel. |
+
+Not undoable.
+
+```python
+c = worldCheck(report=True)
+c['ok'], c['counts'], c['placeholders']['byType']
+```
+
+### worldMap
+
+Write the whole map as one image plus JSON for an in-game map: the terrain tinted by height and hill shaded, water by depth, road surfaces, district colours (zone sets' district layers, else each settlement's districts), OSM roads, rivers and coast, points of interest and sites as markers. The JSON (format lila.worldMap) carries the bounds and the pixel mapping, districts with colours and label points, every zone layer's polygons, settlements, sites, POIs, roads and water lines in world cm, so a game can draw its own labels. Returns the files and counts.
+
+**Objects:** world node or name (default the only world, else the only terrain)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `resolution` | `r` | int | `2048` | Image width, pixels. |
+| `folder` | `f` | str |  | Output folder; default the workspace's openworld/world/<name>/map. |
+
+Not undoable.
+
+```python
+m = worldMap(resolution=2048)
+m['image'], m['counts']
+```
+
+### worldSpec
+
+Read a built world back as one world spec, or check a spec without building it. With a world (or the only one): the spec it was built from with the remix, terrain, slot rules/overrides/pins, sites, zones and Buildings edits as the scene holds them now (from says which sections came from the scene and which are as built); file= writes it. With spec= or specFile=: checks the spec's shape and returns it with relative paths resolved. Returns spec, from and notes.
+
+**Objects:** world node or name (default the only world)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `s` | Any |  | A spec to check. |
+| `specFile` | `sf` | str |  | A spec file to check. |
+| `file` | `f` | str |  | Write the read-back spec to this JSON file. |
+
+Not undoable.
+
+```python
+s = worldSpec()['spec']
+s['sites'][0]['params']['tiers'] = 6
+worldBuild(spec=s, replace=True)
+```
+
+```python
+worldSpec(file='worlds/now.json')
+```
+
+```python
+worldSpec(spec={'name': 'Test', 'terrain': {}})['ok']
 ```
 
 ### zoneCheck
@@ -20265,6 +20598,8 @@ A settlement from an OpenStreetMap file on a terrain: terrainImportOsm brings it
 | `name` | `n` | str | `'Town'` | Name of the settlement's mesh. |
 | `buildingRoute` | `br` | str | `'outline'` | How buildings are made once laid out; buildings makes procedural ones. One of `outline`, `massing`, `library`, `masonry`, `unreal`, `buildings`. |
 | `buildingStyle` | `bs` | str |  | buildings route: one Buildings style for every building; empty picks per envelope. |
+| `water` | `wa` | bool | `True` | Keep Settlement's own streets and lots off the terrain's sea, lakes and rivers. |
+| `exclusions` | `ex` | list |  | More regions kept clear: closed polygons [[x, z], ...] (other generators' sites). |
 
 ```python
 settlementFromOsm('osm/town.osm', ground='Terrain')
@@ -24663,7 +24998,7 @@ terrainSites('Terrain', kind='castle', count=3)['sites'][0]['position']
 
 Build a whole terrain from one JSON spec, or read a terrain back as one.
 
-spec= (or preset= with overrides=) runs the terrain commands in order: source (noise, flat, image or dem), constraints, sculpt, erosion, landforms, water (sea, rivers, lakes), regions (terrainQuery, stored by name for 'region:<name>' references), roads, stamps, volume, biomes, materials, ground cover, keys other extensions add (seams, with Seamwork), check, export. Each step is that command's flags; lila://schema/terrain-spec lists them. Returns ok (every step ran and terrainCheck passed), the terrain, each step's command, result (big lists counted), warnings, error and time, the check, the exports and the final stats with the revision. A failed step stops the build unless stopOnError=False.
+spec= (or preset= with overrides=) runs the terrain commands in order: source (noise, flat, image, dem, or existing: an existing terrain the steps run on), constraints, sculpt, erosion, landforms, water (sea, rivers, lakes), regions (terrainQuery, stored by name for 'region:<name>' references), roads, stamps, volume, biomes, materials, ground cover, keys other extensions add (seams, with Seamwork), check, export. Each step is that command's flags; lila://schema/terrain-spec lists them. Returns ok (every step ran and terrainCheck passed), the terrain, each step's command, result (big lists counted), warnings, error and time, the check, the exports and the final stats with the revision. A failed step stops the build unless stopOnError=False.
 
 With a terrain and no spec it returns a spec that rebuilds it: the spec it was built from while the terrain is unchanged since, else its node group, inputs and placement (from: graph). list=True lists the presets; build=False returns the preset or spec without building.
 
