@@ -4,7 +4,7 @@ Swap every generated door, sign, lamp, tree or container for your own asset or U
 
 Buildings, Settlement furniture, Terrain ground cover, Stagehand arrangements and site kits place their parts as typed slots (`door.shop`, `sign.storefront`, `lamp.street`, `container.40ft`). Each slot has a stable id, so a rule or an override follows it through regeneration.
 
-<!-- capture: Slots panel with Types counts and a sign.storefront rule, town behind it showing swapped signs -->
+![The Slots panel with a rule on sign.storefront, beside a town from OpenStreetMap](images/slots/panel.png)
 
 ## Get it working
 
@@ -31,7 +31,7 @@ slotSet(id='building:1a2b/t0/f0/l0/b2/door', unrealClass='/Game/BP/BP_Door.BP_Do
 
 Overrides are kept by slot id and win over every rule. `slotSet(id=..., remove=True)` hands the slot back to its rules.
 
-Pin a building, block or site with `slotPin('owner:building:1a2b')` (or **Level > Slots > Pin Slots** on selected slot sets), and regenerating leaves it exactly as it is.
+Pin a building, block or site with `slotPin('owner:building:1a2b')` (or **Level > Slots > Pin Slots** on selected slot sets), and regenerating leaves it exactly as it is. `slotPin('owner:building:1a2b', swappable=True)` holds off regeneration only, so rules and overrides still swap its slots; [enterable buildings](buildings.md#enterable-buildings) are pinned this way.
 
 ## Troubleshooting
 
