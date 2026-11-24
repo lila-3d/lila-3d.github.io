@@ -2565,6 +2565,13 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `volumeEmissionColor` |  | tuple[float, float, float] |  | Volume: colour of light it gives off, for fire and glowing gas. |
 | `volumeEmissionStrength` |  | float |  | Volume: brightness of its own light, scaled by density; 0 gives none. |
 | `volumeVoxelSize` |  | float |  | Volume: voxel size a mesh is filled at, cm; 0 picks one from its size. Density grids keep their own. |
+| `volumeNoise` |  | float |  | Volume: how far 3D noise breaks the density into clouds; 0 keeps it even. |
+| `volumeNoiseScale` |  | float |  | Volume: size of the noise's largest puffs, cm. |
+| `volumeNoiseDetail` |  | float |  | Volume: noise octaves; more adds smaller wisps on the puffs. |
+| `volumeNoiseRoughness` |  | float |  | Volume: how strong each finer octave is; higher is wispier. |
+| `volumeNoiseCoverage` |  | float |  | Volume: share of the space the noise fills; 0 clears it, 1 fills it. |
+| `volumeNoiseOffset` |  | tuple[float, float, float] |  | Volume: moves the noise through the volume, cm; key it for drifting clouds. |
+| `volumeEdgeFade` |  | float |  | Volume: depth inside a filled mesh over which density fades in from its surface, cm; 0 is a hard edge. |
 
 ### createMesh
 
