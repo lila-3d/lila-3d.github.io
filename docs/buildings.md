@@ -17,7 +17,7 @@ buildingEdit('building:1a2b', floors=4, toggles={'t0/f0/l1/b1': {'balcony': True
 buildingCheck()['ok']
 ```
 
-Edits, slot overrides and pins are kept by building id, so running **Create Buildings** or the settlement's buildings route again keeps them. Changing the settlement doesn't rebuild the buildings by itself: **Level > Buildings > Refresh Buildings** rebuilds the ones whose settlement changed.
+Edits, slot overrides and pins are kept by building id, so running **Create Buildings** or the settlement's buildings route again keeps them. Editing the settlement rebuilds the buildings it changed, as an undo step of its own: undo once to see the old buildings.
 
 ## Troubleshooting
 
@@ -31,6 +31,10 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 
 **An edit takes long in a big city.** Buildings share a live mesh per 64 m cell. A smaller **Cell Size** makes edits cheaper; **Make Standalone** gives one building its own mesh.
 
+**An FBX or glTF export of a building cell has only the shell.** Modules stay instances. Turn on **Realize** on the cell mesh's Buildings modifier (`setAttr('LilaBuildingsModifier.realize', True)`) to flatten them into the mesh before exporting.
+
+**Buildings don't match their settlement.** **Level > Buildings > Refresh Buildings** rebuilds the ones whose settlement changed.
+
 ## Tune it
 
 | Option | What it does |
@@ -39,8 +43,8 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 | Your own style | **Save Building Style** copies a style with your changes to your user or workspace folder. `buildingStyles(style='colonialCentro')` shows the full JSON to copy; `buildingStyleExport` and `buildingStyleImport` share it. |
 | Parts | Every module is a slot (`door.shop`, `window.residential`, `sign.storefront`, `balcony.iron`, `wall.bay`, `roof.tiled`). Swap them for your kit with a [slot rule](slots.md). |
 | **Age Buildings** | A Weathering preset per building or district, and palette dirt from 0 (pristine resort) to 1. |
-| **Building LOD** | **Near** (shell and modules), **HLOD** (tiers and roofs) or **Far** (flat-roof blocks) per mesh. **Make Proxies** writes the HLOD and far meshes for export. |
-| **Building Trim Sheet** | Bakes the LilaBuilding trim sheet the shells are laid on (needs Trim Sheets). |
+| **Building LOD** | **Near** (shell and modules), **HLOD** (tiers and roofs) or **Far** (flat-roof blocks) per mesh. `buildingLod(lod='auto')` picks by distance from the viewport camera: near within 400 m, far past 2 km (prefs `buildings/lodNear`, `buildings/lodFar`, in cm). **Make Proxies** writes the HLOD and far meshes for export. |
+| **Building Trim Sheet** | Bakes the LilaBuilding trim sheet the shells are laid on (needs Trim Sheets), as a copy in the workspace's `TrimSheets` folder, or your user `trim-sheets` folder with no workspace open. |
 
 Shop signs carry fictional business names; a sign or building name that matches a real one fails **Check Buildings**.
 
@@ -48,7 +52,7 @@ Shop signs carry fictional business names; a sign or building name that matches 
 
 Open a World Partition level with LilaLink built into the project, then `buildingSend()`. Shells go as Nanite meshes inside Settlement's World Partition cells, modules as slots (your slot's Unreal class or mesh, else the placeholder), and the HLOD and far proxies as World Partition Custom HLOD actors in `/Game/Lila/HLOD/HL_LilaBuildings` and `HL_LilaBuildingsFar`, made when missing. **Save All** in Unreal afterwards: a send imports assets without saving them.
 
-Materials: `MF_LilaBuildingVariation` with a generated `M_LilaBuilding` and an `MI_Bld_<style>` per style. Each building's colour and dirt travel in vertex colour: put `MF_LilaBuildingVariation` between your base colour and the material output to use them in your own material.
+Materials: `MF_LilaBuildingVariation` with a generated `M_LilaBuilding` and an `MI_Bld_<style>` per style; modules share `MI_Bld_Modules`. Each building's colour and dirt travel in vertex colour, and modules carry their building's palette as an [instance colour](slots.md#colours): put `MF_LilaBuildingVariation` between your base colour and the material output to use them in your own material.
 
 Sending again skips whatever the level already holds unchanged.
 
@@ -80,6 +84,7 @@ buildingMakeEnterable('building:1a2b', program='bar')
 buildingRoom('building:1a2b', room='l0/backroom', kind='kitchen')
 buildingDoor('building:1a2b', add=['l0/sales', 'l0/toilet'])
 buildingCheck()['ok']
+buildingMakeEnterable(programs=['police', 'bar'], landmarks=True, limit=10)    # pick buildings across the scene
 ```
 
 **Program** in the Attribute Editor re-plans the whole interior. Each room is a mesh of its own under `Interior_<id>`: model it freely, and it stays as you left it when the building changes. **Make Enterable** with **Reset Hand Edits** regenerates it. **Make Exterior** takes the interior away again.
@@ -102,6 +107,7 @@ buildingCheck()['ok']
 | --- | --- |
 | Entry doors | Exterior doors into rooms carry the tag `entry`. `slotRule('add', type='door', tag=['entry'], unrealClass='/Game/BP/BP_Door.BP_Door_C')` gives them your door Blueprint. Enterable buildings are pinned against regeneration, but rules and overrides still swap their slots. |
 | Interior slots | `door.interior`, `door.interior.double`, `lamp.ceiling`, `lift` and `furnishing.*` swap like any [slot](slots.md). |
+| `buildingMakeEnterable(clutter=[...])` | Library items Set Dressing strews on every room's floor and settles with physics (`clutterDensity` per m2, default 0.4). Running it again replaces the clutter. |
 | `buildingRoomPresets(save=...)` | The furnishing each room kind gets. The presets are also Set Dressing arrangements named **Room: <Kind>**, for any floor. |
 | `buildingSend(interiors=...)` | `levelInstance` (default): a Level Instance per interior on its own runtime data layer. `dataLayer`: the room actors themselves on the layer. `none`: interiors stay in Lila. Interior meshes collide as modelled. |
 | `MF_LilaBuildingGlass` | **GlassTint**, **GlassOpacity**, **GlassRoughness** for the clear glass of enterable buildings, or edit `MI_Bld_GlassClear`. Other buildings' windows show fake interiors. |
