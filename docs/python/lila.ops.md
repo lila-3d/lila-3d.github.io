@@ -2617,6 +2617,7 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `volumeNoiseCoverage` |  | float |  | Volume: share of the space the noise fills; 0 clears it, 1 fills it. |
 | `volumeNoiseOffset` |  | tuple[float, float, float] |  | Volume: moves the noise through the volume, cm; key it for drifting clouds. |
 | `volumeEdgeFade` |  | float |  | Volume: depth inside a filled mesh over which density fades in from its surface, cm; 0 is a hard edge. |
+| `instanceColor` |  | bool |  | Shows the colour instances carry (container liveries, building palettes): it replaces the base colour, or tints the base colour map. Off keeps this material's own colour on coloured instances. |
 
 ### createMesh
 
@@ -14823,6 +14824,7 @@ Send meshes to Unreal as one static mesh asset per instance source, placed in th
 | `lightingChannels` | `lc` | bool | `True` | Set the actors' and lights' Lighting Channels from Lila's channels. The plan's lightingChannels lists the channels, lights and objects, the Unreal slot of each channel and any dropped. |
 | `collision` | `col` | str | `'auto'` | Collision the assets get: auto (ucx for a source with UCX_ children or a Stagehand body's hulls, else complexAsSimple), none (the placed actors and instances don't collide either), box, convex (Unreal's auto convex decomposition), complexAsSimple (the render mesh) or ucx (the hulls only; a source's UCX_ child meshes go with it, and its other children into the asset too). |
 | `nanite` | `na` | bool | `False` | Build Nanite data for the assets. |
+| `naniteOffMaterials` | `nom` | list |  | With nanite: assets using any of these materials go without Nanite (translucent ones, which Nanite can't draw). |
 | `hlodLayer` | `hl` | str |  | HLOD layer asset path for the placed actors, or none to leave them out of HLOD generation; with mode=customHlod the Custom HLOD Actor layer, made when missing (default /Game/Lila/HLOD/HL_LilaCustom). |
 | `linkedHlodLayer` | `lhl` | str |  | mode=customHlod: the HLOD layer whose unloading shows these, or default for the level's default HLOD layer (far proxies). |
 | `resend` | `rs` | bool | `False` | Send every group, also the ones the level already holds unchanged. |
@@ -16666,17 +16668,17 @@ buildingInterior(programs=True)['roomKinds']
 
 ### buildingLod
 
-What building meshes show: near (shell and modules), hlod (a simplified proxy: tiers and roofs, no openings) or far (flat-roof massing). Per mesh, so per cell. Slots stay published whatever is shown.
+What building meshes show: near (shell and modules), hlod (a simplified proxy: tiers and roofs, no openings), far (flat-roof massing) or auto (near, hlod or far by the mesh's distance from the viewport camera; the distances are the prefs buildings/lodNear and buildings/lodFar, default 400 m and 2 km). Per mesh, so per cell. Slots stay published whatever is shown.
 
 **Objects:** building meshes (default every one)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `lod` | `l` | str | `'near'` | near, hlod or far. |
+| `lod` | `l` | str | `'near'` | near, hlod, far or auto. |
 
 ### buildingMakeEnterable
 
-Give buildings real interiors from their own grammar: floor plates, a stair core (with a lift on taller buildings), rooms split by program (shop, house, apartment, office, hotel, warehouse, police, mansion, bar, garage, church; generic rooms when the program is none of them, and the result says so), partitions with door slots, the facade's windows and doors cut through the rooms' walls, floors, ceilings, skirting, ceiling lamp slots and furnishing slots from the room presets. Each room is a mesh of its own under Interior_<id> (model it freely; hand-edited rooms are kept when the interior regenerates), the slots go in Interior_<id>_Slots. The exterior doors that open into rooms are tagged 'entry' (a slot rule on that tag gives them your door Blueprint). The building is pinned against regeneration; rules and overrides still swap its slots. When no door opens into a room, entry=True paints one on the street. Returns per building: rooms, doors, stairs, slots, entries.
+Give buildings real interiors from their own grammar: floor plates, a stair core (with a lift on taller buildings), rooms split by program (shop, house, apartment, office, hotel, warehouse, police, mansion, bar, garage, church; generic rooms when the program is none of them, and the result says so), partitions with door slots, the facade's windows and doors cut through the rooms' walls, floors, ceilings, skirting, ceiling lamp slots and furnishing slots from the room presets. Each room is a mesh of its own under Interior_<id> (model it freely; hand-edited rooms are kept when the interior regenerates), the slots go in Interior_<id>_Slots. The exterior doors that open into rooms are tagged 'entry' (a slot rule on that tag gives them your door Blueprint). The building is pinned against regeneration; rules and overrides still swap its slots. When no door opens into a room, entry=True paints one on the street. clutter= strews library items on every room's floor with Set Dressing, settled by physics. Returns per building: rooms, doors, stairs, slots, entries (and clutter).
 
 **Objects:** building ids or building meshes (default the selection)
 
@@ -16688,6 +16690,13 @@ Give buildings real interiors from their own grammar: floor plates, a stair core
 | `pin` | `pn` | bool | `True` | Pin the building so regeneration leaves it as it is. |
 | `entry` | `en` | bool | `True` | Paint a door on the street when none opens into a room. |
 | `reset` | `rs` | bool | `False` | Regenerate hand-edited room meshes too. |
+| `clutter` | `cl` | list |  | Library items Set Dressing strews on every room's floor (realized), replacing earlier clutter. |
+| `clutterDensity` | `cd` | float | `0.4` | Clutter per square metre. |
+| `settle` | `st` | bool | `True` | Drop the clutter with physics so it comes to rest. |
+| `programs` | `prs` | list |  | Pick the buildings whose program or use is one of these (police, church, civic, shop, ...). |
+| `landmarks` | `lmk` | bool | `False` | Pick the landmark buildings (cathedral, palace, market...). |
+| `styles` | `sty` | list |  | Pick the buildings in these styles. |
+| `limit` | `lim` | int | `0` | At most this many of the picked buildings, in id order; 0 for all. |
 
 ```python
 buildingMakeEnterable('building:1a2b')
@@ -16699,6 +16708,10 @@ buildingMakeEnterable('building:1a2b', program='bar')
 
 ```python
 buildingMakeEnterable(['building:1a2b', 'building:3c4d'], furnish=False)
+```
+
+```python
+buildingMakeEnterable(programs=['police', 'church'], landmarks=True, limit=10)
 ```
 
 ### buildingMakeExterior
@@ -16950,7 +16963,7 @@ buildingStyleSave(id='pinkCentro', base='colonialCentro', spec={'palette': {'ren
 
 ### buildingTrimSheet
 
-The LilaBuilding trim sheet shells are laid on: copied into the workspace's TrimSheets folder and baked with Trim Sheets (needs that extension), then building meshes point at the copy. The strips: Render, Plinth, Cornice, Band, Coping, Pilaster, RoofTile, Sheet. Returns the file and the bake result.
+The LilaBuilding trim sheet shells are laid on: copied into the workspace's TrimSheets folder (the user's trim-sheets folder when no workspace is open) and baked with Trim Sheets (needs that extension), then building meshes point at the copy. The strips: Render, Plinth, Cornice, Band, Coping, Pilaster, RoofTile, Sheet. Returns the file and the bake result.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -18601,7 +18614,7 @@ Add or change a remix region (the same id replaces): a polygon on the base map a
 | `translate` | `t` | list |  | [x, z] move, cm. |
 | `angle` | `a` | float |  | Turn, degrees counter-clockwise seen from above. |
 | `pivot` | `pv` | list |  | [x, z] turn centre; default the polygon's centroid. |
-| `seam` | `sm` | float |  | Seam band width, cm; default the remix's. |
+| `seam` | `sm` | float |  | Seam band width, cm; default the remix's, widened so the step left after levelling stays under seams.maxSlope. |
 | `id` |  | str |  | Region id; the same id replaces; empty makes one. |
 | `remove` | `rm` | str |  | Remove the region with this id instead. |
 
@@ -18903,7 +18916,7 @@ siteCreate(kind='farm', params={'farmWidth': 90000, 'greenhouses': 0.4, 'crops':
 
 ### siteEdit
 
-Change a site: its kit settings (the same flags as siteCreate, only its kind's), name, seed, placement, water level or terrain. The layout follows live; with ground=True (default) the terrain is graded again and the parts the site no longer has are taken off it. Slot ids of parts that stay where they were stay the same. Returns the site as siteInfo does with what the grading sent.
+Change a site: its kit settings (the same flags as siteCreate, only its kind's), name, seed, placement, water level or terrain. The layout follows live; with ground=True (default) the terrain is graded again and the parts the site no longer has are taken off it. Slot ids of parts that stay where they were stay the same. Returns the site as siteInfo does with what the grading sent. A move or turn of the site mesh (the transform gizmo, move, rotate) is folded into at and heading and the transform reset; that happens on its own after move and rotate (fromTransform says when it did).
 
 **Objects:** site mesh, modifier or id (default the selected or only site)
 
@@ -19006,7 +19019,7 @@ e = siteEnvelopes()
 
 ### siteGround
 
-Grade the terrain under a site again from its spec (after editing the terrain, or with ground=False edits), or take everything the site put on the terrain off it with remove=True. Returns what was sent and removed.
+Grade the terrain under a site again from its spec (after editing the terrain, or with ground=False edits), or take everything the site put on the terrain off it with remove=True. Lays a culvert where one of its pads stands across a stream. Returns what was sent and removed and the culverts laid.
 
 **Objects:** site mesh, modifier or id
 
@@ -19484,6 +19497,29 @@ Not undoable.
 
 ```python
 zoneQuery(point=[12000, 0, -3500])['layers']['police']['attrs']['agency']
+```
+
+### zoneRemoveFromUnreal
+
+Removes a zone set's send from the open Unreal level: its volumes, its zone data asset, and the data layers (with their assets) no other actor uses. Give the set, or id= and label= for one no longer in the scene (zoneSendToUnreal returns both). Returns what Unreal removed.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `id` |  | str |  | Unreal id of a zone set no longer in the scene (zoneSendToUnreal's id). |
+| `label` | `lb` | str |  | With id: the set's label (names its ZD_ asset). |
+| `asset` | `as` | str | `'/Game/Lila/Zones'` | Content folder its sends used. |
+
+Not undoable.
+
+```python
+zoneRemoveFromUnreal('Zones')
+```
+
+```python
+zoneRemoveFromUnreal(id='w1a2b3c4d5e6f708192a3', label='Zones')
 ```
 
 ### zoneSendToUnreal
@@ -20892,6 +20928,27 @@ Settles a whole map: cities on the best sites (scored as settlementSuggest score
 
 ```python
 settlementRegion(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 160000]]], cities=1, towns=2, villages=6)
+```
+
+### settlementRemoveFromUnreal
+
+Removes everything a settlement sent to the open Unreal level: its placements and mesh cells (with their meshes), road, path and level splines, PCG cells with their data assets, its ZoneGraph lanes and Mass traffic data. Give the settlement, or key= for one already deleted in Lila (the Unreal key its sends used, the settlement mesh's name). Its sync manifest is deleted, so a later send sends everything again. Returns what Unreal removed per kind and any errors.
+
+**Objects:** settlement mesh or its modifier (or key=)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `key` | `k` | str |  | Unreal key of a settlement no longer in the scene (its mesh's name). |
+| `folder` | `f` | str | `'/Game/Lila/Settlement'` | Content folder its sends used. |
+
+Not undoable.
+
+```python
+settlementRemoveFromUnreal('Settlement')
+```
+
+```python
+settlementRemoveFromUnreal(key='Puerto')
 ```
 
 ### settlementReplan
@@ -25106,6 +25163,7 @@ The footprint is a polygon or follows a mesh (its faces seen from above) or clos
 | `height` | `h` | float |  | Target height along the scene's up axis, cm; overrides level. |
 | `offset` | `of` | float | `0.0` | Added to the target height, cm. |
 | `falloff` | `fo` | float | `500.0` | Skirt width back to the ground, cm. |
+| `skirtGrade` | `sg` | float | `0.0` | Steepest the skirt may fall, percent: the falloff widens up to four times to keep to it. 0 keeps it as given. |
 | `strength` | `st` | float | `1.0` | Blend: how far toward the target, 0 to 1. |
 | `masks` | `mk` | list | `['cityFootprint']` | Masks its coverage is written to. |
 | `maskValue` | `mv` | float | `1.0` | Mask value inside. |
@@ -25165,6 +25223,7 @@ Stamp a plaza, park or yard into a terrain: graded to a level (or falling at gra
 | `height` | `h` | float |  | Target height along the scene's up axis, cm; overrides level. |
 | `offset` | `of` | float | `0.0` | Added to the target height, cm. |
 | `falloff` | `fo` | float | `500.0` | Skirt width back to the ground, cm. |
+| `skirtGrade` | `sg` | float | `0.0` | Steepest the skirt may fall, percent: the falloff widens up to four times to keep to it. 0 keeps it as given. |
 | `strength` | `st` | float | `1.0` | Blend: how far toward the target, 0 to 1. |
 | `masks` | `mk` | list | `['cityFootprint']` | Masks its coverage is written to. |
 | `maskValue` | `mv` | float | `1.0` | Mask value inside. |
