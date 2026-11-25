@@ -43,6 +43,8 @@ slotRule('add', type='container.40ft.*', data={'color': '#c0392b'})
 
 `color` in a slot's data is `"#rrggbb"`, or `[r, g, b, a]` in linear colour with `a` as how much shows. In geometry nodes, **Store Named Attribute** with **Domain** Instance, **Data Type** Color and the name `color` colours instances. The viewport, the path-traced view and Unreal show it.
 
+Two-tone pieces, such as a window frame against its trim, take a second colour from `color2` in the slot data or an instance attribute named `color2`. A material shows it with **Second Tone** on in the Material Editor; the viewport draws it.
+
 In Unreal, meshes sent with no Lila material get `M_LilaInstanceColor`. In your own material, put `MF_LilaInstanceColor` between your base colour and the output.
 
 ## Troubleshooting
