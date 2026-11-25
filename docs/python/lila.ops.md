@@ -7021,6 +7021,25 @@ Not undoable.
 mediaInfo('ref/shot010.mov')
 ```
 
+### memoryReport
+
+This process's memory in MB: commitMB (private commit), workingSetMB, releasePending (pieces the background releaser still has to free). heaps= walks the process heaps (seconds on a big scene) and adds busyMB (allocated), freeMB (committed but free), segmentsMB, block counts and busyBySizeMB (allocated MB by block size). drain= first waits for the releaser to finish. types=N lists the N most numerous live objects with virtual functions by class (shared objects as std::_Ref_count_obj2<T>), to find what holds memory after a scene is replaced. holders=<class text> follows references back from samples= such objects depth= levels, naming each holder (class, static variable or block size); it stops the whole process while it scans.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `heaps` | `h` | bool | `False` | Walk the process heaps. |
+| `drain` | `d` | bool | `False` | Wait for the background releaser first. |
+| `types` | `t` | int | `0` | List the most numerous live object types. |
+| `holders` | `ho` | str |  | Trace what holds live objects whose class name contains this text. |
+| `samples` | `sa` | int | `16` | Objects holders= follows. |
+| `depth` | `de` | int | `3` | Levels of holders to follow. |
+
+Not undoable.
+
+```python
+lila.ops.memoryReport(heaps=True, drain=True)
+```
+
 ### mergeAnimLayers
 
 Bake layers (and any between them) down into the layer under the lowest, or the base animation: the result is sampled every frame across their keys, so it evaluates the same. Returns the layer merged into.
