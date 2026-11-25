@@ -43,15 +43,17 @@ slotRule('add', type='container.40ft.*', data={'color': '#c0392b'})
 
 `color` in a slot's data is `"#rrggbb"`, or `[r, g, b, a]` in linear colour with `a` as how much shows. In geometry nodes, **Store Named Attribute** with **Domain** Instance, **Data Type** Color and the name `color` colours instances. The viewport, the path-traced view and Unreal show it.
 
-Two-tone pieces, such as a window frame against its trim, take a second colour from `color2` in the slot data or an instance attribute named `color2`. A material shows it with **Second Tone** on in the Material Editor; the viewport draws it.
+Two-tone pieces, such as a window frame against its trim, take a second colour from `color2` in the slot data or an instance attribute named `color2`. A material shows it with **Second Tone** on in the Material Editor.
 
-In Unreal, meshes sent with no Lila material get `M_LilaInstanceColor`. In your own material, put `MF_LilaInstanceColor` between your base colour and the output.
+In Unreal, meshes sent with no Lila material get `M_LilaInstanceColor`. In your own material, put `MF_LilaInstanceColor` between your base colour and the output, and set its `SecondTone` input to 1 on the part that takes the second colour.
 
 ## Troubleshooting
 
 **A part keeps its own colour.** Its material has **Instance Color** off in the Material Editor, the viewport shows **Grey Base Color**, or a rule swapped its mesh without giving a colour.
 
 **"this LilaLink has no instanceColor".** Colours went to Unreal without the material. Rebuild LilaLink from Lila's `ue/LilaLink`.
+
+**`secondToneNote` in the send result.** LilaLink is too old to read second tones, so those parts show their first colour. Rebuild LilaLink from Lila's `ue/LilaLink`.
 
 **The panel's banner counts orphaned overrides.** An override's slot no longer exists, because the generator stopped making that part. **Check** lists each in the [Validation](validation.md) panel with the nearest slot of its type; reassign it there, or `slotSet(id='old/id', reassign='new/id')`.
 
