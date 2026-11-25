@@ -18631,13 +18631,13 @@ Available when the OpenWorld extension is loaded.
 
 ### remixAddRegion
 
-Add or change a remix region (the same id replaces): a polygon on the base map and what happens to it. op cut lifts it out and places it translated and turned (the hole is filled as land, both edges become seams); move carries it rigidly while the land around stretches and compresses; keep holds it rigid while pins warp the land around; duplicate copies it; delete removes it. The polygon comes from polygon=, a closed curve, or latLon= in a source's own latitude and longitude. remove= drops a region. Returns the region, where it ends up and the remix's stats.
+Add or change a remix region (the same id replaces): a polygon on the base map and what happens to it. op cut lifts it out and places it translated and turned (the hole is filled as land, both edges become seams); move carries it rigidly while the land around stretches and compresses; keep holds it rigid while pins warp the land around; duplicate copies it; delete removes it (filled as land); sea sinks it to the sea floor, fading over the seam band inside the outline, to shape a coast where a source's box ends on land. The polygon comes from polygon=, a closed curve, or latLon= in a source's own latitude and longitude. remove= drops a region. Returns the region, where it ends up and the remix's stats.
 
 **Objects:** remix mesh or modifier (optional)
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `op` |  | str | `'cut'` | What happens to it. One of `move`, `keep`, `cut`, `duplicate`, `delete`. |
+| `op` |  | str | `'cut'` | What happens to it. One of `move`, `keep`, `cut`, `duplicate`, `delete`, `sea`. |
 | `polygon` | `p` | list |  | [[x, z], ...] on the base map, cm. |
 | `curve` | `cv` | str |  | A closed curve outlining it. |
 | `latLon` | `ll` | list |  | [[latitude, longitude], ...] in a source. |
@@ -19174,7 +19174,7 @@ c['ok'], c['counts'], c['placeholders']['byType']
 
 ### worldFetch
 
-Download a world spec's missing real data straight to the paths it names (relative to the spec file): every remix source's elevation (Copernicus), OSM (Overpass), land cover (WorldCover) and bathymetry (GEBCO through OpenTopography, with your API key), and the coast's bathymetry grid (its bbox, the bathymetry source's, or all sources' together). Files already there are left alone. estimate=True only lists each file with its size; a total over 25 MB, or any download on a metered connection, needs consent=True. Downloads retry and are written whole, so a run stopped by a failure resumes where it stopped; tiles and areas are kept in the workspace's terrain/dem_cache (offline=True uses only that). Returns every item fetched or present, bytes and the ATTRIBUTION.txt files written. worldBuild(fetch=True) runs this first.
+Download a world spec's missing real data straight to the paths it names (relative to the spec file): every remix source's elevation (Copernicus), OSM (Overpass), land cover (WorldCover) and bathymetry (GEBCO through OpenTopography, with your API key), and the coast's bathymetry grid (its bbox, the bathymetry source's, or all sources' together). Files already there are left alone. estimate=True only lists each file with its size; a total over 25 MB, or any download on a metered connection, needs consent=True. Downloads retry and are written whole, so a run stopped by a failure resumes where it stopped; tiles and areas are kept in the workspace's terrain/dem_cache (offline=True uses only that). Progress shows per item (bytes, percent, rate, retries) in Script Output and on the progress card, which can abort it; a table of the items and their status is logged before and after. A placeholder apiKey (empty, '<...>', 'your...') is refused, and a saved placeholder counts as no key. Returns every item fetched or present, bytes and the ATTRIBUTION.txt files written. worldBuild(fetch=True) runs this first.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
