@@ -78,6 +78,8 @@ A built world's terrain gets default material layers fitted to the finished grou
 
 **"a world named ... exists".** A world of that name was built before. **Build World** always replaces it; from Python pass `replace=True`.
 
+**Memory nearly doubles after rebuilding a world.** The replaced world stays on the undo stack, so a rebuild needs room for both (about 54 GB for a full sample map, against 34 GB for a first build). `flushUndo()` frees it.
+
 **Check World issues:**
 
 | Issue | Fix |
