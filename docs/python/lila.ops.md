@@ -19117,7 +19117,7 @@ siteRemove('cemetery1')
 
 ### worldBuild
 
-Build a whole open-world map from one world spec (lila://schema/world-spec): slot rules and overrides, the World Remix and its remixed OSM, the terrain spec's steps (water, coast, biomes, ground cover), settlements from the remix's OSM clipped to each one's area (or laid out by Settlement), their procedural buildings with style assignments and edits, site kits with their buildings, zones (spec, districts, water), pins, worldCheck and the export. Each step is timed and measured (seconds, memoryMB) in a Tracy zone. The world node keeps the spec and what was made, so worldSpec reads it back and replace=True rebuilds it. Returns ok, every step's result or error, the check, the exports, total time and memory.
+Build a whole open-world map from one world spec (lila://schema/world-spec): slot rules and overrides, the World Remix and its remixed OSM, the terrain spec's steps (water, coast, biomes, ground cover), settlements from the remix's OSM clipped to each one's area (or laid out by Settlement), their procedural buildings with style assignments and edits, site kits with their buildings, zones (spec, districts, water), pins, worldCheck and the export. Each step is timed and measured (seconds, memoryMB) in a Tracy zone. The world node keeps the spec and what was made, so worldSpec reads it back and replace=True rebuilds it. Returns ok, every step's result or error, the check, the exports, total time and memory. fetch=True first downloads the real data the spec names and lacks (worldFetch: sizes shown, over 25 MB needs consent=True, files written to the spec's own paths); without it a missing data file stops the build before it starts, naming the file.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -19128,10 +19128,24 @@ Build a whole open-world map from one world spec (lila://schema/world-spec): slo
 | `folder` | `fo` | str |  | Where files go; default the workspace's openworld/world/<name>. |
 | `skip` | `sk` | list |  | Sections to leave out: slots, terrain, settlements, buildings, sites, zones. |
 | `check` | `ch` | bool |  | Run worldCheck at the end (default the spec's check, else true). |
+| `fetch` | `fe` | bool | `False` | Download the spec's missing real data to the paths it names first (worldFetch). |
+| `estimate` | `es` | bool | `False` | Only list the missing data and its download sizes; build nothing. |
+| `consent` | `cn` | bool | `False` | With fetch: allow more than 25 MB, or downloads on a metered connection. |
+| `offline` | `off` | bool | `False` | Take missing data from the download cache only. |
+| `apiKey` | `ak` | str |  | With fetch: OpenTopography API key (for GEBCO); default the saved one. Never logged. |
+| `saveKey` | `svk` | bool | `False` | With fetch: save apiKey for later fetches. |
 
 ```python
 r = worldBuild(file='worlds/sinaloa.json')
 r['ok'], [(s['step'], s['seconds'], s['memoryMB']) for s in r['steps']]
+```
+
+```python
+worldBuild(file='worlds/sinaloa_real.json', estimate=True)['estimate']['summary']
+```
+
+```python
+worldBuild(file='worlds/sinaloa_real.json', fetch=True, consent=True, replace=True)
 ```
 
 ```python
@@ -19156,6 +19170,31 @@ Not undoable.
 ```python
 c = worldCheck(report=True)
 c['ok'], c['counts'], c['placeholders']['byType']
+```
+
+### worldFetch
+
+Download a world spec's missing real data straight to the paths it names (relative to the spec file): every remix source's elevation (Copernicus), OSM (Overpass), land cover (WorldCover) and bathymetry (GEBCO through OpenTopography, with your API key), and the coast's bathymetry grid (its bbox, the bathymetry source's, or all sources' together). Files already there are left alone. estimate=True only lists each file with its size; a total over 25 MB, or any download on a metered connection, needs consent=True. Downloads retry and are written whole, so a run stopped by a failure resumes where it stopped; tiles and areas are kept in the workspace's terrain/dem_cache (offline=True uses only that). Returns every item fetched or present, bytes and the ATTRIBUTION.txt files written. worldBuild(fetch=True) runs this first.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `spec` | `s` | Any |  | The world spec, a dict. |
+| `file` | `f` | str |  | A world spec JSON file; relative paths in it are from its folder. |
+| `estimate` | `es` | bool | `False` | Only list what is missing and how big the downloads are. |
+| `consent` | `cn` | bool | `False` | Allow more than 25 MB, or downloads on a metered connection. |
+| `offline` | `off` | bool | `False` | Use the download cache only. |
+| `apiKey` | `ak` | str |  | OpenTopography API key (for GEBCO); default the saved one. Never logged. |
+| `saveKey` | `sk` | bool | `False` | Save apiKey for later fetches. |
+
+Not undoable.
+
+```python
+e = worldFetch(file='worlds/sinaloa_real.json', estimate=True)['estimate']
+e['summary'], e['consentNeeded']
+```
+
+```python
+worldFetch(file='worlds/sinaloa_real.json', consent=True, apiKey='...', saveKey=True)
 ```
 
 ### worldMap
@@ -23474,13 +23513,13 @@ terrainBatch(calls=[{'command': 'terrainStampPad', 'flags': {'args': ['Terrain']
 
 ### terrainBathymetry
 
-Lay a seabed under a terrain's sea: from a GEBCO grid (file=, a GeoTIFF tile from gebco.net or any elevation file readDem reads) placed by the terrain's georeference, or fetched for the terrain's area (fetch=True: GEBCO through OpenTopography with your API key; estimate=True says the size first, and a download over 25 MB needs consent=True). The DEM's flat sea (ground at or below sea level plus landTolerance, joined to the edge or deep grid water) takes the grid's depths blended in from a shoreline profile over blendWidth cm, so the shore is continuous and the shelf smooth; with no grid the profile alone (shoreSlope off the beach, shelfDepth at shelfWidth, dropDepth beyond). Writes the GEBCO credit into the terrain data's ATTRIBUTION.txt. off=True removes it. Returns the seabed source (grid, profile or grid+profile), samples, depths and notes.
+Lay a seabed under a terrain's sea: from a GEBCO grid (file=, a GeoTIFF tile from gebco.net or any elevation file readDem reads) placed by the terrain's georeference, or fetched for the terrain's area (fetch=True: GEBCO through OpenTopography with your API key; estimate=True says the size first, and a download over 25 MB needs consent=True). With bbox= no terrain is needed to estimate or fetch: the grid goes to file= (else the terrain data's bathymetry folder) and is applied only when a terrain is found. The DEM's flat sea (ground at or below sea level plus landTolerance, joined to the edge or deep grid water) takes the grid's depths blended in from a shoreline profile over blendWidth cm, so the shore is continuous and the shelf smooth; with no grid the profile alone (shoreSlope off the beach, shelfDepth at shelfWidth, dropDepth beyond). Writes the GEBCO credit into the terrain data's ATTRIBUTION.txt. off=True removes it. Returns the seabed source (grid, profile or grid+profile), samples, depths and notes.
 
 **Objects:** terrain mesh or its modifier
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `file` | `f` | str |  | A GEBCO GeoTIFF (or any elevation file); empty for the profile alone. |
+| `file` | `f` | str |  | A GEBCO GeoTIFF (or any elevation file); with fetch, where the download is written. |
 | `fetch` | `fe` | bool | `False` | Download GEBCO for the terrain's area (or bbox) through OpenTopography. |
 | `estimate` | `es` | bool | `False` | Only say how big the download would be. |
 | `consent` | `cn` | bool | `False` | Allow a download over 25 MB. |
