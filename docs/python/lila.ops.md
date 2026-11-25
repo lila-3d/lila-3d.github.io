@@ -16585,7 +16585,7 @@ buildingCreate(settlement='Town')
 ```
 
 ```python
-buildingCreate(settlement='Town', style='colonialCentro', cell=6400)
+buildingCreate(settlement='Town', style='colonial', cell=6400)
 ```
 
 ```python
@@ -16925,11 +16925,11 @@ Give buildings a style: by id, building mesh, district polygon (polygon=, buildi
 | `clear` | `cl` | bool | `False` | Drop the style edit. |
 
 ```python
-buildingStyle('Town_Buildings_0_0', style='malecon')
+buildingStyle('Town_Buildings_0_0', style='seafront')
 ```
 
 ```python
-buildingStyle(polygon=[[0, 0], [8000, 0], [8000, 8000], [0, 8000]], style='colonialCentro')
+buildingStyle(polygon=[[0, 0], [8000, 0], [8000, 8000], [0, 8000]], style='colonial')
 ```
 
 ### buildingStyleExport
@@ -16956,7 +16956,7 @@ Not undoable.
 
 ### buildingStyles
 
-The building styles: shipped (colonial centro, malecón, resort tower, modern commercial, residential, narco mansion, civic, police station, church, mausoleum, warehouse, packing plant, port shed, hangar, village adobe, rural shack), the user's and the workspace's. style= gives one style's full JSON (the format to copy for your own); reload=True reads the folders again.
+The building styles: shipped (colonial, seafront, resort tower, modern commercial, residential, mansion, civic, police station, church, mausoleum, warehouse, packing plant, port shed, hangar, adobe, rural shack, terminal, lighthouse), the user's and the workspace's (<workspace>/BuildingStyles, where regional styles belong). style= gives one style's full JSON (the format to copy for your own); reload=True reads the folders again.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -16970,7 +16970,7 @@ Not undoable.
 ```
 
 ```python
-buildingStyles(style='colonialCentro')
+buildingStyles(style='colonial')
 ```
 
 ### buildingStyleSave
@@ -16989,7 +16989,7 @@ Save a style for everyone in this workspace (scope='workspace') or for you (scop
 Not undoable.
 
 ```python
-buildingStyleSave(id='pinkCentro', base='colonialCentro', spec={'palette': {'render': ['#e8a0b4', '#f2c6d3']}})
+buildingStyleSave(id='pinkCentro', base='colonial', spec={'palette': {'render': ['#e8a0b4', '#f2c6d3']}})
 ```
 
 ### buildingTrimSheet
@@ -18812,7 +18812,7 @@ remixView('World', overlay=False)
 
 ### siteBuildings
 
-Build site kits' buildings with the Buildings generator: each envelope (siteEnvelopes) becomes a procedural building in its kit's style (portShed, warehouse, packingPlant, mausoleum, hangar, narcoMansion, church, civic, colonialCentro, villageAdobe, ruralShack, terminal, lighthouse), under the group SiteBuildings, and the site's greybox massing turns off. Building ids are stable per envelope, so edits, slot overrides and pins carry over; siteEdit rebuilds them when the layout changes. remove=True turns massing back on and drops those buildings. Returns the group, building count, styles and slots.
+Build site kits' buildings with the Buildings generator: each envelope (siteEnvelopes) becomes a procedural building in its kit's style (portShed, warehouse, packingPlant, mausoleum, hangar, mansion, church, civic, colonial, adobe, ruralShack, terminal, lighthouse), under the group SiteBuildings, and the site's greybox massing turns off. Building ids are stable per envelope, so edits, slot overrides and pins carry over; siteEdit rebuilds them when the layout changes. remove=True turns massing back on and drops those buildings. Returns the group, building count, styles and slots.
 
 **Objects:** sites (ids or meshes; default every site)
 
@@ -19035,7 +19035,7 @@ siteEdit('CargoPort', at=[5000, -21000], heading=12)
 
 ### siteEnvelopes
 
-Every building the site kits want, as Settlement-style envelopes in world space (footprint, base, top, height, floors, use, roof, roofHeight, front, entrances, program, name) with a style tag (colonial, malecon, resortTower, modernCommercial, narcoMansion, civic, warehouse, packingPlant, portShed, villageAdobe, ruralShack, church, mausoleum, hangar, lighthouse, terminal) and a stable id under site:<id>. This is what a building generator builds from; until one does they draw as greybox massing. sites= limits it to some sites.
+Every building the site kits want, as Settlement-style envelopes in world space (footprint, base, top, height, floors, use, roof, roofHeight, front, entrances, program, name) with a style tag (colonial, seafront, resortTower, modernCommercial, mansion, civic, warehouse, packingPlant, portShed, adobe, ruralShack, church, mausoleum, hangar, lighthouse, terminal) and a stable id under site:<id>. This is what a building generator builds from; until one does they draw as greybox massing. sites= limits it to some sites.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -20393,7 +20393,7 @@ settlementBuildings('Settlement', route='massing')
 ```
 
 ```python
-settlementBuildings('Settlement', via='buildings', style='colonialCentro')
+settlementBuildings('Settlement', via='buildings', style='colonial')
 ```
 
 ```python
