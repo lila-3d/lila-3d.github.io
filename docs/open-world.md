@@ -68,7 +68,14 @@ A small spec. Only `name` and `terrain` are required; a settlement comes from Op
 
 A built world's terrain gets default material layers fitted to the finished ground: grass, forest on hillsides, sand at the shore, riverbed, rock on steep ground, roads, dirt and gravel where it was eroded, and snow only on land 3 km or more above the sea. Its sea gets a water material. `terrain.materials` in the spec sets your own layers.
 
-**Real places.** Give each remix source a `bbox` and download its data first with `remixSource('World', id='coast', bbox=[west, south, east, north], fetch=True)`, which reports the sizes. For sea floor data, `terrainBathymetry(fetch=True, estimate=True)` gives the size; a download over 25 MB needs `consent=True`. Point the spec's `dem`, `osm`, `landcover` and `bathymetry` paths at the downloaded files, then **Build World**. Run **World Map** first to check that settlement areas and site positions land where you want them.
+**Real places.** Give each remix source a `bbox` and the files to keep its data in (`dem`, `osm`, `landcover`, `bathymetry`), relative to the spec file. In **Build World**'s option box, turn on **Fetch Missing Data**: the box lists each missing file with its download size, and the build downloads them to those paths before it starts. Files already there are kept. Over 25 MB, or on a metered connection, also turn on **Allow Large Download**. Run **World Map** first to check that settlement areas and site positions land where you want them.
+
+```python
+worldBuild(file='worlds/sinaloa_real.json', estimate=True)['estimate']['summary']   # what is missing, and the sizes
+worldBuild(file='worlds/sinaloa_real.json', fetch=True, consent=True, replace=True)
+```
+
+Sea floor data (GEBCO) comes through OpenTopography, which needs a free API key: pass it once with `apiKey='...', saveKey=True`. `worldFetch(file=...)` downloads without building.
 
 ### Troubleshooting
 
@@ -77,6 +84,14 @@ A built world's terrain gets default material layers fitted to the finished grou
 **`ok` is false but every step is ok.** **Check World** found issues: read `check.issues` in the result.
 
 **"a world named ... exists".** A world of that name was built before. **Build World** always replaces it; from Python pass `replace=True`.
+
+**"missing data: ...".** The spec names files that aren't there. Turn on **Fetch Missing Data**, or pass `fetch=True`.
+
+**"... MB to download; over 25 MB needs consent=True", or "the connection is metered".** Turn on **Allow Large Download**, or pass `consent=True`.
+
+**"OpenTopography needs your API key".** Sign in at portal.opentopography.org and request one under My Account. Pass it once: `worldFetch(file='worlds/sinaloa_real.json', apiKey='...', saveKey=True)`.
+
+**A download failed.** The error names the file and the reason. Files fetched before it are kept, so building again carries on from there. **Cache Only** builds from earlier downloads without the network.
 
 **Memory nearly doubles after rebuilding a world.** The replaced world stays on the undo stack, so a rebuild needs room for both (about 54 GB for a full sample map, against 34 GB for a first build). `flushUndo()` frees it.
 
