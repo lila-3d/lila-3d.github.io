@@ -109,6 +109,8 @@ Crossings at signalled junctions follow the settlement's signal phases: each pha
 
 **Mass agents stand still or don't appear.** The spawner places agents on the crowd lanes when play starts: send again after changing the settlement, and check the level has a ZoneGraph Data actor (Unreal builds it with the lanes). Agents far from the camera stop drawing, as Mass does by distance; they still walk.
 
+**The project's `Config/DefaultPlugins.ini` changed.** A Mass send saves the `Lila_Crowd` lane profile and the MassCrowd settings there. The file as it was before each change is in the project's `Saved/LilaLink/ConfigBackups` folder.
+
 ## Options
 
 On the crowd node in the Attribute Editor:
