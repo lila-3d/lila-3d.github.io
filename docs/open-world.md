@@ -58,7 +58,7 @@ A small spec. Only `name` and `terrain` are required; a settlement comes from Op
   "culture": "mexican",
   "terrain": {"size": [260000, 260000], "resolution": 129, "source": {"type": "noise", "amplitude": 1500}},
   "settlements": [{"name": "Pueblo", "create": {"profile": "usTown", "outline": [[-36000, -36000], [36000, -36000], [36000, 36000], [-36000, 36000]]},
-                   "buildings": {"style": "colonialCentro"}}],
+                   "buildings": {"style": "colonial"}}],
   "sites": [{"kind": "village", "id": "v1", "at": [80000, 80000]}],
   "slots": {"rules": [{"type": "sign.storefront", "payload": {"poolTag": "fictional_signs"}}]},
   "zones": {"fromDistricts": true},
