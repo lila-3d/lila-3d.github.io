@@ -69,6 +69,8 @@ Real seabed depths, beaches, reefs, mangroves, boat channels, reservoirs and boa
 
 **Unreal shows no paint layers.** Rebuild LilaLink from Lila's `ue/LilaLink`. With your own `material=`, its Landscape Layer Sample names must match the layer names in the send's result.
 
+**Roads in a World Partition level are gone after reopening it.** A road send loads the landscape regions the road reaches and redraws them, unsaved. **Save All** in Unreal after the send.
+
 **A road warns about a tighter curve or a missed key.** The road couldn't meet a limit there, and the warning says which. Loosen `maxGrade` or the design speed, or move the path.
 
 **A road laid before erosion still moved.** Only roads with `stage='base'` hold their ground through erosion. Lay main roads first: later roads in the same layer join earlier ones, not the other way round.
