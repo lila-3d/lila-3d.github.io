@@ -66,13 +66,15 @@ A small spec. Only `name` and `terrain` are required; a settlement comes from Op
 }
 ```
 
-A built world's terrain gets default material layers fitted to the finished ground, and its sea a water material. `terrain.materials` in the spec sets your own layers.
+A built world's terrain gets default material layers fitted to the finished ground: grass, forest on hillsides, sand at the shore, riverbed, rock on steep ground, roads, dirt and gravel where it was eroded, and snow only on land 3 km or more above the sea. Its sea gets a water material. `terrain.materials` in the spec sets your own layers.
 
 **Real places.** Give each remix source a `bbox` and download its data first with `remixSource('World', id='coast', bbox=[west, south, east, north], fetch=True)`, which reports the sizes. For sea floor data, `terrainBathymetry(fetch=True, estimate=True)` gives the size; a download over 25 MB needs `consent=True`. Point the spec's `dem`, `osm`, `landcover` and `bathymetry` paths at the downloaded files, then **Build World**. Run **World Map** first to check that settlement areas and site positions land where you want them.
 
 ### Troubleshooting
 
 **A step failed.** The build stops there, and the log and the result's `steps` name the step and its error. `stopOnError=False` carries on past it.
+
+**`ok` is false but every step is ok.** **Check World** found issues: read `check.issues` in the result.
 
 **"a world named ... exists".** A world of that name was built before. **Build World** always replaces it; from Python pass `replace=True`.
 
@@ -110,6 +112,8 @@ Each section takes its own part's spec: `lila://schema/remix-spec`, `lila://sche
 
 The landscape with its layers and water, the settlements, buildings with their HLOD proxies and interiors, site kits and zones all go. Each `export.unreal.*` step in the result says what it sent, what the level already held unchanged and what it skipped.
 
+Settlement roads paint the terrain's Road layer when the landscape draws in material layers (`roadLayer` in the step result). Each step's `seconds` says where a slow send spent its time.
+
 Building again sends only what changed. Whatever the spec no longer makes leaves the level: placement groups, interiors with their level files and data layers, whole settlements and zone sets. A send into another level of the same project reuses the assets already imported (`reused` in the step results).
 
 **`proxiesSkipped`.** The level isn't World Partition, so the HLOD proxies weren't sent.
@@ -119,6 +123,8 @@ Building again sends only what changed. Whatever the spec no longer makes leaves
 **The landscape renders as a grid.** Its material failed to compile with an older LilaLink. Rebuild LilaLink from Lila's `ue/LilaLink`.
 
 **`levelsKept`, or "another level holds zone volumes".** Another level of the project still uses that interior or zone data, so it stays. Remove it from that level too.
+
+**`recordIgnored` after remaking a level.** The level at that path is a new one, so nothing was removed and everything was sent again. `levelNote` means LilaLink is too old to tell: rebuild it from Lila's `ue/LilaLink`.
 
 **A settlement taken out of the spec is still in the level.** Lila's record of what it sent there was cleared. `settlementRemoveFromUnreal(key='Puerto')` removes it by its name; `zoneRemoveFromUnreal(id=..., label=...)` removes a zone set by the id and label its send returned.
 
