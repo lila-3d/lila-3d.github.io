@@ -83,6 +83,8 @@ Real seabed depths, beaches, reefs, mangroves, boat channels, reservoirs and boa
 
 **Mesh Terrain shows no layer colours with your own material.** Give `MF_LilaMeshTerrainChannel` its index in a Constant. Mesh Partition resolves the channel when the shader compiles, so a parameter reads nothing.
 
+**Parts of the terrain draw white.** It has more than 16 material layers, and the viewport draws the first 16; the log says so. Merge layers, or drop ones that cover little (each layer's `coverage` is in the `terrainMaterialRules` result).
+
 **Layers or ground cover look stale.** The preview and the ground cover are snapshots. Run **Preview Terrain Layers** again after changes.
 
 **A lake level comes back lower than you set.** Water above the basin's rim spills. The lake dams the rim, or with `dam=False` drops to the spill level; the result's `warnings` says which.
