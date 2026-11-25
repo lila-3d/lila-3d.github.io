@@ -23,7 +23,7 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 
 **Check Buildings reports issues.** It lists modules meeting where they shouldn't, doors that don't reach the ground, buildings overlapping a neighbour, slots floating off their building and real names on signs, each with the building id and position.
 
-**A building has the Residential style instead of yours.** The style isn't in the library. `buildingInfo(id)['warnings']` says so; run **Reload Building Styles** after adding a style file.
+**A building has a different style from the one it names.** The style isn't in the library, so the nearest shipped one stands in (`colonialCentro` gets Colonial, anything unmatched gets Residential). `buildingInfo(id)['warnings']` names both. Open the workspace that holds the style, or add its file and run **Reload Building Styles**.
 
 **Doors have steps instead of a stepped ground floor.** No ground was sampled. Give the settlement a ground, or `buildingCreate(..., ground='Terrain')`.
 
@@ -43,8 +43,9 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 
 | Option | What it does |
 | --- | --- |
-| Styles | Colonial centro, malecón, resort tower, modern commercial, residential, narco mansion, civic, police station, church, mausoleum, warehouse, packing plant, port shed, hangar, village adobe, rural shack. `buildingStyle(polygon=..., style='colonialCentro')` restyles a district. |
-| Your own style | **Save Building Style** copies a style with your changes to your user or workspace folder. `buildingStyles(style='colonialCentro')` shows the full JSON to copy; `buildingStyleExport` and `buildingStyleImport` share it. |
+| Styles | Colonial, seafront, resort tower, modern commercial, residential, mansion, civic, police station, church, mausoleum, warehouse, packing plant, port shed, hangar, adobe, rural shack, terminal, lighthouse. `buildingStyle(polygon=..., style='colonial')` restyles a district. |
+| Your own style | **Save Building Style** copies a style with your changes to your user or workspace folder. `buildingStyles(style='colonial')` shows the full JSON to copy; `buildingStyleExport` and `buildingStyleImport` share it. |
+| Regional styles | Put a project's own styles in the workspace's `BuildingStyles` folder, one JSON file each. Add `"replaces": ["colonial"]` to one and every building naming `colonial` in that workspace gets it. |
 | Parts | Every module is a slot (`door.shop`, `window.residential`, `sign.storefront`, `balcony.iron`, `wall.bay`, `roof.tiled`). Swap them for your kit with a [slot rule](slots.md). |
 | **Age Buildings** | A Weathering preset per building or district, and palette dirt from 0 (pristine resort) to 1. |
 | **Building LOD** | **Near** (shell and modules), **HLOD** (tiers and roofs) or **Far** (flat-roof blocks) per mesh. `buildingLod(lod='auto')` picks by distance from the viewport camera: near within 400 m, far past 2 km (prefs `buildings/lodNear`, `buildings/lodFar`, in cm). **Make Proxies** writes the HLOD and far meshes for export. |
