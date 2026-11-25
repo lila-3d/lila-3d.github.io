@@ -20489,7 +20489,7 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `terrainWater` | `tw` | bool | `True` | On a Terrain ground with no water of its own: the terrain's rivers crossing the outline become the settlement's water. |
 | `buildingRoute` | `br` | str | `'outline'` | How buildings are made once laid out (settlementBuildings route=); buildings makes procedural ones. One of `outline`, `massing`, `library`, `masonry`, `unreal`, `buildings`. |
 | `buildingStyle` | `bs` | str |  | buildings route: one Buildings style for every building; empty picks per envelope. |
-| `profile` | `pf` | str | `'medievalTown'` | Style. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `profile` | `pf` | str | `'medievalTown'` | Style. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `mexicanCity`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
 | `pattern` | `pt` | str |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid, none, tensor, contour, osm, example. |
 | `overrides` | `ov` | str |  | JSON object of profile fields to change. |
 | `growth` | `gr` | float | `1.0` | How far the settlement has grown, 0 to 1. |
@@ -20506,6 +20506,7 @@ Give outline= (and optionally streets=, attractors=), or a mesh whose loose-edge
 | `showStreets` | `ss` | bool | `True` | Show street ribbons. |
 | `showLots` | `sl` | bool | `True` | Show lot outlines. |
 | `showBuildings` | `sb` | bool | `True` | Show building envelopes. |
+| `showGround` | `sgd` | bool | `True` | Show the ground of blocks and lots: yards, parks, squares. |
 | `generators` | `gen` | str |  | Tensor fields, eras, districts, walls, imported streets and levels as JSON. |
 | `tensor` | `tn` | Any |  | Tensor field for pattern tensor: {fields: [{kind: grid\|radial\|boundary\|height, angle, center, weight, decay, lines, follow: outline\|water}], paint: [{points, radius, angle, weight}], mask, majorSpacing, minorSpacing}. |
 | `eras` | `er` | Any |  | Eras in order, each {name, profile, pattern, overrides, growth, inner, outer, polygon, walls, demolishWalls, ring, axes, highwayRing, highwaySpurs}; or a preset: walledTown, medievalToModern, gridToSprawl. |
@@ -20696,7 +20697,8 @@ A settlement from an OpenStreetMap file on a terrain: terrainImportOsm brings it
 | `ground` | `gd` | str |  | The terrain the data lies on. |
 | `file` | `fi` | str |  | The OSM file, when not given as the first argument. |
 | `origin` | `or` | list |  | [latitude, longitude] of the terrain's centre, for terrains not from real data. |
-| `profile` | `pr` | str | `'usTown'` | Style for heights, roofs and the lots Settlement cuts itself. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `profile` | `pr` | str | `'usTown'` | Style for heights, roofs and the lots Settlement cuts itself. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `mexicanCity`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `overrides` | `ov` | Any |  | Profile fields to change, as a JSON object or its text, such as {"maxFloors": 6}. |
 | `culture` | `cu` | str |  | Naming culture for every name (namingCultures); empty chooses one from where the data lies. One of ``, `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`. |
 | `fill` | `fl` | str | `'sparse'` | Settlement's own lots beside the imported buildings: sparse (in blocks they cover less than coverage of), all, or none. |
 | `coverage` | `cv` | float | `0.25` | Share of a block the imported buildings must cover for it to count as dense. |
@@ -20706,6 +20708,7 @@ A settlement from an OpenStreetMap file on a terrain: terrainImportOsm brings it
 | `buildingStyle` | `bs` | str |  | buildings route: one Buildings style for every building; empty picks per envelope. |
 | `water` | `wa` | bool | `True` | Keep Settlement's own streets and lots off the terrain's sea, lakes and rivers. |
 | `exclusions` | `ex` | list |  | More regions kept clear: closed polygons [[x, z], ...] (other generators' sites). |
+| `within` | `wi` | str |  | A terrain mask the settlement keeps to (where it is at least 0.5), such as a remix source's remixPresent_<id>; with water=False it is ignored. |
 
 ```python
 settlementFromOsm('osm/town.osm', ground='Terrain')
@@ -20718,7 +20721,7 @@ s['import']['culture']
 
 ### settlementFurniture
 
-Places street furniture: along every road from its road profile's set (lamps, street trees, benches, bins, hydrants; lanterns in medieval styles), signals on each approach of signalised junctions, stop and yield signs by junction control, a street-name sign at each junction, and squares furnished (medieval: a well, market stalls and carts; modern: benches, trees, and bollards along the main streets). Every placement has a stable id that survives unrelated edits.
+Places street furniture: along every road from its road profile's set (lamps, street trees, benches, bins, hydrants; lanterns in medieval styles), signals on each approach of signalised junctions, stop and yield signs by junction control, a street-name sign at each junction, and squares furnished (medieval: a well, market stalls and carts; modern: benches, trees, and bollards along the main streets), trees in parks (the park set, parkTree on a grid of its spacing) and behind houses (the yard set, yardTree: more often the wider the house is against its spacing). Every placement has a stable id that survives unrelated edits.
 
 Sets are data: sets= replaces a profile's rules, {profile: [{kind, spacing, where, sides, minWidth}]} with where kerb, back, verge, median or edge and sides both, alternate, right or left. realize=True places a Set Dressing library asset for each kind in assets= (lamp defaults to Road/StreetLight) through its place command; kinds without an asset are listed in missingAssets. store=True keeps sets= with the settlement and engineAssets= names the engine asset per kind (default /Game/Settlement/Furniture/SM_<Kind>): the layout's placements, which exports and Send to Unreal read, use both. Returns counts by kind and by profile, the sets used and the placements.
 
@@ -20983,9 +20986,9 @@ Settles a whole map: cities on the best sites (scored as settlementSuggest score
 | `cities` | `ci` | int | `1` | How many cities. |
 | `towns` | `to` | int | `3` | How many towns. |
 | `villages` | `vi` | int | `8` | How many villages. |
-| `cityProfile` | `cp` | str | `'europeanCity'` | Profile for cities. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
-| `townProfile` | `tp` | str | `'medievalTown'` | Profile for towns. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
-| `villageProfile` | `vp` | str | `'hamlet'` | Profile for villages. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `cityProfile` | `cp` | str | `'europeanCity'` | Profile for cities. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `mexicanCity`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `townProfile` | `tp` | str | `'medievalTown'` | Profile for towns. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `mexicanCity`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `villageProfile` | `vp` | str | `'hamlet'` | Profile for villages. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `mexicanCity`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
 | `cityRadius` | `cr` | float | `120000.0` | Largest city radius, cm. |
 | `townRadius` | `tr` | float | `45000.0` | Largest town radius, cm. |
 | `villageRadius` | `vr` | float | `15000.0` | Largest village radius, cm. |
@@ -21233,7 +21236,7 @@ Where settlements would go: the best sites inside an outline, best first, no two
 | `count` | `c` | int | `5` | How many sites. |
 | `spacing` | `sp` | float | `0.0` | Least distance between sites, cm; 0 picks one from the area and count. |
 | `kind` | `k` | str |  | Kind of place, setting the term weights; empty for the profile's (town). One of ``, `town`, `market`, `port`, `mining`, `fort`, `farming`, `mill`. |
-| `profile` | `pf` | str | `'medievalTown'` | Profile whose siting rules start the weights. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
+| `profile` | `pf` | str | `'medievalTown'` | Profile whose siting rules start the weights. One of `hamlet`, `streetVillage`, `medievalTown`, `usTown`, `mexicanCity`, `manhattan`, `europeanCity`, `modernCity`, `scifiMegacity`. |
 | `rules` | `ru` | Any |  | Term weights over the kind's: {water: 0.6, defense: 0.3, ...}. |
 | `riverArea` | `ra` | float |  | Terrain: drainage area, m2, past which water is a river. |
 | `seaLevel` | `sea` | float |  | Terrain: sea level along the up axis, cm. |
@@ -23513,7 +23516,7 @@ terrainBatch(calls=[{'command': 'terrainStampPad', 'flags': {'args': ['Terrain']
 
 ### terrainBathymetry
 
-Lay a seabed under a terrain's sea: from a GEBCO grid (file=, a GeoTIFF tile from gebco.net or any elevation file readDem reads) placed by the terrain's georeference, or fetched for the terrain's area (fetch=True: GEBCO through OpenTopography with your API key; estimate=True says the size first, and a download over 25 MB needs consent=True). With bbox= no terrain is needed to estimate or fetch: the grid goes to file= (else the terrain data's bathymetry folder) and is applied only when a terrain is found. The DEM's flat sea (ground at or below sea level plus landTolerance, joined to the edge or deep grid water) takes the grid's depths blended in from a shoreline profile over blendWidth cm, so the shore is continuous and the shelf smooth; with no grid the profile alone (shoreSlope off the beach, shelfDepth at shelfWidth, dropDepth beyond). Writes the GEBCO credit into the terrain data's ATTRIBUTION.txt. off=True removes it. Returns the seabed source (grid, profile or grid+profile), samples, depths and notes.
+Lay a seabed under a terrain's sea: from a GEBCO grid (file=, a GeoTIFF tile from gebco.net or any elevation file readDem reads) placed by the terrain's georeference, or fetched for the terrain's area (fetch=True: GEBCO through OpenTopography with your API key; estimate=True says the size first, and a download over 25 MB needs consent=True). With bbox= no terrain is needed to estimate or fetch: the grid goes to file= (else the terrain data's bathymetry folder) and is applied only when a terrain is found. The DEM's flat sea (ground at or below sea level plus landTolerance, joined to the edge or deep grid water) takes the grid's depths blended in from a shoreline profile over blendWidth cm, so the shore is continuous and the shelf smooth; with no grid the profile alone (shoreSlope off the beach, shelfDepth at shelfWidth, dropDepth beyond); a file the terrain can't place (no georeference) leaves the seabed as it was, source none, with a note. Writes the GEBCO credit into the terrain data's ATTRIBUTION.txt. off=True removes it. Returns the seabed source (grid, profile, grid+profile or none), samples, depths and notes.
 
 **Objects:** terrain mesh or its modifier
 
@@ -24533,7 +24536,7 @@ terrainMaterialPreview('Terrain', materials=False, resolution=1024)
 
 Set a terrain's material layers: grass, rock, dirt, sand, snow, gravel, road, riverbed or your own, each placed by rules over masks and derived fields, with noise to break up its edges. Layers go bottom first; the first is the base and takes whatever the others leave, and each layer above covers its rule's share of what is left under the ones above it, so the weights (masks layer_<name>) always sum to 1.
 
-A layer is {name, material (a library id; Meadowlight's by default for the usual names), color ([r, g, b] linear, else the material's mean colour), roughness, tileSize (cm), opacity, when: {input: [min, max] or {range, fade, invert}, biome: name(s)}, noise: {amount, scale (cm)}}. Inputs: height (cm), slope and aspect (degrees), curvature, nearCliff, temperature (C), moisture, flow, wear, deposit, lakes, wet and every other mask, painted ones included. With no layers it uses defaults fitted to the terrain (sand only with seaLevel=).
+A layer is {name, material (a library id; Meadowlight's by default for the usual names), color ([r, g, b] linear, else the material's mean colour), roughness, tileSize (cm), opacity, when: {input: [min, max] or {range, fade, invert, blur (cm)}, biome: name(s)}, noise: {amount, scale (cm)}}. Inputs: height (cm), slope and aspect (degrees), curvature, nearCliff, temperature (C), moisture, flow, wear, deposit, lakes, wet and every other mask, painted ones included. With no layers it uses defaults fitted to the terrain (sand only with seaLevel=).
 
 Adds a Terrain Layers node at the end of the terrain's group, or updates it. Returns each layer's coverage (mean weight, the share of the terrain), area in m2, where it dominates, its material and colour, the largest error of the weight sum, and any inputs the rules named that the terrain lacks (those ranges read 0). The layers also become the heightfield draw's paint layers (terrainDisplayLayers), each layer_<name> in its colour, returned as displayLayers.
 
