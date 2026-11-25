@@ -91,7 +91,9 @@ Sea floor data (GEBCO) comes through OpenTopography, which needs a free API key:
 
 **"OpenTopography needs your API key".** Sign in at portal.opentopography.org and request one under My Account. Pass it once: `worldFetch(file='worlds/sinaloa_real.json', apiKey='...', saveKey=True)`.
 
-**A download failed.** The error names the file and the reason. Files fetched before it are kept, so building again carries on from there. **Cache Only** builds from earlier downloads without the network.
+**"apiKey looks like a placeholder", or "the saved OpenTopography key is a placeholder".** The key passed (or saved earlier) is example text such as `<your OpenTopography key>`, not a key. Pass your real key with `saveKey=True` to replace it.
+
+**A download failed, or you pressed Abort.** The error names the file and the reason. Files fetched before it are kept, so building again carries on from there. **Cache Only** builds from earlier downloads without the network.
 
 **Memory nearly doubles after rebuilding a world.** The replaced world stays on the undo stack, so a rebuild needs room for both (about 54 GB for a full sample map, against 34 GB for a first build). `flushUndo()` frees it.
 
