@@ -6961,7 +6961,7 @@ Available when the Settlement extension is loaded.
 
 #### Settlement
 
-Lays out a settlement inside an outline: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile's pattern, blocks between them, lots along the streets and a building envelope on each lot (the space a building may fill: footprint, floors, height, roof). Exclusions (closed loops with int edge attribute exclude, or in edits) stay clear of all of it; edits add streets and routes, routed over the ground or across the walkable mesh. Streets are ribbons with face attributes street, class (0 arterial, 1 collector, 2 local, 3 alley, 4 path) and path (the edit id, -1 when generated); lots are outlines with an edge attribute lot; envelopes are closed volumes with face attributes lot, use (0 residential, 1 commercial, 2 civic), floors and part (0 wall, 1 roof, 2 floor). Curves carry the centrelines, lot outlines and footprints. Lengths are cm, Y up.
+Lays out a settlement inside an outline: arterial roads routed over the ground from the centre to gates and attractors, streets grown, gridded or ringed by the profile's pattern, blocks between them, lots along the streets and a building envelope on each lot (the space a building may fill: footprint, floors, height, roof). Exclusions (closed loops with int edge attribute exclude, or in edits) stay clear of all of it; edits add streets and routes, routed over the ground or across the walkable mesh. Streets are carriageway and sidewalk strips with face attributes street, class (0 arterial, 1 collector, 2 local, 3 alley, 4 path), path (the edit id, -1 when generated) and material (asphalt, sidewalk, earth, paving or concrete slots); ground is each block's yards, park or square and the lots that show their own ground (vacant lots, works yards, fields, graveyards), face attributes block and material; lots are outlines with an edge attribute lot; envelopes are closed volumes with face attributes lot, use (0 residential, 1 commercial, 2 civic), floors and part (0 wall, 1 roof, 2 floor). Curves carry the centrelines, lot outlines and footprints. Lengths are cm, Y up.
 
 ![Settlement](../images/nodes/Settlement.webp)
 
@@ -6969,7 +6969,7 @@ Lays out a settlement inside an outline: arterial roads routed over the ground f
 | --- | --- | --- | --- | --- |
 | `site` | geometry | input |  | Outline (the largest closed curve or loose-edge loop), fixed streets (open lines) and points (the first is the centre, the rest attractors main roads run to). Loose edges with int attribute road are main roads arriving from outside; with int attribute water they are rivers, float attribute width their width; loops with int attribute exclude are exclusions. |
 | `ground` | geometry | input |  | Mesh the settlement stands on. Empty for flat ground at the site's height. |
-| `profile` | string | input | `medievalTown` | Style: hamlet, streetVillage, medievalTown, usTown, manhattan, europeanCity, modernCity, scifiMegacity. |
+| `profile` | string | input | `medievalTown` | Style: hamlet, streetVillage, medievalTown, usTown, mexicanCity, manhattan, europeanCity, modernCity, scifiMegacity. |
 | `pattern` | string | input |  | Override the profile's pattern: organic, grid, radial, linear, organicGrid, none, tensor, contour, osm, example. |
 | `overrides` | string | input |  | JSON object of profile fields to change, such as {"maxFloors": 6}. |
 | `size` | float | input | `40000` | Side of the square used when the site has no outline. At least 100. |
@@ -6987,12 +6987,14 @@ Lays out a settlement inside an outline: arterial roads routed over the ground f
 | `showStreets` | bool | input | `true` | Include streets in geometry. |
 | `showLots` | bool | input | `true` | Include lot outlines in geometry. |
 | `showBuildings` | bool | input | `true` | Include building envelopes in geometry. |
+| `showGround` | bool | input | `true` | Include the ground of blocks and lots in geometry. |
 | `generators` | string | input |  | Tensor fields, eras, districts, walls, imported streets and levels as JSON (settlementCreate's generator flags write it). |
 | `geometry` | geometry | output |  | What the show inputs select, joined. |
 | `streets` | geometry | output |  | Street ribbons and centreline curves. |
 | `lots` | geometry | output |  | Lot outlines as loose edges and closed curves. |
 | `buildings` | geometry | output |  | Building envelopes as closed meshes, footprints as closed curves. |
 | `water` | geometry | output |  | River ribbons. |
+| `ground` | geometry | output |  | Ground of blocks and lots: yards, parks, squares, vacant lots, works yards. |
 | `levels` | geometry | output |  | Levels above the ground as curves: deck streets and outlines, elevated roads, ramps, skybridges and air lanes, with class, layer and kind (0 deck, 1 elevated, 2 ramp, 3 skybridge, 4 air, 5 deck outline). |
 
 ## Stagehand extension
@@ -7349,6 +7351,8 @@ The whole erosion chain as one age: macro form (analytic stream power at low res
 | `age` | float | input | `0.5` | 0 is off, 1 is very old. Range 0 to 2. |
 | `seed` | int | input | `0` | Random seed. |
 | `hardnessMask` | string | input |  | Mask of hard rock (1). |
+| `keepForm` | bool | input | `false` | Keep landforms wider than formRadius as they are (real elevation). |
+| `formRadius` | float | input | `30000` | Widest landform the chain may change, cm. At least 100. |
 | `heightfield` | geometry | output |  |  |
 
 | Property | Options | Default | Description |
@@ -7741,7 +7745,7 @@ Steps the ground into flat treads and risers every step cm.
 
 #### Terrain Bathymetry
 
-A seabed under the flat sea a land DEM leaves: a GEBCO grid (GeoTIFF or any elevation file) placed by the terrain's georeference and blended in from a shoreline profile, so the shore stays continuous and the shelf smooth; without a grid, the profile alone (shelf, then the drop to deep water). Writes mask seabed. terrainBathymetry sets it; it goes right after the source.
+A seabed under the flat sea a land DEM leaves: a GEBCO grid (GeoTIFF or any elevation file) placed by the terrain's georeference and blended in from a shoreline profile, so the shore stays continuous and the shelf smooth; without a grid, the profile alone (shelf, then the drop to deep water); a grid it can't place leaves the seabed as it was. Writes mask seabed. terrainBathymetry sets it; it goes right after the source.
 
 | Socket | Type | Kind | Default | Description |
 | --- | --- | --- | --- | --- |
