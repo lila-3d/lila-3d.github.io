@@ -2618,6 +2618,7 @@ Create a material (Unreal default lit inputs). Faces use it through a slot of th
 | `volumeNoiseOffset` |  | tuple[float, float, float] |  | Volume: moves the noise through the volume, cm; key it for drifting clouds. |
 | `volumeEdgeFade` |  | float |  | Volume: depth inside a filled mesh over which density fades in from its surface, cm; 0 is a hard edge. |
 | `instanceColor` |  | bool |  | Shows the colour instances carry (container liveries, building palettes): it replaces the base colour, or tints the base colour map. Off keeps this material's own colour on coloured instances. |
+| `instanceColor2` |  | bool |  | Takes the instances' second colour (their color2) instead of the first: the other tone of a two-tone piece, such as a building's trim against its walls. |
 
 ### createMesh
 
@@ -16484,6 +16485,17 @@ buildingAge(polygon=[[0, 0], [8000, 0], [8000, 8000], [0, 8000]], dirt=0.7)
 buildingAge('building:1a2b', preset='Grunge')
 ```
 
+### buildingCache
+
+The building cache beside the saved scene (<scene>_cache/buildings.bin): every generated building, written after a save that changed buildings and read when the scene opens, so reopening skips generating buildings whose spec, style and edits are unchanged; the rest regenerate. With no flags, reports the file. write= writes it now for the current scene (waits for a write in progress). clearMemory= forgets the generated buildings held in memory, so the next evaluation reads them from the cache or generates them again.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `write` | `w` | bool | `False` | Write the cache for the current scene now. |
+| `clearMemory` | `cm` | bool | `False` | Forget the generated buildings held in memory. |
+
+Not undoable.
+
 ### buildingCharacterProfile
 
 The character interiors are checked against (saved with the scene): capsule height and radius, the highest step it walks up and the steepest slope, Unreal's default character unless set. Stairs are built to it (risers no higher than 18 cm or the step, slopes no steeper), doors are at least its width plus clearance. Interiors regenerate when it changes. Returns the profile.
@@ -20932,7 +20944,7 @@ settlementRegion(ground='Terrain', water=[[[-200000, -150000], [0, 0], [180000, 
 
 ### settlementRemoveFromUnreal
 
-Removes everything a settlement sent to the open Unreal level: its placements and mesh cells (with their meshes), road, path and level splines, PCG cells with their data assets, its ZoneGraph lanes and Mass traffic data. Give the settlement, or key= for one already deleted in Lila (the Unreal key its sends used, the settlement mesh's name). Its sync manifest is deleted, so a later send sends everything again. Returns what Unreal removed per kind and any errors.
+Removes everything a settlement sent to the open Unreal level: its placements and mesh cells (with their meshes), road, path and level splines, PCG cells with their data assets, its ZoneGraph lanes and Mass traffic data. Give the settlement, or key= for one already deleted in Lila (the Unreal key its sends used, the settlement mesh's name). Its sync manifest is deleted, so a later send sends everything again. Returns what Unreal removed per kind and any errors; laneProfilesRemoved lists the Lila_ lane profiles taken out of the project ini because no level's settlement uses them any more (configBackup: the ini as it was); paintLayersRemoved lists the landscape paint layers Lila had added for the roads and took out with them, and warnings name any such layer kept because someone painted it by hand.
 
 **Objects:** settlement mesh or its modifier (or key=)
 
@@ -21068,7 +21080,7 @@ settlementRoute('Settlement', start=[-90000, 0], via=[[0, 60000]], end=[90000, 0
 
 ### settlementSendToUnreal
 
-Sends a settlement to the connected Unreal editor and keeps it in sync: each send compares what it would make with what the last send to that project made (a manifest keyed by stable ids: streets, lots, envelopes, junctions, placements) and sends only the objects whose contents changed, removing those that are gone. Everything spatial is cut into World Partition cells of side cell, one actor per cell, so the level streams it. Roads go as landscape splines (roads='landscape', joined at junctions, shaping the landscape), as spline actors (roads='splines', with spline meshes of roadMesh along them), as ribbon meshes per cell (roads='meshes') or not at all; paths on the walkable mesh go as a spline actor. massing=True sends each cell's envelopes as a static mesh. pcg=True writes PCG data: per cell (partition=True) a data asset and a cell actor whose PCG component runs pcgGraph with the asset as its SettlementData parameter, else one data asset for the whole settlement. Pins: Lots (polygons: Key, Use, Area, Frontages, Corner, FrontClass, Seed), Envelopes (footprints: MaxHeight, Floors, FloorHeight, Base, Ground, Use, Roof, Era, Style, Seed), EnvelopePoints, Roads (splines: Key, Class, Profile, Width, Lanes), Intersections and ParkingSpots. zoneGraph=True writes ZoneGraph lane shapes and rebuilds the ZoneGraph. The settlement's placements (library buildings, furniture, and the placements flag) go as HISM instances per cell and asset. dryRun=True only returns the cells and the diff. Returns the diff, what Unreal made and removed, and any errors.
+Sends a settlement to the connected Unreal editor and keeps it in sync: each send compares what it would make with what the last send to that project made (a manifest keyed by stable ids: streets, lots, envelopes, junctions, placements) and sends only the objects whose contents changed, removing those that are gone. The manifest names the level it was written for by its GUID: a level deleted and made again under the same path gets everything again (resentAll says why). Everything spatial is cut into World Partition cells of side cell, one actor per cell, so the level streams it. Roads go as landscape splines (roads='landscape', joined at junctions, shaping the landscape and painting roadLayer over the carriageways and shoulderLayer over sidewalks and verges, layers added when the landscape lacks them and taken off it again once no spline paints them; changing roadLayer, shoulderLayer or deformTerrain resends the roads alone; landscape regions World Partition had unloaded are loaded for the redraw), as spline actors (roads='splines', with spline meshes of roadMesh along them), as ribbon meshes per cell (roads='meshes') or not at all; paths on the walkable mesh go as a spline actor. massing=True sends each cell's envelopes as a static mesh. pcg=True writes PCG data: per cell (partition=True) a data asset and a cell actor whose PCG component runs pcgGraph with the asset as its SettlementData parameter, else one data asset for the whole settlement. Pins: Lots (polygons: Key, Use, Area, Frontages, Corner, FrontClass, Seed), Envelopes (footprints: MaxHeight, Floors, FloorHeight, Base, Ground, Use, Roof, Era, Style, Seed), EnvelopePoints, Roads (splines: Key, Class, Profile, Width, Lanes), Intersections and ParkingSpots. zoneGraph=True writes ZoneGraph lane shapes and rebuilds the ZoneGraph. The settlement's placements (library buildings, furniture, and the placements flag) go as HISM instances per cell and asset. dryRun=True only returns the cells and the diff. Returns the diff, what Unreal made and removed, and any errors.
 
 **Objects:** settlement mesh or its modifier
 
@@ -21078,6 +21090,8 @@ Sends a settlement to the connected Unreal editor and keeps it in sync: each sen
 | `roadMesh` | `rm` | str |  | Static mesh asset laid along road splines, such as /Game/Roads/SM_Road. |
 | `landscape` | `ls` | str |  | roads='landscape': the landscape's label (default the first one). |
 | `deformTerrain` | `dt` | bool | `True` | roads='landscape': the splines shape the landscape. |
+| `roadLayer` | `rl` | str | `'roadSurface'` | roads='landscape': landscape paint layer of the carriageways; empty paints none. |
+| `shoulderLayer` | `sl` | str | `'roadVerge'` | roads='landscape': landscape paint layer of the sidewalks and verges; empty paints none. |
 | `cell` | `ce` | float | `12800.0` | World Partition cell side, cm: road meshes, massing, PCG data and placements are cut by it. |
 | `massing` | `ma` | bool | `True` | Envelopes as a static mesh per cell. |
 | `pcg` | `pc` | bool | `True` | Lots, envelopes and roads as PCG data. |
