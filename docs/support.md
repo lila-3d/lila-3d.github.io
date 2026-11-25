@@ -29,7 +29,7 @@ Replies show in **Help > My Reports**, and Lila tells you when a new one arrives
 ## Report a slow viewport
 
 1. Open the scene where it's slow, then **Help > Report a Bug** and set **Type** to **Performance**.
-2. Click **Record Trace...**, then **Record**, and do the slow thing (orbit, select, scrub) until it stops. 10 seconds is plenty. The trace attaches to the report by itself.
+2. Click **Record Trace...**, then **Record**, and do the slow thing (orbit, select, scrub) until it stops. 10 seconds is plenty. The trace attaches to the report by itself. The dialog records up to 2 minutes; for a long scripted run, `perfTraceRecord(seconds=...)` records up to 3 hours.
 3. Fill in the rest and click **Send**.
 
 For more detail, click **Restart as Administrator** in the recorder first. Lila reopens with your report as you left it. Windows only lets Lila sample where its time goes, including inside the graphics driver, while it runs as administrator. It changes nothing else, and the recording works without it. Open Lila normally again afterwards.
