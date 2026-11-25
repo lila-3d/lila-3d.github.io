@@ -35,6 +35,8 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 
 **Buildings don't match their settlement.** **Level > Buildings > Refresh Buildings** rebuilds the ones whose settlement changed.
 
+**A `<scene>_cache` folder appeared beside the scene.** Saving a scene with buildings writes `buildings.bin` there (about 100 KB a building), so reopening reads unchanged buildings back instead of generating them. Deleting it is safe: the buildings regenerate on the next open. Another version of Lila or Buildings ignores the file and regenerates, and the log says so. Ship it with the scene to spare the next person the wait. `buildingCache()` reports the file; `buildingCache(write=True)` writes it now.
+
 ## Tune it
 
 | Option | What it does |
@@ -44,6 +46,7 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 | Parts | Every module is a slot (`door.shop`, `window.residential`, `sign.storefront`, `balcony.iron`, `wall.bay`, `roof.tiled`). Swap them for your kit with a [slot rule](slots.md). |
 | **Age Buildings** | A Weathering preset per building or district, and palette dirt from 0 (pristine resort) to 1. |
 | **Building LOD** | **Near** (shell and modules), **HLOD** (tiers and roofs) or **Far** (flat-roof blocks) per mesh. `buildingLod(lod='auto')` picks by distance from the viewport camera: near within 400 m, far past 2 km (prefs `buildings/lodNear`, `buildings/lodFar`, in cm). **Make Proxies** writes the HLOD and far meshes for export. |
+| `moduleTones` | In a style's JSON, the two palette colours each module kind takes: `"moduleTones": {"arcade": ["render", "trim"], "window": [null, "trim"]}`. Names are `render`, `trim`, `roof`, `base`, `frame`, `door`, `awning` or `none`; `null` keeps the default. A material with **Second Tone** on draws the second one ([colours](slots.md#colours)). |
 | **Building Trim Sheet** | Bakes the LilaBuilding trim sheet the shells are laid on (needs Trim Sheets), as a copy in the workspace's `TrimSheets` folder, or your user `trim-sheets` folder with no workspace open. |
 
 Shop signs carry fictional business names; a sign or building name that matches a real one fails **Check Buildings**.
@@ -88,6 +91,8 @@ buildingMakeEnterable(programs=['police', 'bar'], landmarks=True, limit=10)    #
 ```
 
 **Program** in the Attribute Editor re-plans the whole interior. Each room is a mesh of its own under `Interior_<id>`: model it freely, and it stays as you left it when the building changes. **Make Enterable** with **Reset Hand Edits** regenerates it. **Make Exterior** takes the interior away again.
+
+On a sloped lot the ground floor steps with the street in 30 cm terraces, with steps at doors between levels. Floors too tight for a stair core get a dog-leg stair landing in the rooms, or a straight flight per floor, and no lift; the result's notes say which.
 
 ### Troubleshooting
 
