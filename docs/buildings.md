@@ -35,7 +35,9 @@ Edits, slot overrides and pins are kept by building id, so running **Create Buil
 
 **Buildings don't match their settlement.** **Level > Buildings > Refresh Buildings** rebuilds the ones whose settlement changed.
 
-**A `<scene>_cache` folder appeared beside the scene.** Saving a scene with buildings writes `buildings.bin` there (about 100 KB a building), so reopening reads unchanged buildings back instead of generating them. Deleting it is safe: the buildings regenerate on the next open. Another version of Lila or Buildings ignores the file and regenerates, and the log says so. Ship it with the scene to spare the next person the wait. `buildingCache()` reports the file; `buildingCache(write=True)` writes it now.
+**A `<scene>_cache` folder appeared beside the scene.** Saving a scene with buildings writes `buildings.bin` there (about 11 KB a building), so reopening reads unchanged buildings back instead of generating them. Deleting it is safe: the buildings regenerate on the next open. Another version of Lila or Buildings ignores the file and regenerates, and the log says so. Ship it with the scene to spare the next person the wait. `buildingCache()` reports the file; `buildingCache(write=True)` writes it now.
+
+**Memory stays high after closing a big town.** Lila keeps generated buildings in memory so a rebuild reuses them. `buildingCache(clearMemory=True)` lets them go.
 
 ## Tune it
 
@@ -55,7 +57,7 @@ Shop signs carry fictional business names; a sign or building name that matches 
 
 Open a World Partition level with LilaLink built into the project, then `buildingSend()`. Shells go as Nanite meshes inside Settlement's World Partition cells, modules as slots (your slot's Unreal class or mesh, else the placeholder), and the HLOD and far proxies as World Partition Custom HLOD actors in `/Game/Lila/HLOD/HL_LilaBuildings` and `HL_LilaBuildingsFar`, made when missing. **Save All** in Unreal afterwards: a send imports assets without saving them.
 
-Materials: `MF_LilaBuildingVariation` with a generated `M_LilaBuilding` and an `MI_Bld_<style>` per style; modules share `MI_Bld_Modules`. Each building's colour and dirt travel in vertex colour, and modules carry their building's palette as an [instance colour](slots.md#colours): put `MF_LilaBuildingVariation` between your base colour and the material output to use them in your own material.
+Materials: `MF_LilaBuildingVariation` with a generated `M_LilaBuilding` and an `MI_Bld_<style>` per style; modules share `MI_Bld_Modules`, and module materials with **Second Tone** on get an `MI_Bld_Tone_<slot>` each. Each building's colour and dirt travel in vertex colour, and modules carry their building's palette as an [instance colour](slots.md#colours): put `MF_LilaBuildingVariation` between your base colour and the material output to use them in your own material. Set its `SecondTone` input to 1 on parts that take the second palette colour; `SecondToneBase` is the colour shown where a module has none.
 
 Sending again skips whatever the level already holds unchanged.
 
