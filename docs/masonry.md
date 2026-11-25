@@ -144,6 +144,8 @@ Other modes:
 
 **Stones in Unreal but nothing in the level after a resend.** Errors from the editor go to Lila's log as `masonryShip <wall>: ...`; `wait=True` returns them in `["unreal"]["errors"]`.
 
+**`recordIgnored` after remaking a level.** The level at that path is a new one, so no chunks were removed from it and the wall was sent whole. `levelUnchecked` means LilaLink is too old to tell levels apart: rebuild it from Lila's `ue/LilaLink`.
+
 **Baking is slow.** It runs on the GPU when there is one, else the CPU; `["bakeBackend"]` in the result says which. Lower `textureSize`, or send with `textures=False` to skip the atlas.
 
 **"plugin in this editor is too old for masonry materials".** Rebuild LilaLink from Lila's `ue/LilaLink`, or send with `material="none"`.
