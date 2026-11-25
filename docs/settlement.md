@@ -153,11 +153,12 @@ settlementSendToUnreal(mesh, roads="landscape", pcg=True, zoneGraph=True, massin
 
 - Everything is cut into World Partition cells (`cell`, 128 m by default). Sending again sends only what changed since the last send and deletes what is gone; `resend=True` sends all of it, `dryRun=True` reports what would go.
 - **roads**: `landscape` (landscape splines joined at junctions, shaping the landscape), `splines` (a spline actor; `roadMesh=` lays a mesh along it), `meshes` (ribbon meshes per cell) or `none`. Paths on the walkable mesh always go as a spline actor.
+- Landscape roads paint `roadSurface` over the carriageway and `roadVerge` over sidewalks and verges, layers a Lila terrain's landscape draws. `roadLayer=` and `shoulderLayer=` pick other layers (empty paints none) and `deformTerrain=False` paints without shaping; changing any of them resends the roads alone. In a World Partition level the send loads the regions the roads reach: **Save All** afterwards writes them. A paint layer Lila added for roads leaves the landscape and its generated material once no road paints it.
 - **massing** sends the greybox buildings as static meshes; library buildings and street furniture go as HISM instances (`placeMode`: `hism`, `ism` or `actors`).
 - **pcg** writes a PCG data asset per cell under **folder**, with an actor that runs `pcgGraph` on it, the asset bound to the graph's `SettlementData` parameter. `makeGraph=True` makes `pcgGraph` when the project has none: an empty graph with that parameter, ready for your nodes. A cell that is gone takes its data asset with it. Read it with **Load PCG Data Asset**: pins Lots, Envelopes (footprint polygons with `MaxHeight`, `Floors`, `Use`, `Roof`, `Style`, `Seed` on the data), EnvelopePoints (a point per building), Roads, Intersections (`control`: signal, stop or yield; phases) and ParkingSpots (along roads whose profile has parking, such as `parkedStreet`).
 - **levels** above the ground (decks, elevated roads, ramps, skybridges) go as one spline actor, and as ZoneGraph shapes tagged `Level` with the rest of the lanes.
 - **zoneGraph** adds lane profiles named `Lila_<profile>` and tags (Vehicle, Pedestrian, Access, Parking, Intersection, Crossing, TrafficLight, StopSign) to the project's ZoneGraph settings, then a spline zone shape per road and crosswalk and a polygon per junction, and rebuilds the ZoneGraph for Mass traffic and crowds. So traffic never gets stuck, a two-way dead end gets a turning loop, roads of different profiles meeting end to end get a polygon between them, junctions a few metres apart become one polygon, and the lanes of roads a car could drive into but never back out of are Access lanes Mass traffic stays off (the send warns how many).
-- `settlementRemoveFromUnreal(mesh)` takes everything a settlement sent out of the level: placements, cells and their meshes, splines, PCG data, lanes and traffic data. `key='Puerto'` (the settlement mesh's name) removes one already deleted in Lila.
+- `settlementRemoveFromUnreal(mesh)` takes everything a settlement sent out of the level: placements, cells and their meshes, splines with their road shape and paint, PCG data, lanes and traffic data, and the `Lila_` lane profiles no other level uses. `key='Puerto'` (the settlement mesh's name) removes one already deleted in Lila.
 
 #### Mass traffic
 
@@ -210,6 +211,16 @@ To make streets match a road kit, read its cross-section: `settlementRoadProfile
 **`settlementSendToUnreal` asks for the LilaLinkSettlement plugin.** Copy `ue/LilaLinkSettlement` next to LilaLink in the project's Plugins folder and enable it.
 
 **The project's `Config/DefaultPlugins.ini` changed.** A **zoneGraph** send writes its lane profiles and tags there. The file as it was before each change is in the project's `Saved/LilaLink/ConfigBackups` folder.
+
+**A `Lila_` lane profile stays after removing its settlement.** Another level's settlement or crowd still uses it. `Config/LilaLink/LaneProfileUsers.json` records which; commit it with `DefaultPlugins.ini`.
+
+**"the landscape's material does not sample paint layer ...".** The road paint is in the landscape but your material draws no such layer. Add a Layer Sample for it, or pass `roadLayer=` a layer it has. A Lila terrain sent with material layers draws only those: `roadLayer='Road', shoulderLayer=''`.
+
+**"paint layer ..., added for Lila's roads, has paint of its own".** Someone painted that layer by hand, so it stays on the landscape for you to remove. Layers you made yourself are never removed.
+
+**"could not add a Splines edit layer".** The landscape can't take edit layers, so the roads neither shape nor paint it.
+
+**`resentAll` after remaking a level.** The level at that path is a new one, so everything was sent again. `levelUnchecked` means LilaLink is too old to tell: rebuild it from Lila's `ue/LilaLink`, or send with `resend=True`.
 
 **`settlementRoadProfileFromUnreal` lists `unknown` slots.** Their names don't say lane, median, parking, sidewalk or verge; they were counted as verge. Rename the slots, or edit the profile under `roadProfiles` in the **edits** input.
 
