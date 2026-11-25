@@ -66,9 +66,11 @@ A small spec. Only `name` and `terrain` are required; a settlement comes from Op
 }
 ```
 
-A built world's terrain gets default material layers fitted to the finished ground: grass, forest on hillsides, sand at the shore, riverbed, rock on steep ground, roads, dirt and gravel where it was eroded, and snow only on land 3 km or more above the sea. Its sea gets a water material. `terrain.materials` in the spec sets your own layers.
+A built world's terrain gets default material layers fitted to the finished ground: grass, forest on hillsides, sand at the shore, riverbed, rock on steep ground, roads, dirt and gravel where it was eroded, and snow only on land 3 km or more above the sea. Its sea gets a water material. `terrain.materials` in the spec sets your own layers (`terrainMaterialRules` flags), also laid last over the finished ground. With real data, rules on the land cover masks (`landcover_forest`, `landcover_farmland`, `landcover_urban`, `mangrove`) read better than height and slope alone.
 
 **Real places.** Give each remix source a `bbox` and the files to keep its data in (`dem`, `osm`, `landcover`, `bathymetry`), relative to the spec file. In **Build World**'s option box, turn on **Fetch Missing Data**: the box lists each missing file with its download size, and the build downloads them to those paths before it starts. Files already there are kept. Over 25 MB, or on a metered connection, also turn on **Allow Large Download**. Run **World Map** first to check that settlement areas and site positions land where you want them.
+
+Give each source its own `scale` to compress the countryside more than the cities: rural sources at `1:6` and city sources at `1:2` over them fit a coast, a valley and a range of hills into a game-sized map with the streets still drivable. Lay the rural sources along the coast in their real order, and put each city source at the same place its rural source shows it.
 
 ```python
 worldBuild(file='worlds/sinaloa_real.json', estimate=True)['estimate']['summary']   # what is missing, and the sizes
@@ -92,6 +94,10 @@ Sea floor data (GEBCO) comes through OpenTopography, which needs a free API key:
 **"OpenTopography needs your API key".** Sign in at portal.opentopography.org and request one under My Account. Pass it once: `worldFetch(file='worlds/sinaloa_real.json', apiKey='...', saveKey=True)`.
 
 **"apiKey looks like a placeholder", or "the saved OpenTopography key is a placeholder".** The key passed (or saved earlier) is example text such as `<your OpenTopography key>`, not a key. Pass your real key with `saveKey=True` to replace it.
+
+**A source's box ends on land, leaving a straight coast or a straight cliff into the sea.** Draw a `sea` region over that land (see [World Remix](#world-remix)): the coast then follows the region's outline.
+
+**A lagoon or estuary comes out as square islands.** The elevation data holds the water a little above sea level. Give the source its `landcover` (WorldCover): water it marks within 3 m of sea level joins the sea.
 
 **A download failed, or you pressed Abort.** The error names the file and the reason. Files fetched before it are kept, so building again carries on from there. **Cache Only** builds from earlier downloads without the network.
 
@@ -161,7 +167,7 @@ A remix composes real places onto one map before they become terrain, so heights
 
 1. **Level > Open World > Create Remix** makes the remix terrain. Its option box sets the **Horizontal** and **Vertical** scales.
 2. **Add Source** adds a place: its elevation file, OpenStreetMap file and WorldCover land cover, or a bounding box with **Fetch** to download them (the sizes are reported). **At** is where its centre lands on the map, in cm.
-3. Draw a closed curve around a city, select it and pick **Add Region**. **Op** `cut` lifts it out and places it at **Translate** and **Angle**, filling the hole; `move` carries it rigidly while the land around stretches; `keep` holds it still; `duplicate` and `delete` do what they say.
+3. Draw a closed curve around a city, select it and pick **Add Region**. **Op** `cut` lifts it out and places it at **Translate** and **Angle**, filling the hole; `move` carries it rigidly while the land around stretches; `keep` holds it still; `duplicate` and `delete` do what they say; `sea` sinks the land inside to the sea floor over the seam band, to draw a coast where a source's box ends on land.
 4. **Edit Remix** lets you drag regions (Ctrl+drag turns them) and pins in the viewport. **Before Remix** shows the base map for comparison.
 5. **Apply Remix** writes `remix.osm.json`, the heights and the spec under the workspace's `openworld/remix/<name>` folder, and drapes the roads, rivers and coast on the terrain. Cut roads are routed back together, rivers re-solved to drain to the sea, and the coastline re-joined.
 
@@ -174,6 +180,8 @@ remixApply('World')
 ```
 
 Pins move a point of the map (or hold it with no **To**) and the land around follows without folding: use them to squeeze the empty land between two cities.
+
+The remix's regions, seams and pins draw over the viewport while its **Remix Overlay** is on; a built world starts with it off. **Overlays > Show World Remix** in the viewport header hides it in one view.
 
 ### Troubleshooting
 
@@ -192,7 +200,9 @@ Pins move a point of the map (or hold it with no **To**) and the land around fol
 
 **A steep edge remains round a pasted region.** The seam is capped at a quarter of the region's size. `stats.regionLevels` in the **Apply Remix** result gives each region's `stepLeft`. Move the region to ground nearer its height.
 
-**The sea floor is flat or a plain shelf.** No source has a bathymetry grid. Give the source a `bathymetry` GEBCO GeoTIFF; with none, the remix lays a shelf profile and its notes say so.
+**The sea floor is flat or a plain shelf.** No source has a bathymetry grid. Give the source a `bathymetry` GEBCO GeoTIFF; with none, the remix lays a shelf profile and its notes say so. With `map.size` set, fetching downloads each source's grid for the whole map, so the floor has no step where a source's box ends.
+
+**Roads stop at a `sea` region's edge.** Roads it cuts end at the new shore rather than being routed through the water.
 
 **Terrain's OSM import onto the remix says the terrain has no location.** The remix terrain needs `origin=`. Use the `origin` **Apply Remix** returns.
 
@@ -261,6 +271,8 @@ zoneQuery(point=[12000, 0, -3500])['layers']['police']['attrs']['agency']
 ```
 
 New zones get fictional names in the set's naming culture.
+
+Each zone set draws one layer: the one picked in the panel, else the visible layer with the highest priority, as outlines and names. Its fill shows while you work on the zones: the set selected, the panel open or **Paint Zones** on. **Overlays > Show Zones** in the viewport header hides them in one view.
 
 ### Troubleshooting
 
