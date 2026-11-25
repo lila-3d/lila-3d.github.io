@@ -44,6 +44,8 @@ The trace holds timings, Lila's function names, your system and GPU and this ses
 
 **Lila crashes on startup after an update or a prefs change.** Close Lila, open `%APPDATA%\Lila`, and rename the `prefs` folder to `prefs-old`. Lila starts with default preferences. If that fixes it, mention it in your bug report and zip the old folder into **Attach File...**.
 
+**Memory stays high after closing a big scene.** It comes back within seconds of a new or opened scene. Undo still holds what a rebuild replaced (`flushUndo()` frees it), and Buildings keeps generated buildings for reuse (`buildingCache(clearMemory=True)`). `memoryReport(heaps=True, drain=True)` shows allocated against committed memory; `memoryReport(types=20)` lists what is still alive. Paste the output into your bug report.
+
 **Report a Bug says a file or the support bundle is over 25 MB.** Untick **Include the open scene** if it's ticked. For a file that has to be bigger, send the report without it and email the file to lila3d.app@gmail.com with the report number.
 
 **Report a Bug says it can't reach the report service.** Check your connection and click **Send** again; the dialog keeps what you typed. If it keeps failing, save a support bundle and try later.
