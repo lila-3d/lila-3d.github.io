@@ -1096,20 +1096,6 @@ Turn the objects onto their pivots' axes, counter-rotating their points, so the 
 
 **Objects:** objects
 
-### bakeRandomColors
-
-Keeps the Random Colors display colours: a material per mesh with its colour, assigned to it, or a vertex color set filled with it. Works on the given meshes, else the selected ones, else every mesh. Returns the materials or color sets.
-
-**Objects:** meshes
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `to` |  | str | `'materials'` | materials or vertexColors. |
-| `palette` |  | str | `'viewport'` | viewport (the display's palette and seed), contrast or pastel. |
-| `seed` |  | int | `0` | Colour seed for the contrast and pastel palettes. |
-| `materialPrefix` |  | str | `'M_Random'` | Material names: the prefix, then the mesh name. A material of that name is reused. |
-| `colorSet` |  | str | `'randomColor'` | Vertex color set to fill, made when missing. |
-
 ### bakeSkinWeights
 
 Fit linear skin weights (SSDR, Dem Bones) to everything the mesh's stack does: centres of rotation and direct delta mush skinning, delta mush, wrap and other deformers after the skin. The skin goes linear and the deformers it replaces are turned off, so the viewport shows what Unreal will get; keep=true stores the weights for export instead. Returns {rmse, maxError, linearRmse, frames, helpers, disabled}.
@@ -1798,31 +1784,6 @@ Deform meshes by a closed cage mesh around them (mean value coordinates). Give t
 | `coordinates` |  | str |  | meanValue (default) \| green \| somigliana \| harmonic |
 | `name` |  | str |  | Name for the deformer. |
 
-### cameraBookmark
-
-Jump the active view to a camera bookmark, or set, clear or list them.
-
-Each camera has its own slots 1 to 9: every camera node, and each built-in view (persp, top, front ...). Bookmarks act on the camera the active view shows. Jumping is a camera undo step, not a scene one. Setting and clearing are scene undo steps. Returns whether it jumped, the slot set, or with query the slots in use.
-
-**Objects:** slot
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `set` | `s` | bool |  | Save the view's camera in the slot instead of jumping to it. |
-| `clear` | `c` | bool |  | Remove the slot's bookmark; with no slot, every one on the camera. |
-| `query` | `q` | bool |  | Return the slots holding a bookmark. |
-
-Not undoable.
-
-```python
-cameraBookmark(1, set=True)
-cameraBookmark(1)
-```
-
-```python
-cameraBookmark(query=True)
-```
-
 ### cameraSettings
 
 Query or set a camera's gate display, film fit and near clip. The camera is a view name ('persp', 'top', 'front', ...; default 'persp') or a camera node, which keeps them as its own attributes. filmFit is 'fill', 'horizontal', 'vertical' or 'overscan'. Returns the settings.
@@ -2108,12 +2069,6 @@ Not undoable.
 Throw away simulation caches, so the next simulate starts from the start frame.
 
 **Objects:** simulation nodes (default all)
-
-Not undoable.
-
-### clearSnapSurface
-
-Clear the snap surface, so surface snapping hits every visible mesh again and moves stop conforming.
 
 Not undoable.
 
@@ -3111,14 +3066,6 @@ Delete display layers; their objects stay, in no layer.
 
 **Objects:** layers
 
-### deleteKeymap
-
-Delete a keymap. Deleting the current one switches to Default.
-
-**Objects:** name
-
-Not undoable.
-
 ### deleteLayout
 
 Delete a saved layout (the workspace copy first, when both exist). Built-ins can't be deleted; deleting a saved layout that shadows one brings the built-in back.
@@ -3179,20 +3126,6 @@ Delete a saved theme. Built-ins can't be deleted; deleting the current theme swi
 
 Not undoable.
 
-### deleteUserMenu
-
-Removes the user menu with this title. Returns whether there was one.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `title` | `t` | str |  | The menu's title. |
-
-Not undoable.
-
-```python
-deleteUserMenu(title="Kit")
-```
-
 ### deltaMush
 
 Add a delta mush to the meshes: smooths out deformation artefacts (from skinning or other deformers) while keeping the rest shape's detail. Above a skinCluster the rest shape is the bind shape. Returns the deformers.
@@ -3226,35 +3159,6 @@ disconnectAttr('dst.attr'), or (src, dst). A whole array input loses every eleme
 Stop deformers reading their field.
 
 **Objects:** deformers
-
-### displacementHeatmap
-
-Show how far deformation moves each point as a grayscale overlay (white the most moved point) on the selected meshes, or on every deformed mesh when none is selected. A display setting, so not undoable.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `on` |  | bool |  | Default: toggle. |
-
-Not undoable.
-
-### displacementPreview
-
-Turn displacement preview on or off for meshes: in the viewport they subdivide and move by their texture sets' height channel (Height Depth from each set's settings), updating live as height is painted. With no flags, reports each mesh's state. Returns [{object, enabled, detail, status}].
-
-**Objects:** objects
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `enable` | `e` | bool |  | On or off. |
-| `detail` | `d` | float |  | Target edge length in screen pixels: smaller subdivides more. |
-
-```python
-displacementPreview("rock", enable=True)
-```
-
-```python
-displacementPreview("rock", detail=3)
-```
 
 ### displayLayer
 
@@ -3292,18 +3196,6 @@ Live distance between two points. Each point is an object name or [x, y, z] (a l
 | `attach` | `at` | bool | `True` | From selected vertices: parent the locators to their meshes. |
 | `name` | `n` | str |  | Name for the measure node. |
 | `skipSelect` | `ss` | bool | `False` | Don't select the new node. |
-
-### docsInfo
-
-Where the docs are read from: {root, source (override | cache | bundled), ref, sha, refs, cacheRoot, autoUpdate}. root is null when there are none yet.
-
-Not undoable.
-
-### docsUpdate
-
-Download the latest docs for this version in the background; the result shows in the status line.
-
-Not undoable.
 
 ### dominantInfluence
 
@@ -3502,14 +3394,6 @@ Change a driven channel: replace its keys, infinity, interpolation of every key,
 | `postInfinity` |  | str |  | After the last key. One of `constant`, `linear`, `cycle`, `cycleRelative`, `oscillate`. |
 | `curveName` |  | str |  | Unreal curve to bake into; empty for none. |
 | `driver` | `d` | str |  | A new driving plug; empty disconnects it. |
-
-### editMaterial
-
-Show a material in the Material Editor, without assigning it.
-
-**Objects:** material
-
-Not undoable.
 
 ### editMorphTarget
 
@@ -3884,19 +3768,6 @@ draco=True compresses every primitive with KHR_draco_mesh_compression (then requ
 
 Not undoable.
 
-### exportGradeLut
-
-Bake the active post process's grade into a LUT file for Resolve, Nuke or Unreal. .cube (Resolve, Nuke): display code values in and out, for after the view; with includeView, scene-linear light in through a log2 shaper, the tonemapper or OCIO view and the grade out. .png: a 256 by 16 strip in Unreal's colour grading LUT layout (display in and out). Lens effects, bloom, grain and vignette are not in a LUT. Returns the path.
-
-**Objects:** path: where to write, .cube or .png
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `size` | `sz` | int | `33` | Points per axis of a .cube (17 to 129). |
-| `includeView` | `iv` | bool | `False` | Also bake exposure and the tonemapper or OCIO view (.cube only). |
-
-Not undoable.
-
 ### exportGroom
 
 Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* attributes, its primary guides to simulate) or Unity, .usd/.usda/.usdc curves, or .groom (GroomLab's file: guides, graph, parts, flow, maps and the scalp). Frames start to end (scene frames; the current one by default). Returns {file, frames, strands}.
@@ -3912,18 +3783,6 @@ Writes a groom's strands to a file by its extension: .abc for Unreal (groom_* at
 | `step` |  | float | `1.0` | Frames between written frames. |
 | `guides` |  | bool | `True` | Unreal: write the primary guides it simulates. |
 | `groups` |  | bool | `False` | One groom group per groupId (the Attribute node's groups). |
-
-### exportKeymap
-
-Write a keymap to a .lilakeys file to share. Returns the file.
-
-**Objects:** file
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `name` | `n` | str |  | The keymap; the current one when not given. |
-
-Not undoable.
 
 ### exportMeshSequence
 
@@ -5218,17 +5077,6 @@ Put a skinned mesh's joints back where they were bound.
 
 **Objects:** mesh
 
-### gradePreset
-
-Put a look on a post process (the active one by default): its grade attrs (white balance, contrast, saturation, wheels, tonal balance, curves) take the look's values, the rest of the grade goes back to neutral. With save, store the post process's grade as a look under that name instead. With no name, list the looks. Returns the look names.
-
-**Objects:** look: the look's name
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `node` | `n` | str |  | The post process; the active one (created if needed) when left out. |
-| `save` | `s` | bool | `False` | Store the post process's grade as this look, in the user's looks. |
-
 ### grappleAim
 
 Aim what a joint holds at a target: the axis (a muzzle, a blade's tip; its +X) is turned onto the target about the pivot, moving the joint and, through the grapple's solve, the arms and body with it. style places the pivot first: shoulder on the anchor (rifles, launchers), extend out toward the target (pistols), guard below that line (blades). Key weight to blend it. Returns the aim.
@@ -6046,32 +5894,6 @@ IfcMapConversion places it: it sets the scene's georeference or moves the model 
 importIfc("D:/bim/school.ifc")
 ```
 
-### importKeymap
-
-Add the keymap in a .lilakeys file (or a hotkeys.json). Returns its name.
-
-**Objects:** file
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `name` | `n` | str |  | Name it this rather than the name in the file. |
-| `use` |  | bool | `False` | Switch to it. |
-
-Not undoable.
-
-### importMayaHotkeys
-
-Imports a Maya hotkey set (.mhk) or userHotkeys.mel into a new keymap on Lila's defaults and switches to it. Returns {keymap, imported, skipped: [{key, command, reason}]}.
-
-**Objects:** file
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `file` | `f` | str |  | Maya hotkey file |
-| `keymap` | `k` | str | `'Maya'` | Name for the new keymap; a number is added when it's taken. |
-
-Not undoable.
-
 ### importObj
 
 Import an OBJ file; one mesh per object. Returns the new mesh names.
@@ -6345,12 +6167,6 @@ Query or edit keys. query=True returns key times (valueChange=True: values; keyC
 | `valueChange` | `vc` | Any |  | Value to set (or offset), or True with query. |
 | `timeChange` | `tc` | Any |  | Time to set (or offset), or True with query. |
 | `relative` | `r` | bool | `False` | Offset instead of set. |
-
-### keymaps
-
-The hotkey keymaps: {active, keymaps: [{name, studio}]}.
-
-Not undoable.
 
 ### keyTangent
 
@@ -6728,14 +6544,6 @@ Make a looker: the joint aims at it (aimAxis at the looker, upAxis toward upVect
 | `name` | `n` | str |  | Name; default <joint>_looker. |
 | `parent` | `p` | str |  | Node to put the element under, such as a character. |
 
-### lookThru
-
-Make the active view look through a camera node, or switch it to a view (persp, top, front, side, ...). Returns the name of what the active view looks through; with no argument it only returns it.
-
-**Objects:** camera
-
-Not undoable.
-
 ### ls
 
 List nodes, optionally filtered by type or the selection.
@@ -7019,25 +6827,6 @@ Not undoable.
 
 ```python
 mediaInfo('ref/shot010.mov')
-```
-
-### memoryReport
-
-This process's memory in MB: commitMB (private commit), workingSetMB, releasePending (pieces the background releaser still has to free). heaps= walks the process heaps (seconds on a big scene) and adds busyMB (allocated), freeMB (committed but free), segmentsMB, block counts and busyBySizeMB (allocated MB by block size). drain= first waits for the releaser to finish. types=N lists the N most numerous live objects with virtual functions by class (shared objects as std::_Ref_count_obj2<T>), to find what holds memory after a scene is replaced. holders=<class text> follows references back from samples= such objects depth= levels, naming each holder (class, static variable or block size); it stops the whole process while it scans.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `heaps` | `h` | bool | `False` | Walk the process heaps. |
-| `drain` | `d` | bool | `False` | Wait for the background releaser first. |
-| `types` | `t` | int | `0` | List the most numerous live object types. |
-| `holders` | `ho` | str |  | Trace what holds live objects whose class name contains this text. |
-| `samples` | `sa` | int | `16` | Objects holders= follows. |
-| `depth` | `de` | int | `3` | Levels of holders to follow. |
-
-Not undoable.
-
-```python
-lila.ops.memoryReport(heaps=True, drain=True)
 ```
 
 ### mergeAnimLayers
@@ -7527,18 +7316,6 @@ Not undoable.
 namingCultures()['cultures']
 ```
 
-### newKeymap
-
-Make a keymap, a copy of the current one, and switch to it.
-
-**Objects:** name
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `empty` |  | bool | `False` | Start from Lila's defaults instead of a copy. |
-
-Not undoable.
-
 ### newScene
 
 Clear the scene. Not undoable.
@@ -7651,19 +7428,6 @@ Open closed curves at parameter (span units, default their start), keeping the s
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `parameter` | `p` | float | `0.0` | Where to open, in spans from the start. |
-
-### openDocs
-
-Show the Docs panel at a page: "essentials", "curves?id=pipe", "python/". Empty for the docs home. UI only.
-
-**Objects:** page
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `page` | `p` | str |  | Page id as in the docs site's URL after #/, optionally with ?id=<heading> |
-| `api` | `a` | str |  | A Python symbol (lila.ops.polyCube) whose API page to open instead |
-
-Not undoable.
 
 ### openExample
 
@@ -8005,53 +7769,6 @@ Fill four boundary curves (in any order and direction, end to end) with a Coons 
 | `constructionHistory` | `ch` | bool | `True` | Keep the history node so its settings stay live. |
 | `name` | `n` | str |  | Mesh name; made unique. |
 
-### pathTracedView
-
-Show every viewport path traced: light bounces through the scene (environment, lights, materials and texture sets) and the image refines while nothing changes, starting over on any camera, scene or paint change. Needs a GPU with ray tracing; without one the views stay shaded and say so. With no flags, reports the settings. Returns {enabled, bounces, samples, denoise, supported}.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `enable` | `e` | bool |  | On or off. |
-| `bounces` | `b` | int |  | Most surfaces a path bounces off. |
-| `samples` | `s` | int |  | Samples per pixel the image refines to, then stops. |
-| `denoise` | `d` | bool |  | Smooth the noise of the first samples, guided by the surfaces' colours, normals and depth. |
-
-Not undoable.
-
-```python
-pathTracedView(enable=True)
-```
-
-```python
-pathTracedView(bounces=8, samples=4096)
-```
-
-### perfTraceDialog
-
-Open Help > Record Performance Trace.
-
-Not undoable.
-
-### perfTraceRecord
-
-Start recording a performance trace (Help > Record Performance Trace) for `seconds` once the recorder connects. Returns the zip it will write; perfTraceStatus says when it is done.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `seconds` | `s` | int | `10` | How long to record. |
-
-Not undoable.
-
-```python
-lila.ops.perfTraceRecord(seconds=10)
-```
-
-### perfTraceStatus
-
-The performance trace recording: state (idle, connecting, recording, saving, done, failed), secondsLeft, path (the zip), error, elevated and systemTracing (call-stack sampling and context switches, only when running as administrator).
-
-Not undoable.
-
 ### pickerRun
 
 Run a picker item's action on its targets resolved in a namespace: select them, toggle an attr (every target follows the first), apply a pose to their character, or run a command (args default to the targets). Returns what the action returned.
@@ -8121,10 +7838,6 @@ pin("Button", "Jacket", source="face", index=12)
 ```python
 pin("Bead", "Wire", curveMode="fraction", along=0.25)
 ```
-
-### pinComponentPivot
-
-Pin the component manipulator where it is and how it is turned, so it stays through selection and component mode changes until resetComponentPivot. It follows the selection's centre unless moved with Edit Pivot.
 
 ### pipe
 
@@ -9255,120 +8968,11 @@ Redo the last undone command.
 
 Not undoable.
 
-### referenceImage
-
-Add, replace, edit, remove or list reference images.
-
-Reference images show as tabs in the Reference windows and as overlays in the viewports (referenceOverlay). Files given are added as tabs of a window (the first one unless window is set) and their ids returned. With edit, the flags change one image; replace swaps its file and keeps every other setting.
-
-**Objects:** files
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `edit` | `e` | str |  | Id of the image the flags change. |
-| `replace` | `rp` | str |  | Id of an image whose file becomes the one given. |
-| `remove` | `rm` | list |  | Ids of images to remove, with their overlays. |
-| `query` | `q` | bool |  | Return the images (or the one named by edit) as dicts. |
-| `name` | `n` | str |  | Tab label. |
-| `window` | `w` | str |  | Reference window id the images are tabs of ("main" is the first); empty takes them out of every window. |
-| `index` | `i` | int |  | Tab position for added images; default the end. |
-| `current` | `c` | bool |  | Make the (first) image its window's shown tab. |
-| `flipH` | `fh` | bool |  | Mirror left to right. |
-| `flipV` | `fv` | bool |  | Mirror top to bottom. |
-| `grayscale` | `g` | bool |  | Show without color, to judge values. |
-| `quarterTurns` | `qt` | int |  | Clockwise quarter turns, 0 to 3. |
-| `brightness` | `b` | float |  | Added in display space, -1 to 1. |
-| `contrast` | `ct` | float |  | Around mid gray, 0 to 4. |
-| `embed` | `em` | bool |  | Keep the file's bytes in the set, so it travels without the file; False links to the file again. Videos always stay linked. |
-| `videoOffset` | `vo` | int |  | Video: frames added to the frame shown. |
-| `videoFps` | `vf` | float |  | Video: playback rate; 0 for the file's own. |
-| `paused` | `pa` | bool |  | Video: hold the frame showing now instead of following the time. |
-| `pausedFrame` | `pf` | int |  | Video: the frame a paused video holds. |
-
-```python
-referenceImage("refs/front.jpg", "refs/side.jpg")
-```
-
-```python
-referenceImage("refs/front_v2.jpg", replace="ref1")
-```
-
-```python
-referenceImage(edit="ref2", flipH=True, grayscale=True)
-```
-
-### referenceOverlay
-
-Show a reference image glued to a view's screen, or edit, remove or list overlays.
-
-The positional argument is a reference image id or an image file (added to the set without a tab). The overlay draws in front of the model at low opacity by default; depth behind puts it under the model. Placement is in view heights from the anchor, so a parked overlay stays parked when the view resizes. bind remembers the view's camera: goTo returns to it, and the overlay fades as the view turns away.
-
-**Objects:** image
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `view` | `v` | str |  | View name the overlay shows in; default the active view. |
-| `edit` | `e` | str |  | Id of the overlay the flags change. |
-| `remove` | `rm` | list |  | Ids of overlays to remove. |
-| `query` | `q` | bool |  | Return the overlays (of view, when given) as dicts. |
-| `opacity` | `o` | float |  | 0 to 1. |
-| `depth` | `d` | str |  | Over the model or under it. One of `front`, `behind`. |
-| `mode` | `m` | str |  | outline draws only the image's edges, leaving the model visible. One of `normal`, `grayscale`, `outline`. |
-| `anchor` | `an` | str |  | The view point offset is measured from. One of `center`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`. |
-| `offset` | `of` | list |  | [x, y] from the anchor to the image centre, in view heights, y down. |
-| `scale` | `s` | float |  | Shown height in view heights. |
-| `rotation` | `r` | float |  | Degrees clockwise. |
-| `crop` | `cr` | list |  | [u0, v0, u1, v1]: the part of the image shown, 0 to 1 from its top left. The image stays where it is on screen. |
-| `visible` | `vis` | bool |  | Shown or hidden. |
-| `ghost` | `gh` | bool |  | Draw the meshes see-through while the overlay shows. |
-| `outlineColor` | `oc` | tuple[float, float, float] |  | Line color of outline mode, display RGB 0 to 1. |
-| `fadeAngle` | `fa` | float |  | Degrees from the bound view at which it has faded out. |
-| `focalLength` | `fl` | float |  | The lens the photo was taken with, in mm. |
-| `bind` | `b` | bool |  | Remember the view's camera now; False forgets it. |
-| `matchLens` | `ml` | bool |  | With bind, set the view's lens to focalLength first. |
-| `goTo` | `g` | bool |  | Move the view back to the bound camera. |
-| `park` | `p` | bool |  | Lay the view's overlays out opaque down its right edge. |
-| `active` | `a` | bool |  | Make it the overlay the O keys and handles act on. |
-
-```python
-referenceOverlay("refs/front.jpg", view="persp", opacity=0.25)
-```
-
-```python
-referenceOverlay(edit="overlay1", mode="outline", bind=True, matchLens=True)
-```
-
-```python
-referenceOverlay(edit="overlay2", goTo=True)
-```
-
 ### references
 
 Every reference: namespace, path, loaded, and its local edits.
 
 Not undoable.
-
-### referenceSet
-
-Save, load, clear the reference image set, or say where it is kept.
-
-Storage scene keeps the set in the scene file; project in references.lilaref in the project folder; user in Lila's config folder, shared by every scene. Changing storage carries the current set over.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `save` | `s` | str |  | Write the set to a .lilaref file. |
-| `load` | `l` | str |  | Replace the set with a .lilaref file's. |
-| `clear` | `c` | bool |  | Remove every image and overlay. |
-| `storage` | `st` | str |  | Where the set is kept. One of `scene`, `project`, `user`. |
-| `query` | `q` | bool |  | Return the storage and the whole set. |
-
-```python
-referenceSet(save="refs/hero.lilaref")
-```
-
-```python
-referenceSet(storage="project")
-```
 
 ### refreshClay
 
@@ -9620,14 +9224,6 @@ Rename an added attribute. Connections, keys and drivers stay on it. Returns the
 
 **Objects:** plug newName
 
-### renameKeymap
-
-Rename a keymap.
-
-**Objects:** name, new name
-
-Not undoable.
-
 ### renameLayout
 
 Rename a saved layout, keeping where it is saved.
@@ -9853,10 +9449,6 @@ Make a joint the root of its skeleton by reversing the parent chain above it. Jo
 
 **Objects:** joint
 
-### resetComponentPivot
-
-Put the component manipulator back on the selection's centre and the tool's own axes, ending a pinned pivot.
-
 ### resetCorrection
 
 Clear a correction's offsets: all of them, or just points=.
@@ -9866,14 +9458,6 @@ Clear a correction's offsets: all of them, or just points=.
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `points` |  | list |  | Point ids to clear. |
-
-### resetKeymap
-
-Drop every change a keymap makes, back to Lila's default hotkeys.
-
-**Objects:** name (the current keymap when not given)
-
-Not undoable.
 
 ### resetPivot
 
@@ -10764,17 +10348,6 @@ Not undoable.
 
 Subdivide the sculpt once more and sculpt the new level (from a lower level, the finest is subdivided). Returns {level, levels, points, faces}.
 
-### sculptBrush
-
-Pick the sculpt tool's brush: a built-in or registered brush by name, or a brush preset by id (see brushPresets). Returns {brush, preset}.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `brush` |  | str |  | A brush name: draw, clayStrips, damStandard, ... or a registered brush's. |
-| `preset` |  | str |  | A brush preset id, such as user/Skin Pores. |
-
-Not undoable.
-
 ### sculptCancel
 
 Leave sculpt mode without changing the mesh or its stored levels, discarding this session's sculpting.
@@ -11523,14 +11096,6 @@ Set where a weight layer shows: values per point (0 hides it, 1 shows it), or on
 | `value` | `val` | float | `1.0` | The value set on the vertices, without values. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
-### setSnapSurface
-
-Make meshes the snap surface for this session: surface snapping hits only them, and the move tool keeps moved objects and components on them. Returns the snap surface.
-
-**Objects:** meshes (default: the selection)
-
-Not undoable.
-
 ### setSymmetry
 
 Object-space symmetry for component edits on meshes: 'off', a mirror plane 'x', 'y' or 'z', or 'radial': count wedges repeated round radialAxis (with mirror=True also mirrored within each wedge), every edit applied to all of them.
@@ -11604,20 +11169,6 @@ target=pose aims each vertex at a delta mush of the posed mesh (smoothed, with t
 | `contact` | `ct` | bool | `True` | simulate: keep folds from passing through themselves. |
 | `vertices` | `v` | list |  | Point ids; defaults to the selected vertices, else all. |
 
-### setUserMenu
-
-Adds a user menu, or replaces the one with the same title. parent empty puts it on the menu bar; a menu path such as "Mesh" puts it in that menu, as a submenu or, with as="section", as a titled section. Items take an action id, {"python": code} or {"command": name, "args": {}} as their action, or separator, section or submenu. Returns the stored menu.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `menu` | `m` | Any |  | The menu: {title, parent, as, before, after, sets, items}. |
-
-Not undoable.
-
-```python
-setUserMenu(menu={"title": "Kit", "parent": "Mesh", "items": [{"action": "mesh.bevel"}]})
-```
-
 ### setVertexColorData
 
 Set a color set from a flat [r, g, b, a, ...] list per face-vertex, in getVertexColorData's order. Creates the set when missing. One undo step.
@@ -11661,18 +11212,6 @@ Show meshes as they export: every modifier's viewport state takes its export sta
 ### showLastHidden
 
 Show the objects the last hide (or hiding toggle) hid. Returns them.
-
-### showPanel
-
-Show a panel by its id, or hide it with hide. With no id, returns every panel id.
-
-**Objects:** panel
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `hide` | `h` | bool |  | Hide the panel instead. |
-
-Not undoable.
 
 ### shrinkSelection
 
@@ -12220,12 +11759,6 @@ Put reverse foot controls on the sole of the current pose with roll, twist and b
 | --- | --- | --- | --- | --- |
 | `align` | `al` | bool | `False` | Level the control instead. |
 | `key` | `k` | bool | `True` | Key the control's channels at the current time. |
-
-### snapSurface
-
-The meshes set as the snap surface; empty when none is set.
-
-Not undoable.
 
 ### snapToComponentCenter
 
@@ -13081,26 +12614,6 @@ Clear a paint layer: drop its strokes and pixels.
 | --- | --- | --- | --- | --- |
 | `layer` |  | str |  | The paint layer. |
 
-### texCompare
-
-Wipe-compare a texture set snapshot (texSnapshot) against the live set or another snapshot, in the 3D viewports and the 2D View: the snapshot shows left of the wipe line, drag the line to move it. With no flags, reports the state. Returns {enabled, set, snapshot, against, wipe}.
-
-**Objects:** texture set
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `enable` | `e` | bool |  | On or off. |
-| `snapshot` | `s` | str |  | The snapshot on the left; the newest when left out. |
-| `against` | `a` | str |  | live, or another snapshot's name, on the right. |
-| `wipe` | `w` | float |  | Where the line sits across the view, 0 (all live) to 1 (all snapshot). |
-
-Not undoable.
-
-```python
-texSnapshot("RockTex", name="before")
-texCompare("RockTex", enable=True, snapshot="before", wipe=0.5)
-```
-
 ### texCompileStats
 
 CPU kernel cache counters: compiles, cache hits and failures since start (or the last clear).
@@ -13148,14 +12661,6 @@ Create a texture set: a texture graph with a Material Output, and the channels, 
 | `settings` |  | Any |  | Settings dict: channels [{name, type, bits}], width, height, tiles [udim or {udim, width, height}], normalConvention (opengl/directx), bakeProject, exportPreset. |
 | `resolution` |  | int |  | Width and height of every tile. |
 | `materials` |  | list |  | Materials that use the set (their Texture Set), created when missing. |
-
-### texCreateSetForSelection
-
-Make a texture set with a paint layer and pick it in the materials of the selected meshes (and the meshes under selected groups) that use no set yet. Meshes only on Default first share a new material. Returns the set.
-
-### texCreateSetPerMaterial
-
-Make a texture set, with a paint layer, for each material of the selected meshes (every mesh when nothing is selected) that uses no set yet, and pick it in that material. Meshes only on Default first share a new material. Returns the sets made.
 
 ### texDeleteGroup
 
@@ -13541,12 +13046,6 @@ A texture set's layer stack as JSON: layers bottom first (with each channel's re
 
 Not undoable.
 
-### texLiveStatus
-
-The viewport's live texture sets: per set its material, warm-ups compiled ahead, tiles and evaluation levels (size, idle, plans, passes, compiles, GPU milliseconds) and the last error; idle is whether every set has finished its latest edit.
-
-Not undoable.
-
 ### texMaterialFromMaps
 
 Make materials from texture maps: each file's channel comes from its name (BaseColor, albedo, diff, rough, gloss, metal, nrm or normal with dx or gl, height or disp, ao, emissive, opacity, and packed ORM, ARM, RMA, MRA), files differing only by that token make one material, and a size in the name (200cm, 2m) sets its scale. Packed maps are split, DirectX normals flipped, gloss inverted. Writes a .lilamat per material to the library (tier, category, or path), or with set= adds each as a material layer. Returns one entry per material with its maps and warnings.
@@ -13649,23 +13148,6 @@ Paint a stroke along a path on the surface: points [[x, y, z], ...] or [{positio
 | `stencil` |  | Any |  | A stencil, as texPaintStroke takes it (needs view). |
 | `particles` |  | Any |  | Particle brush. |
 | `view` |  | Any |  | The stroke view record {objectToClip, eye, direction, width, height}. |
-
-### texPaintStencil
-
-The texture paint tool's stencil: a picture pinned to the screen that strokes and the projection buffer paint through. A file sets it (an empty one clears it); the flags change it. mode mask scales each stroke by the picture's brightness, color paints its colours into Base Color. Returns {file, mode, invert, tile, offset, scale, rotation}.
-
-**Objects:** [file]
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `mode` |  | str |  | mask or color. |
-| `invert` |  | bool |  | Paint where the picture is dark. |
-| `tile` |  | bool |  | Repeat the picture past its edges. |
-| `offset` |  | list |  | [x, y] screen pixels from the view's centre. |
-| `scale` |  | float |  | 1 spans the view's height. |
-| `rotation` |  | float |  | Degrees. |
-
-Not undoable.
 
 ### texPaintStroke
 
@@ -13774,16 +13256,6 @@ Save a projection view on a texture set by name (view=, a screen view as texPain
 | --- | --- | --- | --- | --- |
 | `view` |  | Any |  | The view to save. |
 | `remove` |  | bool | `False` | Remove it. |
-
-### texQuickMaskOverlay
-
-Show or hide the Quick Mask overlay, the tint over what the quick mask leaves out (show=), and report it: {shown, set (the set the quick mask limits, empty when it holds nothing), tint {width, height, version, tinted (the share of its texels tinted)} or None, draws (tinted mesh draws in the last viewport frame)}. Colour and opacity are the general prefs /texture/quickMaskColor and /texture/quickMaskOpacity.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `show` | `s` | bool |  | Show the overlay, or hide it. |
-
-Not undoable.
 
 ### texRasterize
 
@@ -15062,24 +14534,6 @@ Stop Explorer opening any file type with Lila, for the current user, restoring t
 
 Not undoable.
 
-### useKeymap
-
-Switch to a keymap. The current one keeps the edits made to it.
-
-**Objects:** name
-
-Not undoable.
-
-### userMenus
-
-The user menus, as stored: a list of {title, parent, as, before, after, sets, items}.
-
-Not undoable.
-
-```python
-userMenus()
-```
-
 ### uvAlignToEdge
 
 Rotate each island with selected edges so their direction lies along U or V: axis=u or v aligns an island side, nearest orients the island by the edge.
@@ -15759,17 +15213,6 @@ One vertex paint stroke: dabs is a list of {center, radius, opacity, view, eye} 
 | `dabs` |  | list |  | The stamps, in order. |
 | `live` |  | int | `0` | Internal: adopts the stroke the viewport tool already applied. |
 
-### viewCamera
-
-The active view's camera: with eye and lookAt, put its perspective camera there (scenes save it, so a scene opens on that view). Returns the view's state {view, persp: {target, distance, yaw, pitch, orthoWidth, focalLength}}.
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `eye` |  | tuple[float, float, float] |  | Where the camera stands, cm. |
-| `lookAt` | `la` | tuple[float, float, float] |  | The point it looks at, cm. |
-
-Not undoable.
-
 ### viewPlace
 
 Place a camera node: eye is its world position, lookAt the point it aims at, up the world direction its top leans to. Flags left out keep the camera's current value; with eye alone it moves without turning. Fails on a locked camera.
@@ -15793,46 +15236,6 @@ What the active viewport draws and counts now: {hud: {scene, objects, components
 | `path` | `p` | str |  | Also render the view's live frame (tools and their drawing included) offscreen to this PNG. |
 
 Not undoable.
-
-### viewportRenderer
-
-Pick the renderer a viewport draws with: "lila" for Lila's own, or one an extension registered (viewportRenderers lists them). Lila still draws selection, gizmos and the HUD over another renderer's image. With no renderer, only returns the viewport's current one.
-
-**Objects:** renderer id
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `panel` | `p` | int |  | The viewport, numbered in the order they were made; default the active one. Example: `viewportRenderer("lila", panel=1)` |
-
-Not undoable.
-
-```python
-viewportRenderer("cpuShaded")  # the active view draws with the example renderer
-viewportRenderer("lila")
-```
-
-### viewportRenderers
-
-The renderers a viewport can draw with, Lila's own first: [{id, name, doc}].
-
-Not undoable.
-
-### viewportRendererSetting
-
-Read or change a setting of the renderer a viewport draws with (a Hydra delegate's render settings). With no key, returns them all as [{key, name, value}]; with a key, its value; with a key and a value, sets it. A set value is saved and given to every viewport using that renderer, now and whenever it starts.
-
-**Objects:** key, value
-
-| Flag | Short | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `panel` | `p` | int |  | The viewport; default the active one. |
-
-Not undoable.
-
-```python
-viewportRendererSetting()  # [{key, name, value}, ...]
-viewportRendererSetting("myEngine:metersPerUnit", 0.01)
-```
 
 ### viewportStats
 
@@ -24300,7 +23703,7 @@ projection utm (default) or enu reprojects to metres; local flattens degrees. Co
 | `bareEarthHeight` | `beh` | float | `4000.0` | Tallest object removed, cm. |
 | `bareEarthMask` | `bem` | str |  | Only where this mask is. |
 | `amplify` | `am` | int | `1` | Refine with erosion: 2, 4 or 8 samples per data sample; 1 is off. |
-| `amplifyDetail` | `ad` | float | `0.5` | Strength of the added detail. |
+| `amplifyDetail` | `ad` | float | `0.35` | Strength of the added detail. |
 | `cache` | `ca` | str |  | Tile cache folder; default the workspace's terrain/dem_cache. |
 | `offline` | `off` | bool | `False` | Use cached tiles only. |
 | `name` | `n` | str | `'Terrain'` | Name of the mesh. |
