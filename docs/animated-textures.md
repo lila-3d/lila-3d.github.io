@@ -11,6 +11,8 @@ A numbered image sequence playing on your mesh over the timeline, with its speed
 
 To key the speed, right-click **Speed** in the node's panel and choose **Make Keyable**. The texture set gains a **Seq Speed** channel (named after the node) that you key in the Channel Box and shape in the Graph Editor like any other. Any number parameter of any texture node takes **Make Keyable** the same way.
 
+To place frames by hand instead, set **Timing** to **Frame** and key **Frame**. The node shows the file **Frame** names, counting the first file as 0, and ignores **Start Frame** and **Speed**.
+
 ```python
 texAddNode("FireTex", "imageSequence", name="Seq")
 texSetValue("FireTex", "Seq.file", "C:/fx/fire_0001.png")
@@ -47,8 +49,10 @@ Image Sequence node:
 
 | Option | Default | What it does |
 | --- | --- | --- |
+| **Timing** | Speed | Speed plays from **Start Frame** at **Speed**. Frame shows the file **Frame** names. |
+| **Frame** | `0` | With **Timing** on Frame, the file shown, 0 for the first. Key it to place the sequence over time. |
 | **Start Frame** | `1` | The scene frame the first file shows on. |
-| **Offset** | `0` | Files into the sequence at **Start Frame**. |
+| **Offset** | `0` | Files added to the position: into the sequence at **Start Frame**, or onto **Frame**. |
 | **Frames** | `0` | How many files play before **After End** applies; 0 plays them all. |
 | **Speed** | `1` | Files per scene frame. Negative plays backwards. |
 | **After End** | Loop | Loop, Hold on the end frame, or Ping Pong. |
