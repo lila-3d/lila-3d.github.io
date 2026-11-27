@@ -987,10 +987,12 @@ Numbered image files played over the timeline, for animated textures. Pick any o
 | Property | Options | Default | Description |
 | --- | --- | --- | --- |
 | `file` |  |  | Any frame of the sequence. |
-| `start` |  | `1` | The scene frame the sequence's first frame shows on. |
-| `offset` |  | `0` | Frames into the sequence at Start Frame. |
+| `timing` | `speed`, `frame` | `speed` | speed: plays from Start Frame at Speed. frame: shows the sequence frame Frame names, and ignores Start Frame and Speed; key Frame (right-click > Make Keyable) to place the sequence over time. |
+| `frame` |  | `0` | With Timing on frame: the sequence frame shown, 0 for the first file. After End applies past the last one. |
+| `start` |  | `1` | With Timing on speed: the scene frame the sequence's first frame shows on. |
+| `offset` |  | `0` | Frames added to the sequence position: into the sequence at Start Frame, or onto Frame. |
 | `frames` |  | `0` | How many frames play before looping or holding; 0 plays every file found. |
-| `speed` |  | `1` | Sequence frames per scene frame: 0.5 plays at half speed, negative plays backwards. Keyed, the speed accumulates over the frames from Start Frame, so a change of speed never jumps. |
+| `speed` |  | `1` | With Timing on speed: sequence frames per scene frame. 0.5 plays at half speed, negative plays backwards. Keyed, the speed accumulates over the frames from Start Frame, so a change of speed never jumps. |
 | `loop` | `loop`, `hold`, `pingPong` | `loop` | loop: starts over. hold: stays on the end frame (the first one before Start Frame). pingPong: plays back and forth. |
 | `interpolation` | `hold`, `blend` | `hold` | Between sequence frames, when Speed isn't a whole number. hold: shows the earlier frame. blend: crossfades into the next. |
 | `tiles` |  | `1` | Repeats across the texture. Repeated or read through a scaled UV, the image is read from prefiltered smaller copies, so detail finer than a texel averages instead of aliasing. |
