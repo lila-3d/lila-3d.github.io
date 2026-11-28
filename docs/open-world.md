@@ -15,7 +15,7 @@ r = remixApply('World')
 settlementFromOsm(r['files']['osm'], ground='World', origin=r['origin'], buildingRoute='buildings', name='Port')
 ```
 
-4. **Sites.** Ports, cemeteries, airstrips, farms, villages and compounds from **Level > Open World > Site Kit**. See [Site kits](#site-kits).
+4. **Sites.** Ports, cemeteries, airstrips, farms, villages, compounds and hideouts from **Level > Open World > Site Kit**. See [Site kits](#site-kits).
 5. **Swap the placeholders.** Every door, sign, lamp, crop row and container is a [slot](slots.md): one rule swaps all of a type for your assets or Blueprints.
 6. **Gameplay zones.** Districts, police, territory, spawns and traffic from **Level > Open World > Zones**. See [Zones](#zones).
 7. **Send to Unreal.** `terrainSendToUnreal`, `settlementSendToUnreal`, `buildingSend` and `zoneSendToUnreal`, or the whole map from the [world spec](#send-to-unreal).
@@ -223,7 +223,7 @@ Land-use areas crossing a region edge are split there; buildings never are.
 
 ## Site kits
 
-Lay out a whole cargo port, cruise terminal, lighthouse, cemetery, hidden airstrip, industrial farm, mountain village, walled compound or private island on the terrain, graded into it, with every part a slot and every name fictional.
+Lay out a whole cargo port, cruise terminal, lighthouse, cemetery, hidden airstrip, industrial farm, mountain village, walled compound or private island on the terrain, graded into it, with every part a slot and every name fictional. The Hideouts group (junkyard, shantytown, unfinished building, fishing camp, derelict warehouse, ranch, cockfight arena, impound lot) also places `marker.loot`, `marker.guard` and `marker.job` slots for gameplay.
 
 1. **Level > Open World > Site Kit > Site Kits** opens the palette.
 2. Select a locator where the site goes (nothing puts it at the origin), then click a kind. It stands on the selected terrain, else the only one.
@@ -253,6 +253,8 @@ Buildings in a site draw as grey massing. **Level > Open World > Site Buildings*
 
 `siteKinds()` lists every kind's settings with defaults and ranges, and the slot types each kit makes. Swap parts with [slot rules](slots.md): `container.*` for every container (each fictional shipping line is a subtype such as `container.40ft.<line>`), `crane.sts`, `grave.*`, or `crop.row` with tag `crop:tomato`. Pin a whole site with `slotPin('owner:site:port1')`.
 
+A site placed inside a settlement clears the settlement's streets and lots under it with an exclusion named `site:<id>`, which moves with the site and goes when the site is removed.
+
 ## Zones
 
 Paint gameplay layers over the map: districts, police and military jurisdiction, cartel territory, ped, vehicle, boat and aircraft spawns, traffic and pedestrian density, wanted response, interiors and mission markers.
@@ -260,7 +262,7 @@ Paint gameplay layers over the map: districts, police and military jurisdiction,
 1. Select the terrain and pick **Level > Open World > Zones** to open the panel.
 2. **Add Layer > Districts**.
 3. **Paint Zones**: drag to paint a zone, or pick **Draw** in the palette and click an outline (Enter closes it). **Pick** reads every layer at a click.
-4. **Zones from Districts** makes one zone per Settlement district, named as the settlement names it. **Zones from Water Routes** turns boat or air lanes into spawn zones; **Zones from Terrain Masks** turns masks such as `mangrove` into zones.
+4. **Zones from Districts** makes one zone per Settlement district, named as the settlement names it. **Zones from Water Routes** turns boat or air lanes into spawn zones; **Zones from Terrain Masks** turns masks such as `mangrove` into zones. **Zones from Sites** makes one zone per site kit; it follows the site when it moves and keeps the attributes you give it.
 5. **Export Zones** writes `<name>_zones.json` and a PNG mask per painted zone for any engine. **Send Zones to Unreal** makes a zone volume per zone, a `ZD_<set>` data asset for runtime point queries and a data layer per layer.
 
 ```python
