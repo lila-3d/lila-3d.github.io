@@ -5659,6 +5659,7 @@ Create an image plane for modelling from reference images, or edit the image pla
 | `displayColor` | `dc` | str |  | color or grayscale. |
 | `displayMode` | `dm` | str |  | lookingThrough or allViews. |
 | `placement` | `pl` | str |  | behind, inScene or inFront of the geometry. |
+| `views` | `vw` | str |  | Views it shows in, space separated (persp front ...); empty for the default. |
 | `locked` | `lk` | bool |  | Not pickable in the viewport (reference mode). |
 | `drawOrder` | `do` | int |  | Higher draws in front of lower among planes with the same placement. |
 | `keyBackground` | `kb` | bool |  | Clear the picture's background (its top left corner's color). |
@@ -5689,6 +5690,17 @@ Add, remove or clear guide lines drawn over an image plane, for lining limbs up 
 | `lines` | `l` | Any |  | Guides to add: [[x0, y0, x1, y1], ...] in the plane's local cm. |
 | `remove` | `rm` | int |  | Index of a guide to remove. |
 | `clear` | `cl` | bool | `False` | Remove every guide. |
+
+### imagePlaneView
+
+Sets which views image planes show in: only the view, also the view, not the view, or back to the default. Returns the planes.
+
+**Objects:** image planes (omit for the selected ones)
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `view` | `v` | str |  | View: persp, top, bottom, front, back, left, right or side. |
+| `mode` | `m` | str | `'only'` | only, add, remove, or all (the default views again). |
 
 ### import3dTiles
 
@@ -8583,6 +8595,24 @@ Split meshes into one object per connected part. Returns the new names.
 
 **Objects:** objects
 
+### polySlide
+
+Slide the selected edges along the edges beside them, or in vertex mode each selected vertex along one of its own edges, without changing the surface's shape. A face selection slides its border. Follows the mesh's symmetry.
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `amount` |  | float | `0.5` | How far, -1 to 1: a fraction of each rail, the sign picking the side. |
+| `direction` |  | tuple[float, float, float] |  | World direction the positive side leans toward; picks each vertex's edge in vertex mode (required there). |
+| `even` |  | bool | `False` | Slide every point the same distance (amount times the shortest rail) instead of the same fraction. |
+
+```python
+polySlide(amount=0.25)
+```
+
+```python
+polySlide(amount=-0.5, even=True)
+```
+
 ### polySoftEdge
 
 Make the selected edges soft or hard by the angle their faces meet at: sharper than angle turns hard, the rest soft. 180 softens every edge, 0 hardens every edge. In object mode, whole selected meshes.
@@ -8630,12 +8660,12 @@ Turn each selected edge one step within its two faces.
 
 ### polySplitRings
 
-Subdivide one way: insert loops across every ring through the selected edges, or across the selected faces in one direction, without the perpendicular cuts a full subdivide adds. Returns the new edges.
+Subdivide one way: insert loops beside or across the selected edges, or across the selected faces in one direction, without the perpendicular cuts a full subdivide adds. Returns the new edges.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
 | `count` |  | int | `1` | Loops per ring, evenly spaced. |
-| `direction` |  | str | `'along'` | Faces: across adds lines across the selection's short way, along the long way. |
+| `direction` |  | str | `'along'` | Edges: along adds loops parallel to them in the faces either side, across cuts every ring through them. Faces: across adds lines across the selection's short way, along the long way. |
 | `edgeFlow` |  | bool | `True` | Curve the new loops to follow the surrounding surface rather than lie flat. |
 
 ### polyStraighten
@@ -18256,11 +18286,11 @@ siteCheck('port1')['issues']
 
 Make a site kit: a cargo port, cruise terminal, mausoleum cemetery, hidden airstrip, industrial farm, mountain village, walled compound, private island or lighthouse, laid out on the terrain and graded into it.
 
-The site is a mesh whose Site Kit node lays it out live from its spec: buildings as Settlement-style envelopes with a style tag (greybox massing until a building generator builds them; siteEnvelopes lists them), every other part (containers, cranes, crop rows, graves, walls, docks, markings) a typed slot with a stable id under site:<id>, so slot rules and overrides swap them. Every name (the site, shipping lines, mausoleum families, businesses, streets) is fictional. The terrain is graded with Terrain stamps, roads, canals and the coast airstrip, kept by id so siteEdit and siteGround replace them. Each kind takes its own settings (siteKinds lists them). Returns the mesh, modifier, id, names, slot counts by type, envelope count, styles and what the grading sent.
+The site is a mesh whose Site Kit node lays it out live from its spec: buildings as Settlement-style envelopes with a style tag (greybox massing until a building generator builds them; siteEnvelopes lists them), every other part (containers, cranes, crop rows, graves, walls, docks, markings) a typed slot with a stable id under site:<id>, so slot rules and overrides swap them. Every name (the site, shipping lines, mausoleum families, businesses, streets) is fictional. The terrain is graded with Terrain stamps, roads, canals and the coast airstrip, kept by id so siteEdit and siteGround replace them. Each kind takes its own settings (siteKinds lists them). A settlement the site reaches into keeps its outline clear with an exclusion named site:<id>, which siteEdit moves and siteRemove drops. Returns the mesh, modifier, id, names, slot counts by type, envelope count, styles, what the grading sent and the settlements cleared.
 
 | Flag | Short | Type | Default | Description |
 | --- | --- | --- | --- | --- |
-| `kind` | `k` | str | `'port'` | What to build: port, cruise, lighthouse, cemetery, airstrip, farm, village, compound, island. |
+| `kind` | `k` | str | `'port'` | What to build: port, cruise, lighthouse, cemetery, airstrip, farm, village, compound, island, junkyard, shantytown, unfinished, fishingCamp, warehouse, ranch, arena, impound. |
 | `name` | `n` | str |  | The site's fictional name; left out, one is generated (never a real name). |
 | `id` |  | str |  | Stable id: slot ids and terrain ids start with site:<id>. Default <kind><n>. |
 | `culture` | `cu` | str | `'mexican'` | Naming culture for every name in the site. One of `oldEnglish`, `latin`, `french`, `spanish`, `usGrid`, `sector`, `mexican`. |
@@ -18299,9 +18329,9 @@ The site is a mesh whose Site Kit node lays it out live from its spec: buildings
 | `mausoleums` |  | float |  | Share of plots holding a family mausoleum instead of a grave, 0 to 1. (cemetery) |
 | `plotWidth` |  | float |  | Plot width, cm (mausoleums take one to two plots). (cemetery) |
 | `chapel` |  | bool |  | Chapel at the end of the main path. (cemetery) |
-| `runwayLength` |  | float |  | Runway length, cm. (airstrip) |
+| `runwayLength` |  | float |  | Runway length, cm. (airstrip, ranch) |
 | `runwayWidth` |  | float |  | Runway width, cm. (airstrip) |
-| `aircraft` |  | str |  | Aircraft class the corridors are cut for: light or twin. (airstrip) |
+| `aircraft` |  | str |  | Aircraft class the corridors are cut for: light or twin. (airstrip, ranch) |
 | `hangars` |  | int |  | Hangars on the apron. (airstrip) |
 | `fuelDrums` |  | int |  | Fuel drums by the hangar. (airstrip) |
 | `windsock` |  | bool |  | Windsock beside the runway. (airstrip) |
@@ -18334,6 +18364,35 @@ The site is a mesh whose Site Kit node lays it out live from its spec: buildings
 | `raiseIsland` |  | bool |  | Raise the ground inside the island radius above the water (an island where there was sea). (island) |
 | `dockLength` |  | float |  | Dock length out from the shore, cm. (island) |
 | `boats` |  | int |  | Boats moored at the dock. (island) |
+| `junkWidth` |  | float |  | Fenced yard along the front, cm. (junkyard) |
+| `junkDepth` |  | float |  | Fenced yard depth, cm. (junkyard) |
+| `wrecks` |  | int |  | Wrecked cars in the rows, stacks included. (junkyard) |
+| `stackHeight` |  | int |  | Highest wreck stack. (junkyard) |
+| `towTruck` |  | bool |  | Tow truck by the gate with a car on its bed. (junkyard) |
+| `shacks` |  | int |  | Shacks of block and sheet metal. (shantytown) |
+| `shantyRadius` |  | float |  | How far the shacks spread from the centre, cm. (shantytown) |
+| `towerFloors` |  | int |  | Floors of the concrete shell. (unfinished) |
+| `towerWidth` |  | float |  | Shell width along the front, cm. (unfinished) |
+| `towerDepth` |  | float |  | Shell depth, cm. (unfinished) |
+| `generatorTrailer` |  | bool |  | Generator on a trailer that can be hitched and towed away. (unfinished) |
+| `campLength` |  | float |  | Beach frontage, cm. (fishingCamp) |
+| `campShacks` |  | int |  | Shacks behind the beach. (fishingCamp) |
+| `pangas` |  | int |  | Pangas, beached or moored at the jetty. (fishingCamp) |
+| `jettyLength` |  | float |  | Jetty length out from the shore, cm (0 for none). (fishingCamp) |
+| `reeferTruck` |  | bool |  | Refrigerated truck on the track. (fishingCamp) |
+| `bodegaLength` |  | float |  | Warehouse length, cm. (warehouse) |
+| `bodegaDepth` |  | float |  | Warehouse depth, cm. (warehouse) |
+| `loadingDocks` |  | int |  | Loading docks along the warehouse front. (warehouse) |
+| `bodegaTrailers` |  | int |  | Trailers backed up to the docks. (warehouse) |
+| `freightRig` |  | bool |  | Tractor unit hitched to a loaded trailer by the gate. (warehouse) |
+| `ranchWidth` |  | float |  | Ranch yard along the front, cm. (ranch) |
+| `ranchDepth` |  | float |  | Ranch yard depth, cm. (ranch) |
+| `ranchRunway` |  | bool |  | Dirt runway behind the yard with a light plane. (ranch) |
+| `arenaRadius` |  | float |  | Arena radius, cm. (arena) |
+| `parking` |  | int |  | Trucks in the parking lot. (arena) |
+| `impoundWidth` |  | float |  | Fenced lot along the front, cm. (impound) |
+| `impoundDepth` |  | float |  | Fenced lot depth, cm. (impound) |
+| `impounded` |  | int |  | Seized vehicles in the rows. (impound) |
 
 ```python
 p = siteCreate(kind='port', terrain='Terrain', at=[0, -20000], quayLength=80000, tiers=5)
@@ -18392,9 +18451,9 @@ Change a site: its kit settings (the same flags as siteCreate, only its kind's),
 | `mausoleums` |  | float |  | Share of plots holding a family mausoleum instead of a grave, 0 to 1. (cemetery) |
 | `plotWidth` |  | float |  | Plot width, cm (mausoleums take one to two plots). (cemetery) |
 | `chapel` |  | bool |  | Chapel at the end of the main path. (cemetery) |
-| `runwayLength` |  | float |  | Runway length, cm. (airstrip) |
+| `runwayLength` |  | float |  | Runway length, cm. (airstrip, ranch) |
 | `runwayWidth` |  | float |  | Runway width, cm. (airstrip) |
-| `aircraft` |  | str |  | Aircraft class the corridors are cut for: light or twin. (airstrip) |
+| `aircraft` |  | str |  | Aircraft class the corridors are cut for: light or twin. (airstrip, ranch) |
 | `hangars` |  | int |  | Hangars on the apron. (airstrip) |
 | `fuelDrums` |  | int |  | Fuel drums by the hangar. (airstrip) |
 | `windsock` |  | bool |  | Windsock beside the runway. (airstrip) |
@@ -18427,6 +18486,35 @@ Change a site: its kit settings (the same flags as siteCreate, only its kind's),
 | `raiseIsland` |  | bool |  | Raise the ground inside the island radius above the water (an island where there was sea). (island) |
 | `dockLength` |  | float |  | Dock length out from the shore, cm. (island) |
 | `boats` |  | int |  | Boats moored at the dock. (island) |
+| `junkWidth` |  | float |  | Fenced yard along the front, cm. (junkyard) |
+| `junkDepth` |  | float |  | Fenced yard depth, cm. (junkyard) |
+| `wrecks` |  | int |  | Wrecked cars in the rows, stacks included. (junkyard) |
+| `stackHeight` |  | int |  | Highest wreck stack. (junkyard) |
+| `towTruck` |  | bool |  | Tow truck by the gate with a car on its bed. (junkyard) |
+| `shacks` |  | int |  | Shacks of block and sheet metal. (shantytown) |
+| `shantyRadius` |  | float |  | How far the shacks spread from the centre, cm. (shantytown) |
+| `towerFloors` |  | int |  | Floors of the concrete shell. (unfinished) |
+| `towerWidth` |  | float |  | Shell width along the front, cm. (unfinished) |
+| `towerDepth` |  | float |  | Shell depth, cm. (unfinished) |
+| `generatorTrailer` |  | bool |  | Generator on a trailer that can be hitched and towed away. (unfinished) |
+| `campLength` |  | float |  | Beach frontage, cm. (fishingCamp) |
+| `campShacks` |  | int |  | Shacks behind the beach. (fishingCamp) |
+| `pangas` |  | int |  | Pangas, beached or moored at the jetty. (fishingCamp) |
+| `jettyLength` |  | float |  | Jetty length out from the shore, cm (0 for none). (fishingCamp) |
+| `reeferTruck` |  | bool |  | Refrigerated truck on the track. (fishingCamp) |
+| `bodegaLength` |  | float |  | Warehouse length, cm. (warehouse) |
+| `bodegaDepth` |  | float |  | Warehouse depth, cm. (warehouse) |
+| `loadingDocks` |  | int |  | Loading docks along the warehouse front. (warehouse) |
+| `bodegaTrailers` |  | int |  | Trailers backed up to the docks. (warehouse) |
+| `freightRig` |  | bool |  | Tractor unit hitched to a loaded trailer by the gate. (warehouse) |
+| `ranchWidth` |  | float |  | Ranch yard along the front, cm. (ranch) |
+| `ranchDepth` |  | float |  | Ranch yard depth, cm. (ranch) |
+| `ranchRunway` |  | bool |  | Dirt runway behind the yard with a light plane. (ranch) |
+| `arenaRadius` |  | float |  | Arena radius, cm. (arena) |
+| `parking` |  | int |  | Trucks in the parking lot. (arena) |
+| `impoundWidth` |  | float |  | Fenced lot along the front, cm. (impound) |
+| `impoundDepth` |  | float |  | Fenced lot depth, cm. (impound) |
+| `impounded` |  | int |  | Seized vehicles in the rows. (impound) |
 
 ```python
 siteEdit('port1', tiers=6, fill=0.9)
@@ -18500,7 +18588,7 @@ Not undoable.
 
 ### siteList
 
-The sites in the scene: id, kind, name, mesh, terrain, slot and envelope counts.
+The sites in the scene: id, kind, name, mesh, terrain, slot and envelope counts, and the outline in world space.
 
 Not undoable.
 
@@ -18676,7 +18764,7 @@ Add a zone, or update one by id: its region from polygon=, polygons= (with holes
 | --- | --- | --- | --- | --- |
 | `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
 | `layer` | `l` | str |  | Layer id; made from type= when missing. |
-| `type` | `t` | str |  | Layer type when the layer is new (zoneTypes). One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `type` | `t` | str |  | Layer type when the layer is new (zoneTypes). One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`, `sites`. |
 | `id` | `i` | str |  | Zone id; the same id updates the zone. Default <layer>_<n>. |
 | `name` | `n` | str |  | Zone name; default a fictional one from the naming culture. |
 | `polygon` | `pg` | list |  | Outline [[x, z], ...] or [[x, y, z], ...], cm, world space. |
@@ -18771,7 +18859,7 @@ Zones from a Settlement's districts (the quarters between main roads, with their
 | `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
 | `settlement` | `st` | str |  | The settlement mesh (default the selected one). |
 | `layer` | `l` | str | `'districts'` | Layer id. |
-| `type` | `t` | str | `'district'` | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `type` | `t` | str | `'district'` | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`, `sites`. |
 | `attrs` | `at` | Any |  | Attributes every new zone gets. |
 | `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
 | `ground` | `g` | str |  | Terrain a new zone set drapes over. |
@@ -18782,6 +18870,32 @@ zoneFromDistricts(settlement='Mazatlan')
 
 ```python
 zoneFromDistricts(layer='police', type='police', attrs={'agency': 'municipal'})
+```
+
+### zoneFromSites
+
+Zones from site kits: one zone per site, its outline the site's, named as the site, into layer= (default sites, type sites). A site that already has a zone in the layer keeps the zone's name and attributes and only moves its outline; zones whose site is gone are dropped. attrsByKind gives new zones attributes per site kind. Sites keep their zones in step on their own: siteEdit moves them and siteRemove drops them. Returns the zones made, moved and dropped.
+
+**Objects:** zone set
+
+| Flag | Short | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
+| `sites` | `si` | list |  | Site ids (default every site). |
+| `layer` | `l` | str | `'sites'` | Layer id. |
+| `type` | `t` | str | `'sites'` | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`, `sites`. |
+| `attrs` | `at` | Any |  | Attributes every new zone gets. |
+| `attrsByKind` | `ak` | Any |  | Attributes new zones get by site kind: {kind: {name: value}}. |
+| `linkedOnly` | `lo` | bool | `False` | Only move or drop zones already made from these sites, in every zone set; make none. |
+| `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
+| `ground` | `g` | str |  | Terrain a new zone set drapes over. |
+
+```python
+zoneFromSites()
+```
+
+```python
+zoneFromSites(layer='raids', attrsByKind={'junkyard': {'faction': 'car thieves'}})
 ```
 
 ### zoneFromTerrain
@@ -18797,7 +18911,7 @@ Zones from a terrain's masks: one painted zone per mask (biomes=True takes every
 | `masks` | `m` | list |  | Mask names (terrainInfo lists them). |
 | `biomes` | `b` | bool | `False` | Every biome_ mask (terrainBiomes makes them). |
 | `layer` | `l` | str |  | Layer id; made from type= when missing. |
-| `type` | `t` | str |  | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `type` | `t` | str |  | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`, `sites`. |
 | `threshold` | `th` | float | `0.5` | Region layers: mask value from which a cell is in. |
 | `attrs` | `at` | Any |  | Attributes every new zone gets. |
 | `setName` | `sn` | str | `'Zones'` | Name of a new zone set. |
@@ -18866,7 +18980,7 @@ Add or edit a zone layer: id, type, label, priority (higher draws on top and win
 | --- | --- | --- | --- | --- |
 | `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
 | `layer` | `l` | str |  | Layer id; default the type's id. |
-| `type` | `t` | str |  | Layer type for a new layer (zoneTypes). One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `type` | `t` | str |  | Layer type for a new layer (zoneTypes). One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`, `sites`. |
 | `label` | `lb` | str |  | Display label. |
 | `priority` | `p` | int |  | Layer priority. |
 | `exclusive` | `ex` | bool |  | Zones may not overlap. |
@@ -18916,7 +19030,7 @@ Paint a zone's mask along points: dabs of radius cm a quarter radius apart, each
 | --- | --- | --- | --- | --- |
 | `set` | `zs` | str |  | The zone set (default the selected one, else the only one). |
 | `layer` | `l` | str |  | Layer id; made from type= when missing. |
-| `type` | `t` | str |  | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`. |
+| `type` | `t` | str |  | Layer type when the layer is new. One of `district`, `police`, `military`, `territory`, `pedSpawn`, `vehicleSpawn`, `boatSpawn`, `aircraftSpawn`, `traffic`, `pedestrians`, `wanted`, `interiors`, `missions`, `sites`. |
 | `zone` | `z` | str |  | Zone id; made when missing (default <layer>_<n>). |
 | `name` | `n` | str |  | Name of a new zone; default a fictional one. |
 | `points` | `pt` | list |  | Stroke points [[x, z], ...] or [[x, y, z], ...], world cm. |
