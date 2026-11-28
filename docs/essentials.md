@@ -323,14 +323,14 @@ A live bevel that picks the edges for you: folds sharper than **Min Angle**, fil
 
 **Model > Split Rings** or **Shift+RMB Marking Menu**
 
-Subdivides one way only: adds edge loops without the cross cuts a full subdivide makes. Select edges to split every ring through them, or faces (or a whole mesh in object mode) to split them in one direction.
+Subdivides one way only: adds edge loops without the cross cuts a full subdivide makes. Select edges to add loops parallel to them in the faces on each side, or faces (or a whole mesh in object mode) to split them in one direction.
 
 To add loops around a band, select its faces all the way round, such as the front face of a ring. With **Direction** on **Across**, the new loops follow the band.
 
 ![Selecting the front faces of a ring for Split Rings](images/essentials/split-rings-select.png)
 
 - **Count** sets the loops per ring, evenly spaced.
-- **Direction** picks the way across faces: **Across** cuts the selection's short way, **Along** the long way.
+- **Direction** on edges: **Along** adds loops beside the edges, **Across** cuts through them. On faces: **Across** cuts the selection's short way, **Along** the long way.
 - **Edge Flow** curves the new loops to follow the surface instead of lying flat.
 - **Make Non-Destructive** turns it into a Split Rings modifier you can change later.
 
