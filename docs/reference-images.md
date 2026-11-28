@@ -33,6 +33,15 @@ For likeness work, match the camera to each photo once and come back to it later
 2. Click **Duplicate** in the overlay toolbar and crop the copy to the side view. Do the same for the back.
 3. Bind each one to its view, as above, so each shows only from its own side.
 
+## Show an image plane in some views only
+
+Select the image planes and tick the views they should show in under **Create > Reference Images > Image Plane Views**, for example **Persp** and **Front** only. **All Views** puts them back everywhere. Each view's **Overlays > Image Planes** menu (the eye in the view's header) also lists every image plane, ticked where it shows in that view.
+
+```python
+imagePlaneView("frontRef", view="front", mode="only")
+imagePlaneView("frontRef", view="persp", mode="add")
+```
+
 ## Repose a drawing
 
 When a character sheet has the arms at a poor angle, cut its image plane at the joints and turn the pieces. Tear off **Create > Reference Images** to keep it beside you.
